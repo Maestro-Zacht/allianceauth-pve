@@ -2,6 +2,10 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 
+from allianceauth.authentication.models import State
+
+from .managers import EntryCharacterManager
+
 
 class Rotation(models.Model):
     name = models.CharField(max_length=128)
@@ -15,9 +19,10 @@ class Rotation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     closed_at = models.DateTimeField(blank=True, null=True)
 
-    characters = models.ManyToManyField(settings.AUTH_USER_MODEL, through='RotationStats', related_name='rotations')
+    priority = models.IntegerField(default=0, help_text='Ordering priority. The higher priorities are in the first positions.')
 
-    priority = models.IntegerField(default=0)
+    accessible_to_states = models.ManyToManyField(State, related_name='+', help_text='People in the selected states will be able to see the rotation.')
+    accessible_to_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='+', help_text='Selected people will be able to see the rotation.')
 
     @property
     def days_since(self):
@@ -36,11 +41,13 @@ class Rotation(models.Model):
 
 class EntryCharacter(models.Model):
     share_count = models.PositiveIntegerField(default=1)
-    entry = models.ForeignKey('Entry', on_delete=models.CASCADE, related_name='+')
-    character = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='+')
+    entry = models.ForeignKey('Entry', on_delete=models.CASCADE, related_name='ratting_shares')
+    character = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='ratting_shares')
     helped_setup = models.BooleanField(default=False)
     estimated_share_total = models.FloatField(default=0)
     actual_share_total = models.FloatField(default=0)
+
+    objects = EntryCharacterManager()
 
     @property
     def estimated_total(self):
@@ -58,7 +65,7 @@ class EntryCharacter(models.Model):
 
 class Entry(models.Model):
     rotation = models.ForeignKey('Rotation', on_delete=models.CASCADE, related_name='entries')
-    shares = models.ManyToManyField(settings.AUTH_USER_MODEL, through=EntryCharacter)
+    shares = models.ManyToManyField(settings.AUTH_USER_MODEL, through=EntryCharacter, related_name='+')
     estimated_total = models.FloatField(default=0)
     total_shares_count = models.IntegerField(default=0)
 
@@ -93,16 +100,3 @@ class Entry(models.Model):
                     estimated_share_total=(models.F('estimated_total_after_tax') / models.Value(self.total_shares_count)) * models.F('share_count'),
                     actual_share_total=(models.F('actual_total_after_tax') / models.Value(self.total_shares_count)) * models.F('share_count')
                 )
-
-
-class RotationStats(models.Model):
-    rotation = models.ForeignKey('Rotation', on_delete=models.CASCADE, related_name='summary')
-    character = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='rotations_stats')
-    estimated_total = models.FloatField(default=0)
-    actual_total = models.FloatField(default=0)
-    helped_setup = models.IntegerField(default=0)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['rotation', 'character'], name='unique_char_stats'),
-        ]
