@@ -10,7 +10,9 @@ with open('README.md') as readme_file:
 with open('HISTORY.md') as history_file:
     history = history_file.read()
 
-requirements = []
+requirements = [
+    'allianceauth>=2.11.2,<3.0.0',
+]
 
 test_requirements = []
 
@@ -48,6 +50,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/Maestro-Zacht/allianceauth-pve',
-    version='0.1.0',
+    version='0.2.0',
     zip_safe=False,
 )
