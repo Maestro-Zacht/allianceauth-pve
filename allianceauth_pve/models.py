@@ -4,13 +4,14 @@ from django.utils import timezone
 
 from allianceauth.authentication.models import State
 
-from .managers import EntryCharacterManager
-
 
 class Rotation(models.Model):
     name = models.CharField(max_length=128)
 
     actual_total = models.FloatField(default=0)
+
+    max_daily_setups = models.PositiveSmallIntegerField(default=1, help_text='The maximum number of helped setup per day. If more are submitted, only this number is counted. 0 for deactivating helped setups.')
+    min_people_share_setup = models.PositiveSmallIntegerField(default=3, help_text='The minimum number of people in an entry to consider the helped setup valid.')
 
     tax_rate = models.FloatField(default=0)
     is_closed = models.BooleanField(default=False)
@@ -18,6 +19,8 @@ class Rotation(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     closed_at = models.DateTimeField(blank=True, null=True)
+
+    partecipants = models.ManyToManyField(settings.AUTH_USER_MODEL, through='RotationStats', related_name='rotations')
 
     priority = models.IntegerField(default=0, help_text='Ordering priority. The higher priorities are in the first positions.')
 
@@ -31,9 +34,7 @@ class Rotation(models.Model):
     @property
     def sales_percentage(self):
         rotation = self.entries.aggregate(estimated_total=models.Sum('estimated_total'))
-        if not self.actual_total or not rotation['estimated_total']:
-            return 0.00
-        return self.actual_total / rotation['estimated_total']
+        return 0.00 if not self.actual_total or not rotation['estimated_total'] else self.actual_total / rotation['estimated_total']
 
     def __str__(self):
         return f'{self.pk} {self.name}'
@@ -46,8 +47,6 @@ class EntryCharacter(models.Model):
     helped_setup = models.BooleanField(default=False)
     estimated_share_total = models.FloatField(default=0)
     actual_share_total = models.FloatField(default=0)
-
-    objects = EntryCharacterManager()
 
     @property
     def estimated_total(self):
@@ -100,3 +99,16 @@ class Entry(models.Model):
                     estimated_share_total=(models.F('estimated_total_after_tax') / models.Value(self.total_shares_count)) * models.F('share_count'),
                     actual_share_total=(models.F('actual_total_after_tax') / models.Value(self.total_shares_count)) * models.F('share_count')
                 )
+
+
+class RotationStats(models.Model):
+    rotation = models.ForeignKey('Rotation', on_delete=models.CASCADE, related_name='summary')
+    character = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='rotations_stats')
+    estimated_total = models.FloatField(default=0)
+    actual_total = models.FloatField(default=0)
+    helped_setup = models.IntegerField(default=0)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['rotation', 'character'], name='unique_char_stats'),
+        ]
