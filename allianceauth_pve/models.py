@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.db.models.functions import Coalesce
 
 from allianceauth.authentication.models import State
 
@@ -36,6 +37,10 @@ class Rotation(models.Model):
         rotation = self.entries.aggregate(estimated_total=models.Sum('estimated_total'))
         return 0.00 if not self.actual_total or not rotation['estimated_total'] else self.actual_total / rotation['estimated_total']
 
+    @property
+    def estimated_total(self):
+        return self.entries.aggregate(estimated_total=Coalesce(models.Sum('estimated_total'), 0))['estimated_total']
+
     def __str__(self):
         return f'{self.pk} {self.name}'
 
@@ -66,15 +71,18 @@ class Entry(models.Model):
     rotation = models.ForeignKey('Rotation', on_delete=models.CASCADE, related_name='entries')
     shares = models.ManyToManyField(settings.AUTH_USER_MODEL, through=EntryCharacter, related_name='+')
     estimated_total = models.FloatField(default=0)
-    total_shares_count = models.IntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='+')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, related_name='+')
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'entry'
         verbose_name_plural = 'entries'
+
+    @property
+    def total_shares_count(self):
+        return self.shares.aggregate(val=Coalesce(models.Sum('share_count'), 0))["val"]
 
     @property
     def estimated_total_after_tax(self):
@@ -86,8 +94,8 @@ class Entry(models.Model):
         return self.estimated_total_after_tax * self.rotation.sales_percentage
 
     def update_share_totals(self):
-        self.total_shares_count = self.shares.aggregate(val=models.Sum('share_count'))["val"]
-        if self.total_shares_count == 0 or self.total_shares_count is None:
+        shares_count = self.total_shares_count
+        if shares_count == 0:
             self.delete()
         else:
             self.save()
@@ -96,8 +104,8 @@ class Entry(models.Model):
                 .annotate(estimated_total_after_tax=models.Value(self.estimated_total) * (models.Value(100) - models.Value(self.rotation.tax_rate)) / models.Value(100))\
                 .annotate(actual_total_after_tax=models.F('estimated_total_after_tax') * models.Value(self.rotation.sales_percentage))\
                 .update(
-                    estimated_share_total=(models.F('estimated_total_after_tax') / models.Value(self.total_shares_count)) * models.F('share_count'),
-                    actual_share_total=(models.F('actual_total_after_tax') / models.Value(self.total_shares_count)) * models.F('share_count')
+                    estimated_share_total=(models.F('estimated_total_after_tax') / models.Value(shares_count)) * models.F('share_count'),
+                    actual_share_total=(models.F('actual_total_after_tax') / models.Value(shares_count)) * models.F('share_count')
                 )
 
 
