@@ -25,17 +25,14 @@ class Rotation(models.Model):
 
     priority = models.IntegerField(default=0, help_text='Ordering priority. The higher priorities are in the first positions.')
 
-    accessible_to_states = models.ManyToManyField(State, related_name='+', help_text='People in the selected states will be able to see the rotation.')
-    accessible_to_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='+', help_text='Selected people will be able to see the rotation.')
-
     @property
     def days_since(self):
         return (timezone.now() - self.created_at).days
 
     @property
     def sales_percentage(self):
-        rotation = self.entries.aggregate(estimated_total=models.Sum('estimated_total'))
-        return 0.00 if not self.actual_total or not rotation['estimated_total'] else self.actual_total / rotation['estimated_total']
+        estimated = self.estimated_total
+        return 0.00 if not self.actual_total or estimated == 0 else self.actual_total / estimated
 
     @property
     def estimated_total(self):
@@ -43,6 +40,12 @@ class Rotation(models.Model):
 
     def __str__(self):
         return f'{self.pk} {self.name}'
+
+    class Meta:
+        default_permissions = ('add', 'change', 'view')
+        permissions = [
+            ('close', 'Can close rotations'),
+        ]
 
 
 class EntryCharacter(models.Model):
