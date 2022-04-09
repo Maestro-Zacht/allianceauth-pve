@@ -58,6 +58,9 @@ class EntryService:
     def create_entry(user, rotation_id, estimated_total, shares):
         rotation = Rotation.objects.get(pk=rotation_id)
 
+        if rotation.is_closed:
+            return Exception('Rotation is closed')
+
         if estimated_total < 0 or estimated_total > 1000000000000:
             raise Exception('Total not valid')
 
@@ -77,6 +80,9 @@ class EntryService:
             raise Exception('Total not valid')
 
         entry: Entry = Entry.objects.get(pk=entry_id)
+
+        if entry.rotation.is_closed:
+            return Exception('Rotation is closed')
 
         entry.estimated_total = estimated_total
         entry.save()
