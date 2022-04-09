@@ -39,7 +39,7 @@ class Rotation(models.Model):
 
     @property
     def estimated_total(self):
-        return self.entries.aggregate(estimated_total=Coalesce(models.Sum('estimated_total'), 0))['estimated_total']
+        return self.entries.aggregate(estimated_total=Coalesce(models.Sum('estimated_total'), 0.0))['estimated_total']
 
     def __str__(self):
         return f'{self.pk} {self.name}'
@@ -82,7 +82,7 @@ class Entry(models.Model):
 
     @property
     def total_shares_count(self):
-        return self.shares.aggregate(val=Coalesce(models.Sum('share_count'), 0))["val"]
+        return self.ratting_shares.aggregate(val=Coalesce(models.Sum('share_count'), 0))["val"]
 
     @property
     def estimated_total_after_tax(self):
