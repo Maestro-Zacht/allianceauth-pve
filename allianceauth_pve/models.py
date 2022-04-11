@@ -21,8 +21,6 @@ class Rotation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     closed_at = models.DateTimeField(blank=True, null=True)
 
-    partecipants = models.ManyToManyField(settings.AUTH_USER_MODEL, through='RotationStats', related_name='rotations')
-
     priority = models.IntegerField(default=0, help_text='Ordering priority. The higher priorities are in the first positions.')
 
     @property
@@ -112,14 +110,15 @@ class Entry(models.Model):
                 )
 
 
-class RotationStats(models.Model):
+class RotationSummary(models.Model):
+    id = models.BigIntegerField(primary_key=True)
     rotation = models.ForeignKey('Rotation', on_delete=models.CASCADE, related_name='summary')
     character = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='rotations_stats')
-    estimated_total = models.FloatField(default=0)
-    actual_total = models.FloatField(default=0)
-    helped_setup = models.IntegerField(default=0)
+    entry_date = models.DateField()
+    estimated_total = models.FloatField()
+    actual_total = models.FloatField()
+    valid_setups = models.IntegerField()
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['rotation', 'character'], name='unique_char_stats'),
-        ]
+        managed = False  # this is a view, check 0003
+        db_table = 'allianceauth_pve_rotation_summary'
