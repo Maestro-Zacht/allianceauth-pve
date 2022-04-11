@@ -3,21 +3,24 @@ from django.conf import settings
 from django.utils import timezone
 from django.db.models.functions import Coalesce
 
+from allianceauth.services.hooks import get_extension_logger
+
+logger = get_extension_logger(__name__)
+
 
 class RotationQueryset(models.QuerySet):
-    def get_summary(self):
-        return RotationSummary.objects.filter(rotation__in=self).order_by().values('character')\
-            .annotate(total_setups=models.Sum('valid_setups'))\
-            .annotate(estimated_total_s=models.Sum('estimated_total'))\
-            .annotate(actual_total_s=models.Sum('actual_total'))
+    def get_setup_summary(self):
+        return RotationSetupSummary.objects.filter(rotation__in=self).order_by().values('character')\
+            .annotate(total_setups=Coalesce(models.Sum('valid_setups'), 0))\
+
 
 
 class RotationManager(models.Manager):
     def get_queryset(self):
         return RotationQueryset(self.model, using=self._db)
 
-    def get_summary(self):
-        return self.get_queryset().get_summary()
+    def get_setup_summary(self):
+        return self.get_queryset().get_setup_summary()
 
 
 class Rotation(models.Model):
@@ -41,7 +44,11 @@ class Rotation(models.Model):
 
     @property
     def summary(self):
-        return Rotation.objects.filter(pk=self.pk).get_summary()
+        setup_summary = Rotation.objects.filter(pk=self.pk).get_setup_summary().filter(character_id=models.OuterRef('character_id')).values('total_setups')
+        return EntryCharacter.objects.filter(entry__rotation=self).values('character').order_by()\
+            .annotate(helped_setups=Coalesce(models.Subquery(setup_summary[:1]), 0))\
+            .annotate(estimated_total=models.Sum('estimated_share_total'))\
+            .annotate(actual_total=models.Sum('actual_share_total'))
 
     @property
     def days_since(self):

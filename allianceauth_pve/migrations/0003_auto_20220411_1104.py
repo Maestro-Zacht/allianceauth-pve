@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
                         END
                     )
                     ELSE `allianceauth_pve_rotation`.`max_daily_setups`
-                END AS `valid_setups`,
+                END AS `valid_setups`
             FROM `allianceauth_pve_entrycharacter`
                 INNER JOIN `allianceauth_pve_entry` ON (
                     `allianceauth_pve_entrycharacter`.`entry_id` = `allianceauth_pve_entry`.`id`
@@ -58,6 +58,6 @@ class Migration(migrations.Migration):
                 DATE(`allianceauth_pve_entry`.`created_at`),
                 `allianceauth_pve_rotation`.`id`;
             """,
-            reverse_sql='DROP VIEW `allianceauth_pve_rotation_summary`'
+            reverse_sql='DROP VIEW IF EXISTS `allianceauth_pve_rotation_summary`'
         )
     ]
