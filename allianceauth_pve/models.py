@@ -6,7 +6,7 @@ from django.db.models.functions import Coalesce
 
 class RotationQueryset(models.QuerySet):
     def get_summary(self):
-        return RotationSummary.objects.filter(rotation__in=self).values('character')\
+        return RotationSummary.objects.filter(rotation__in=self).order_by().values('character')\
             .annotate(total_setups=models.Sum('valid_setups'))\
             .annotate(estimated_total_s=models.Sum('estimated_total'))\
             .annotate(actual_total_s=models.Sum('actual_total'))
@@ -38,6 +38,10 @@ class Rotation(models.Model):
     priority = models.IntegerField(default=0, help_text='Ordering priority. The higher priorities are in the first positions.')
 
     objects = RotationManager()
+
+    @property
+    def summary(self):
+        return Rotation.objects.filter(pk=self.pk).get_summary()
 
     @property
     def days_since(self):
