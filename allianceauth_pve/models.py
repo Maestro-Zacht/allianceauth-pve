@@ -3,7 +3,21 @@ from django.conf import settings
 from django.utils import timezone
 from django.db.models.functions import Coalesce
 
-from allianceauth.authentication.models import State
+
+class RotationQueryset(models.QuerySet):
+    def get_summary(self):
+        return RotationSummary.objects.filter(rotation__in=self).values('character')\
+            .annotate(total_setups=models.Sum('valid_setups'))\
+            .annotate(estimated_total_s=models.Sum('estimated_total'))\
+            .annotate(actual_total_s=models.Sum('actual_total'))
+
+
+class RotationManager(models.Manager):
+    def get_queryset(self):
+        return RotationQueryset(self.model, using=self._db)
+
+    def get_summary(self):
+        return self.get_queryset().get_summary()
 
 
 class Rotation(models.Model):
@@ -22,6 +36,8 @@ class Rotation(models.Model):
     closed_at = models.DateTimeField(blank=True, null=True)
 
     priority = models.IntegerField(default=0, help_text='Ordering priority. The higher priorities are in the first positions.')
+
+    objects = RotationManager()
 
     @property
     def days_since(self):
@@ -112,7 +128,7 @@ class Entry(models.Model):
 
 class RotationSummary(models.Model):
     id = models.BigIntegerField(primary_key=True)
-    rotation = models.ForeignKey('Rotation', on_delete=models.CASCADE, related_name='summary')
+    rotation = models.ForeignKey(Rotation, on_delete=models.CASCADE, related_name='summary')
     character = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='rotations_stats')
     entry_date = models.DateField()
     estimated_total = models.FloatField()
