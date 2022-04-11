@@ -69,7 +69,7 @@ class Rotation(models.Model):
     class Meta:
         default_permissions = ('add', 'change', 'view')
         permissions = [
-            ('close', 'Can close rotations'),
+            ('close_rotation', 'Can close rotations'),
         ]
 
 
