@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RunSQL(
             sql="""
-            CREATE VIEW `allianceauth_pve_rotation_summary` AS
+            CREATE VIEW `allianceauth_pve_setup_summary` AS
             SELECT row_number() OVER () as id,
                 `allianceauth_pve_rotation`.`id` AS `rotation_id`,
                 `allianceauth_pve_entrycharacter`.`character_id` AS `character_id`,
@@ -39,8 +39,6 @@ class Migration(migrations.Migration):
                     )
                     ELSE `allianceauth_pve_rotation`.`max_daily_setups`
                 END AS `valid_setups`,
-                SUM(`allianceauth_pve_entrycharacter`.`estimated_share_total`) as `estimated_total`,
-                SUM(`allianceauth_pve_entrycharacter`.`actual_share_total`) as `actual_total`
             FROM `allianceauth_pve_entrycharacter`
                 INNER JOIN `allianceauth_pve_entry` ON (
                     `allianceauth_pve_entrycharacter`.`entry_id` = `allianceauth_pve_entry`.`id`

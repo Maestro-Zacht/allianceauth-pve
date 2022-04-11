@@ -130,15 +130,13 @@ class Entry(models.Model):
                 )
 
 
-class RotationSummary(models.Model):
+class RotationSetupSummary(models.Model):
     id = models.BigIntegerField(primary_key=True)
-    rotation = models.ForeignKey(Rotation, on_delete=models.CASCADE, related_name='summary')
+    rotation = models.ForeignKey(Rotation, on_delete=models.CASCADE, related_name='+')
     character = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='rotations_stats')
     entry_date = models.DateField()
-    estimated_total = models.FloatField()
-    actual_total = models.FloatField()
     valid_setups = models.IntegerField()
 
     class Meta:
         managed = False  # this is a view, check 0003
-        db_table = 'allianceauth_pve_rotation_summary'
+        db_table = 'allianceauth_pve_setup_summary'
