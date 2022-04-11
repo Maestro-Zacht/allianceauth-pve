@@ -1,6 +1,9 @@
 History
 =======
 
+## v0.3.1 (2022-04-11)
+* fixed permission name
+
 ## v0.3.0 (2022-04-11)
 * Rotation summary is now dynamic
 
