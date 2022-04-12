@@ -50,6 +50,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/Maestro-Zacht/allianceauth-pve',
-    version='0.3.1',
+    version='0.3.2',
     zip_safe=False,
 )
