@@ -10,7 +10,7 @@ logger = get_extension_logger(__name__)
 
 class RotationQueryset(models.QuerySet):
     def get_setup_summary(self):
-        return RotationSetupSummary.objects.filter(rotation__in=self).order_by().values('character')\
+        return RotationSetupSummary.objects.filter(rotation__in=self).order_by().values('user')\
             .annotate(total_setups=Coalesce(models.Sum('valid_setups'), 0))\
 
 
@@ -44,8 +44,8 @@ class Rotation(models.Model):
 
     @property
     def summary(self):
-        setup_summary = Rotation.objects.filter(pk=self.pk).get_setup_summary().filter(character_id=models.OuterRef('character_id')).values('total_setups')
-        return EntryCharacter.objects.filter(entry__rotation=self).values('character').order_by()\
+        setup_summary = Rotation.objects.filter(pk=self.pk).get_setup_summary().filter(user_id=models.OuterRef('user_id')).values('total_setups')
+        return EntryCharacter.objects.filter(entry__rotation=self).values('user').order_by()\
             .annotate(helped_setups=Coalesce(models.Subquery(setup_summary[:1]), 0))\
             .annotate(estimated_total=models.Sum('estimated_share_total'))\
             .annotate(actual_total=models.Sum('actual_share_total'))
@@ -76,7 +76,7 @@ class Rotation(models.Model):
 class EntryCharacter(models.Model):
     share_count = models.PositiveIntegerField(default=1)
     entry = models.ForeignKey('Entry', on_delete=models.CASCADE, related_name='ratting_shares')
-    character = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='ratting_shares')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='ratting_shares')
     helped_setup = models.BooleanField(default=False)
     estimated_share_total = models.FloatField(default=0)
     actual_share_total = models.FloatField(default=0)
@@ -88,11 +88,6 @@ class EntryCharacter(models.Model):
     @property
     def actual_total(self):
         return (self.entry.actual_total_after_tax / self.entry.total_shares_count) * self.share_count
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['entry', 'character'], name='unique_character'),
-        ]
 
 
 class Entry(models.Model):
@@ -140,7 +135,7 @@ class Entry(models.Model):
 class RotationSetupSummary(models.Model):
     id = models.BigIntegerField(primary_key=True)
     rotation = models.ForeignKey(Rotation, on_delete=models.CASCADE, related_name='+')
-    character = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='rotations_stats')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='rotations_stats')
     entry_date = models.DateField()
     valid_setups = models.IntegerField()
 

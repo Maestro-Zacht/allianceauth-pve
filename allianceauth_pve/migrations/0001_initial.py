@@ -85,12 +85,4 @@ class Migration(migrations.Migration):
             name='shares',
             field=models.ManyToManyField(related_name='_allianceauth_pve_entry_shares_+', through='allianceauth_pve.EntryCharacter', to=settings.AUTH_USER_MODEL),
         ),
-        migrations.AddConstraint(
-            model_name='rotationstats',
-            constraint=models.UniqueConstraint(fields=('rotation', 'character'), name='unique_char_stats'),
-        ),
-        migrations.AddConstraint(
-            model_name='entrycharacter',
-            constraint=models.UniqueConstraint(fields=('entry', 'character'), name='unique_character'),
-        ),
     ]

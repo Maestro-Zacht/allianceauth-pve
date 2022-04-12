@@ -9,7 +9,7 @@ class EntryService:
         EntryCharacter.objects.bulk_create([
             EntryCharacter(
                 entry=entry,
-                character_id=row.character_id,
+                user_id=row.user_id,
                 share_count=row.share_count,
                 helped_setup=row.helped_setup
             ) for row in shares

@@ -12,7 +12,7 @@ class RotationAdmin(admin.ModelAdmin):
 
 class EntryCharacterInline(admin.TabularInline):
     model = Entry.shares.through
-    raw_id_fields = ('character', )
+    raw_id_fields = ('user', )
 
 
 @admin.register(Entry)
