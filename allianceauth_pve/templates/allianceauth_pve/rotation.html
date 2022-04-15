@@ -20,34 +20,32 @@
         max-height: 100vh;
         margin: 0;
     }
-
-    {% comment %} hr {
-        border: 0;
-        clear:both;
-        display:block;
-        width: 1px;               
-        height: 96%;
-    } {% endcomment %}
 </style>
 {% endblock extra_css %}
 
 {% block content %}
     <div class="col-lg-12">
-        <h1 class="page-header text-center">Rotation: {{ rotation.name }}</h1>
+        <h1 class="page-header text-center">{{ rotation.name }}</h1>
+        <a href="#">Back to dashboard</a>
         <div class="panel panel-default">
             <div class="row-pve">
                 <div class="column-pve">
-                    <p class="text-center">Age</p>
-                    <p class="text-center">{{ rotation.days_since }} days</p>
+                    {% if rotation.is_closed %}
+                        <p class="text-center">Status</p>
+                        <p class="text-center"><b>Closed</b></p>
+                    {% else %}
+                        <p class="text-center">Age</p>
+                        <p class="text-center">{{ rotation.days_since }} days</p>
+                    {% endif %}
                 </div>
                 <div class="column-pve">
                     <p class="text-center">Estimated Total</p>
-                    <p class="text-center">{{ rotation.estimated_total|floatformat:0|intcomma }}</p>
+                    <p class="text-center">{{ rotation.estimated_total|floatformat|intcomma }}</p>
                 </div>
                 {% if rotation.is_closed %}
                 <div class="column-pve">
                     <p class="text-center">Actual Total</p>
-                    <p class="text-center">{{ rotation.actual_total|floatformat:0|intcomma }}</p>
+                    <p class="text-center">{{ rotation.actual_total|floatformat|intcomma }}</p>
                 </div>
                 {% endif %}
                 <div class="column-pve">
@@ -85,9 +83,9 @@
                                     </td>
                                     <td>{{ row.helped_setups }}</td>
                                     {% if rotation.is_closed %}
-                                        <td>{{ row.actual_total|floatformat:0|intcomma }}</td>
+                                        <td>{{ row.actual_total|floatformat|intcomma }}</td>
                                     {% endif %}
-                                    <td>{{ row.estimated_total|floatformat:0|intcomma }}</td>
+                                    <td>{{ row.estimated_total|floatformat|intcomma }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -117,9 +115,9 @@
                                     </td>
                                     <td>{{ row.helped_setups }}</td>
                                     {% if rotation.is_closed %}
-                                        <td>{{ row.actual_total|floatformat:0|intcomma }}</td>
+                                        <td>{{ row.actual_total|floatformat|intcomma }}</td>
                                     {% endif %}
-                                    <td>{{ row.estimated_total|floatformat:0|intcomma }}</td>
+                                    <td>{{ row.estimated_total|floatformat|intcomma }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -127,32 +125,37 @@
                 </div>
             </div>
         </div>
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h3 class="panel-title text-center">Entries</h3>
+        {% if not rotation.is_closed %}
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title text-center">Entries</h3>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-aa">
+                        <thead>
+                            <th scope="row">Date</th>
+                            <th scope="row">Share Count</th>
+                            <th scope="row">Total After Tax</th>
+                            <th scope="row">Total</th>
+                            <th scope="row">Created By</th>
+                            <th></th>
+                        </thead>
+                        <tbody>
+                            {% for entry in entries.all %}
+                                <tr>
+                                    <td>{{ entry.created_at|date:"d/m/Y G:i e" }}</td>
+                                    <td>{{ entry.total_shares_count }}</td>
+                                    <td>{{ entry.estimated_total_after_tax|floatformat|intcomma }}</td>
+                                    <td>{{ entry.estimated_total|floatformat|intcomma }}</td>
+                                    <td>{{ entry.created_by.profile.main_character.character_name }}</td>
+                                    <td><i class="fad fa-chevron-right"></i></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <caption><a href="#">Show All</a></caption>
+                    </table>
+                </div>
             </div>
-            <div class="panel-body">
-                <table class="table table-aa">
-                    <thead>
-                        <th scope="row">Date</th>
-                        <th scope="row">Share Count</th>
-                        <th scope="row">Total After Tax</th>
-                        <th scope="row">Total</th>
-                        <th scope="row">Created By</th>
-                    </thead>
-                    <tbody>
-                        {% for entry in entries.all %}
-                            <tr>
-                                <td>{{ entry.created_at|date:"d/m/Y G:i e" }}</td>
-                                <td>{{ entry.total_shares_count }}</td>
-                                <td>{{ entry.estimated_total_after_tax|floatformat:0|intcomma }}</td>
-                                <td>{{ entry.estimated_total|floatformat:0|intcomma }}</td>
-                                <td>{{ entry.created_by.profile.main_character.character_name }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        {% endif %}
     </div>
 {% endblock content %}

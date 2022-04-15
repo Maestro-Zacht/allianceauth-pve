@@ -22,7 +22,7 @@ def rotation_view(request, rotation_id):
                 **row,
             } for row in r.summary[summary_count_half:]
         ],
-        'entries': r.entries.all()[:10],
+        'entries': r.entries.order_by('-created_at')[:10],
     }
 
     return render(request, 'allianceauth_pve/rotation.html', context=context)
