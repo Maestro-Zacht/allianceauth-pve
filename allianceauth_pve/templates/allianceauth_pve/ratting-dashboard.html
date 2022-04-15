@@ -1,0 +1,93 @@
+{% extends 'allianceauth/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block page_title %}PvE Dashboard{% endblock page_title %}
+
+{% block extra_css %}
+{% endblock extra_css %}
+
+{% block content %}
+    <div class="col-lg-12">
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a data-toggle="tab" href="#open">
+                    Open Rotations
+                    <span class="badge">todo</span>
+                </a>
+            </li>
+
+            <li>
+                <a data-toggle="tab" href="#closed">
+                    Closed Rotations
+                </a>
+            </li>
+        </ul>
+
+        <div class="panel panel-default panel-tabs-aa">
+            <div class="panel-body">
+                <div class="tab-content">
+                    <div id="open" class="tab-pane active">
+                        {% if open_rots.count > 0 %}
+                            <div class="table-responsive">
+                                <table class="table table-aa">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 25%;">Name</th>
+                                            <th style="width: 25%;">Age</th>
+                                            <th style="width: 25%;">Partecipants</th>
+                                            <th style="width: 25%;">Current Total</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for rotation in open_rots.all %}
+                                            <tr>
+                                                <td style="width: 25%;"><a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}">{{ rotation.name }}</a></td>
+                                                <td style="width: 25%;">{{ rotation.days_since }}</td>
+                                                <td style="width: 25%;">{{ rotation.summary.count }}</td>
+                                                <td style="width: 25%;">{{ rotation.estimated_total|floatformat|intcomma }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning text-center">No open rotations</div>
+                        {% endif %}
+                    </div>
+
+                    <div id="closed" class="tab-pane">
+                        {% if closed_rots.count > 0 %}
+                            <div class="table-responsive">
+                                <table class="table table-aa">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 25%;">Name</th>
+                                            <th style="width: 25%;">Closed On</th>
+                                            <th style="width: 25%;">Partecipants</th>
+                                            <th style="width: 25%;">Total</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for rotation in closed_rots %}
+                                            <tr>
+                                                <td style="width: 25%;"><a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}">{{ rotation.name }}</a></td>
+                                                <td style="width: 25%;">{{ rotation.closed_at }}</td>
+                                                <td style="width: 25%;">{{ rotation.summary.count }}</td>
+                                                <td style="width: 25%;">{{ rotation.actual_total|floatformat|intcomma }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning text-center">No open rotations</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
