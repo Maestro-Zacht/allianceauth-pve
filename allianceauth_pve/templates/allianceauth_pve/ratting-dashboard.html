@@ -13,7 +13,7 @@
             <li class="active">
                 <a data-toggle="tab" href="#open">
                     Open Rotations
-                    <span class="badge">todo</span>
+                    <span class="badge">{{ open_rots.count }}</span>
                 </a>
             </li>
 
@@ -80,6 +80,10 @@
                                             </tr>
                                         {% endfor %}
                                     </tbody>
+
+                                    {% if closed_rots.count >= 10 %}
+                                        <caption><a href="#">Show All</a></caption>
+                                    {% endif %}
                                 </table>
                             </div>
                         {% else %}

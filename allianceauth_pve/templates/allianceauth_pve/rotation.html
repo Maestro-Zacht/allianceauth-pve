@@ -146,7 +146,9 @@
                                 </tr>
                             {% endfor %}
                         </tbody>
-                        <caption><a href="#">Show All</a></caption>
+                        {% if entries.count >= 10 %}
+                            <caption><a href="#">Show All</a></caption>
+                        {% endif %}
                     </table>
                 </div>
             </div>
