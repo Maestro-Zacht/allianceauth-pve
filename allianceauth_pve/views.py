@@ -37,6 +37,10 @@ def rotation_view(request, rotation_id):
     r = Rotation.objects.get(pk=rotation_id)
     summary = r.summary.order_by('-estimated_total')
     summary_count_half = summary.count() // 2 + 1
+
+    entries_paginator = Paginator(r.entries.order_by('-created_at'), 10)
+    page = request.GET.get('page')
+
     context = {
         'rotation': r,
         'summary_first': [
@@ -51,7 +55,7 @@ def rotation_view(request, rotation_id):
                 **row,
             } for row in summary[summary_count_half:]
         ],
-        'entries': r.entries.order_by('-created_at')[:10],
+        'entries': entries_paginator.get_page(page),
     }
 
     return render(request, 'allianceauth_pve/rotation.html', context=context)

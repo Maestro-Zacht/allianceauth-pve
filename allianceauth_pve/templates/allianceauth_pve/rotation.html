@@ -135,7 +135,7 @@
                             <th></th>
                         </thead>
                         <tbody>
-                            {% for entry in entries.all %}
+                            {% for entry in entries %}
                                 <tr>
                                     <td>{{ entry.created_at|date:"d/m/Y G:i e" }}</td>
                                     <td>{{ entry.total_shares_count }}</td>
@@ -146,10 +146,35 @@
                                 </tr>
                             {% endfor %}
                         </tbody>
-                        {% if entries.count >= 10 %}
-                            <caption><a href="#">Show All</a></caption>
-                        {% endif %}
                     </table>
+
+                    {% if entries.paginator.num_pages > 1 %}
+                        <div>
+                            <ul class="pagination pagination-sm">
+                                {% if entries.has_previous %}
+                                    <li class="page-item"><a href="?page={{ entries.previous_page_number  }}">&laquo;</a></li>
+                                    <li class="page-item"><a href="?page=1">1</a></li>
+                                {% else %}
+                                    <li class="page-item disabled"><a href="#">&laquo;</a></li>
+                                {% endif %}
+
+                                {% for npage in entries.paginator.page_range %}
+                                    {% if npage == entries.number %}
+                                        <li class="page-item active"><a href="?page={{ npage }}">{{ npage }}</a></li>
+                                    {% elif npage > entries.number|add:"-3" and npage < entries.number|add:"3" and npage != 1 and npage != entries.paginator.num_pages %}
+                                        <li class="page-item"><a href="?page={{ npage }}">{{ npage }}</a></li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if entries.has_next %}
+                                    <li class="page-item"><a href="?page={{ entries.paginator.num_pages }}">{{ entries.paginator.num_pages }}</a></li>
+                                    <li class="page-item"><a href="?page={{ entries.next_page_number  }}">&raquo;</a></li>
+                                {% else %}
+                                    <li class="page-item disabled"><a href="#">&raquo;</a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         {% endif %}
