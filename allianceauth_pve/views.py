@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.models import User
+from django.views.generic.detail import DetailView
 
 from allianceauth.services.hooks import get_extension_logger
 
 
-from .models import Rotation
+from .models import Entry, Rotation
 
 logger = get_extension_logger(__name__)
 
@@ -59,3 +60,7 @@ def rotation_view(request, rotation_id):
     }
 
     return render(request, 'allianceauth_pve/rotation.html', context=context)
+
+
+class EntryDetailView(DetailView):
+    model = Entry

@@ -22,30 +22,32 @@
         <h1 class="page-header text-center">{{ rotation.name }}</h1>
         <a href="{% url 'allianceauth_pve:dashboard' %}">Back to dashboard</a>
         <div class="panel panel-default">
-            <div class="row-pve">
-                <div class="column-pve">
+            <div class="flex-center-horizontal">
+                <ul class="list-group list-group-horizontal" style="margin-bottom: 0;">
+                    <li class="list-group-item text-center">
+                        {% if rotation.is_closed %}
+                            <p class="text-center">Status</p>
+                            <p class="text-center"><b>Closed</b></p>
+                        {% else %}
+                            <p class="text-center">Age</p>
+                            <p class="text-center">{{ rotation.days_since }} days</p>
+                        {% endif %}
+                    </li>
+                    <li class="list-group-item text-center">
+                        <p class="text-center">Estimated Total</p>
+                        <p class="text-center">{{ rotation.estimated_total|floatformat|intcomma }}</p>
+                    </li>
                     {% if rotation.is_closed %}
-                        <p class="text-center">Status</p>
-                        <p class="text-center"><b>Closed</b></p>
-                    {% else %}
-                        <p class="text-center">Age</p>
-                        <p class="text-center">{{ rotation.days_since }} days</p>
+                        <li class="list-group-item text-center">
+                            <p class="text-center">Actual Total</p>
+                            <p class="text-center">{{ rotation.actual_total|floatformat|intcomma }}</p>
+                        </li>
                     {% endif %}
-                </div>
-                <div class="column-pve">
-                    <p class="text-center">Estimated Total</p>
-                    <p class="text-center">{{ rotation.estimated_total|floatformat|intcomma }}</p>
-                </div>
-                {% if rotation.is_closed %}
-                <div class="column-pve">
-                    <p class="text-center">Actual Total</p>
-                    <p class="text-center">{{ rotation.actual_total|floatformat|intcomma }}</p>
-                </div>
-                {% endif %}
-                <div class="column-pve">
-                    <p class="text-center">Tax Rate</p>
-                    <p class="text-center">{{ rotation.tax_rate|floatformat }} %</p>
-                </div>
+                    <li class="list-group-item text-center">
+                        <p class="text-center">Tax Rate</p>
+                        <p class="text-center">{{ rotation.tax_rate|floatformat }} %</p>
+                    </li>
+                </ul>
             </div>
         </div>
         <div class="panel panel-primary">
@@ -142,7 +144,7 @@
                                     <td>{{ entry.estimated_total_after_tax|floatformat|intcomma }}</td>
                                     <td>{{ entry.estimated_total|floatformat|intcomma }}</td>
                                     <td>{{ entry.created_by.profile.main_character.character_name }}</td>
-                                    <td><a data-toggle="tooltip" data-placement="top" title="Show Details" href="#"><i class="fas fa-chevron-circle-right"></i></a></td>
+                                    <td><a data-toggle="tooltip" data-placement="top" title="Show Details" href="{% url 'allianceauth_pve:entry_detail' entry.pk %}"><i class="fas fa-chevron-circle-right"></i></a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>
