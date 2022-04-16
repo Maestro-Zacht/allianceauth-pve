@@ -8,6 +8,17 @@ from allianceauth.services.hooks import get_extension_logger
 logger = get_extension_logger(__name__)
 
 
+class General(models.Model):
+    class Meta:
+        managed = False
+        default_permissions = ()
+        permissions = (
+            ("access_pve", "Can access pve pages and be added in entries"),
+            ('manage_entries', "Can do CRUD operations with entries"),
+            ("manage_rotations", "Can do CRUD operations with rotations"),
+        )
+
+
 class RotationQueryset(models.QuerySet):
     def get_setup_summary(self):
         return RotationSetupSummary.objects.filter(rotation__in=self).order_by().values('user')\
@@ -67,10 +78,7 @@ class Rotation(models.Model):
         return f'{self.pk} {self.name}'
 
     class Meta:
-        default_permissions = ('add', 'change', 'view')
-        permissions = [
-            ('close_rotation', 'Can close rotations'),
-        ]
+        default_permissions = ()
 
 
 class EntryCharacter(models.Model):
@@ -88,6 +96,9 @@ class EntryCharacter(models.Model):
     @property
     def actual_total(self):
         return (self.entry.actual_total_after_tax / self.entry.total_shares_count) * self.share_count
+
+    class Meta:
+        default_permissions = ()
 
 
 class Entry(models.Model):
@@ -131,6 +142,9 @@ class Entry(models.Model):
                     actual_share_total=(models.F('actual_total_after_tax') / models.Value(shares_count)) * models.F('share_count')
                 )
 
+    class Meta:
+        default_permissions = ()
+
 
 class RotationSetupSummary(models.Model):
     id = models.BigIntegerField(primary_key=True)
@@ -142,3 +156,4 @@ class RotationSetupSummary(models.Model):
     class Meta:
         managed = False  # this is a view, check 0003
         db_table = 'allianceauth_pve_setup_summary'
+        default_permissions = ()
