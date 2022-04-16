@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
-from django.contrib.auth.models import User
+from django.db.models import F
 from django.views.generic.detail import DetailView
 
 from allianceauth.services.hooks import get_extension_logger
@@ -36,26 +36,18 @@ def dashboard(request):
 
 def rotation_view(request, rotation_id):
     r = Rotation.objects.get(pk=rotation_id)
-    summary = r.summary.order_by('-estimated_total')
+    summary = r.summary.order_by('-estimated_total').values('user', 'helped_setups', 'estimated_total', 'actual_total', character_name=F('user__profile__main_character__character_name'), character_id=F('user__profile__main_character__character_id'))
     summary_count_half = summary.count() // 2 + 1
 
     entries_paginator = Paginator(r.entries.order_by('-created_at'), 10)
     page = request.GET.get('page')
 
+    logger.debug(summary)
+
     context = {
         'rotation': r,
-        'summary_first': [
-            {
-                'character': User.objects.get(pk=row['user']).profile.main_character,
-                **row,
-            } for row in summary[:summary_count_half]
-        ],
-        'summary_second': [
-            {
-                'character': User.objects.get(pk=row['user']).profile.main_character,
-                **row,
-            } for row in summary[summary_count_half:]
-        ],
+        'summary_first': summary[:summary_count_half],
+        'summary_second': summary[summary_count_half:],
         'entries': entries_paginator.get_page(page),
     }
 

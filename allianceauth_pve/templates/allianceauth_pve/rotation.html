@@ -74,8 +74,8 @@
                             {% for row in summary_first %}
                                 <tr>
                                     <td>
-                                        <img src="{{ row.character|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
-                                        {{ row.character.character_name }}
+                                        <img src="{{ row.character_id|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
+                                        {{ row.character_name }}
                                     </td>
                                     <td>{{ row.helped_setups }}</td>
                                     {% if rotation.is_closed %}
@@ -106,8 +106,8 @@
                             {% for row in summary_second %}
                                 <tr>
                                     <td>
-                                        <img src="{{ row.character|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
-                                        {{ row.character.character_name }}
+                                        <img src="{{ row.character_id|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
+                                        {{ row.character_name }}
                                     </td>
                                     <td>{{ row.helped_setups }}</td>
                                     {% if rotation.is_closed %}
@@ -143,7 +143,10 @@
                                     <td>{{ entry.total_shares_count }}</td>
                                     <td>{{ entry.estimated_total_after_tax|floatformat|intcomma }}</td>
                                     <td>{{ entry.estimated_total|floatformat|intcomma }}</td>
-                                    <td>{{ entry.created_by.profile.main_character.character_name }}</td>
+                                    <td>
+                                        <img src="{{ entry.created_by.profile.main_character|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
+                                        {{ entry.created_by.profile.main_character.character_name }}
+                                    </td>
                                     <td><a data-toggle="tooltip" data-placement="top" title="Show Details" href="{% url 'allianceauth_pve:entry_detail' entry.pk %}"><i class="fas fa-chevron-circle-right"></i></a></td>
                                 </tr>
                             {% endfor %}
