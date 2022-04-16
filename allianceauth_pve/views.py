@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required, permission_required
 from django.core.paginator import Paginator
 from django.db.models import F
 from django.views.generic.detail import DetailView
@@ -11,10 +12,14 @@ from .models import Entry, Rotation
 logger = get_extension_logger(__name__)
 
 
+@login_required
+@permission_required('allianceauth_pve.access_pve')
 def index(request):
     return redirect('allianceauth_pve:dashboard')
 
 
+@login_required
+@permission_required('allianceauth_pve.access_pve')
 def dashboard(request):
     open_rots = Rotation.objects.filter(is_closed=False).order_by('-priority')
     closed_rots = Rotation.objects.filter(is_closed=True).order_by('-closed_at')
@@ -34,6 +39,8 @@ def dashboard(request):
     return render(request, 'allianceauth_pve/ratting-dashboard.html', context=context)
 
 
+@login_required
+@permission_required('allianceauth_pve.access_pve')
 def rotation_view(request, rotation_id):
     r = Rotation.objects.get(pk=rotation_id)
     summary = r.summary.order_by('-estimated_total').values('user', 'helped_setups', 'estimated_total', 'actual_total', character_name=F('user__profile__main_character__character_name'), character_id=F('user__profile__main_character__character_id'))
