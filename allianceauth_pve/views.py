@@ -1,13 +1,16 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib import messages
+from django.contrib.auth.models import User
 from django.core.paginator import Paginator
-from django.db.models import F
+from django.db.models import F, Q
 from django.views.generic.detail import DetailView
 
 from allianceauth.services.hooks import get_extension_logger
 
 
 from .models import Entry, Rotation
+from .forms import NewEntryForm, NewShareFormSet
 
 logger = get_extension_logger(__name__)
 
@@ -49,8 +52,6 @@ def rotation_view(request, rotation_id):
     entries_paginator = Paginator(r.entries.order_by('-created_at'), 10)
     page = request.GET.get('page')
 
-    logger.debug(summary)
-
     context = {
         'rotation': r,
         'summary_first': summary[:summary_count_half],
@@ -59,6 +60,41 @@ def rotation_view(request, rotation_id):
     }
 
     return render(request, 'allianceauth_pve/rotation.html', context=context)
+
+
+@login_required
+@permission_required('allianceauth_pve.manage_entries')
+def add_entry(request, rotation_id):
+    rotation = Rotation.objects.get(pk=rotation_id)
+    if request.method == 'POST':
+        entry_form = NewEntryForm(request.POST)
+        share_form = NewShareFormSet(request.POST)
+
+        if entry_form.is_valid() and share_form.is_valid():
+            # entry = entry_form.save(commit=False)
+
+            messages.success(request, 'Entry added successfully')
+
+            return redirect('allianceauth_pve:rotation_view', rotation_id)
+        else:
+            logger.debug(f'forms not valid\nentry: {entry_form.errors}\nshares:{share_form.errors}')
+    else:
+        entry_form = NewEntryForm()
+        share_form = NewShareFormSet()
+
+    context = {
+        'entryform': entry_form,
+        'shareforms': share_form,
+        'rotation': rotation,
+        'availableusers': User.objects.filter(
+            Q(groups__permissions__codename='access_pve') |
+            Q(user_permissions__codename='access_pve') |
+            Q(profile__state__permissions__codename='access_pve'),
+            profile__main_character__isnull=False,
+        ).distinct(),
+    }
+
+    return render(request, 'allianceauth_pve/new_entry.html', context=context)
 
 
 class EntryDetailView(DetailView):

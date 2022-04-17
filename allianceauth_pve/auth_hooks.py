@@ -13,9 +13,7 @@ class PveMenuItemHook(MenuItemHook):
 
     def render(self, request):
         if request.user.has_perm('allianceauth_pve.access_pve'):
-            logger.debug(f"User {request.user} allowed to access pve.")
             return super().render(request)
-        logger.debug(f"User {request.user} not allowed to access pve.")
         return ''
 
 
