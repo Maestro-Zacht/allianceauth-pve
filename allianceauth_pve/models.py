@@ -42,7 +42,7 @@ class Rotation(models.Model):
     max_daily_setups = models.PositiveSmallIntegerField(default=1, help_text='The maximum number of helped setup per day. If more are submitted, only this number is counted. 0 for deactivating helped setups.')
     min_people_share_setup = models.PositiveSmallIntegerField(default=3, help_text='The minimum number of people in an entry to consider the helped setup valid.')
 
-    tax_rate = models.FloatField(default=0)
+    tax_rate = models.FloatField(default=0, help_text='Tax rate in percentage')
     is_closed = models.BooleanField(default=False)
     is_paid_out = models.BooleanField(default=False)
 
