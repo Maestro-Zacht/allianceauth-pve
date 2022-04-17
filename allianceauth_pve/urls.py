@@ -8,6 +8,7 @@ app_name = 'allianceauth_pve'
 urlpatterns = [
     path('', views.index, name='index'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('rotation/new/', views.create_rotation, name='new_rotation'),
     path('rotation/<int:rotation_id>/', views.rotation_view, name='rotation_view'),
     path('rotation/<int:rotation_id>/entryform/', views.add_entry, name='new_entry'),
     path('rotation/<int:rotation_id>/entryform/<int:entry_id>', views.add_entry, name='edit_entry'),

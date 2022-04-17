@@ -11,7 +11,7 @@ from allianceauth.services.hooks import get_extension_logger
 
 
 from .models import Entry, EntryCharacter, Rotation
-from .forms import NewEntryForm, NewShareFormSet
+from .forms import NewEntryForm, NewShareFormSet, NewRotationForm
 from .utils import ratting_users
 
 logger = get_extension_logger(__name__)
@@ -151,6 +151,28 @@ def delete_entry(request, entry_id):
     messages.success(request, "Entry deleted successfully")
 
     return redirect('allianceauth_pve:rotation_view', rotation_id)
+
+
+@login_required
+@permission_required('allianceauth_pve.manage_rotations')
+def create_rotation(request):
+    if request.method == 'POST':
+        rotation_form = NewRotationForm(request.POST)
+
+        if rotation_form.is_valid():
+            rotation = rotation_form.save()
+
+            messages.success(request, "Rotation created successfully")
+
+            return redirect('allianceauth_pve:rotation_view', rotation.pk)
+    else:
+        rotation_form = NewRotationForm()
+
+    context = {
+        'form': rotation_form,
+    }
+
+    return render(request, 'allianceauth_pve/rotation_create.html', context=context)
 
 
 class EntryDetailView(DetailView):
