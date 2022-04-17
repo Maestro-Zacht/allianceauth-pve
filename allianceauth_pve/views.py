@@ -123,15 +123,19 @@ def add_entry(request, rotation_id, entry_id=None):
                     )
 
                 to_add = []
+                characters = set()
 
                 for new_share in share_form.cleaned_data:
                     if len(new_share) > 0 and not new_share.get('DELETE', False):
-                        to_add.append(EntryCharacter(
-                            entry=entry,
-                            user=User.objects.get(profile__main_character__character_name=new_share['user']),
-                            share_count=new_share['share_count'],
-                            helped_setup=new_share['helped_setup'],
-                        ))
+                        person = User.objects.get(profile__main_character__character_name=new_share['user'])
+                        if person.pk not in characters:
+                            to_add.append(EntryCharacter(
+                                entry=entry,
+                                user=person,
+                                share_count=new_share['share_count'],
+                                helped_setup=new_share['helped_setup'],
+                            ))
+                            characters.add(person.pk)
 
                 EntryCharacter.objects.bulk_create(to_add)
 
