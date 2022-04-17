@@ -4,12 +4,13 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import F, Q
+from django.db import transaction
 from django.views.generic.detail import DetailView
 
 from allianceauth.services.hooks import get_extension_logger
 
 
-from .models import Entry, Rotation
+from .models import Entry, EntryCharacter, Rotation
 from .forms import NewEntryForm, NewShareFormSet
 
 logger = get_extension_logger(__name__)
@@ -64,14 +65,44 @@ def rotation_view(request, rotation_id):
 
 @login_required
 @permission_required('allianceauth_pve.manage_entries')
-def add_entry(request, rotation_id):
+def add_entry(request, rotation_id, entry_id=None):
     rotation = Rotation.objects.get(pk=rotation_id)
+    if entry_id:
+        entry = Entry.objects.get(pk=entry_id)
+        if entry.rotation != rotation:
+            messages.error(request, "The selected entry doesn't belong to the selected rotation")
+            return redirect('allianceauth_pve:rotation_view', rotation_id)
+
     if request.method == 'POST':
         entry_form = NewEntryForm(request.POST)
         share_form = NewShareFormSet(request.POST)
 
         if entry_form.is_valid() and share_form.is_valid():
-            # entry = entry_form.save(commit=False)
+            with transaction.atomic():
+                if entry_id:
+                    entry.ratting_shares.all().delete()
+                    entry.estimated_total = entry_form.cleaned_data['estimated_total']
+                else:
+                    entry = Entry.objects.create(
+                        rotation=rotation,
+                        estimated_total=entry_form.cleaned_data['estimated_total'],
+                        created_by=request.user,
+                    )
+
+                to_add = []
+
+                for new_share in share_form.cleaned_data:
+                    if len(new_share) > 0:
+                        to_add.append(EntryCharacter(
+                            entry=entry,
+                            user=User.objects.get(profile__main_character__character_name=new_share['user']),
+                            share_count=new_share['share_count'],
+                            helped_setup=new_share['helped_setup'],
+                        ))
+
+                EntryCharacter.objects.bulk_create(to_add)
+
+                entry.update_share_totals()
 
             messages.success(request, 'Entry added successfully')
 
@@ -79,8 +110,18 @@ def add_entry(request, rotation_id):
         else:
             logger.debug(f'forms not valid\nentry: {entry_form.errors}\nshares:{share_form.errors}')
     else:
-        entry_form = NewEntryForm()
-        share_form = NewShareFormSet()
+        if entry_id:
+            entry_form = NewEntryForm(initial={'estimated_total': entry.estimated_total})
+            share_form = NewShareFormSet(initial=[
+                {
+                    'user': share.user.profile.main_character.character_name,
+                    'helped_setup': share.helped_setup,
+                    'share_count': share.share_count,
+                } for share in entry.ratting_shares.all()
+            ])
+        else:
+            entry_form = NewEntryForm()
+            share_form = NewShareFormSet()
 
     context = {
         'entryform': entry_form,

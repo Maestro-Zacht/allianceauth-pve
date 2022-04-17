@@ -14,6 +14,21 @@
         flex: 50%;
         padding: 10px;
     }
+
+    .float-button-pve {
+        position:fixed;
+        width:60px;
+        height:60px;
+        bottom:20px;
+        right:40px;
+        background-color:#0C9;
+        color:#FFF;
+        border-radius:50px;
+        text-align:center;
+        box-shadow: 1px 1px 1px #999;
+        padding:0;
+        margin:0;
+    }
 </style>
 {% endblock extra_css %}
 
@@ -35,12 +50,12 @@
                     </li>
                     <li class="list-group-item text-center">
                         <p class="text-center">Estimated Total</p>
-                        <p class="text-center">{{ rotation.estimated_total|floatformat|intcomma }}</p>
+                        <p class="text-center">{{ rotation.estimated_total|floatformat:0|intcomma }}</p>
                     </li>
                     {% if rotation.is_closed %}
                         <li class="list-group-item text-center">
                             <p class="text-center">Actual Total</p>
-                            <p class="text-center">{{ rotation.actual_total|floatformat|intcomma }}</p>
+                            <p class="text-center">{{ rotation.actual_total|floatformat:0|intcomma }}</p>
                         </li>
                     {% endif %}
                     <li class="list-group-item text-center">
@@ -79,9 +94,9 @@
                                     </td>
                                     <td>{{ row.helped_setups }}</td>
                                     {% if rotation.is_closed %}
-                                        <td>{{ row.actual_total|floatformat|intcomma }}</td>
+                                        <td>{{ row.actual_total|floatformat:0|intcomma }}</td>
                                     {% endif %}
-                                    <td>{{ row.estimated_total|floatformat|intcomma }}</td>
+                                    <td>{{ row.estimated_total|floatformat:0|intcomma }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -111,9 +126,9 @@
                                     </td>
                                     <td>{{ row.helped_setups }}</td>
                                     {% if rotation.is_closed %}
-                                        <td>{{ row.actual_total|floatformat|intcomma }}</td>
+                                        <td>{{ row.actual_total|floatformat:0|intcomma }}</td>
                                     {% endif %}
-                                    <td>{{ row.estimated_total|floatformat|intcomma }}</td>
+                                    <td>{{ row.estimated_total|floatformat:0|intcomma }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -183,6 +198,6 @@
                 </div>
             </div>
         {% endif %}
-        <a href="{% url 'allianceauth_pve:new_entry' rotation.pk %}">+</a>
+        <a href="{% url 'allianceauth_pve:new_entry' rotation.pk %}" class="float-button-pve"><i class="fa fa-plus" style="margin-top:22px;"></i></a>
     </div>
 {% endblock content %}

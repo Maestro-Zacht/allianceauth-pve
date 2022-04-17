@@ -68,7 +68,7 @@
             <div class="panel-heading">
                 <h3 class="panel-title text-center">New Entry</h3>
             </div>
-            <form id="myForm" method="POST">
+            <form id="myForm" method="POST"  style="padding: 10px;">
                 {% csrf_token %}
                 {{ entryform|bootstrap }}
                 {% comment %} {{ shareforms.management_form }}
@@ -94,20 +94,38 @@
                         {% for sform in shareforms %}
                             <div class="share-form">
                                 <tr>
-                                    <td>{{ sform.user }}</td>
-                                    <td>{{ sform.helped_setup }}</td>
-                                    <td>{{ sform.share_count }}</td>
+                                    <td>
+                                        {{ sform.user }}
+                                        {% for error in sform.user.errors %}
+                                            <div class="alert alert-danger"><strong>{{ error|escape }}</strong></div>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {{ sform.helped_setup }}
+                                        {% for error in sform.helped_setup.errors %}
+                                            <div class="alert alert-danger"><strong>{{ error|escape }}</strong></div>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {{ sform.share_count }}
+                                        {% for error in sform.share_count.errors %}
+                                            <div class="alert alert-danger"><strong>{{ error|escape }}</strong></div>
+                                        {% endfor %}
+                                    </td>
                                     {% if shareforms.can_delete %}
                                         <td>{{ form.DELETE }}</td>
                                     {% endif %}
                                 </tr>
                             </div>
                         {% endfor %}
-                        <button id="insertHere" hidden></button>
+                        {% comment %} <button id="insertHere" hidden></button> {% endcomment %}
                     </tbody>
                 </table>
-                    <button class="btn btn-success" id="new-share" type="button">Add Another Character</button>
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    {% comment %} <button class="btn btn-success" id="new-share" type="button">Add Another Character</button> {% endcomment %}
+                    <div style="text-align: right; margin: 10px;">
+                        <a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}" class="btn btn-danger">Back</a>
+                        <button type="submit" class="btn btn-primary" style="margin-left: 5px;">Submit</button>
+                    </div>
             </form>
         </div>
     </div>
@@ -118,7 +136,7 @@
 {% endblock extra_javascript %}
 
 {% block extra_script %}
-    let shareForm = document.querySelectorAll(".share-form")
+    {% comment %} let shareForm = document.querySelectorAll(".share-form")
     let container = document.querySelector("#theBody")
     let addButton = document.querySelector("#new-share")
     let insertHere = document.querySelector("#insertHere")
@@ -138,7 +156,7 @@
         console.log(newForm.innerHTML)
         container.insertBefore(newForm, insertHere)
         totalForms.setAttribute('value', `${formNum+1}`)
-    }
+    } {% endcomment %}
 
     $( function() {
             var availableUsers = [

@@ -10,7 +10,6 @@
 
 {% block content %}
     <div class="col-lg-12">
-        <a href="{% url 'allianceauth_pve:rotation_view' entry.rotation_id %}">Back to rotation</a>
         <div class="panel panel-primary">
             <div class="panel-heading">
                 <h3 class="panel-title text-center">Entry</h3>
@@ -60,5 +59,8 @@
                 </table>
             </div>
         </div>
+
+        <a href="{% url 'allianceauth_pve:rotation_view' entry.rotation_id %}" class="btn btn-danger">Back</a>
+        <a href="{% url 'allianceauth_pve:edit_entry' entry.rotation_id entry.pk %}" class="btn btn-warning">Edit</a>
     </div>
 {% endblock content %}
