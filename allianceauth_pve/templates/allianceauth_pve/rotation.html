@@ -35,7 +35,6 @@
 {% block content %}
     <div class="col-lg-12">
         <h1 class="page-header text-center">{{ rotation.name }}</h1>
-        <a href="{% url 'allianceauth_pve:dashboard' %}">Back to dashboard</a>
         <div class="panel panel-default">
             <div class="flex-center-horizontal">
                 <ul class="list-group list-group-horizontal" style="margin-bottom: 0;">
@@ -198,6 +197,7 @@
                 </div>
             </div>
         {% endif %}
-        <a href="{% url 'allianceauth_pve:new_entry' rotation.pk %}" class="float-button-pve"><i class="fa fa-plus" style="margin-top:22px;"></i></a>
+        <a href="{% url 'allianceauth_pve:new_entry' rotation.pk %}" class="float-button-pve" data-bs-toggle="tooltip" data-bs-placement="top" title="New Entry"><i class="fa fa-plus" style="margin-top:22px;"></i></a>
+        <a href="{% url 'allianceauth_pve:dashboard' %}" class="btn btn-danger" style="margin-bottom: 10px;">Back</a>
     </div>
 {% endblock content %}
