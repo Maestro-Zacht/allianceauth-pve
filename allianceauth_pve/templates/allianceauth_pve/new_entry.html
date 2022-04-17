@@ -71,14 +71,14 @@
             <form id="myForm" method="POST"  style="padding: 10px;">
                 {% csrf_token %}
                 {{ entryform|bootstrap }}
-                {% comment %} {{ shareforms.management_form }}
+                {{ shareforms.management_form }}
                 {% for sform in shareforms %}
-                    <hr style="border-top: 3px solid #bbb;">
                     <div class="share-form">
+                        <hr style="border-top: 3px solid #bbb;">
                         {{ sform|bootstrap }}
                     </div>
-                {% endfor %} {% endcomment %}
-                <table class="table table-aa">
+                {% endfor %}
+                {% comment %} <table class="table table-aa">
                     {{ shareforms.management_form }}
                     <thead>
                         <tr>
@@ -118,10 +118,9 @@
                                 </tr>
                             </div>
                         {% endfor %}
-                        {% comment %} <button id="insertHere" hidden></button> {% endcomment %}
                     </tbody>
-                </table>
-                    {% comment %} <button class="btn btn-success" id="new-share" type="button">Add Another Character</button> {% endcomment %}
+                </table> {% endcomment %}
+                    <button class="btn btn-success" id="new-share" type="button">Add Another Character</button>
                     <div style="text-align: right; margin: 10px;">
                         <a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}" class="btn btn-danger">Back</a>
                         <button type="submit" class="btn btn-primary" style="margin-left: 5px;">Submit</button>
@@ -136,10 +135,9 @@
 {% endblock extra_javascript %}
 
 {% block extra_script %}
-    {% comment %} let shareForm = document.querySelectorAll(".share-form")
-    let container = document.querySelector("#theBody")
+    let shareForm = document.querySelectorAll(".share-form")
+    let container = document.querySelector("#myForm")
     let addButton = document.querySelector("#new-share")
-    let insertHere = document.querySelector("#insertHere")
     let totalForms = document.querySelector("#id_form-TOTAL_FORMS")
     let formNum = shareForm.length - 1
 
@@ -154,9 +152,9 @@
 
         newForm.innerHTML = newForm.innerHTML.replace(formRegex, `form-${formNum}-`)
         console.log(newForm.innerHTML)
-        container.insertBefore(newForm, insertHere)
+        container.insertBefore(newForm, addButton)
         totalForms.setAttribute('value', `${formNum+1}`)
-    } {% endcomment %}
+    }
 
     $( function() {
             var availableUsers = [
