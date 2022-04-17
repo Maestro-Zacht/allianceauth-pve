@@ -12,6 +12,7 @@ from allianceauth.services.hooks import get_extension_logger
 
 from .models import Entry, EntryCharacter, Rotation
 from .forms import NewEntryForm, NewShareFormSet
+from .utils import ratting_users
 
 logger = get_extension_logger(__name__)
 
@@ -72,6 +73,9 @@ def add_entry(request, rotation_id, entry_id=None):
         if entry.rotation != rotation:
             messages.error(request, "The selected entry doesn't belong to the selected rotation")
             return redirect('allianceauth_pve:rotation_view', rotation_id)
+        if entry.created_by != request.user and not request.user.is_superuser:
+            messages.error(request, "You cannot edit this entry")
+            return redirect('allianceauth_pve:rotation_view', rotation_id)
 
     if request.method == 'POST':
         entry_form = NewEntryForm(request.POST)
@@ -127,12 +131,7 @@ def add_entry(request, rotation_id, entry_id=None):
         'entryform': entry_form,
         'shareforms': share_form,
         'rotation': rotation,
-        'availableusers': User.objects.filter(
-            Q(groups__permissions__codename='access_pve') |
-            Q(user_permissions__codename='access_pve') |
-            Q(profile__state__permissions__codename='access_pve'),
-            profile__main_character__isnull=False,
-        ).distinct(),
+        'availableusers': ratting_users,
     }
 
     return render(request, 'allianceauth_pve/new_entry.html', context=context)
