@@ -67,9 +67,10 @@
         </div>
 
         <div style="text-align: right; margin: 10px;">
-            <a href="{% url 'allianceauth_pve:rotation_view' entry.rotation_id %}" class="btn btn-danger">Back</a>
+            <a href="{% url 'allianceauth_pve:rotation_view' entry.rotation_id %}" class="btn btn-primary">Back</a>
             {% if perms.allianceauth_pve.manage_entries and user == entry.created_by or user.is_superuser %}
                 <a href="{% url 'allianceauth_pve:edit_entry' entry.rotation_id entry.pk %}" class="btn btn-warning" style="margin-left: 5px;">Edit</a>
+                <a href="{% url 'allianceauth_pve:delete_entry' entry.pk %}" class="btn btn-danger" style="margin-left: 5px;">Delete</a>
             {% endif %}
         </div>
     </div>

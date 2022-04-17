@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -135,6 +135,22 @@ def add_entry(request, rotation_id, entry_id=None):
     }
 
     return render(request, 'allianceauth_pve/new_entry.html', context=context)
+
+
+@login_required
+@permission_required('allianceauth_pve.manage_entries')
+def delete_entry(request, entry_id):
+    entry = get_object_or_404(Entry, pk=entry_id)
+    if entry.created_by != request.user and not request.user.is_superuser:
+        messages.error(request, "You cannot delete this entry")
+        return redirect('allianceauth_pve:rotation_view', entry.rotation_id)
+
+    rotation_id = entry.rotation_id
+
+    entry.delete()
+    messages.success(request, "Entry deleted successfully")
+
+    return redirect('allianceauth_pve:rotation_view', rotation_id)
 
 
 class EntryDetailView(DetailView):
