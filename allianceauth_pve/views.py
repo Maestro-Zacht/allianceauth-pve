@@ -1,3 +1,5 @@
+import datetime
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
@@ -14,6 +16,7 @@ from allianceauth.services.hooks import get_extension_logger
 from .models import Entry, EntryCharacter, Rotation
 from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm
 from .utils import ratting_users
+from .actions import running_averages
 
 logger = get_extension_logger(__name__)
 
@@ -36,11 +39,22 @@ def dashboard(request):
     npage_open = request.GET.get('page_open')
     npage_closed = request.GET.get('page_closed')
 
+    today = timezone.now().date()
+
+    one_month_average = running_averages(request.user, today - datetime.timedelta(days=30))
+    three_month_average = running_averages(request.user, today - datetime.timedelta(days=30 * 3))
+    six_month_average = running_averages(request.user, today - datetime.timedelta(days=30 * 6))
+    one_year_average = running_averages(request.user, today - datetime.timedelta(days=30 * 12))
+
     context = {
         'open_count': open_rots.count(),
         'open_rots': paginator_open.get_page(npage_open),
         'closed_rots': paginator_closed.get_page(npage_closed),
         'is_closed_param': npage_closed is not None,
+        'onemonth': one_month_average,
+        'threemonth': three_month_average,
+        'sixmonth': six_month_average,
+        'oneyear': one_year_average,
     }
     return render(request, 'allianceauth_pve/ratting-dashboard.html', context=context)
 
