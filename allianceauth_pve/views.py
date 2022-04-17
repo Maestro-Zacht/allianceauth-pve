@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.utils import timezone
 from django.core.paginator import Paginator
-from django.db.models import F, Q
+from django.db.models import F
 from django.db import transaction
 from django.views.generic.detail import DetailView
 
@@ -11,7 +12,7 @@ from allianceauth.services.hooks import get_extension_logger
 
 
 from .models import Entry, EntryCharacter, Rotation
-from .forms import NewEntryForm, NewShareFormSet, NewRotationForm
+from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm
 from .utils import ratting_users
 
 logger = get_extension_logger(__name__)
@@ -48,7 +49,34 @@ def dashboard(request):
 @permission_required('allianceauth_pve.access_pve')
 def rotation_view(request, rotation_id):
     r = Rotation.objects.get(pk=rotation_id)
-    summary = r.summary.order_by('-estimated_total').values('user', 'helped_setups', 'estimated_total', 'actual_total', character_name=F('user__profile__main_character__character_name'), character_id=F('user__profile__main_character__character_id'))
+
+    if request.method == 'POST':
+        closeform = CloseRotationForm(request.POST)
+
+        if closeform.is_valid():
+            with transaction.atomic():
+                r.actual_total = closeform.cleaned_data['sales_value']
+                r.is_closed = True
+                r.closed_at = timezone.now()
+                r.save()
+                for entry in r.entries.all():
+                    entry.update_share_totals()
+
+            closeform = None
+    elif not r.is_closed:
+        closeform = CloseRotationForm()
+    else:
+        closeform = None
+
+    summary = r.summary.order_by('-estimated_total').values(
+        'user',
+        'helped_setups',
+        'estimated_total',
+        'actual_total',
+        character_name=F('user__profile__main_character__character_name'),
+        character_id=F('user__profile__main_character__character_id'),
+    )
+
     summary_count_half = summary.count() // 2 + 1
 
     entries_paginator = Paginator(r.entries.order_by('-created_at'), 10)
@@ -59,6 +87,7 @@ def rotation_view(request, rotation_id):
         'summary_first': summary[:summary_count_half],
         'summary_second': summary[summary_count_half:],
         'entries': entries_paginator.get_page(page),
+        'closeform': closeform,
     }
 
     return render(request, 'allianceauth_pve/rotation.html', context=context)

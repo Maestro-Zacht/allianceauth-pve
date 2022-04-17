@@ -29,3 +29,7 @@ class NewRotationForm(forms.ModelForm):
     class Meta:
         model = Rotation
         fields = ('name', 'priority', 'tax_rate', 'max_daily_setups', 'min_people_share_setup',)
+
+
+class CloseRotationForm(forms.Form):
+    sales_value = forms.FloatField(min_value=1, required=True)

@@ -2,6 +2,7 @@
 {% load static %}
 {% load evelinks %}
 {% load humanize %}
+{% load bootstrap %}
 
 {% block page_title %}Rotation {{ rotation.name }}{% endblock page_title %}
 {% block extra_css %}
@@ -35,6 +36,11 @@
 {% block content %}
     <div class="col-lg-12">
         <h1 class="page-header text-center">{{ rotation.name }}</h1>
+        {% if perms.allianceauth_pve.manage_rotations and not rotation.is_closed %}
+            <div style="text-align: right;">
+                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#closeRotationModal">Close Rotation</button>
+            </div>
+        {% endif %}
         <div class="panel panel-default">
             <div class="flex-center-horizontal">
                 <ul class="list-group list-group-horizontal" style="margin-bottom: 0;">
@@ -200,4 +206,24 @@
         <a href="{% url 'allianceauth_pve:new_entry' rotation.pk %}" class="float-button-pve" data-bs-toggle="tooltip" data-bs-placement="top" title="New Entry"><i class="fa fa-plus" style="margin-top:22px;"></i></a>
         <a href="{% url 'allianceauth_pve:dashboard' %}" class="btn btn-danger" style="margin-bottom: 10px;">Back</a>
     </div>
+
+    {% if perms.allianceauth_pve.manage_rotations and not rotation.is_closed %}
+        <div class="modal fade" id="closeRotationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Close Rotation</h5>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ closeform|bootstrap }}
+                            <button type="submit" class="btn btn-primary">Confirm</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Dismiss</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock content %}
