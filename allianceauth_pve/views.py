@@ -96,7 +96,7 @@ def add_entry(request, rotation_id, entry_id=None):
                 to_add = []
 
                 for new_share in share_form.cleaned_data:
-                    if len(new_share) > 0:
+                    if len(new_share) > 0 and not new_share.get('DELETE', False):
                         to_add.append(EntryCharacter(
                             entry=entry,
                             user=User.objects.get(profile__main_character__character_name=new_share['user']),

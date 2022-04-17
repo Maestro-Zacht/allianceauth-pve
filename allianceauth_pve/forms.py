@@ -20,4 +20,4 @@ class NewShareForm(forms.Form):
     share_count = forms.IntegerField(min_value=0, required=True)
 
 
-NewShareFormSet = forms.formset_factory(NewShareForm, extra=1)
+NewShareFormSet = forms.formset_factory(NewShareForm, extra=1, can_delete=True)
