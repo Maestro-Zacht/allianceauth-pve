@@ -161,5 +161,8 @@
                 </div>
             </div>
         </div>
+        {% if perms.allianceauth_pve.manage_rotations or user.is_superuser %}
+            <a href="{% url 'allianceauth_pve:new_rotation' %}" class="btn btn-info">New Rotation</a>
+        {% endif %}
     </div>
 {% endblock content %}
