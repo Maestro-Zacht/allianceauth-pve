@@ -1,0 +1,77 @@
+{% extends 'allianceauth/base.html' %}
+{% load static %}
+{% load humanize %}
+{% load evelinks %}
+
+{% block page_title %}Entry Details{% endblock page_title %}
+
+{% block extra_css %}
+{% endblock extra_css %}
+
+{% block content %}
+    <div class="col-lg-12">
+        <h1 class="page-header text-center">{{ entry.rotation.name }}</h1>
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title text-center">Entry</h3>
+            </div>
+            <div class="panel-body">
+                <div class="flex-center-horizontal">
+                    <ul class="list-group list-group-horizontal" style="margin-bottom: 0;">
+                        <li class="list-group-item text-center"><p>{{ entry.created_at|date:"d/m/Y G:i e" }}</p></li>
+                        <li class="list-group-item text-center"><p>Shares</p><p>{{ entry.total_shares_count }}</p></li>
+                        <li class="list-group-item text-center"><p>Total After Tax</p><p>{{ entry.estimated_total_after_tax|floatformat|intcomma }}</p></li>
+                        <li class="list-group-item text-center"><p>Total</p><p>{{ entry.estimated_total|floatformat|intcomma }}</p></li>
+                        <li class="list-group-item text-center">
+                            <p>Created By</p>
+                            <div style="display: flex; text-align: right;">
+                                <img src="{{ entry.created_by.profile.main_character|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
+                                <p>{{ entry.created_by.profile.main_character.character_name }}</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title text-center">Shares</h3>
+            </div>
+            <div class="panel-body">
+                <table class="table table-aa">
+                    <thead>
+                        <tr>
+                            <th>Character</th>
+                            <th>Helped Setups</th>
+                            <th>Count</th>
+                            <th>Share Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for share in entry.ratting_shares.all %}
+                            <tr>
+                                <td>
+                                    <img src="{{ share.user.profile.main_character|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
+                                    {{ share.user.profile.main_character.character_name }}
+                                </td>
+                                <td>{{ share.helped_setup }}</td>
+                                <td>{{ share.share_count }}</td>
+                                <td>{{ share.estimated_share_total|floatformat|intcomma }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div style="text-align: right; margin: 10px;">
+            <a href="{% url 'allianceauth_pve:rotation_view' entry.rotation_id %}" class="btn btn-primary">Back</a>
+            {% if perms.allianceauth_pve.manage_entries and user == entry.created_by or user.is_superuser %}
+                <a href="{% url 'allianceauth_pve:edit_entry' entry.rotation_id entry.pk %}" class="btn btn-warning" style="margin-left: 5px;">Edit</a>
+                <a href="{% url 'allianceauth_pve:delete_entry' entry.pk %}" class="btn btn-danger" style="margin-left: 5px;">Delete</a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

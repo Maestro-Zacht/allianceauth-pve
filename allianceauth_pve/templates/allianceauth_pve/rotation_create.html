@@ -1,0 +1,22 @@
+{% extends 'allianceauth/base.html' %}
+{% load static %}
+{% load bootstrap %}
+
+{% block content %}
+    <div class="col-lg-12">
+        <h1 class="page-header text-center">New Rotation</h1>
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title text-center">Form</h3>
+            </div>
+            <div class="panel-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|bootstrap }}
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <a href="{% url 'allianceauth_pve:dashboard' %}" class="btn btn-danger">Back</a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
