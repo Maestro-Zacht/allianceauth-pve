@@ -3,6 +3,21 @@
 from django.db import migrations, models
 
 
+def remove_perms(apps, schema_editor):
+    ContentType = apps.get_model('contenttypes.ContentType')
+    Permission = apps.get_model('auth.Permission')
+    contents = ContentType.objects.filter(app_label='allianceauth_pve')
+
+    Permission.objects.filter(
+        models.Q(codename__startswith='add') |
+        models.Q(codename__startswith='change') |
+        models.Q(codename__startswith='delete') |
+        models.Q(codename__startswith='view') |
+        models.Q(codename='close_rotation'),
+        content_type__in=contents
+    ).delete()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -37,4 +52,5 @@ class Migration(migrations.Migration):
             name='rotationsetupsummary',
             options={'default_permissions': (), 'managed': False},
         ),
+        migrations.RunPython(remove_perms, migrations.RunPython.noop),
     ]
