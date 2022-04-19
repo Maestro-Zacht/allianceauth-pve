@@ -18,23 +18,39 @@
                 <ul class="list-group list-group-horizontal text-center" style="margin-bottom: 0;">
                     <li class="list-group-item">
                         <p><strong>1 month</strong></p>
-                        <p>{{ onemonth.actual_total|floatformat|intcomma }}</p>
-                        <p>{{ onemonth.helped_setups }} setup(s)</p>
+                        {% if onemonth.actual_total %}
+                            <p>{{ onemonth.actual_total|floatformat|intcomma }}</p>
+                            <p>{{ onemonth.helped_setups }} setup(s)</p>
+                        {% else %}
+                            <p>No activity in the last month</p>
+                        {% endif %}
                     </li>
                     <li class="list-group-item">
                         <p><strong>3 months</strong></p>
-                        <p>{{ threemonth.actual_total|floatformat|intcomma }}</p>
-                        <p>{{ threemonth.helped_setups }} setup(s)</p>
+                        {% if threemonth.actual_total %}
+                            <p>{{ threemonth.actual_total|floatformat|intcomma }}</p>
+                            <p>{{ threemonth.helped_setups }} setup(s)</p>
+                        {% else %}
+                            <p>No activity in the last 3 months</p>
+                        {% endif %}
                     </li>
                     <li class="list-group-item">
                         <p><strong>6 months</strong></p>
-                        <p>{{ sixmonth.actual_total|floatformat|intcomma }}</p>
-                        <p>{{ sixmonth.helped_setups }} setup(s)</p>
+                        {% if sixmonth.actual_total %}
+                            <p>{{ sixmonth.actual_total|floatformat|intcomma }}</p>
+                            <p>{{ sixmonth.helped_setups }} setup(s)</p>
+                        {% else %}
+                            <p>No activity in the last 6 months</p>
+                        {% endif %}
                     </li>
                     <li class="list-group-item">
                         <p><strong>1 year</strong></p>
-                        <p>{{ oneyear.actual_total|floatformat|intcomma }}</p>
-                        <p>{{ oneyear.helped_setups }} setup(s)</p>
+                        {% if oneyear.actual_total %}
+                            <p>{{ oneyear.actual_total|floatformat|intcomma }}</p>
+                            <p>{{ oneyear.helped_setups }} setup(s)</p>
+                        {% else %}
+                            <p>No activity in the last year</p>
+                        {% endif %}
                     </li>
                 </ul>
             </div>

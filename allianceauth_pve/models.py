@@ -148,8 +148,8 @@ class Entry(models.Model):
 
 class RotationSetupSummary(models.Model):
     id = models.BigIntegerField(primary_key=True)
-    rotation = models.ForeignKey(Rotation, on_delete=models.CASCADE, related_name='+')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='rotations_stats')
+    rotation = models.ForeignKey(Rotation, on_delete=models.DO_NOTHING, related_name='+')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, related_name='rotations_stats')
     entry_date = models.DateField()
     valid_setups = models.IntegerField()
 
