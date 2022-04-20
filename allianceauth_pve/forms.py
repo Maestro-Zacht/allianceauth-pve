@@ -17,12 +17,12 @@ class UserCharField(forms.CharField):
 
 
 class NewShareForm(forms.Form):
-    user = UserCharField(required=True)
-    helped_setup = forms.BooleanField(required=False)
+    user = UserCharField(required=True, widget=forms.TextInput(attrs={'list': 'characters'}))
+    helped_setup = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'setup'}))
     share_count = forms.IntegerField(min_value=0, required=True)
 
 
-NewShareFormSet = forms.formset_factory(NewShareForm, extra=1, can_delete=True)
+NewShareFormSet = forms.formset_factory(NewShareForm, extra=0)
 
 
 class NewRotationForm(forms.ModelForm):

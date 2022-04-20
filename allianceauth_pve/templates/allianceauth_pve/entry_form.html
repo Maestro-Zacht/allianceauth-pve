@@ -1,0 +1,66 @@
+{% extends 'allianceauth/base.html' %}
+{% load static %}
+{% load bootstrap %}
+
+{% block page_title %}New Entry{% endblock page_title %}
+
+{% block extra_css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/new_entry_styles.css' %}">
+{% endblock extra_css %}
+
+{% block content %}
+    <div class="col-lg-12">
+        <h1 class="page-header text-center">{{ rotation.name }}</h1>
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title text-center">New Entry</h3>
+            </div>
+            <form id="entry-form" method="POST"  style="padding: 10px;">
+                {% csrf_token %}
+                {{ entryform.non_field_errors  }}
+                <div class="field">
+                    {{ entryform.estimated_total.label_tag }}
+                    {{ entryform.estimated_total }}
+                </div>
+
+                {{ entryform.estimated_total.errors }}
+                <hr style="border-top: 3px solid #bbb;">
+                {{ shareforms.management_form }}
+                <div id="users">
+                    {% if shareforms.initial_form_count > 0 %}
+                        <span class="head">Character</span>
+                        <span class="head">Setup</span>
+                        <span class="head">Count</span>
+                    {% else %}
+                        <span class="all-cols head">No character yet</span>
+                    {% endif %}
+
+                    {% for sform in shareforms %}
+                        {{ sform.user }}
+                        {{ sform.helped_setup }}
+                        {{ sform.share_count }}
+                    {% endfor %}
+                </div>
+                <datalist id="characters">
+                    {% for user in availableusers %}
+                        <option value="{{ user.profile.main_character.character_name }}"></option>
+                    {% endfor %}
+                </datalist>
+                <div class="field">
+                    <button class="btn btn-success" id="new-share" type="button">Add Another Character</button>
+                    <div style="text-align: right; margin: 10px;">
+                        <a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}" class="btn btn-danger">Back</a>
+                        <button type="submit" class="btn btn-primary" style="margin-left: 5px;">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block extra_javascript %}
+    <script src="{% static 'js/new_entry_js.js' %}"></script>
+{% endblock extra_javascript %}
+
+{% block extra_script %}
+{% endblock extra_script %}

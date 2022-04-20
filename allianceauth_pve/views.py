@@ -187,7 +187,7 @@ def add_entry(request, rotation_id, entry_id=None):
         'availableusers': ratting_users,
     }
 
-    return render(request, 'allianceauth_pve/new_entry.html', context=context)
+    return render(request, 'allianceauth_pve/entry_form.html', context=context)
 
 
 @login_required

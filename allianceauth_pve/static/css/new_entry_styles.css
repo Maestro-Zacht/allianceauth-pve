@@ -1,0 +1,41 @@
+.field {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+input {
+    border: none;
+}
+
+input[type=text],
+input[type=number] {
+    font-size: 1em;
+    padding: .3em .7em;
+    border-radius: .2em;
+}
+
+input[type=text]:focus,
+input[type=number]:focus {
+    outline: 2px rgb(19, 104, 160) solid;
+}
+
+#users {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    column-gap: 6ch;
+    row-gap: 1.1rem;
+    align-items: center;
+}
+
+.setup {
+    justify-self: center;
+}
+
+.all-cols {
+    grid-column: 1/-1;
+}
+
+.head {
+    text-align: center;
+}
