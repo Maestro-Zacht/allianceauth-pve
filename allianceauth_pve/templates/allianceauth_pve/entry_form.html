@@ -17,20 +17,29 @@
             </div>
             <form id="entry-form" method="POST"  style="padding: 10px;">
                 {% csrf_token %}
-                {{ entryform.non_field_errors  }}
                 <div class="field">
-                    {{ entryform.estimated_total.label_tag }}
-                    {{ entryform.estimated_total }}
+                    <div style="width: 50%;">
+                        {{ entryform.non_field_errors  }}
+                        <div class="field">
+                            {{ entryform.estimated_total.label_tag }}
+                            {{ entryform.estimated_total }}
+                        </div>
+                        {{ entryform.estimated_total.errors }}
+                    </div>
+                    <div class="vl"></div>
+                    <div style="width: 50%;" class="field">
+                        <input type="text" name="search-bar" id="search-bar-id" placeholder="Search" list="characters">
+                        <button type="button" class="btn btn-success" id="search-bar-btn">Add Another Character</button>
+                    </div>
                 </div>
-
-                {{ entryform.estimated_total.errors }}
-                <hr style="border-top: 3px solid #bbb;">
+                <hr>
                 {{ shareforms.management_form }}
                 <div id="users">
                     {% if shareforms.initial_form_count > 0 %}
                         <span class="head">Character</span>
                         <span class="head">Setup</span>
                         <span class="head">Count</span>
+                        <span class="head">Delete</span>
                     {% else %}
                         <span class="all-cols head">No character yet</span>
                     {% endif %}
@@ -39,6 +48,7 @@
                         {{ sform.user }}
                         {{ sform.helped_setup }}
                         {{ sform.share_count }}
+                        <button type="button" id="delete-row-{{ forloop.counter0 }}" class="btn btn-danger btn-sm"><i class="fas fa-times" id="delete-icon-{{ forloop.counter0 }}"></i></button>
                     {% endfor %}
                 </div>
                 <datalist id="characters">
@@ -46,12 +56,9 @@
                         <option value="{{ user.profile.main_character.character_name }}"></option>
                     {% endfor %}
                 </datalist>
-                <div class="field">
-                    <button class="btn btn-success" id="new-share" type="button">Add Another Character</button>
-                    <div style="text-align: right; margin: 10px;">
-                        <a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}" class="btn btn-danger">Back</a>
-                        <button type="submit" class="btn btn-primary" style="margin-left: 5px;">Submit</button>
-                    </div>
+                <div style="text-align: right; margin: 10px;">
+                    <a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}" class="btn btn-danger">Back</a>
+                    <button type="submit" class="btn btn-primary" style="margin-left: 5px;">Submit</button>
                 </div>
             </form>
         </div>
