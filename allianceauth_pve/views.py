@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.core.paginator import Paginator
-from django.db.models import F
+from django.db.models import F, Q
 from django.db import transaction
 from django.views.generic.detail import DetailView
 
@@ -15,7 +15,6 @@ from allianceauth.services.hooks import get_extension_logger
 
 from .models import Entry, EntryCharacter, Rotation
 from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm
-from .utils import ratting_users
 from .actions import running_averages
 
 logger = get_extension_logger(__name__)
@@ -91,7 +90,7 @@ def rotation_view(request, rotation_id):
         character_id=F('user__profile__main_character__character_id'),
     )
 
-    summary_count_half = summary.count() // 2 + 1
+    summary_count_half = summary.count() // 2
 
     entries_paginator = Paginator(r.entries.order_by('-created_at'), 10)
     page = request.GET.get('page')
@@ -173,6 +172,13 @@ def add_entry(request, rotation_id, entry_id=None):
         else:
             entry_form = NewEntryForm()
             share_form = NewShareFormSet()
+
+    ratting_users = User.objects.filter(
+        Q(groups__permissions__codename='access_pve') |
+        Q(user_permissions__codename='access_pve') |
+        Q(profile__state__permissions__codename='access_pve'),
+        profile__main_character__isnull=False,
+    ).distinct()
 
     context = {
         'entryform': entry_form,
