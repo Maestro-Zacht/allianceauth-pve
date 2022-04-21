@@ -4,18 +4,6 @@
     align-items: center;
 }
 
-.vl {
-    border-left: 1px solid #bbb;
-    height: 100%;
-    margin-left: 10px;
-    margin-right: 10px;
-    width: 1px;
-}
-
-/* input {
-    border: none;
-} */
-
 input[type=text],
 input[type=number] {
     font-size: 1em;
