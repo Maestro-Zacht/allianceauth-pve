@@ -1,4 +1,5 @@
 import datetime
+from django.http import JsonResponse
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
@@ -11,7 +12,6 @@ from django.db import transaction
 from django.views.generic.detail import DetailView
 
 from allianceauth.services.hooks import get_extension_logger
-
 
 from .models import Entry, EntryCharacter, Rotation
 from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm
@@ -108,6 +108,32 @@ def rotation_view(request, rotation_id):
 
 @login_required
 @permission_required('allianceauth_pve.manage_entries')
+def get_avaiable_ratters(request, name=None):
+    ratting_users = User.objects.filter(
+        Q(groups__permissions__codename='access_pve') |
+        Q(user_permissions__codename='access_pve') |
+        Q(profile__state__permissions__codename='access_pve'),
+        profile__main_character__isnull=False,
+    )
+
+    if name:
+        ratting_users = ratting_users.filter(profile__main_character__character_name__icontains=name)
+
+    ratting_users = ratting_users.distinct()
+
+    return JsonResponse({
+        'result': [
+            {
+                'character_name': user.profile.main_character.character_name,
+                'profile_pic': user.profile.main_character.portrait_url_32,
+                'user_id': user.pk,
+            } for user in ratting_users[:15]
+        ],
+    })
+
+
+@login_required
+@permission_required('allianceauth_pve.manage_entries')
 def add_entry(request, rotation_id, entry_id=None):
     rotation = Rotation.objects.get(pk=rotation_id)
     if entry_id:
@@ -140,7 +166,7 @@ def add_entry(request, rotation_id, entry_id=None):
 
                 for new_share in share_form.cleaned_data:
                     if len(new_share) > 0 and not new_share.get('DELETE', False):
-                        person = User.objects.get(profile__main_character__character_name=new_share['user'])
+                        person = User.objects.get(pk=new_share['user'])
                         if person.pk not in characters:
                             to_add.append(EntryCharacter(
                                 entry=entry,
@@ -158,13 +184,14 @@ def add_entry(request, rotation_id, entry_id=None):
 
             return redirect('allianceauth_pve:rotation_view', rotation_id)
         else:
-            logger.debug(f'forms not valid\nentry: {entry_form.errors}\nshares:{share_form.errors}')
+            logger.error(f'forms not valid\nentry: {entry_form.errors}\nshares:{share_form.errors}')
+
     else:
         if entry_id:
             entry_form = NewEntryForm(initial={'estimated_total': entry.estimated_total})
             share_form = NewShareFormSet(initial=[
                 {
-                    'user': share.user.profile.main_character.character_name,
+                    'user': share.user_id,
                     'helped_setup': share.helped_setup,
                     'share_count': share.share_count,
                 } for share in entry.ratting_shares.all()
@@ -173,18 +200,10 @@ def add_entry(request, rotation_id, entry_id=None):
             entry_form = NewEntryForm()
             share_form = NewShareFormSet()
 
-    ratting_users = User.objects.filter(
-        Q(groups__permissions__codename='access_pve') |
-        Q(user_permissions__codename='access_pve') |
-        Q(profile__state__permissions__codename='access_pve'),
-        profile__main_character__isnull=False,
-    ).distinct()
-
     context = {
         'entryform': entry_form,
         'shareforms': share_form,
         'rotation': rotation,
-        'availableusers': ratting_users,
     }
 
     return render(request, 'allianceauth_pve/entry_form.html', context=context)

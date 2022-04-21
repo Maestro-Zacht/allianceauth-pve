@@ -6,9 +6,10 @@
 
 .vl {
     border-left: 1px solid #bbb;
-    height: 3.5em;
+    height: 100%;
     margin-left: 10px;
     margin-right: 10px;
+    width: 1px;
 }
 
 input {
@@ -29,7 +30,15 @@ input[type=number]:focus {
 
 #users {
     display: grid;
-    grid-template-columns: 1fr auto auto auto;
+    grid-template-columns: auto 1fr auto auto auto;
+    column-gap: 6ch;
+    row-gap: 1.1rem;
+    align-items: center;
+}
+
+#search-results {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     column-gap: 6ch;
     row-gap: 1.1rem;
     align-items: center;

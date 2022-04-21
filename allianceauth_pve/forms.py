@@ -2,22 +2,27 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 
+from allianceauth.services.hooks import get_extension_logger
+
 from .models import Rotation
+
+logger = get_extension_logger(__name__)
 
 
 class NewEntryForm(forms.Form):
     estimated_total = forms.FloatField(min_value=1, max_value=1000000000000, required=True)
 
 
-class UserCharField(forms.CharField):
+class UserPkField(forms.IntegerField):
     def validate(self, value):
         super().validate(value)
-        if not User.objects.filter(profile__main_character__character_name=value).exists():
+        if not User.objects.filter(pk=value).exists():
+            logger.error(f"User with pk {value} not found!")
             raise ValidationError('Character not found')
 
 
 class NewShareForm(forms.Form):
-    user = UserCharField(required=True, widget=forms.TextInput(attrs={'list': 'characters'}))
+    user = UserPkField(required=True, widget=forms.TextInput(attrs={'style': 'display: none;'}))
     helped_setup = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'setup'}))
     share_count = forms.IntegerField(min_value=0, required=True)
 

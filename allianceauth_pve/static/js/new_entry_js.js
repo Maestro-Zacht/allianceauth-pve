@@ -1,9 +1,26 @@
 const addBtn = document.getElementById('search-bar-btn');
 const usersContainer = document.getElementById('users');
 const searchBar = document.getElementById('search-bar-id');
-const rowBlueprint = document.getElementById('share-form-blueprint');
+const searchResults = document.getElementById('search-results');
 let totalForms = document.querySelector("#id_form-TOTAL_FORMS");
 let formNum = totalForms.getAttribute('value');
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
 
 
 function initObj(src, def) {
@@ -22,13 +39,14 @@ function createSpan(text, className = "") {
     return span;
 }
 
-const zeroCharacter = { user: '', setup: false, count: 1 };
+const zeroCharacter = { profilePic: '', username: '', userId: 0, setup: false, count: 1 };
 
-function addCharacter(initial = null) {
+function addCharacter(initial) {
     const data = initObj(initial, zeroCharacter);
     if (formNum == 0) {
         usersContainer.textContent = '';
         usersContainer.append(
+            createSpan("", "head"),
             createSpan("Character", "head"),
             createSpan("Setup", "head"),
             createSpan("Count", "head"),
@@ -37,12 +55,21 @@ function addCharacter(initial = null) {
     }
 
     const name = document.createElement("input");
-    name.type = "text";
-    name.value = data.user;
+    name.type = "number";
+    name.setAttribute('value', data.userId);
     name.name = `form-${formNum}-user`;
     name.id = `id_form-${formNum}-user`;
-    name.setAttribute('list', 'characters');
     name.readOnly = true;
+    name.style.display = 'none';
+
+    const profilePic = document.createElement('img');
+    profilePic.src = data.profilePic;
+    profilePic.id = `profile-pic-${formNum}`;
+    profilePic.classList.add('img-circle');
+    profilePic.style.marginRight = "1rem";
+
+    const userSpan = createSpan(data.username);
+    userSpan.id = `username-span-${formNum}`;
 
     const check = document.createElement("input");
     check.type = "checkbox";
@@ -69,7 +96,7 @@ function addCharacter(initial = null) {
 
     deleteButton.appendChild(deleteImage);
 
-    usersContainer.append(name, check, count, deleteButton);
+    usersContainer.append(name, profilePic, userSpan, check, count, deleteButton);
 
     formNum++;
     totalForms.setAttribute('value', `${formNum}`);
@@ -81,12 +108,16 @@ function removeCharacter(index) {
     for (let i = 0; i < formNum; i++) {
         if (i != index) {
             dataCopy.push({
-                user: document.getElementById(`id_form-${i}-user`).value,
+                userId: document.getElementById(`id_form-${i}-user`).value,
+                username: document.getElementById(`username-span-${i}`).textContent,
+                profilePic: document.getElementById(`profile-pic-${i}`).src,
                 setup: document.getElementById(`id_form-${i}-helped_setup`).checked,
                 count: document.getElementById(`id_form-${i}-share_count`).value
             })
         }
         document.getElementById(`id_form-${i}-user`).remove();
+        document.getElementById(`username-span-${i}`).remove();
+        document.getElementById(`profile-pic-${i}`).remove();
         document.getElementById(`id_form-${i}-helped_setup`).remove();
         document.getElementById(`id_form-${i}-share_count`).remove();
         document.getElementById(`delete-row-${i}`).remove();
@@ -105,9 +136,40 @@ function removeCharacter(index) {
 
 addBtn.addEventListener("click", e => {
     e.preventDefault()
-    const data = { user: searchBar.value, setup: false, count: 1 };
-    searchBar.value = '';
-    addCharacter(data);
+
+    const request = new Request(searchBar.value != '' ? `/pve/ratters/${searchBar.value}/` : '/pve/ratters/', { headers: { 'X-CSRFToken': csrftoken } })
+    fetch(request,
+        {
+            method: "POST",
+            credentials: "same-origin",
+        }
+    ).then(res => {
+        res.json().then(data => {
+            let results = [];
+            data.result.forEach((value, index, array) => {
+                const profile_image = document.createElement('img');
+                profile_image.src = value.profile_pic;
+                profile_image.classList.add('img-circle');
+                profile_image.style.marginRight = "1rem";
+
+                let characterInfo = createSpan(value.character_name);
+
+                let addButton = document.createElement('button');
+                addButton.textContent = "Add";
+                addButton.type = "button";
+                addButton.classList.add('btn', 'btn-success');
+                addButton.addEventListener('click', () => {
+                    addCharacter({ profilePic: value.profile_pic, userId: value.user_id, username: value.character_name, setup: false, count: 1 });
+                    searchResults.replaceChildren(createSpan('No results', 'all-cols head'));
+                    searchBar.value = '';
+                })
+
+
+                results.push(profile_image, characterInfo, addButton);
+            })
+            searchResults.replaceChildren(...results);
+        })
+    })
 });
 
 usersContainer.addEventListener('click', e => {

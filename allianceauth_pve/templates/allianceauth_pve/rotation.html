@@ -203,7 +203,9 @@
                 </div>
             </div>
         {% endif %}
-        <a href="{% url 'allianceauth_pve:new_entry' rotation.pk %}" class="float-button-pve" data-bs-toggle="tooltip" data-bs-placement="top" title="New Entry"><i class="fa fa-plus" style="margin-top:22px;"></i></a>
+        {% if perms.allianceauth_pve.manage_entries and not rotation.is_closed %}
+            <a href="{% url 'allianceauth_pve:new_entry' rotation.pk %}" class="float-button-pve" data-bs-toggle="tooltip" data-bs-placement="top" title="New Entry"><i class="fa fa-plus" style="margin-top:22px;"></i></a>
+        {% endif %}
         <a href="{% url 'allianceauth_pve:dashboard' %}" class="btn btn-danger" style="margin-bottom: 10px;">Back</a>
     </div>
 

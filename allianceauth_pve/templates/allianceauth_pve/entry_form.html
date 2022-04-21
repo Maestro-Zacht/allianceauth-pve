@@ -1,6 +1,8 @@
 {% extends 'allianceauth/base.html' %}
 {% load static %}
 {% load bootstrap %}
+{% load evelinks %}
+{% load pvefilters %}
 
 {% block page_title %}New Entry{% endblock page_title %}
 
@@ -25,37 +27,41 @@
                             {{ entryform.estimated_total }}
                         </div>
                         {{ entryform.estimated_total.errors }}
+                        <hr>
+                        {{ shareforms.management_form }}
+                        <div id="users">
+                            {% if shareforms.initial_form_count > 0 %}
+                                <span class="head"></span>
+                                <span class="head">Character</span>
+                                <span class="head">Setup</span>
+                                <span class="head">Count</span>
+                                <span class="head">Delete</span>
+                            {% else %}
+                                <span class="all-cols head">No character yet</span>
+                            {% endif %}
+
+                            {% for sform in shareforms %}
+                                {{ sform.user }}
+                                <img src="{{ sform.user.value|get_main_character|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;" id="profile-pic-{{ forloop.counter0 }}">
+                                <span id="username-span-{{ forloop.counter0 }}">{{ sform.user.value|get_main_character:"character_name" }}</span>
+                                {{ sform.helped_setup }}
+                                {{ sform.share_count }}
+                                <button type="button" id="delete-row-{{ forloop.counter0 }}" class="btn btn-danger btn-sm"><i class="fas fa-times" id="delete-icon-{{ forloop.counter0 }}"></i></button>
+                            {% endfor %}
+                        </div>
                     </div>
                     <div class="vl"></div>
-                    <div style="width: 50%;" class="field">
-                        <input type="text" name="search-bar" id="search-bar-id" placeholder="Search" list="characters">
-                        <button type="button" class="btn btn-success" id="search-bar-btn">Add Another Character</button>
+                    <div style="width: 50%;">
+                        <div class="field">
+                            <input type="text" name="search-bar" id="search-bar-id" placeholder="Search">
+                            <button type="button" class="btn btn-info" id="search-bar-btn">Search</button>
+                        </div>
+                        <hr>
+                        <div id="search-results">
+                            <span class="all-cols head">No results</span>
+                        </div>
                     </div>
                 </div>
-                <hr>
-                {{ shareforms.management_form }}
-                <div id="users">
-                    {% if shareforms.initial_form_count > 0 %}
-                        <span class="head">Character</span>
-                        <span class="head">Setup</span>
-                        <span class="head">Count</span>
-                        <span class="head">Delete</span>
-                    {% else %}
-                        <span class="all-cols head">No character yet</span>
-                    {% endif %}
-
-                    {% for sform in shareforms %}
-                        {{ sform.user }}
-                        {{ sform.helped_setup }}
-                        {{ sform.share_count }}
-                        <button type="button" id="delete-row-{{ forloop.counter0 }}" class="btn btn-danger btn-sm"><i class="fas fa-times" id="delete-icon-{{ forloop.counter0 }}"></i></button>
-                    {% endfor %}
-                </div>
-                <datalist id="characters">
-                    {% for user in availableusers %}
-                        <option value="{{ user.profile.main_character.character_name }}"></option>
-                    {% endfor %}
-                </datalist>
                 <div style="text-align: right; margin: 10px;">
                     <a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}" class="btn btn-danger">Back</a>
                     <button type="submit" class="btn btn-primary" style="margin-left: 5px;">Submit</button>
