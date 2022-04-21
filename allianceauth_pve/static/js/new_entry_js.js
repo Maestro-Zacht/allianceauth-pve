@@ -71,6 +71,7 @@ function addCharacter(initial) {
 
     const userSpan = createSpan(data.username);
     userSpan.id = `username-span-${formNum}`;
+    userSpan.style.textAlign = "center";
 
     const check = document.createElement("input");
     check.type = "checkbox";
@@ -85,6 +86,7 @@ function addCharacter(initial) {
     count.min = "0";
     count.id = `id_form-${formNum}-share_count`;
     count.value = data.count;
+    count.style.width = "10ch";
 
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
