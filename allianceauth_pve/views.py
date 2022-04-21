@@ -134,7 +134,7 @@ def get_avaiable_ratters(request, name=None):
                 'character_name': user.profile.main_character.character_name,
                 'profile_pic': user.profile.main_character.portrait_url_32,
                 'user_id': user.pk,
-            } for user in ratting_users[:15]
+            } for user in ratting_users
         ],
     })
 
