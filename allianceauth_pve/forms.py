@@ -10,7 +10,7 @@ logger = get_extension_logger(__name__)
 
 
 class NewEntryForm(forms.Form):
-    estimated_total = forms.FloatField(min_value=1, max_value=1000000000000, required=True)
+    estimated_total = forms.FloatField(min_value=1, max_value=1000000000000, required=True, widget=forms.NumberInput(attrs={'style': 'width: 70%'}))
 
 
 class UserPkField(forms.IntegerField):
