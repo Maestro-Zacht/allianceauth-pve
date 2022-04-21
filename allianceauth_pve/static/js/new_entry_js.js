@@ -46,7 +46,6 @@ function addCharacter(initial) {
     if (formNum == 0) {
         usersContainer.textContent = '';
         usersContainer.append(
-            createSpan("", "head"),
             createSpan("Character", "head"),
             createSpan("Setup", "head"),
             createSpan("Count", "head"),
@@ -63,6 +62,9 @@ function addCharacter(initial) {
     name.style.display = 'none';
     name.classList.add("user-pk-list");
 
+    const profileDiv = document.createElement('div');
+    profileDiv.id = `profile-div-${formNum}`;
+
     const profilePic = document.createElement('img');
     profilePic.src = data.profilePic;
     profilePic.id = `profile-pic-${formNum}`;
@@ -71,7 +73,10 @@ function addCharacter(initial) {
 
     const userSpan = createSpan(data.username);
     userSpan.id = `username-span-${formNum}`;
-    userSpan.style.textAlign = "center";
+    userSpan.style.marginLeft = "20px"
+
+    profileDiv.appendChild(profilePic);
+    profileDiv.appendChild(userSpan);
 
     const check = document.createElement("input");
     check.type = "checkbox";
@@ -92,6 +97,7 @@ function addCharacter(initial) {
     deleteButton.type = "button";
     deleteButton.classList.add('btn', 'btn-danger');
     deleteButton.id = `delete-row-${formNum}`;
+    deleteButton.style.transform = "scale(0.5, 0.5)";
 
     const deleteImage = document.createElement('i');
     deleteImage.classList.add('fa', 'fa-times');
@@ -99,7 +105,7 @@ function addCharacter(initial) {
 
     deleteButton.appendChild(deleteImage);
 
-    usersContainer.append(name, profilePic, userSpan, check, count, deleteButton);
+    usersContainer.append(name, profileDiv, check, count, deleteButton);
 
     formNum++;
     totalForms.setAttribute('value', `${formNum}`);
@@ -121,6 +127,7 @@ function removeCharacter(index) {
         document.getElementById(`id_form-${i}-user`).remove();
         document.getElementById(`username-span-${i}`).remove();
         document.getElementById(`profile-pic-${i}`).remove();
+        document.getElementById(`profile-div-${i}`).remove();
         document.getElementById(`id_form-${i}-helped_setup`).remove();
         document.getElementById(`id_form-${i}-share_count`).remove();
         document.getElementById(`delete-row-${i}`).remove();

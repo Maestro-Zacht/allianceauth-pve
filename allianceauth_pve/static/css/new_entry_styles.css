@@ -30,7 +30,7 @@ input[type=number]:focus {
 
 #users {
     display: grid;
-    grid-template-columns: auto 1fr auto auto auto;
+    grid-template-columns: 1fr auto auto auto;
     column-gap: 3ch;
     row-gap: 2rem;
     align-items: center;
