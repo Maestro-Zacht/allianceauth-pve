@@ -119,6 +119,13 @@ def get_avaiable_ratters(request, name=None):
     if name:
         ratting_users = ratting_users.filter(profile__main_character__character_name__icontains=name)
 
+    exclude_ids = request.GET.getlist('excludeIds', [])
+
+    logger.debug(exclude_ids)
+
+    if len(exclude_ids) > 0:
+        ratting_users = ratting_users.exclude(pk__in=exclude_ids)
+
     ratting_users = ratting_users.distinct()
 
     return JsonResponse({

@@ -22,7 +22,7 @@ class UserPkField(forms.IntegerField):
 
 
 class NewShareForm(forms.Form):
-    user = UserPkField(required=True, widget=forms.TextInput(attrs={'style': 'display: none;'}))
+    user = UserPkField(required=True, widget=forms.TextInput(attrs={'style': 'display: none;', 'class': 'user-pk-list'}))
     helped_setup = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'setup'}))
     share_count = forms.IntegerField(min_value=0, required=True)
 

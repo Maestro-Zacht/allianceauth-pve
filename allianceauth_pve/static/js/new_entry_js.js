@@ -61,6 +61,7 @@ function addCharacter(initial) {
     name.id = `id_form-${formNum}-user`;
     name.readOnly = true;
     name.style.display = 'none';
+    name.classList.add("user-pk-list");
 
     const profilePic = document.createElement('img');
     profilePic.src = data.profilePic;
@@ -137,10 +138,23 @@ function removeCharacter(index) {
 addBtn.addEventListener("click", e => {
     e.preventDefault()
 
-    const request = new Request(searchBar.value != '' ? `/pve/ratters/${searchBar.value}/` : '/pve/ratters/', { headers: { 'X-CSRFToken': csrftoken } })
+    let excludeIds = [];
+    let queryStr = '';
+
+    Array.from(usersContainer.getElementsByClassName('user-pk-list')).forEach((el) => {
+        excludeIds.push(el.getAttribute('value'));
+    });
+
+    if (excludeIds.length > 0) {
+        queryStr = '?excludeIds=' + excludeIds.join('&excludeIds=');
+    } else {
+        queryStr = '';
+    }
+
+    const request = new Request((searchBar.value != '' ? `/pve/ratters/${searchBar.value}/` : '/pve/ratters/') + queryStr, { headers: { 'X-CSRFToken': csrftoken } })
     fetch(request,
         {
-            method: "POST",
+            method: "GET",
             credentials: "same-origin",
         }
     ).then(res => {
