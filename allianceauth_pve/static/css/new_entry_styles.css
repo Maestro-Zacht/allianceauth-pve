@@ -12,9 +12,9 @@
     width: 1px;
 }
 
-input {
+/* input {
     border: none;
-}
+} */
 
 input[type=text],
 input[type=number] {
