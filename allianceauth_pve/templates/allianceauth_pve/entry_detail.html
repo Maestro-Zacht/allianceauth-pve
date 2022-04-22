@@ -6,6 +6,17 @@
 {% block page_title %}Entry Details{% endblock page_title %}
 
 {% block extra_css %}
+    <style>
+        .fa-heart-red {
+            transform: scale(2, 2);
+            
+            color: #E4115C;
+        }
+
+        td, th {
+            text-align: center;
+        }
+    </style>
 {% endblock extra_css %}
 
 {% block content %}
@@ -42,7 +53,7 @@
                 <table class="table table-aa">
                     <thead>
                         <tr>
-                            <th>Character</th>
+                            <th style="text-align: left;">Character</th>
                             <th>Helped Setups</th>
                             <th>Count</th>
                             <th>Share Total</th>
@@ -52,11 +63,17 @@
                     <tbody>
                         {% for share in entry.ratting_shares.all %}
                             <tr>
-                                <td>
+                                <td style="text-align: left;">
                                     <img src="{{ share.user.profile.main_character|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
                                     {{ share.user.profile.main_character.character_name }}
                                 </td>
-                                <td>{{ share.helped_setup }}</td>
+                                <td>
+                                    {% if share.helped_setup %}
+                                        <i class="fas fa-heart fa-heart-red"></i>
+                                    {% else %}
+                                        <i class="far fa-heart fa-heart-red"></i>
+                                    {% endif %}
+                                </td>
                                 <td>{{ share.share_count }}</td>
                                 <td>{{ share.estimated_share_total|floatformat|intcomma }}</td>
                             </tr>

@@ -85,6 +85,21 @@ function addCharacter(initial) {
     check.name = `form-${formNum}-helped_setup`;
     check.id = `id_form-${formNum}-helped_setup`;
 
+    const checkLabel = document.createElement('label');
+    checkLabel.htmlFor = check.id;
+    checkLabel.id = `helped_setup-label-${formNum}`;
+    checkLabel.classList.add('custom-checkbox');
+
+    const uncheckedIcon = document.createElement('i');
+    uncheckedIcon.classList.add('far', 'fa-heart', 'unchecked');
+
+    const checkedIcon = document.createElement('i');
+    checkedIcon.classList.add('fas', 'fa-heart', 'checked');
+
+    checkLabel.appendChild(check);
+    checkLabel.appendChild(checkedIcon);
+    checkLabel.appendChild(uncheckedIcon);
+
     const count = document.createElement("input");
     count.type = "number";
     count.name = `form-${formNum}-share_count`;
@@ -105,7 +120,7 @@ function addCharacter(initial) {
 
     deleteButton.appendChild(deleteImage);
 
-    usersContainer.append(name, profileDiv, check, count, deleteButton);
+    usersContainer.append(name, profileDiv, checkLabel, count, deleteButton);
 
     formNum++;
     totalForms.setAttribute('value', `${formNum}`);
@@ -128,7 +143,7 @@ function removeCharacter(index) {
         document.getElementById(`username-span-${i}`).remove();
         document.getElementById(`profile-pic-${i}`).remove();
         document.getElementById(`profile-div-${i}`).remove();
-        document.getElementById(`id_form-${i}-helped_setup`).remove();
+        document.getElementById(`helped_setup-label-${i}`).remove();
         document.getElementById(`id_form-${i}-share_count`).remove();
         document.getElementById(`delete-row-${i}`).remove();
     }

@@ -8,6 +8,7 @@
 
 {% block extra_css %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/new_entry_styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/custom_checkbox.css' %}">
 {% endblock extra_css %}
 
 {% block content %}
@@ -45,7 +46,11 @@
                                         <img src="{{ sform.user.value|get_main_character|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;" id="profile-pic-{{ forloop.counter0 }}">
                                         <span id="username-span-{{ forloop.counter0 }}" style="margin-left: 20px;">{{ sform.user.value|get_main_character:"character_name" }}</span>
                                     </div>
-                                    {{ sform.helped_setup }}
+                                    <label for="id_form-{{ forloop.counter0 }}-helped_setup" class="custom-checkbox" id="helped_setup-label-{{ forloop.counter0 }}">
+                                        {{ sform.helped_setup }}
+                                        <i class="far fa-heart unchecked"></i>
+                                        <i class="fas fa-heart checked"></i>
+                                    </label>
                                     {{ sform.share_count }}
                                     <button type="button" id="delete-row-{{ forloop.counter0 }}" class="btn btn-danger btn-sm" style="transform: scale(0.5, 0.5);"><i class="fas fa-times" id="delete-icon-{{ forloop.counter0 }}"></i></button>
                                 {% endfor %}
