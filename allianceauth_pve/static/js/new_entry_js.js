@@ -4,6 +4,10 @@ const searchBar = document.getElementById('search-bar-id');
 const searchResults = document.getElementById('search-results');
 let totalForms = document.querySelector("#id_form-TOTAL_FORMS");
 let formNum = totalForms.getAttribute('value');
+const incrementAllButton = document.getElementById('incrementAllButton');
+const incrementSelectedButton = document.getElementById('incrementSelectedButton');
+const decrementSelectedButton = document.getElementById('decrementSelectedButton');
+const decrementAllButton = document.getElementById('decrementAllButton');
 
 function getCookie(name) {
     let cookieValue = null;
@@ -27,7 +31,7 @@ function initObj(src, def) {
     if (!src) return Object.assign({}, def);
     const res = {};
     for (var key in def) {
-        res[key] = key in src ? src[key] : def;
+        res[key] = key in src ? src[key] : def[key];
     }
     return res;
 }
@@ -39,19 +43,40 @@ function createSpan(text, className = "") {
     return span;
 }
 
-const zeroCharacter = { profilePic: '', username: '', userId: 0, setup: false, count: 1 };
+const zeroCharacter = { profilePic: '', username: '', userId: 0, setup: false, count: 1, selected: true };
 
 function addCharacter(initial) {
     const data = initObj(initial, zeroCharacter);
     if (formNum == 0) {
         usersContainer.textContent = '';
         usersContainer.append(
+            createSpan("Select", "head"),
             createSpan("Character", "head"),
             createSpan("Setup", "head"),
             createSpan("Count", "head"),
             createSpan("Delete", "head"),
         );
     }
+
+    const userSelectedInput = document.createElement('input');
+    userSelectedInput.type = "checkbox";
+    userSelectedInput.classList.add('setup');
+    userSelectedInput.id = `select-share-checkbox-${formNum}`;
+    userSelectedInput.checked = data.selected;
+
+    const userCheckedIcon = document.createElement('i');
+    userCheckedIcon.classList.add('fas', 'fa-arrow-right', 'checked', 'selected-user');
+
+    const userUncheckedIcon = document.createElement('i');
+    userUncheckedIcon.classList.add('fas', 'fa-running', 'unchecked', 'unselected-user');
+
+    const userSelectedLabel = document.createElement('label');
+    userSelectedLabel.htmlFor = userSelectedInput.id;
+    userSelectedLabel.classList.add('custom-checkbox');
+    userSelectedLabel.id = `select-share-label-${formNum}`;
+    userSelectedLabel.appendChild(userSelectedInput);
+    userSelectedLabel.appendChild(userCheckedIcon);
+    userSelectedLabel.appendChild(userUncheckedIcon);
 
     const name = document.createElement("input");
     name.type = "number";
@@ -88,7 +113,7 @@ function addCharacter(initial) {
     const checkLabel = document.createElement('label');
     checkLabel.htmlFor = check.id;
     checkLabel.id = `helped_setup-label-${formNum}`;
-    checkLabel.classList.add('custom-checkbox');
+    checkLabel.classList.add('custom-checkbox', 'red-heart');
 
     const uncheckedIcon = document.createElement('i');
     uncheckedIcon.classList.add('far', 'fa-heart', 'unchecked');
@@ -123,7 +148,7 @@ function addCharacter(initial) {
 
     deleteButton.appendChild(deleteImage);
 
-    usersContainer.append(name, profileDiv, checkLabel, count, deleteButton);
+    usersContainer.append(userSelectedLabel, name, profileDiv, checkLabel, count, deleteButton);
 
     formNum++;
     totalForms.setAttribute('value', `${formNum}`);
@@ -135,6 +160,7 @@ function removeCharacter(index) {
     for (let i = 0; i < formNum; i++) {
         if (i != index) {
             dataCopy.push({
+                selected: document.getElementById(`select-share-checkbox-${i}`).checked,
                 userId: document.getElementById(`id_form-${i}-user`).value,
                 username: document.getElementById(`username-span-${i}`).textContent,
                 profilePic: document.getElementById(`profile-pic-${i}`).src,
@@ -142,6 +168,7 @@ function removeCharacter(index) {
                 count: document.getElementById(`id_form-${i}-share_count`).value
             })
         }
+        document.getElementById(`select-share-label-${i}`).remove();
         document.getElementById(`id_form-${i}-user`).remove();
         document.getElementById(`username-span-${i}`).remove();
         document.getElementById(`profile-pic-${i}`).remove();
@@ -160,6 +187,24 @@ function removeCharacter(index) {
     dataCopy.forEach((value, index, array) => {
         addCharacter(value);
     })
+}
+
+function addToUserCount(index, value) {
+    if (index >= 0 && index < formNum) {
+        const count = document.getElementById(`id_form-${index}-share_count`);
+        if (parseInt(count.value) + value >= 0) {
+            count.stepUp(value);
+        }
+    }
+}
+
+function isUserSelected(index) {
+    if (index >= 0 && index < formNum) {
+        const userCheckbox = document.getElementById(`select-share-checkbox-${index}`);
+        return userCheckbox ? userCheckbox.checked : false;
+    } else {
+        return false;
+    }
 }
 
 searchBtn.addEventListener("click", e => {
@@ -200,7 +245,7 @@ searchBtn.addEventListener("click", e => {
                 addButton.type = "button";
                 addButton.classList.add('btn', 'btn-success');
                 addButton.addEventListener('click', () => {
-                    addCharacter({ profilePic: value.profile_pic, userId: value.user_id, username: value.character_name, setup: false, count: 1 });
+                    addCharacter({ profilePic: value.profile_pic, userId: value.user_id, username: value.character_name });
                     searchResults.replaceChildren(createSpan('No results', 'all-cols head'));
                     searchBar.value = '';
                 })
@@ -212,3 +257,31 @@ searchBtn.addEventListener("click", e => {
         })
     })
 });
+
+incrementAllButton.addEventListener('click', () => {
+    for (let i = 0; i < formNum; i++) {
+        addToUserCount(i, 1);
+    }
+});
+
+decrementAllButton.addEventListener('click', () => {
+    for (let i = 0; i < formNum; i++) {
+        addToUserCount(i, -1);
+    }
+});
+
+incrementSelectedButton.addEventListener('click', () => {
+    for (let i = 0; i < formNum; i++) {
+        if (isUserSelected(i)) {
+            addToUserCount(i, 1);
+        }
+    }
+})
+
+decrementSelectedButton.addEventListener('click', () => {
+    for (let i = 0; i < formNum; i++) {
+        if (isUserSelected(i)) {
+            addToUserCount(i, -1);
+        }
+    }
+})

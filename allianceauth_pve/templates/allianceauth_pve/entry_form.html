@@ -10,8 +10,19 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/new_entry_styles.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/custom_checkbox.css' %}">
     <style>
-        .custom-checkbox {
+        .red-heart {
             color: #E4115C;
+            transform: scale(2, 2);
+        }
+
+        .selected-user {
+            color: #259c21;
+            transform: scale(1.5, 1.5);
+        }
+
+        .unselected-user {
+            transform: scaleX(-1);
+            color: #ff5e00;
         }
     </style>
 {% endblock extra_css %}
@@ -27,47 +38,57 @@
                     </div>
                     <div class="panel-body">
                         <form id="entry-form" method="POST">
-                        {% csrf_token %}
-                            {{ entryform.non_field_errors  }}
-                            <div class="field">
-                                {{ entryform.estimated_total.label_tag }}
-                                {{ entryform.estimated_total }}
-                            </div>
-                            {{ entryform.estimated_total.errors }}
-                            <hr>
-                            {{ shareforms.management_form }}
-                            <div id="users">
-                                {% if shareforms.initial_form_count > 0 %}
-                                    <span class="head">Character</span>
-                                    <span class="head">Setup</span>
-                                    <span class="head">Count</span>
-                                    <span class="head">Delete</span>
-                                {% else %}
-                                    <span class="all-cols head">No character yet</span>
-                                {% endif %}
+                            {% csrf_token %}
+                                {{ entryform.non_field_errors  }}
+                                <div class="field">
+                                    {{ entryform.estimated_total.label_tag }}
+                                    {{ entryform.estimated_total }}
+                                    <button type="button" id="incrementAllButton" class="btn btn-success btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Increment All Shares"><i class="fas fa-user-plus"></i></button>
+                                    <button type="button" id="incrementSelectedButton" class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Increment Selected Shares"><i class="fas fa-user-cog"></i></button>
+                                    <button type="button" id="decrementSelectedButton" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Decrement Selected Shares"><i class="fas fa-user-cog"></i></button>
+                                    <button type="button" id="decrementAllButton" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Decrement All Shares"><i class="fas fa-user-minus"></i></button>
+                                </div>
+                                {{ entryform.estimated_total.errors }}
+                                <hr>
+                                {{ shareforms.management_form }}
+                                <div id="users">
+                                    {% if shareforms.initial_form_count > 0 %}
+                                        <span class="head">Select</span>
+                                        <span class="head">Character</span>
+                                        <span class="head">Setup</span>
+                                        <span class="head">Count</span>
+                                        <span class="head">Delete</span>
+                                    {% else %}
+                                        <span class="all-cols head">No character yet</span>
+                                    {% endif %}
 
-                                {% for sform in shareforms %}
-                                    {{ sform.user }}
-                                    <div id="profile-div-{{ forloop.counter0 }}">
-                                        <img src="{{ sform.user.value|get_main_character|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;" id="profile-pic-{{ forloop.counter0 }}">
-                                        <span id="username-span-{{ forloop.counter0 }}" style="margin-left: 20px;">{{ sform.user.value|get_main_character:"character_name" }}</span>
-                                    </div>
-                                    <label for="id_form-{{ forloop.counter0 }}-helped_setup" class="custom-checkbox" id="helped_setup-label-{{ forloop.counter0 }}">
-                                        {{ sform.helped_setup }}
-                                        <i class="far fa-heart unchecked"></i>
-                                        <i class="fas fa-heart checked"></i>
-                                    </label>
-                                    {{ sform.share_count }}
+                                    {% for sform in shareforms %}
+                                        <label for="select-share-checkbox-{{ forloop.counter0 }}" class="custom-checkbox" id="select-share-label-{{ forloop.counter0 }}" style="transform: none;">
+                                            <input type="checkbox" class="setup" id="select-share-checkbox-{{ forloop.counter0 }}" checked>
+                                            <i class="fas fa-arrow-right checked selected-user"></i>
+                                            <i class="fas fa-running unchecked unselected-user"></i>
+                                        </label>
+                                        {{ sform.user }}
+                                        <div id="profile-div-{{ forloop.counter0 }}">
+                                            <img src="{{ sform.user.value|get_main_character|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;" id="profile-pic-{{ forloop.counter0 }}">
+                                            <span id="username-span-{{ forloop.counter0 }}" style="margin-left: 20px;">{{ sform.user.value|get_main_character:"character_name" }}</span>
+                                        </div>
+                                        <label for="id_form-{{ forloop.counter0 }}-helped_setup" class="custom-checkbox red-heart" id="helped_setup-label-{{ forloop.counter0 }}">
+                                            {{ sform.helped_setup }}
+                                            <i class="far fa-heart unchecked"></i>
+                                            <i class="fas fa-heart checked"></i>
+                                        </label>
+                                        {{ sform.share_count }}
                                         <button type="button" id="delete-row-{{ forloop.counter0 }}" class="btn btn-danger btn-sm" style="transform: scale(0.5, 0.5);" onclick="removeCharacter({{ forloop.counter0 }})"><i class="fas fa-times" id="delete-icon-{{ forloop.counter0 }}"></i></button>
-                                {% endfor %}
+                                    {% endfor %}
+                                </div>
+                            <div style="text-align: right; margin-top: 15px;">
+                                <a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}" class="btn btn-danger">Back</a>
+                                <button type="submit" class="btn btn-primary" style="margin-left: 5px;">Submit</button>
                             </div>
-                        <div style="text-align: right; margin-top: 15px;">
-                            <a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}" class="btn btn-danger">Back</a>
-                            <button type="submit" class="btn btn-primary" style="margin-left: 5px;">Submit</button>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
-            </div>
             </div>
             <div class="col-sm-4">
                 <div class="panel panel-success">
