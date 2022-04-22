@@ -1,4 +1,4 @@
-const addBtn = document.getElementById('search-bar-btn');
+const searchBtn = document.getElementById('search-bar-btn');
 const usersContainer = document.getElementById('users');
 const searchBar = document.getElementById('search-bar-id');
 const searchResults = document.getElementById('search-results');
@@ -113,6 +113,9 @@ function addCharacter(initial) {
     deleteButton.classList.add('btn', 'btn-danger');
     deleteButton.id = `delete-row-${formNum}`;
     deleteButton.style.transform = "scale(0.5, 0.5)";
+    deleteButton.addEventListener('click', (el) => {
+        removeCharacter(el.currentTarget.id.match(/[0-9]+/g)[0]);
+    })
 
     const deleteImage = document.createElement('i');
     deleteImage.classList.add('fa', 'fa-times');
@@ -159,7 +162,7 @@ function removeCharacter(index) {
     })
 }
 
-addBtn.addEventListener("click", e => {
+searchBtn.addEventListener("click", e => {
     e.preventDefault()
 
     let excludeIds = [];
@@ -209,10 +212,3 @@ addBtn.addEventListener("click", e => {
         })
     })
 });
-
-usersContainer.addEventListener('click', e => {
-    if (e.target && (e.target.matches('button') || e.target.matches('i'))) {
-        let buttonId = parseInt(e.target.id.match(/[0-9]+/g)[0]);
-        removeCharacter(buttonId);
-    }
-})
