@@ -8,6 +8,7 @@ const incrementAllButton = document.getElementById('incrementAllButton');
 const incrementSelectedButton = document.getElementById('incrementSelectedButton');
 const decrementSelectedButton = document.getElementById('decrementSelectedButton');
 const decrementAllButton = document.getElementById('decrementAllButton');
+const estimatedTotalInput = document.getElementById('id_estimated_total');
 
 function getCookie(name) {
     let cookieValue = null;
@@ -207,6 +208,13 @@ function isUserSelected(index) {
     }
 }
 
+function incrementEstimatedTotal(value) {
+    let newValue = +estimatedTotalInput.value + value;
+    if (newValue > 0 && newValue < +estimatedTotalInput.max) {
+        estimatedTotalInput.value = newValue;
+    }
+}
+
 searchBtn.addEventListener("click", e => {
     e.preventDefault()
 
@@ -276,7 +284,7 @@ incrementSelectedButton.addEventListener('click', () => {
             addToUserCount(i, 1);
         }
     }
-})
+});
 
 decrementSelectedButton.addEventListener('click', () => {
     for (let i = 0; i < formNum; i++) {
@@ -284,4 +292,4 @@ decrementSelectedButton.addEventListener('click', () => {
             addToUserCount(i, -1);
         }
     }
-})
+});
