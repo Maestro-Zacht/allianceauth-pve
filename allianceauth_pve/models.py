@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.db.models.functions import Coalesce
 
 from allianceauth.services.hooks import get_extension_logger
+from allianceauth.eveonline.models import EveCharacter
 
 logger = get_extension_logger(__name__)
 
@@ -82,28 +83,22 @@ class Rotation(models.Model):
 
 
 class EntryCharacter(models.Model):
-    share_count = models.PositiveIntegerField(default=1)
     entry = models.ForeignKey('Entry', on_delete=models.CASCADE, related_name='ratting_shares')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='ratting_shares')
+    user_character = models.ForeignKey(EveCharacter, on_delete=models.CASCADE, related_name='ratting_shares')
+    role = models.ForeignKey('EntryRole', on_delete=models.RESTRICT, related_name='shares')
+
+    site_count = models.PositiveIntegerField(default=1)
     helped_setup = models.BooleanField(default=False)
     estimated_share_total = models.FloatField(default=0)
     actual_share_total = models.FloatField(default=0)
-
-    @property
-    def estimated_total(self):
-        return (self.entry.estimated_total_after_tax / self.entry.total_shares_count) * self.share_count
-
-    @property
-    def actual_total(self):
-        return (self.entry.actual_total_after_tax / self.entry.total_shares_count) * self.share_count
 
     class Meta:
         default_permissions = ()
 
 
 class Entry(models.Model):
-    rotation = models.ForeignKey('Rotation', on_delete=models.CASCADE, related_name='entries')
-    shares = models.ManyToManyField(settings.AUTH_USER_MODEL, through=EntryCharacter, related_name='+')
+    rotation = models.ForeignKey(Rotation, on_delete=models.CASCADE, related_name='entries')
     estimated_total = models.FloatField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -115,10 +110,6 @@ class Entry(models.Model):
         verbose_name_plural = 'entries'
 
     @property
-    def total_shares_count(self):
-        return self.ratting_shares.aggregate(val=Coalesce(models.Sum('share_count'), 0))["val"]
-
-    @property
     def estimated_total_after_tax(self):
         tax_perc = (100 - self.rotation.tax_rate) / 100
         return self.estimated_total * tax_perc
@@ -128,19 +119,44 @@ class Entry(models.Model):
         return self.estimated_total_after_tax * self.rotation.sales_percentage
 
     def update_share_totals(self):
-        shares_count = self.total_shares_count
-        if shares_count == 0:
+        sum_sites = self.ratting_shares.aggregate(val=Coalesce(models.Sum('site_count'), 0))['val']
+        num_roles = self.roles.aggregate(val=models.Count('pk'))['val']
+        if sum_sites == 0 or num_roles == 0:
             self.delete()
         else:
             self.save()
 
+            role_query = EntryRole.objects.filter(id=models.OuterRef('role_id'))
+
+            role_relative_value_query = role_query.values('value')[:1]
+            total_roles_values = self.roles.aggregate(val=models.Sum('value'))['val']
+            role_sites = role_query.annotate(role_sites=models.Sum('shares__site_count')).values('role_sites')[:1]
+
             self.ratting_shares\
                 .annotate(estimated_total_after_tax=models.Value(self.estimated_total) * (models.Value(100) - models.Value(self.rotation.tax_rate)) / models.Value(100))\
                 .annotate(actual_total_after_tax=models.F('estimated_total_after_tax') * models.Value(self.rotation.sales_percentage))\
+                .annotate(rr_value=models.Subquery(role_relative_value_query))\
+                .annotate(r_sites=models.Subquery(role_sites))\
+                .annotate(relative_value=models.ExpressionWrapper(models.F('rr_value') / models.Value(total_roles_values, output_field=models.FloatField()), output_field=models.FloatField()))\
+                .annotate(relative_sites=models.ExpressionWrapper(models.F('r_sites') / models.Value(sum_sites, output_field=models.FloatField()), output_field=models.FloatField()))\
+                .annotate(share_val=models.ExpressionWrapper(models.F('site_count') / models.Value(sum_sites, output_field=models.FloatField()), output_field=models.FloatField()))\
+                .annotate(
+                    share_split=models.ExpressionWrapper(models.F('relative_value') * models.F('relative_sites') * models.F('share_val'), output_field=models.FloatField())
+                )\
                 .update(
-                    estimated_share_total=(models.F('estimated_total_after_tax') / models.Value(shares_count)) * models.F('share_count'),
-                    actual_share_total=(models.F('actual_total_after_tax') / models.Value(shares_count)) * models.F('share_count')
+                    estimated_share_total=models.F('share_split') * models.F('estimated_total_after_tax'),
+                    actual_share_total=models.F('share_split') * models.F('actual_total_after_tax'),
                 )
+
+    class Meta:
+        default_permissions = ()
+
+
+class EntryRole(models.Model):
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name='roles')
+
+    name = models.CharField(max_length=64)
+    value = models.PositiveIntegerField('relative role value', help_text="Relative role value. Share values are computed using this field. If there are 2 roles with 10 and 15, they'll receive 10/25 and 15/25 of the share value.")
 
     class Meta:
         default_permissions = ()
