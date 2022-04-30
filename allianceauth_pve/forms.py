@@ -13,6 +13,14 @@ class NewEntryForm(forms.Form):
     estimated_total = forms.FloatField(min_value=1, max_value=1000000000000, initial=0, required=True, widget=forms.NumberInput(attrs={'style': 'width: 50%'}))
 
 
+class NewRoleForm(forms.Form):
+    name = forms.CharField()
+    value = forms.IntegerField(min_value=1)
+
+
+NewRoleFormSet = forms.formset_factory(NewRoleForm, extra=1)
+
+
 class UserPkField(forms.IntegerField):
     def validate(self, value):
         super().validate(value)
@@ -24,7 +32,8 @@ class UserPkField(forms.IntegerField):
 class NewShareForm(forms.Form):
     user = UserPkField(required=True, widget=forms.TextInput(attrs={'style': 'display: none;', 'class': 'user-pk-list'}))
     helped_setup = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'setup'}))
-    share_count = forms.IntegerField(min_value=0, required=True, widget=forms.NumberInput(attrs={'style': 'width: 10ch;'}))
+    site_count = forms.IntegerField(min_value=0, required=True, widget=forms.NumberInput(attrs={'style': 'width: 10ch;'}))
+    role = forms.CharField()
 
 
 NewShareFormSet = forms.formset_factory(NewShareForm, extra=0)
