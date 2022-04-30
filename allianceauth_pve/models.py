@@ -158,6 +158,9 @@ class EntryRole(models.Model):
     name = models.CharField(max_length=64)
     value = models.PositiveIntegerField('relative role value', help_text="Relative role value. Share values are computed using this field. If there are 2 roles with 10 and 15, they'll receive 10/25 and 15/25 of the share value.")
 
+    def __str__(self) -> str:
+        return self.name
+
     class Meta:
         default_permissions = ()
 
@@ -170,6 +173,6 @@ class RotationSetupSummary(models.Model):
     valid_setups = models.IntegerField()
 
     class Meta:
-        managed = False  # this is a view, check 0003
+        managed = False  # this is a view, check 0003 and 0005
         db_table = 'allianceauth_pve_setup_summary'
         default_permissions = ()
