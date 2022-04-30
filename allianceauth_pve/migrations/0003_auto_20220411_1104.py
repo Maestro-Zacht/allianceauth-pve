@@ -20,33 +20,33 @@ class Migration(migrations.Migration):
         ),
         migrations.RunSQL(
             sql="""
-            CREATE VIEW `allianceauth_pve_setup_summary` AS
+            CREATE VIEW allianceauth_pve_setup_summary AS
             SELECT row_number() OVER () as id,
-                `allianceauth_pve_rotation`.`id` AS `rotation_id`,
-                `allianceauth_pve_entrycharacter`.`character_id` AS `character_id`,
-                DATE(`allianceauth_pve_entry`.`created_at`) AS `entry_date`,
+                allianceauth_pve_rotation.id AS rotation_id,
+                allianceauth_pve_entrycharacter.character_id AS character_id,
+                DATE(allianceauth_pve_entry.created_at) AS entry_date,
                 CASE
                     WHEN SUM(
                         CASE
-                            WHEN `allianceauth_pve_entrycharacter`.`helped_setup` THEN 1
+                            WHEN allianceauth_pve_entrycharacter.helped_setup THEN 1
                             ELSE 0
                         END
-                    ) <= `allianceauth_pve_rotation`.`max_daily_setups` THEN SUM(
+                    ) <= allianceauth_pve_rotation.max_daily_setups THEN SUM(
                         CASE
-                            WHEN `allianceauth_pve_entrycharacter`.`helped_setup` THEN 1
+                            WHEN allianceauth_pve_entrycharacter.helped_setup THEN 1
                             ELSE 0
                         END
                     )
-                    ELSE `allianceauth_pve_rotation`.`max_daily_setups`
-                END AS `valid_setups`
-            FROM `allianceauth_pve_entrycharacter`
-                INNER JOIN `allianceauth_pve_entry` ON (
-                    `allianceauth_pve_entrycharacter`.`entry_id` = `allianceauth_pve_entry`.`id`
+                    ELSE allianceauth_pve_rotation.max_daily_setups
+                END AS valid_setups
+            FROM allianceauth_pve_entrycharacter
+                INNER JOIN allianceauth_pve_entry ON (
+                    allianceauth_pve_entrycharacter.entry_id = allianceauth_pve_entry.id
                 )
-                LEFT OUTER JOIN `allianceauth_pve_rotation` ON (
-                    `allianceauth_pve_entry`.`rotation_id` = `allianceauth_pve_rotation`.`id`
+                LEFT OUTER JOIN allianceauth_pve_rotation ON (
+                    allianceauth_pve_entry.rotation_id = allianceauth_pve_rotation.id
                 )
-            WHERE `allianceauth_pve_entrycharacter`.`entry_id` IN (
+            WHERE allianceauth_pve_entrycharacter.entry_id IN (
                 SELECT re2.entry_id
                 FROM allianceauth_pve_entrycharacter re2
                     INNER JOIN allianceauth_pve_entry re ON (re2.entry_id = re.id)
@@ -54,10 +54,10 @@ class Migration(migrations.Migration):
                 GROUP BY re2.entry_id, rr.min_people_share_setup
                 HAVING COUNT(re2.id) >= rr.min_people_share_setup
             )
-            GROUP BY `allianceauth_pve_entrycharacter`.`character_id`,
-                DATE(`allianceauth_pve_entry`.`created_at`),
-                `allianceauth_pve_rotation`.`id`;
+            GROUP BY allianceauth_pve_entrycharacter.character_id,
+                DATE(allianceauth_pve_entry.created_at),
+                allianceauth_pve_rotation.id;
             """,
-            reverse_sql='DROP VIEW IF EXISTS `allianceauth_pve_rotation_summary`'
+            reverse_sql='DROP VIEW IF EXISTS allianceauth_pve_rotation_summary'
         )
     ]
