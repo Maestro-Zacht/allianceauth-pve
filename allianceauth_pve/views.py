@@ -12,6 +12,7 @@ from django.db import transaction
 from django.views.generic.detail import DetailView
 
 from allianceauth.services.hooks import get_extension_logger
+from allianceauth.authentication.models import CharacterOwnership
 
 from .models import Entry, EntryCharacter, Rotation
 from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm
@@ -116,25 +117,26 @@ def get_avaiable_ratters(request, name=None):
         profile__main_character__isnull=False,
     )
 
+    ownerships = CharacterOwnership.objects.filter(user__in=ratting_users)
+
     if name:
-        ratting_users = ratting_users.filter(profile__main_character__character_name__icontains=name)
+        ownerships = ownerships.filter(character__character_name__icontains=name)
 
     exclude_ids = request.GET.getlist('excludeIds', [])
 
-    logger.debug(exclude_ids)
-
     if len(exclude_ids) > 0:
-        ratting_users = ratting_users.exclude(pk__in=exclude_ids)
-
-    ratting_users = ratting_users.distinct()
+        ownerships = ownerships.exclude(character_id__in=exclude_ids)
 
     return JsonResponse({
         'result': [
             {
-                'character_name': user.profile.main_character.character_name,
-                'profile_pic': user.profile.main_character.portrait_url_32,
-                'user_id': user.pk,
-            } for user in ratting_users
+                'character_id': ownership.character_id,
+                'character_name': ownership.character.character_name,
+                'profile_pic': ownership.character.portrait_url_32,
+                'user_id': ownership.user_id,
+                'user_main_character_name': ownership.user.profile.main_character.character_name,
+                'user_pic': ownership.user.portrait_url_32,
+            } for ownership in ownerships.distinct().select_related('character', 'user__profile__main_character')
         ],
     })
 
