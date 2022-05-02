@@ -110,6 +110,10 @@ class Entry(models.Model):
         verbose_name_plural = 'entries'
 
     @property
+    def total_shares_count(self):
+        return self.ratting_shares.aggregate(val=models.Count('user_id', distinct=True))['val']
+
+    @property
     def estimated_total_after_tax(self):
         tax_perc = (100 - self.rotation.tax_rate) / 100
         return self.estimated_total * tax_perc
@@ -160,6 +164,10 @@ class EntryRole(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    @property
+    def approximate_percentage(self):
+        return self.value * 100 / self.entry.roles.aggregate(val=models.Sum('value'))['val']
 
     class Meta:
         default_permissions = ()
