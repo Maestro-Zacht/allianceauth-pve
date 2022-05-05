@@ -13,9 +13,10 @@ from django.views.generic.detail import DetailView
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.authentication.models import CharacterOwnership
+from allianceauth.eveonline.models import EveCharacter
 
-from .models import Entry, EntryCharacter, Rotation
-from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm
+from .models import Entry, EntryCharacter, Rotation, EntryRole
+from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm, NewRoleFormSet
 from .actions import running_averages
 
 logger = get_extension_logger(__name__)
@@ -136,7 +137,7 @@ def get_avaiable_ratters(request, name=None):
                 'user_id': ownership.user_id,
                 'user_main_character_name': ownership.user.profile.main_character.character_name,
                 'user_pic': ownership.user.profile.main_character.portrait_url_32,
-            } for ownership in ownerships.distinct().select_related('character', 'user__profile__main_character')
+            } for ownership in ownerships.select_related('character', 'user__profile__main_character')
         ],
     })
 
@@ -147,7 +148,7 @@ def add_entry(request, rotation_id, entry_id=None):
     rotation = Rotation.objects.get(pk=rotation_id)
     if entry_id:
         entry = Entry.objects.get(pk=entry_id)
-        if entry.rotation != rotation:
+        if entry.rotation_id != rotation_id:
             messages.error(request, "The selected entry doesn't belong to the selected rotation")
             return redirect('allianceauth_pve:rotation_view', rotation_id)
         if entry.created_by != request.user and not request.user.is_superuser:
@@ -157,43 +158,59 @@ def add_entry(request, rotation_id, entry_id=None):
     if request.method == 'POST':
         entry_form = NewEntryForm(request.POST)
         share_form = NewShareFormSet(request.POST)
+        role_form = NewRoleFormSet(request.POST, prefix='roles')
 
-        if entry_form.is_valid() and share_form.is_valid():
-            with transaction.atomic():
-                if entry_id:
-                    entry.ratting_shares.all().delete()
-                    entry.estimated_total = entry_form.cleaned_data['estimated_total']
-                else:
-                    entry = Entry.objects.create(
-                        rotation=rotation,
-                        estimated_total=entry_form.cleaned_data['estimated_total'],
-                        created_by=request.user,
-                    )
+        if role_form.is_valid():
+            roles_choices = [(new_role['name'], new_role['name']) for new_role in role_form.cleaned_data if len(new_role) > 0]
+            for form in share_form:
+                form.fields['role'].choices = roles_choices
 
-                to_add = []
-                characters = set()
+            if entry_form.is_valid() and share_form.is_valid():
+                with transaction.atomic():
+                    if entry_id:
+                        entry.ratting_shares.all().delete()
+                        entry.roles.all().delete()
+                        entry.estimated_total = entry_form.cleaned_data['estimated_total']
+                        entry.save()
+                    else:
+                        entry = Entry.objects.create(
+                            rotation=rotation,
+                            estimated_total=entry_form.cleaned_data['estimated_total'],
+                            created_by=request.user,
+                        )
 
-                for new_share in share_form.cleaned_data:
-                    if len(new_share) > 0 and not new_share.get('DELETE', False):
-                        person = User.objects.get(pk=new_share['user'])
-                        if person.pk not in characters:
+                    to_add = []
+
+                    for new_role in role_form.cleaned_data:
+                        if len(new_role) > 0:
+                            to_add.append(EntryRole(entry=entry, name=new_role['name'], value=new_role['value']))
+
+                    EntryRole.objects.bulk_create(to_add)
+                    to_add.clear()
+
+                    for new_share in share_form.cleaned_data:
+                        if len(new_share) > 0:
+                            role = entry.roles.get(name=new_share['role'])
                             to_add.append(EntryCharacter(
                                 entry=entry,
-                                user=person,
-                                share_count=new_share['share_count'],
+                                role=role,
+                                user_character_id=new_share['character'],
+                                user_id=new_share['user'],
+                                site_count=new_share['site_count'],
                                 helped_setup=new_share['helped_setup'],
                             ))
-                            characters.add(person.pk)
 
-                EntryCharacter.objects.bulk_create(to_add)
+                    EntryCharacter.objects.bulk_create(to_add)
 
-                entry.update_share_totals()
+                    entry.update_share_totals()
 
-            messages.success(request, 'Entry added successfully')
+                messages.success(request, 'Entry added successfully')
 
-            return redirect('allianceauth_pve:rotation_view', rotation_id)
+                return redirect('allianceauth_pve:rotation_view', rotation_id)
+            else:
+                logger.error(f'forms not valid\nentry: {entry_form.errors}\nshares: {share_form.errors}\nroles: {role_form.errors}')
         else:
-            logger.error(f'forms not valid\nentry: {entry_form.errors}\nshares:{share_form.errors}')
+            logger.error(f'forms not valid\nentry: {entry_form.errors}\nshares: {share_form.errors}\nroles: {role_form.errors}')
 
     else:
         if entry_id:
@@ -201,17 +218,34 @@ def add_entry(request, rotation_id, entry_id=None):
             share_form = NewShareFormSet(initial=[
                 {
                     'user': share.user_id,
+                    'character': share.user_character_id,
                     'helped_setup': share.helped_setup,
-                    'share_count': share.share_count,
-                } for share in entry.ratting_shares.all()
+                    'site_count': share.site_count,
+                    'role': share.role.name,
+                } for share in entry.ratting_shares.select_related('role')
             ])
+            roles_choices = [(val, val) for val in entry.roles.values_list('name', flat=True)]
+            for form in share_form:
+                form.fields['role'].choices = roles_choices
+
+            role_form = NewRoleFormSet(initial=[
+                {
+                    'name': role.name,
+                    'value': role.value,
+                } for role in entry.roles.all()
+            ], prefix='roles')
         else:
             entry_form = NewEntryForm()
             share_form = NewShareFormSet()
+            role_form = NewRoleFormSet(prefix='roles', initial=[{
+                'name': 'Krab',
+                'value': 1,
+            }])
 
     context = {
         'entryform': entry_form,
         'shareforms': share_form,
+        'roleforms': role_form,
         'rotation': rotation,
     }
 

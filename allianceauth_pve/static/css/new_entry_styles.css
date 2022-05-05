@@ -16,9 +16,17 @@ input[type=number]:focus {
     outline: 2px rgb(19, 104, 160) solid;
 }
 
+#roles-div {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    column-gap: 3ch;
+    row-gap: 2rem;
+    align-items: center;
+}
+
 #users {
     display: grid;
-    grid-template-columns: auto 1fr auto auto auto;
+    grid-template-columns: auto 1fr 1fr auto auto auto auto;
     column-gap: 3ch;
     row-gap: 2rem;
     align-items: center;
