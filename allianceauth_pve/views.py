@@ -188,16 +188,23 @@ def add_entry(request, rotation_id, entry_id=None):
                     EntryRole.objects.bulk_create(to_add)
                     to_add.clear()
 
+                    setups = set()
+
                     for new_share in share_form.cleaned_data:
                         if len(new_share) > 0:
                             role = entry.roles.get(name=new_share['role'])
+
+                            setup = new_share['helped_setup'] and new_share['user'] not in setups
+                            if setup:
+                                setups.add(new_share['user'])
+
                             to_add.append(EntryCharacter(
                                 entry=entry,
                                 role=role,
                                 user_character_id=new_share['character'],
                                 user_id=new_share['user'],
                                 site_count=new_share['site_count'],
-                                helped_setup=new_share['helped_setup'],
+                                helped_setup=setup,
                             ))
 
                     EntryCharacter.objects.bulk_create(to_add)
