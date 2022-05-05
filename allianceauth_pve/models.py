@@ -124,32 +124,29 @@ class Entry(models.Model):
 
     def update_share_totals(self):
         sum_sites = self.ratting_shares.aggregate(val=Coalesce(models.Sum('site_count'), 0))['val']
-        num_roles = self.roles.aggregate(val=models.Count('pk'))['val']
+
+        self.roles.alias(char_count=models.Count('shares')).filter(char_count=0).delete()
+        num_roles = self.roles.count()
         if sum_sites == 0 or num_roles == 0:
             self.delete()
         else:
             self.save()
 
-            role_query = EntryRole.objects.filter(id=models.OuterRef('role_id'))
+            role_val_query = EntryRole.objects.filter(pk=models.OuterRef('role_id')).values('value')
 
-            role_relative_value_query = role_query.values('value')[:1]
-            total_roles_values = self.roles.aggregate(val=models.Sum('value'))['val']
-            role_sites = role_query.annotate(role_sites=models.Sum('shares__site_count')).values('role_sites')[:1]
+            annotated_shares = self.ratting_shares\
+                .annotate(role_val=models.Subquery(role_val_query))\
+                .annotate(weighted_share_value=models.F('site_count') * models.F('role_val'))
 
-            self.ratting_shares\
-                .annotate(estimated_total_after_tax=models.Value(self.estimated_total) * (models.Value(100) - models.Value(self.rotation.tax_rate)) / models.Value(100))\
-                .annotate(actual_total_after_tax=models.F('estimated_total_after_tax') * models.Value(self.rotation.sales_percentage))\
-                .annotate(rr_value=models.Subquery(role_relative_value_query))\
-                .annotate(r_sites=models.Subquery(role_sites))\
-                .annotate(relative_value=models.ExpressionWrapper(models.F('rr_value') / models.Value(total_roles_values, output_field=models.FloatField()), output_field=models.FloatField()))\
-                .annotate(relative_sites=models.ExpressionWrapper(models.F('r_sites') / models.Value(sum_sites, output_field=models.FloatField()), output_field=models.FloatField()))\
-                .annotate(share_val=models.ExpressionWrapper(models.F('site_count') / models.Value(sum_sites, output_field=models.FloatField()), output_field=models.FloatField()))\
-                .annotate(
-                    share_split=models.ExpressionWrapper(models.F('relative_value') * models.F('relative_sites') * models.F('share_val'), output_field=models.FloatField())
-                )\
+            total_value = annotated_shares.aggregate(val=models.Sum('weighted_share_value'))['val']
+            estimated_total_after_tax = self.estimated_total * (100 - self.rotation.tax_rate) / 100
+            actual_total_after_tax = estimated_total_after_tax * self.rotation.sales_percentage
+
+            annotated_shares\
+                .annotate(relative_value=models.F('weighted_share_value') / models.Value(total_value, output_field=models.FloatField()))\
                 .update(
-                    estimated_share_total=models.F('share_split') * models.F('estimated_total_after_tax'),
-                    actual_share_total=models.F('share_split') * models.F('actual_total_after_tax'),
+                    estimated_share_total=models.Value(estimated_total_after_tax) * models.F('relative_value'),
+                    actual_share_total=models.Value(actual_total_after_tax) * models.F('relative_value'),
                 )
 
     class Meta:
