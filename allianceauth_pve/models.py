@@ -132,22 +132,38 @@ class Entry(models.Model):
         else:
             self.save()
 
-            role_val_query = EntryRole.objects.filter(pk=models.OuterRef('role_id')).values('value')
-
-            annotated_shares = self.ratting_shares\
-                .annotate(role_val=models.Subquery(role_val_query))\
-                .annotate(weighted_share_value=models.F('site_count') * models.F('role_val'))
-
-            total_value = annotated_shares.aggregate(val=models.Sum('weighted_share_value'))['val']
             estimated_total_after_tax = self.estimated_total * (100 - self.rotation.tax_rate) / 100
             actual_total_after_tax = estimated_total_after_tax * self.rotation.sales_percentage
 
-            annotated_shares\
-                .annotate(relative_value=models.F('weighted_share_value') / models.Value(total_value, output_field=models.FloatField()))\
-                .update(
-                    estimated_share_total=models.Value(estimated_total_after_tax) * models.F('relative_value'),
-                    actual_share_total=models.Value(actual_total_after_tax) * models.F('relative_value'),
-                )
+            if settings.DATABASES[self.ratting_shares.db]['ENGINE'] == 'django.db.backends.mysql':
+                total_value = 0
+                for role in self.roles.all():
+                    total_value += role.shares.annotate(weighted_share_value=models.F('site_count') * models.Value(role.value))\
+                        .aggregate(val=models.Sum('weighted_share_value'))['val']
+
+                for role in self.roles.all():
+                    role.shares\
+                        .annotate(weighted_share_value=models.F('site_count') * models.Value(role.value))\
+                        .annotate(relative_value=models.F('weighted_share_value') / models.Value(total_value, output_field=models.FloatField()))\
+                        .update(
+                            estimated_share_total=models.Value(estimated_total_after_tax) * models.F('relative_value'),
+                            actual_share_total=models.Value(actual_total_after_tax) * models.F('relative_value'),
+                        )
+            else:
+                role_val_query = EntryRole.objects.filter(pk=models.OuterRef('role_id')).values('value')
+
+                annotated_shares = self.ratting_shares\
+                    .annotate(role_val=models.Subquery(role_val_query))\
+                    .annotate(weighted_share_value=models.F('site_count') * models.F('role_val'))
+
+                total_value = annotated_shares.aggregate(val=models.Sum('weighted_share_value'))['val']
+
+                annotated_shares\
+                    .annotate(relative_value=models.F('weighted_share_value') / models.Value(total_value, output_field=models.FloatField()))\
+                    .update(
+                        estimated_share_total=models.Value(estimated_total_after_tax) * models.F('relative_value'),
+                        actual_share_total=models.Value(actual_total_after_tax) * models.F('relative_value'),
+                    )
 
     class Meta:
         default_permissions = ()
