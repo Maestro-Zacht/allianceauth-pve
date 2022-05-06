@@ -33,7 +33,8 @@ The following is assuming you have a functioning AllianceAuth installation.
 1. `pip install allianceauth-pve`.
 2. Add `allianceauth_pve` (note the underscore) to your `INSTALLED_APPS`.
 3. Run migrations.
-4. Restart AllianceAuth
+4. Run collectstatic.
+5. Restart AllianceAuth.
 
 
 Permissions
