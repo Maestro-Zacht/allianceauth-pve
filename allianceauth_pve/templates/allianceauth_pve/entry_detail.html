@@ -47,13 +47,39 @@
 
         <div class="panel panel-primary">
             <div class="panel-heading">
+                <h3 class="panel-title text-center">Fleet Roles</h3>
+            </div>
+            <div class="panel-body">
+                <table class="table table-aa">
+                    <thead>
+                        <th scope="row">Role</th>
+                        <th scope="row">Value</th>
+                        <th scope="row">Approximate Percentage</th>
+                    </thead>
+                    <tbody>
+                        {% for role in entry.roles.all %}
+                            <tr>
+                                <td>{{ role.name }}</td>
+                                <td>{{ role.value }}</td>
+                                <td>{{ role.approximate_percentage|floatformat }}%</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="panel panel-success">
+            <div class="panel-heading">
                 <h3 class="panel-title text-center">Shares</h3>
             </div>
             <div class="panel-body">
                 <table class="table table-aa">
                     <thead>
                         <tr>
+                            <th style="text-align: left;">User's Main Character</th>
                             <th style="text-align: left;">Character</th>
+                            <th>Fleet Role</th>
                             <th>Helped Setups</th>
                             <th>Count</th>
                             <th>Share Total</th>
@@ -67,6 +93,11 @@
                                     <img src="{{ share.user.profile.main_character|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
                                     {{ share.user.profile.main_character.character_name }}
                                 </td>
+                                <td style="text-align: left;">
+                                    <img src="{{ share.user_character|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
+                                    {{ share.user_character.character_name }}
+                                </td>
+                                <td>{{ share.role.name }}</td>
                                 <td>
                                     {% if share.helped_setup %}
                                         <i class="fas fa-heart fa-heart-red"></i>
@@ -74,7 +105,7 @@
                                         <i class="far fa-heart fa-heart-red"></i>
                                     {% endif %}
                                 </td>
-                                <td>{{ share.share_count }}</td>
+                                <td>{{ share.site_count }}</td>
                                 <td>{{ share.estimated_share_total|floatformat|intcomma }}</td>
                             </tr>
                         {% endfor %}

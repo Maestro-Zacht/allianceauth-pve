@@ -38,7 +38,25 @@
                     </div>
                     <div class="panel-body">
                         <form id="entry-form" method="POST"> {% csrf_token %}
-                            <div class="field" style="margin-bottom: 10px;">
+                            {{ roleforms.management_form }}
+                            <div id="roles-div">
+                                <span class="head">Role</span>
+                                <span class="head">Value</span>
+                                <span class="head">Delete</span>
+
+                                {% for rform in roleforms %}
+                                    {{ rform.name }}
+                                    <span id="roles_form-{{ forloop.counter0 }}-name_span" class="head">{{ rform.name.value }}</span>
+                                    {{ rform.value }}
+                                    <button type="button" id="delete-role-{{ forloop.counter0 }}" class="btn btn-danger btn-sm" style="transform: scale(0.5, 0.5);"><i class="fas fa-times" id="remove-role-icon-{{ forloop.counter0 }}"></i></button>
+                                {% endfor %}
+                                
+                            </div>
+                            <div style="margin-top: 10px; text-align: center;">
+                                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#newRoleModal"><i class="fas fa-plus"></i></button>
+                            </div>
+                            <hr>
+                            <div class="field" style="margin-bottom: 20px;">
                                 <button type="button" id="drifterButton" class="btn btn-info" onclick="incrementEstimatedTotal(300000000)">Drifter</button>
                                 <button type="button" id="garrisonButton" class="btn btn-info" onclick="incrementEstimatedTotal(253400000)">Garrison</button>
                                 <button type="button" id="strongholdButton" class="btn btn-info" onclick="incrementEstimatedTotal(234900000)">Stronghold</button>
@@ -61,7 +79,9 @@
                             <div id="users">
                                 {% if shareforms.initial_form_count > 0 %}
                                     <span class="head">Select</span>
+                                    <span class="head">User's Main Char</span>
                                     <span class="head">Character</span>
+                                    <span class="head">Role</span>
                                     <span class="head">Setup</span>
                                     <span class="head">Count</span>
                                     <span class="head">Delete</span>
@@ -70,23 +90,51 @@
                                 {% endif %}
 
                                 {% for sform in shareforms %}
+                                    {% comment %} Selected character {% endcomment %}
                                     <label for="select-share-checkbox-{{ forloop.counter0 }}" class="custom-checkbox" id="select-share-label-{{ forloop.counter0 }}" style="transform: none;">
                                         <input type="checkbox" class="setup" id="select-share-checkbox-{{ forloop.counter0 }}" checked>
                                         <i class="fas fa-arrow-right checked selected-user"></i>
                                         <i class="fas fa-running unchecked unselected-user"></i>
                                     </label>
+
+                                    {% comment %} User {% endcomment %}
                                     {{ sform.user }}
                                     <div id="profile-div-{{ forloop.counter0 }}">
                                         <img src="{{ sform.user.value|get_main_character|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;" id="profile-pic-{{ forloop.counter0 }}">
-                                        <span id="username-span-{{ forloop.counter0 }}" style="margin-left: 20px;">{{ sform.user.value|get_main_character:"character_name" }}</span>
+                                        <span id="username-span-{{ forloop.counter0 }}" style="margin-left: 5px;">{{ sform.user.value|get_main_character|get_char_attr:"character_name" }}</span>
                                     </div>
+
+                                    {% comment %} Character {% endcomment %}
+                                    {{ sform.character }}
+                                    <div id="character-div-{{ forloop.counter0 }}">
+                                        <img src="{{ sform.character.value|get_char_attr:"portrait_url_32" }}" class="img-circle" style="margin-right: 1rem;" id="character-pic-{{ forloop.counter0 }}">
+                                        <span id="character_name-span-{{ forloop.counter0 }}" style="margin-left: 5px;">{{ sform.character.value|get_char_attr:"character_name" }}</span>
+                                    </div>
+
+                                    {% comment %} Fleet Role {% endcomment %}
+                                    <select name="form-{{ forloop.counter0 }}-role" id="id_form-{{ forloop.counter0 }}-role" class="form-control" style="height: auto;">
+                                        {% for rolef in roleforms %}
+                                            {% if rolef.name.value == sform.role.value %}
+                                                <option value="{{ rolef.name.value }}" selected>{{ rolef.name.value }}</option>
+                                            {% else %}
+                                                <option value="{{ rolef.name.value }}">{{ rolef.name.value }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    
+                                    {% comment %} Helped setup {% endcomment %}
                                     <label for="id_form-{{ forloop.counter0 }}-helped_setup" class="custom-checkbox red-heart" id="helped_setup-label-{{ forloop.counter0 }}">
                                         {{ sform.helped_setup }}
                                         <i class="far fa-heart unchecked"></i>
                                         <i class="fas fa-heart checked"></i>
                                     </label>
-                                    {{ sform.share_count }}
-                                    <button type="button" id="delete-row-{{ forloop.counter0 }}" class="btn btn-danger btn-sm" style="transform: scale(0.5, 0.5);" onclick="removeCharacter({{ forloop.counter0 }})"><i class="fas fa-times" id="delete-icon-{{ forloop.counter0 }}"></i></button>
+
+                                    {% comment %} Site Count {% endcomment %}
+                                    {{ sform.site_count }}
+
+                                    {% comment %} Delete Button {% endcomment %}
+                                    <button type="button" id="delete-row-{{ forloop.counter0 }}" class="btn btn-danger btn-sm" style="transform: scale(0.5, 0.5);"><i class="fas fa-times" id="delete-icon-{{ forloop.counter0 }}"></i></button>
+
                                 {% endfor %}
                             </div>
                             <div style="text-align: right; margin-top: 15px;">
@@ -112,6 +160,30 @@
                             <span class="all-cols head">No results</span>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="newRoleModal" tabindex="-1" role="dialog" aria-labelledby="roleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">New Role</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="roleForm">
+                        <div class="form-group row">
+                            <label for="id_roleName" style="margin-right: 15px;">Role Name:</label>
+                            <input type="text" name="roleName" id="id_roleName">
+                        </div>
+                        <div class="form-group row">
+                            <label for="id_roleValue" style="margin-right: 50px;">Value:</label>
+                            <input type="number" name="roleValue" id="id_roleValue">
+                        </div>
+                        <button type="button" class="btn btn-primary" id="submitNewRoleButton" data-dismiss="modal">Confirm</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Dismiss</button>
+                    </form>
                 </div>
             </div>
         </div>

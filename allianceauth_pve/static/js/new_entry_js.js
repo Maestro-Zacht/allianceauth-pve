@@ -9,6 +9,10 @@ const incrementSelectedButton = document.getElementById('incrementSelectedButton
 const decrementSelectedButton = document.getElementById('decrementSelectedButton');
 const decrementAllButton = document.getElementById('decrementAllButton');
 const estimatedTotalInput = document.getElementById('id_estimated_total');
+let totalRoleForms = document.querySelector("#id_roles-TOTAL_FORMS");
+let rolesFormNum = totalRoleForms.getAttribute('value');
+const rolesContainer = document.getElementById('roles-div');
+const submitRoleButton = document.getElementById('submitNewRoleButton');
 
 function getCookie(name) {
     let cookieValue = null;
@@ -44,7 +48,7 @@ function createSpan(text, className = "") {
     return span;
 }
 
-const zeroCharacter = { profilePic: '', username: '', userId: 0, setup: false, count: 1, selected: true };
+const zeroCharacter = { profilePic: '', username: '', userId: 0, characterPic: '', characterName: '', characterId: 0, setup: false, count: 1, selected: true, role: null };
 
 function addCharacter(initial) {
     const data = initObj(initial, zeroCharacter);
@@ -52,13 +56,15 @@ function addCharacter(initial) {
         usersContainer.textContent = '';
         usersContainer.append(
             createSpan("Select", "head"),
+            createSpan("User's Main Char", "head"),
             createSpan("Character", "head"),
+            createSpan("Role", "head"),
             createSpan("Setup", "head"),
             createSpan("Count", "head"),
             createSpan("Delete", "head"),
         );
     }
-
+    // Selected row
     const userSelectedInput = document.createElement('input');
     userSelectedInput.type = "checkbox";
     userSelectedInput.classList.add('setup');
@@ -79,6 +85,7 @@ function addCharacter(initial) {
     userSelectedLabel.appendChild(userCheckedIcon);
     userSelectedLabel.appendChild(userUncheckedIcon);
 
+    // User
     const name = document.createElement("input");
     name.type = "number";
     name.setAttribute('value', data.userId);
@@ -99,11 +106,55 @@ function addCharacter(initial) {
 
     const userSpan = createSpan(data.username);
     userSpan.id = `username-span-${formNum}`;
-    userSpan.style.marginLeft = "20px"
+    userSpan.style.marginLeft = "5px";
 
     profileDiv.appendChild(profilePic);
     profileDiv.appendChild(userSpan);
 
+    // Character
+    const charname = document.createElement('input');
+    charname.type = 'number';
+    charname.setAttribute('value', data.characterId);
+    charname.name = `form-${formNum}-character`;
+    charname.id = `id_form-${formNum}-character`;
+    charname.readOnly = true;
+    charname.style.display = 'none';
+    charname.classList.add('character-pk-list');
+
+    const characterDiv = document.createElement('div');
+    characterDiv.id = `character-div-${formNum}`;
+
+    const characterPic = document.createElement('img');
+    characterPic.src = data.characterPic;
+    characterPic.id = `character-pic-${formNum}`;
+    characterPic.classList.add('img-circle');
+    characterPic.style.marginRight = "1rem";
+
+    const characterSpan = createSpan(data.characterName);
+    characterSpan.id = `character_name-span-${formNum}`;
+    characterSpan.style.marginLeft = "5px";
+
+    characterDiv.appendChild(characterPic);
+    characterDiv.appendChild(characterSpan);
+
+    // Fleet role
+    const fleetRole = document.createElement('select');
+    fleetRole.name = `form-${formNum}-role`;
+    fleetRole.classList.add('form-control');
+    fleetRole.style.height = 'auto';
+    fleetRole.id = `id_form-${formNum}-role`;
+    for (let i = 0; i < rolesFormNum; i++) {
+        const role = document.getElementById(`roles_form-${i}-name_span`);
+        const roleOption = document.createElement('option');
+        roleOption.text = role.textContent;
+        roleOption.value = role.textContent;
+        if (role.textContent == data.role) {
+            roleOption.selected = true;
+        }
+        fleetRole.options.add(roleOption);
+    }
+
+    // Helped setup
     const check = document.createElement("input");
     check.type = "checkbox";
     check.checked = data.setup;
@@ -126,14 +177,16 @@ function addCharacter(initial) {
     checkLabel.appendChild(checkedIcon);
     checkLabel.appendChild(uncheckedIcon);
 
+    // Site count
     const count = document.createElement("input");
     count.type = "number";
-    count.name = `form-${formNum}-share_count`;
+    count.name = `form-${formNum}-site_count`;
     count.min = "0";
-    count.id = `id_form-${formNum}-share_count`;
+    count.id = `id_form-${formNum}-site_count`;
     count.value = data.count;
     count.style.width = "10ch";
 
+    // Delete button
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
     deleteButton.classList.add('btn', 'btn-danger');
@@ -149,7 +202,7 @@ function addCharacter(initial) {
 
     deleteButton.appendChild(deleteImage);
 
-    usersContainer.append(userSelectedLabel, name, profileDiv, checkLabel, count, deleteButton);
+    usersContainer.append(userSelectedLabel, name, profileDiv, charname, characterDiv, fleetRole, checkLabel, count, deleteButton);
 
     formNum++;
     totalForms.setAttribute('value', `${formNum}`);
@@ -160,30 +213,25 @@ function removeCharacter(index) {
 
     for (let i = 0; i < formNum; i++) {
         if (i != index) {
+            const roleSelect = document.getElementById(`id_form-${i}-role`);
             dataCopy.push({
                 selected: document.getElementById(`select-share-checkbox-${i}`).checked,
                 userId: document.getElementById(`id_form-${i}-user`).value,
                 username: document.getElementById(`username-span-${i}`).textContent,
                 profilePic: document.getElementById(`profile-pic-${i}`).src,
+                characterId: document.getElementById(`id_form-${i}-character`).value,
+                characterPic: document.getElementById(`character-pic-${i}`).src,
+                characterName: document.getElementById(`character_name-span-${i}`).textContent,
+                role: roleSelect.item(roleSelect.selectedIndex).text,
                 setup: document.getElementById(`id_form-${i}-helped_setup`).checked,
-                count: document.getElementById(`id_form-${i}-share_count`).value
+                count: document.getElementById(`id_form-${i}-site_count`).value,
             })
         }
-        document.getElementById(`select-share-label-${i}`).remove();
-        document.getElementById(`id_form-${i}-user`).remove();
-        document.getElementById(`username-span-${i}`).remove();
-        document.getElementById(`profile-pic-${i}`).remove();
-        document.getElementById(`profile-div-${i}`).remove();
-        document.getElementById(`helped_setup-label-${i}`).remove();
-        document.getElementById(`id_form-${i}-share_count`).remove();
-        document.getElementById(`delete-row-${i}`).remove();
     }
 
     formNum = 0;
     totalForms.setAttribute('value', `${formNum}`);
-    if (formNum == 0) {
-        usersContainer.replaceChildren(createSpan("No character yet", "all-cols head"));
-    }
+    usersContainer.replaceChildren(createSpan("No character yet", "all-cols head"));
 
     dataCopy.forEach((value, index, array) => {
         addCharacter(value);
@@ -192,8 +240,8 @@ function removeCharacter(index) {
 
 function addToUserCount(index, value) {
     if (index >= 0 && index < formNum) {
-        const count = document.getElementById(`id_form-${index}-share_count`);
-        if (parseInt(count.value) + value >= 0) {
+        const count = document.getElementById(`id_form-${index}-site_count`);
+        if (+count.value + value >= 0) {
             count.stepUp(value);
         }
     }
@@ -215,23 +263,110 @@ function incrementEstimatedTotal(value) {
     }
 }
 
+const zeroRole = { name: 'Krab', value: 1 };
+function addRole(initial) {
+    const data = initObj(initial, zeroRole);
+
+    const nameInput = document.createElement('input');
+    nameInput.type = 'hidden';
+    nameInput.name = `roles-${rolesFormNum}-name`;
+    nameInput.value = data.name;
+    nameInput.id = `id_roles-${rolesFormNum}-name`;
+
+    const nameSpan = createSpan(data.name, 'head');
+    nameSpan.id = `roles_form-${rolesFormNum}-name_span`;
+
+    const valueInput = document.createElement('input');
+    valueInput.type = 'number';
+    valueInput.name = `roles-${rolesFormNum}-value`;
+    valueInput.id = `id_roles-${rolesFormNum}-value`;
+    valueInput.value = data.value;
+
+    const deleteButton = document.createElement('button');
+    deleteButton.type = 'button';
+    deleteButton.id = `delete-role-${rolesFormNum}`;
+    deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
+    deleteButton.style.transform = 'scale(0.5, 0.5)';
+
+    const deleteImage = document.createElement('i');
+    deleteImage.classList.add('fas', 'fa-times');
+
+    deleteButton.appendChild(deleteImage);
+
+    deleteButton.addEventListener('click', (e) => {
+        removeRole(e.currentTarget.id.match(/[0-9]+/g)[0]);
+    });
+
+    rolesContainer.append(nameInput, nameSpan, valueInput, deleteButton);
+
+    rolesFormNum++;
+    totalRoleForms.setAttribute('value', `${rolesFormNum}`);
+
+    for (let i = 0; i < formNum; i++) {
+        const charRole = usersContainer.querySelector(`#id_form-${i}-role`);
+        const newOption = document.createElement('option');
+        newOption.text = data.name;
+        newOption.value = data.name;
+        charRole.options.add(newOption);
+    }
+}
+
+function removeRole(index) {
+    if (rolesFormNum > 1 && index >= 0 && index < rolesFormNum) {
+        const roleSpan = rolesContainer.querySelector(`#roles_form-${index}-name_span`);
+
+        for (let i = 0; i < formNum; i++) {
+            const charRole = usersContainer.querySelector(`#id_form-${i}-role`);
+            for (let j = 0; j < charRole.options.length; j++) {
+                const option = charRole.options.item(j);
+                if (option.text === roleSpan.textContent) {
+                    charRole.options.remove(j);
+                }
+            }
+        }
+        roleSpan.remove();
+        rolesContainer.querySelector(`#id_roles-${index}-name`).remove();
+        rolesContainer.querySelector(`#id_roles-${index}-value`).remove();
+        rolesContainer.querySelector(`#delete-role-${index}`).remove();
+
+        for (let i = +index + 1; i < rolesFormNum; i++) {
+            const nameInput = rolesContainer.querySelector(`#id_roles-${i}-name`);
+            nameInput.id = `id_roles-${i - 1}-name`;
+            nameInput.name = `roles-${i - 1}-name`;
+
+            const nameSpan = rolesContainer.querySelector(`#roles_form-${i}-name_span`);
+            nameSpan.id = `roles_form-${i - 1}-name_span`;
+
+            const valueInput = rolesContainer.querySelector(`#id_roles-${i}-value`);
+            valueInput.name = `roles-${i - 1}-value`;
+            valueInput.id = `id_roles-${i - 1}-value`;
+
+            const deleteButton = rolesContainer.querySelector(`#delete-role-${i}`);
+            deleteButton.id = `delete-role-${i - 1}`;
+        }
+
+        rolesFormNum--;
+        totalRoleForms.setAttribute('value', `${rolesFormNum}`);
+    }
+}
+
 searchBtn.addEventListener("click", e => {
     e.preventDefault()
+
+    searchResults.replaceChildren();
 
     let excludeIds = [];
     let queryStr = '';
 
-    Array.from(usersContainer.getElementsByClassName('user-pk-list')).forEach((el) => {
+    Array.from(usersContainer.getElementsByClassName('character-pk-list')).forEach((el) => {
         excludeIds.push(el.getAttribute('value'));
     });
 
     if (excludeIds.length > 0) {
         queryStr = '?excludeIds=' + excludeIds.join('&excludeIds=');
-    } else {
-        queryStr = '';
     }
 
-    const request = new Request((searchBar.value != '' ? `/pve/ratters/${searchBar.value}/` : '/pve/ratters/') + queryStr, { headers: { 'X-CSRFToken': csrftoken } })
+    const request = new Request((searchBar.value != '' ? `/pve/ratters/${searchBar.value}/` : '/pve/ratters/') + queryStr, { headers: { 'X-CSRFToken': csrftoken } });
     fetch(request,
         {
             method: "GET",
@@ -253,15 +388,23 @@ searchBtn.addEventListener("click", e => {
                 addButton.type = "button";
                 addButton.classList.add('btn', 'btn-success');
                 addButton.addEventListener('click', () => {
-                    addCharacter({ profilePic: value.profile_pic, userId: value.user_id, username: value.character_name });
-                    searchResults.replaceChildren(createSpan('No results', 'all-cols head'));
-                    searchBar.value = '';
+                    if (rolesFormNum > 0) {
+                        addCharacter({ profilePic: value.user_pic, username: value.user_main_character_name, userId: value.user_id, characterPic: value.profile_pic, characterName: value.character_name, characterId: value.character_id });
+                        searchResults.replaceChildren(createSpan('No results', 'all-cols head'));
+                        searchBar.value = '';
+                    } else {
+                        alert('You have to add a role first!');
+                    }
                 })
-
 
                 results.push(profile_image, characterInfo, addButton);
             })
-            searchResults.replaceChildren(...results);
+
+            if (results.length > 0) {
+                searchResults.replaceChildren(...results);
+            } else {
+                searchResults.replaceChildren(createSpan('No results', 'all-cols head'));
+            }
         })
     })
 });
@@ -292,4 +435,26 @@ decrementSelectedButton.addEventListener('click', () => {
             addToUserCount(i, -1);
         }
     }
+});
+
+submitRoleButton.addEventListener('click', (e) => {
+    const form = document.getElementById('roleForm');
+    const nameInput = form.querySelector('#id_roleName');
+    const valueInput = form.querySelector('#id_roleValue');
+    if (nameInput.value != '' && valueInput.value > 0) {
+        addRole({ name: nameInput.value, value: valueInput.value });
+        form.reset();
+    }
+});
+
+document.querySelectorAll('button[id^="delete-row-"]').forEach((element) => {
+    element.addEventListener('click', (el) => {
+        removeCharacter(el.currentTarget.id.match(/[0-9]+/g)[0]);
+    });
+});
+
+document.querySelectorAll('button[id^="delete-role-"]').forEach((element) => {
+    element.addEventListener('click', (e) => {
+        removeRole(e.currentTarget.id.match(/[0-9]+/g)[0]);
+    });
 });
