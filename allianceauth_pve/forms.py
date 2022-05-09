@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.eveonline.models import EveCharacter
+from allianceauth.authentication.models import CharacterOwnership
 
 from .models import Rotation
 
@@ -63,8 +64,13 @@ class NewShareFormset(forms.BaseFormSet):
             characters = set()
             for form in self.forms:
                 char = form.cleaned_data.get('character')
+                user = form.cleaned_data.get('user')
                 if char in characters:
                     raise ValidationError('Only 1 share per character!')
+
+                if not CharacterOwnership.objects.filter(character_id=char, user_id=user).exists():
+                    raise ValidationError('Character ownership wrong!')
+
                 characters.add(char)
 
 
