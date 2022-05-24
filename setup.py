@@ -9,7 +9,7 @@ with open('README.md') as readme_file:
 
 
 requirements = [
-    'allianceauth>=2.11.2,<3.0.0',
+    'allianceauth>=2.11.2,<4.0.0',
 ]
 
 test_requirements = []
