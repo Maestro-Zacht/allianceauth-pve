@@ -166,54 +166,55 @@ def add_entry(request, rotation_id, entry_id=None):
                 form.fields['role'].choices = roles_choices
 
             if entry_form.is_valid() and share_form.is_valid():
-                with transaction.atomic():
-                    if entry_id:
-                        entry.ratting_shares.all().delete()
-                        entry.roles.all().delete()
-                        entry.estimated_total = entry_form.cleaned_data['estimated_total']
-                        entry.save()
-                    else:
-                        entry = Entry.objects.create(
-                            rotation=rotation,
-                            estimated_total=entry_form.cleaned_data['estimated_total'],
-                            created_by=request.user,
-                        )
+                if share_form.total_form_count() > 0 and role_form.total_form_count() > 0:
+                    with transaction.atomic():
+                        if entry_id:
+                            entry.ratting_shares.all().delete()
+                            entry.roles.all().delete()
+                            entry.estimated_total = entry_form.cleaned_data['estimated_total']
+                            entry.save()
+                        else:
+                            entry = Entry.objects.create(
+                                rotation=rotation,
+                                estimated_total=entry_form.cleaned_data['estimated_total'],
+                                created_by=request.user,
+                            )
 
-                    to_add = []
+                        to_add = []
 
-                    for new_role in role_form.cleaned_data:
-                        if len(new_role) > 0:
-                            to_add.append(EntryRole(entry=entry, name=new_role['name'], value=new_role['value']))
+                        for new_role in role_form.cleaned_data:
+                            if len(new_role) > 0:
+                                to_add.append(EntryRole(entry=entry, name=new_role['name'], value=new_role['value']))
 
-                    EntryRole.objects.bulk_create(to_add)
-                    to_add.clear()
+                        EntryRole.objects.bulk_create(to_add)
+                        to_add.clear()
 
-                    setups = set()
+                        setups = set()
 
-                    for new_share in share_form.cleaned_data:
-                        if len(new_share) > 0:
-                            role = entry.roles.get(name=new_share['role'])
+                        for new_share in share_form.cleaned_data:
+                            if len(new_share) > 0:
+                                role = entry.roles.get(name=new_share['role'])
 
-                            setup = new_share['helped_setup'] and new_share['user'] not in setups
-                            if setup:
-                                setups.add(new_share['user'])
+                                setup = new_share['helped_setup'] and new_share['user'] not in setups
+                                if setup:
+                                    setups.add(new_share['user'])
 
-                            to_add.append(EntryCharacter(
-                                entry=entry,
-                                role=role,
-                                user_character_id=new_share['character'],
-                                user_id=new_share['user'],
-                                site_count=new_share['site_count'],
-                                helped_setup=setup,
-                            ))
+                                to_add.append(EntryCharacter(
+                                    entry=entry,
+                                    role=role,
+                                    user_character_id=new_share['character'],
+                                    user_id=new_share['user'],
+                                    site_count=new_share['site_count'],
+                                    helped_setup=setup,
+                                ))
 
-                    EntryCharacter.objects.bulk_create(to_add)
+                        EntryCharacter.objects.bulk_create(to_add)
 
-                    entry.update_share_totals()
+                        entry.update_share_totals()
 
-                messages.success(request, 'Entry added successfully')
+                    messages.success(request, 'Entry added successfully')
 
-                return redirect('allianceauth_pve:rotation_view', rotation_id)
+                    return redirect('allianceauth_pve:rotation_view', rotation_id)
             else:
                 logger.error(f'forms not valid\nentry: {entry_form.errors}\nshares: {share_form.errors}\nroles: {role_form.errors}')
         else:
