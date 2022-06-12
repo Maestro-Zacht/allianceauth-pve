@@ -321,6 +321,7 @@ function removeRole(index) {
                 const option = charRole.options.item(j);
                 if (option.text === roleSpan.textContent) {
                     charRole.options.remove(j);
+                    break;
                 }
             }
         }
