@@ -13,6 +13,7 @@ let totalRoleForms = document.querySelector("#id_roles-TOTAL_FORMS");
 let rolesFormNum = totalRoleForms.getAttribute('value');
 const rolesContainer = document.getElementById('roles-div');
 const submitRoleButton = document.getElementById('submitNewRoleButton');
+const roleSet = new Set();
 
 function getCookie(name) {
     let cookieValue = null;
@@ -267,47 +268,51 @@ const zeroRole = { name: 'Krab', value: 1 };
 function addRole(initial) {
     const data = initObj(initial, zeroRole);
 
-    const nameInput = document.createElement('input');
-    nameInput.type = 'hidden';
-    nameInput.name = `roles-${rolesFormNum}-name`;
-    nameInput.value = data.name;
-    nameInput.id = `id_roles-${rolesFormNum}-name`;
+    if (!roleSet.has(data.name)) {
+        const nameInput = document.createElement('input');
+        nameInput.type = 'hidden';
+        nameInput.name = `roles-${rolesFormNum}-name`;
+        nameInput.value = data.name;
+        nameInput.id = `id_roles-${rolesFormNum}-name`;
 
-    const nameSpan = createSpan(data.name, 'head');
-    nameSpan.id = `roles_form-${rolesFormNum}-name_span`;
+        const nameSpan = createSpan(data.name, 'head');
+        nameSpan.id = `roles_form-${rolesFormNum}-name_span`;
 
-    const valueInput = document.createElement('input');
-    valueInput.type = 'number';
-    valueInput.name = `roles-${rolesFormNum}-value`;
-    valueInput.id = `id_roles-${rolesFormNum}-value`;
-    valueInput.value = data.value;
+        const valueInput = document.createElement('input');
+        valueInput.type = 'number';
+        valueInput.name = `roles-${rolesFormNum}-value`;
+        valueInput.id = `id_roles-${rolesFormNum}-value`;
+        valueInput.value = data.value;
 
-    const deleteButton = document.createElement('button');
-    deleteButton.type = 'button';
-    deleteButton.id = `delete-role-${rolesFormNum}`;
-    deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
-    deleteButton.style.transform = 'scale(0.5, 0.5)';
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.id = `delete-role-${rolesFormNum}`;
+        deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
+        deleteButton.style.transform = 'scale(0.5, 0.5)';
 
-    const deleteImage = document.createElement('i');
-    deleteImage.classList.add('fas', 'fa-times');
+        const deleteImage = document.createElement('i');
+        deleteImage.classList.add('fas', 'fa-times');
 
-    deleteButton.appendChild(deleteImage);
+        deleteButton.appendChild(deleteImage);
 
-    deleteButton.addEventListener('click', (e) => {
-        removeRole(e.currentTarget.id.match(/[0-9]+/g)[0]);
-    });
+        deleteButton.addEventListener('click', (e) => {
+            removeRole(e.currentTarget.id.match(/[0-9]+/g)[0]);
+        });
 
-    rolesContainer.append(nameInput, nameSpan, valueInput, deleteButton);
+        rolesContainer.append(nameInput, nameSpan, valueInput, deleteButton);
 
-    rolesFormNum++;
-    totalRoleForms.setAttribute('value', `${rolesFormNum}`);
+        rolesFormNum++;
+        totalRoleForms.setAttribute('value', `${rolesFormNum}`);
 
-    for (let i = 0; i < formNum; i++) {
-        const charRole = usersContainer.querySelector(`#id_form-${i}-role`);
-        const newOption = document.createElement('option');
-        newOption.text = data.name;
-        newOption.value = data.name;
-        charRole.options.add(newOption);
+        for (let i = 0; i < formNum; i++) {
+            const charRole = usersContainer.querySelector(`#id_form-${i}-role`);
+            const newOption = document.createElement('option');
+            newOption.text = data.name;
+            newOption.value = data.name;
+            charRole.options.add(newOption);
+        }
+
+        roleSet.add(data.name);
     }
 }
 
@@ -325,6 +330,9 @@ function removeRole(index) {
                 }
             }
         }
+
+        roleSet.delete(roleSpan.textContent);
+
         roleSpan.remove();
         rolesContainer.querySelector(`#id_roles-${index}-name`).remove();
         rolesContainer.querySelector(`#id_roles-${index}-value`).remove();
@@ -458,4 +466,7 @@ document.querySelectorAll('button[id^="delete-role-"]').forEach((element) => {
     element.addEventListener('click', (e) => {
         removeRole(e.currentTarget.id.match(/[0-9]+/g)[0]);
     });
+    const eID = element.id.match(/[0-9]+/g)[0];
+    const roleSpan = document.getElementById(`roles_form-${eID}-name_span`);
+    roleSet.add(roleSpan.textContent);
 });
