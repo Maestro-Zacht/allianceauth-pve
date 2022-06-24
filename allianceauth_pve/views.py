@@ -13,7 +13,6 @@ from django.views.generic.detail import DetailView
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.authentication.models import CharacterOwnership
-from allianceauth.eveonline.models import EveCharacter
 
 from .models import Entry, EntryCharacter, Rotation, EntryRole
 from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm, NewRoleFormSet
@@ -63,7 +62,7 @@ def dashboard(request):
 @login_required
 @permission_required('allianceauth_pve.access_pve')
 def rotation_view(request, rotation_id):
-    r = Rotation.objects.get(pk=rotation_id)
+    r = get_object_or_404(Rotation, pk=rotation_id)
 
     if request.method == 'POST':
         closeform = CloseRotationForm(request.POST)
@@ -145,9 +144,9 @@ def get_avaiable_ratters(request, name=None):
 @login_required
 @permission_required('allianceauth_pve.manage_entries')
 def add_entry(request, rotation_id, entry_id=None):
-    rotation = Rotation.objects.get(pk=rotation_id)
+    rotation = get_object_or_404(Rotation, pk=rotation_id)
     if entry_id:
-        entry = Entry.objects.get(pk=entry_id)
+        entry = get_object_or_404(Entry, pk=entry_id)
         if entry.rotation_id != rotation_id:
             messages.error(request, "The selected entry doesn't belong to the selected rotation")
             return redirect('allianceauth_pve:rotation_view', rotation_id)
@@ -250,11 +249,14 @@ def add_entry(request, rotation_id, entry_id=None):
                 'value': 1,
             }])
 
+    button_paginator = Paginator(rotation.entry_buttons.all(), 5)
+
     context = {
         'entryform': entry_form,
         'shareforms': share_form,
         'roleforms': role_form,
         'rotation': rotation,
+        'buttonpaginator': button_paginator,
     }
 
     return render(request, 'allianceauth_pve/entry_form.html', context=context)

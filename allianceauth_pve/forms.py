@@ -80,7 +80,14 @@ NewShareFormSet = forms.formset_factory(NewShareForm, formset=NewShareFormset, e
 class NewRotationForm(forms.ModelForm):
     class Meta:
         model = Rotation
-        fields = ('name', 'priority', 'tax_rate', 'max_daily_setups', 'min_people_share_setup',)
+        fields = (
+            'name',
+            'priority',
+            'tax_rate',
+            'max_daily_setups',
+            'min_people_share_setup',
+            'entry_buttons',
+        )
 
 
 class CloseRotationForm(forms.Form):
