@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.db.models.functions import Coalesce
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.eveonline.models import EveCharacter
@@ -35,6 +36,17 @@ class RotationManager(models.Manager):
         return self.get_queryset().get_setup_summary()
 
 
+class PveButton(models.Model):
+    text = models.CharField(max_length=64, unique=True)
+    amount = models.FloatField(validators=[MinValueValidator(-1000000000000), MaxValueValidator(1000000000000)])
+
+    def __str__(self) -> str:
+        return self.text
+
+    class Meta:
+        default_permissions = ()
+
+
 class Rotation(models.Model):
     name = models.CharField(max_length=128)
 
@@ -51,6 +63,8 @@ class Rotation(models.Model):
     closed_at = models.DateTimeField(blank=True, null=True)
 
     priority = models.IntegerField(default=0, help_text='Ordering priority. The higher priorities are in the first positions.')
+
+    entry_buttons = models.ManyToManyField(PveButton, related_name='+', help_text='Button to be shown in the Entry form.')
 
     objects = RotationManager()
 
