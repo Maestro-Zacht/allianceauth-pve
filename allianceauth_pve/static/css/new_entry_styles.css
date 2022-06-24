@@ -4,9 +4,11 @@
     align-items: center;
 }
 
-.pve-button {
-    display: flex;
-    justify-content: space-around;
+#pve-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    column-gap: 3ch;
+    row-gap: 1.1rem;
     align-items: center;
     margin-bottom: 10px;
 }

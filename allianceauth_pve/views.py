@@ -249,14 +249,11 @@ def add_entry(request, rotation_id, entry_id=None):
                 'value': 1,
             }])
 
-    button_paginator = Paginator(rotation.entry_buttons.all(), 5)
-
     context = {
         'entryform': entry_form,
         'shareforms': share_form,
         'roleforms': role_form,
         'rotation': rotation,
-        'buttonpaginator': button_paginator,
     }
 
     return render(request, 'allianceauth_pve/entry_form.html', context=context)

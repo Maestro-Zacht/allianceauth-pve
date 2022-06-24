@@ -56,13 +56,12 @@
                                 <button type="button" class="btn btn-success" data-toggle="modal" data-target="#newRoleModal"><i class="fas fa-plus"></i></button>
                             </div>
                             <hr>
-                            {% for page in buttonpaginator %}
-                                <div class="pve-button">
-                                    {% for pvebutton in page %}
-                                        <button type="button" class="btn btn-info" onclick="incrementEstimatedTotal({{ pvebutton.amount }})">{{ pvebutton.text }}</button>
-                                    {% endfor %}
-                                </div>
-                            {% endfor %}
+                            
+                            <div id="pve-buttons">
+                                {% for pvebutton in rotation.entry_buttons.all %}
+                                    <button type="button" class="btn btn-info" onclick="incrementEstimatedTotal({{ pvebutton.amount }})">{{ pvebutton.text }}</button>
+                                {% endfor %}
+                            </div>
                             {{ entryform.non_field_errors }}
                             <div class="field">
                                 {{ entryform.estimated_total.label_tag }}
