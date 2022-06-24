@@ -37,7 +37,7 @@ class RotationManager(models.Manager):
 
 
 class PveButton(models.Model):
-    text = models.CharField(max_length=64, unique=True)
+    text = models.CharField(max_length=16, unique=True)
     amount = models.FloatField(validators=[MinValueValidator(-1000000000000), MaxValueValidator(1000000000000)])
 
     def __str__(self) -> str:

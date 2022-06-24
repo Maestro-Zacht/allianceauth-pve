@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
             name='PveButton',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.CharField(max_length=64, unique=True)),
+                ('text', models.CharField(max_length=16, unique=True)),
                 ('amount', models.FloatField(validators=[django.core.validators.MinValueValidator(-1000000000000), django.core.validators.MaxValueValidator(1000000000000)])),
             ],
             options={
