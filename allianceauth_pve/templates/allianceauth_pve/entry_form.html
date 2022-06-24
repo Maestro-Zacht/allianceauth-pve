@@ -56,14 +56,13 @@
                                 <button type="button" class="btn btn-success" data-toggle="modal" data-target="#newRoleModal"><i class="fas fa-plus"></i></button>
                             </div>
                             <hr>
-                            <div class="field" style="margin-bottom: 20px;">
-                                <button type="button" id="drifterButton" class="btn btn-info" onclick="incrementEstimatedTotal(300000000)">Drifter</button>
-                                <button type="button" id="garrisonButton" class="btn btn-info" onclick="incrementEstimatedTotal(253400000)">Garrison</button>
-                                <button type="button" id="strongholdButton" class="btn btn-info" onclick="incrementEstimatedTotal(234900000)">Stronghold</button>
-                                <button type="button" id="citadelButton" class="btn btn-info" onclick="incrementEstimatedTotal(310100000)">Citadel</button>
-                                <button type="button" id="bastionButton" class="btn btn-info" onclick="incrementEstimatedTotal(445600000)">Bastion</button>
-                                <button type="button" id="theMirrorButton" class="btn btn-info" onclick="incrementEstimatedTotal(363200000)">The Mirror</button>
-                            </div>
+                            {% for page in buttonpaginator %}
+                                <div class="pve-button">
+                                    {% for pvebutton in page %}
+                                        <button type="button" class="btn btn-info" onclick="incrementEstimatedTotal({{ pvebutton.amount }})">{{ pvebutton.text }}</button>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
                             {{ entryform.non_field_errors }}
                             <div class="field">
                                 {{ entryform.estimated_total.label_tag }}
