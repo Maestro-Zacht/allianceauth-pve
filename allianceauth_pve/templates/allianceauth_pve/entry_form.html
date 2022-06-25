@@ -3,6 +3,7 @@
 {% load bootstrap %}
 {% load evelinks %}
 {% load pvefilters %}
+{% load humanize %}
 
 {% block page_title %}New Entry{% endblock page_title %}
 
@@ -59,7 +60,7 @@
                             
                             <div id="pve-buttons">
                                 {% for pvebutton in rotation.entry_buttons.all %}
-                                    <button type="button" class="btn btn-info" onclick="incrementEstimatedTotal({{ pvebutton.amount }})">{{ pvebutton.text }}</button>
+                                    <button type="button" class="btn btn-info" onclick="incrementEstimatedTotal({{ pvebutton.amount }})" data-toggle="tooltip" data-placement="top" title="{{ pvebutton.amount|floatformat|intcomma }} ISK">{{ pvebutton.text }}</button>
                                 {% endfor %}
                             </div>
                             {{ entryform.non_field_errors }}
