@@ -165,7 +165,7 @@
                                         <img src="{{ entry.created_by.profile.main_character|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
                                         {{ entry.created_by.profile.main_character.character_name }}
                                     </td>
-                                    <td><a data-bs-toggle="tooltip" data-bs-placement="top" title="Show Details" href="{% url 'allianceauth_pve:entry_detail' entry.pk %}"><i class="fas fa-chevron-circle-right"></i></a></td>
+                                    <td><a data-toggle="tooltip" data-placement="top" title="Show Details" href="{% url 'allianceauth_pve:entry_detail' entry.pk %}"><i class="fas fa-chevron-circle-right"></i></a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -202,7 +202,7 @@
             </div>
         {% endif %}
         {% if perms.allianceauth_pve.manage_entries and not rotation.is_closed %}
-            <a href="{% url 'allianceauth_pve:new_entry' rotation.pk %}" class="float-button-pve" data-bs-toggle="tooltip" data-bs-placement="top" title="New Entry"><i class="fa fa-plus" style="margin-top:22px;"></i></a>
+            <a href="{% url 'allianceauth_pve:new_entry' rotation.pk %}" class="float-button-pve" data-toggle="tooltip" data-placement="top" title="New Entry"><i class="fa fa-plus" style="margin-top:22px;"></i></a>
         {% endif %}
         <a href="{% url 'allianceauth_pve:dashboard' %}" class="btn btn-danger" style="margin-bottom: 10px;">Back</a>
     </div>
@@ -227,3 +227,9 @@
         </div>
     {% endif %}
 {% endblock content %}
+
+{% block extra_script %}
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+{% endblock extra_script %}
