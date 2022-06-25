@@ -200,6 +200,26 @@ class EntryRole(models.Model):
         default_permissions = ()
 
 
+
+class RoleSetup(models.Model):
+    name = models.CharField(max_length=64, unique=True)
+
+    class Meta:
+        default_permissions = ()
+
+
+class GeneralRole(models.Model):
+    setup = models.ForeignKey(RoleSetup, on_delete=models.CASCADE, related_name='roles')
+
+    name = models.CharField(max_length=64)
+    value = models.PositiveIntegerField('relative role value', help_text="Relative role value. Share values are computed using this field. If there are 2 roles with 10 and 15, they'll receive 10/25 and 15/25 of the share value.")
+
+    def __str__(self) -> str:
+        return self.name
+
+    class Meta:
+        default_permissions = ()
+
 class RotationSetupSummary(models.Model):
     id = models.BigIntegerField(primary_key=True)
     rotation = models.ForeignKey(Rotation, on_delete=models.DO_NOTHING, related_name='+')
