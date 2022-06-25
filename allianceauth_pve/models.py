@@ -204,6 +204,9 @@ class EntryRole(models.Model):
 class RoleSetup(models.Model):
     name = models.CharField(max_length=64, unique=True)
 
+    def __str__(self) -> str:
+        return self.name
+
     class Meta:
         default_permissions = ()
 
