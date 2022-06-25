@@ -4,6 +4,15 @@
     align-items: center;
 }
 
+#pve-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    column-gap: 6ch;
+    row-gap: 1.5rem;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
 input[type=text],
 input[type=number] {
     font-size: 1em;

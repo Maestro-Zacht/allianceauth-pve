@@ -1,5 +1,5 @@
 {% extends 'allianceauth/base.html' %}
-{% load static %}
+{% load allianceauth_pve_versioned_static %}
 {% load bootstrap %}
 {% load evelinks %}
 {% load pvefilters %}
@@ -7,8 +7,8 @@
 {% block page_title %}New Entry{% endblock page_title %}
 
 {% block extra_css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/new_entry_styles.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/custom_checkbox.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% allianceauth_pve_static 'css/new_entry_styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% allianceauth_pve_static 'css/custom_checkbox.css' %}">
     <style>
         .red-heart {
             color: #E4115C;
@@ -56,13 +56,11 @@
                                 <button type="button" class="btn btn-success" data-toggle="modal" data-target="#newRoleModal"><i class="fas fa-plus"></i></button>
                             </div>
                             <hr>
-                            <div class="field" style="margin-bottom: 20px;">
-                                <button type="button" id="drifterButton" class="btn btn-info" onclick="incrementEstimatedTotal(300000000)">Drifter</button>
-                                <button type="button" id="garrisonButton" class="btn btn-info" onclick="incrementEstimatedTotal(253400000)">Garrison</button>
-                                <button type="button" id="strongholdButton" class="btn btn-info" onclick="incrementEstimatedTotal(234900000)">Stronghold</button>
-                                <button type="button" id="citadelButton" class="btn btn-info" onclick="incrementEstimatedTotal(310100000)">Citadel</button>
-                                <button type="button" id="bastionButton" class="btn btn-info" onclick="incrementEstimatedTotal(445600000)">Bastion</button>
-                                <button type="button" id="theMirrorButton" class="btn btn-info" onclick="incrementEstimatedTotal(363200000)">The Mirror</button>
+                            
+                            <div id="pve-buttons">
+                                {% for pvebutton in rotation.entry_buttons.all %}
+                                    <button type="button" class="btn btn-info" onclick="incrementEstimatedTotal({{ pvebutton.amount }})">{{ pvebutton.text }}</button>
+                                {% endfor %}
                             </div>
                             {{ entryform.non_field_errors }}
                             <div class="field">
@@ -191,7 +189,7 @@
 {% endblock content %}
 
 {% block extra_javascript %}
-    <script src="{% static 'js/new_entry_js.js' %}"></script>
+    <script src="{% allianceauth_pve_static 'js/new_entry_js.js' %}"></script>
 {% endblock extra_javascript %}
 
 {% block extra_script %}
