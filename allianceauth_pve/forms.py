@@ -87,7 +87,7 @@ class NewRotationForm(forms.ModelForm):
             'max_daily_setups',
             'min_people_share_setup',
             'entry_buttons',
-            'entry_setups',
+            'roles_setups',
         )
 
 
