@@ -366,8 +366,6 @@ function loadRolesSetup(pk, rotation_id) {
             for (let i = rolesFormNum - 1; i >= 0; i--) {
                 removeRole(i, true);
             }
-            rolesFormNum = 0;
-            totalRoleForms.setAttribute('value', `${rolesFormNum}`);
 
             data.result.forEach(item => {
                 addRole({ name: item.name, value: item.value });
