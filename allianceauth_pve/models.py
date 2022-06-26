@@ -47,6 +47,29 @@ class PveButton(models.Model):
         default_permissions = ()
 
 
+class RoleSetup(models.Model):
+    name = models.CharField(max_length=64, unique=True)
+
+    def __str__(self) -> str:
+        return self.name
+
+    class Meta:
+        default_permissions = ()
+
+
+class GeneralRole(models.Model):
+    setup = models.ForeignKey(RoleSetup, on_delete=models.CASCADE, related_name='roles')
+
+    name = models.CharField(max_length=64)
+    value = models.PositiveIntegerField('relative role value', help_text="Relative role value. Share values are computed using this field. If there are 2 roles with 10 and 15, they'll receive 10/25 and 15/25 of the share value.")
+
+    def __str__(self) -> str:
+        return self.name
+
+    class Meta:
+        default_permissions = ()
+
+
 class Rotation(models.Model):
     name = models.CharField(max_length=128)
 
@@ -65,6 +88,7 @@ class Rotation(models.Model):
     priority = models.IntegerField(default=0, help_text='Ordering priority. The higher priorities are in the first positions.')
 
     entry_buttons = models.ManyToManyField(PveButton, related_name='+', help_text='Button to be shown in the Entry form.')
+    entry_setups = models.ManyToManyField(RoleSetup, related_name='+', help_text='Setup avaiable for loading in the Entry form.')
 
     objects = RotationManager()
 
@@ -199,29 +223,6 @@ class EntryRole(models.Model):
     class Meta:
         default_permissions = ()
 
-
-
-class RoleSetup(models.Model):
-    name = models.CharField(max_length=64, unique=True)
-
-    def __str__(self) -> str:
-        return self.name
-
-    class Meta:
-        default_permissions = ()
-
-
-class GeneralRole(models.Model):
-    setup = models.ForeignKey(RoleSetup, on_delete=models.CASCADE, related_name='roles')
-
-    name = models.CharField(max_length=64)
-    value = models.PositiveIntegerField('relative role value', help_text="Relative role value. Share values are computed using this field. If there are 2 roles with 10 and 15, they'll receive 10/25 and 15/25 of the share value.")
-
-    def __str__(self) -> str:
-        return self.name
-
-    class Meta:
-        default_permissions = ()
 
 class RotationSetupSummary(models.Model):
     id = models.BigIntegerField(primary_key=True)
