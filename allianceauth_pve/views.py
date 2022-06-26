@@ -7,14 +7,14 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.core.paginator import Paginator
-from django.db.models import F, Q
+from django.db.models import F, Q, Count
 from django.db import transaction
 from django.views.generic.detail import DetailView
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.authentication.models import CharacterOwnership
 
-from .models import Entry, EntryCharacter, Rotation, EntryRole
+from .models import Entry, EntryCharacter, Rotation, EntryRole, RoleSetup
 from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm, NewRoleFormSet
 from .actions import running_averages
 
@@ -254,6 +254,7 @@ def add_entry(request, rotation_id, entry_id=None):
         'shareforms': share_form,
         'roleforms': role_form,
         'rotation': rotation,
+        'rolessetups': rotation.roles_setups.alias(roles_num=Count('roles')).filter(roles_num__gt=0)
     }
 
     return render(request, 'allianceauth_pve/entry_form.html', context=context)
@@ -295,6 +296,23 @@ def create_rotation(request):
     }
 
     return render(request, 'allianceauth_pve/rotation_create.html', context=context)
+
+
+def load_roles_setup(request, rotation_id, pk):
+    try:
+        rotation = Rotation.objects.prefetch_related('roles_setups__roles').get(pk=rotation_id)
+        setup = rotation.roles_setups.alias(roles_num=Count('roles')).filter(roles_num__gt=0).get(pk=pk)
+    except (RoleSetup.DoesNotExist, Rotation.DoesNotExist):
+        return JsonResponse({'error': 'not found'})
+
+    return JsonResponse({
+        'result': [
+            {
+                'name': role.name,
+                'value': role.value,
+            } for role in setup.roles.all()
+        ]
+    })
 
 
 class EntryDetailView(DetailView):
