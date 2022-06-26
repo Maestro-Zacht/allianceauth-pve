@@ -68,6 +68,9 @@ class GeneralRole(models.Model):
 
     class Meta:
         default_permissions = ()
+        constraints = [
+            models.UniqueConstraint(fields=['setup', 'name'], name='unique_role_name_per_setup'),
+        ]
 
 
 class Rotation(models.Model):
@@ -222,6 +225,9 @@ class EntryRole(models.Model):
 
     class Meta:
         default_permissions = ()
+        constraints = [
+            models.UniqueConstraint(fields=['entry', 'name'], name='unique_role_name_per_entry'),
+        ]
 
 
 class RotationSetupSummary(models.Model):
