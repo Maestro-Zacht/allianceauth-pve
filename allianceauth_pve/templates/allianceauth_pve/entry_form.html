@@ -53,8 +53,11 @@
                                 {% endfor %}
                                 
                             </div>
-                            <div style="margin-top: 10px; text-align: center;">
-                                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#newRoleModal"><i class="fas fa-plus"></i></button>
+                            <div class="field" style="justify-content: space-around;">
+                                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#newRoleModal">New Role</button>
+                                {% if rolessetups.count > 0 %}
+                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#roleSetupsModal">Load Roles Setup</button>
+                                {% endif %}
                             </div>
                             <hr>
                             
@@ -183,6 +186,28 @@
                         <button type="button" class="btn btn-primary" id="submitNewRoleButton" data-dismiss="modal">Confirm</button>
                         <button type="button" class="btn btn-danger" data-dismiss="modal">Dismiss</button>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="roleSetupsModal" tabindex="-1" role="dialog" aria-labelledby="roleSetupsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Choose Setup</h5>
+                </div>
+                <div class="modal-body">
+                    {% for rolesetup in rolessetups %}
+                        <div>
+                            <p>{{ rolesetup.name }}</p>
+                            <small>{% for role in rolesetup.roles.all %}{{ role.name }} ({{ role.value }}), {% endfor %}</small>
+                        </div>
+                        <br>
+                        <button type="button" class="btn btn-success" onclick="loadRolesSetup({{ rolesetup.pk }}, {{ rotation.pk }})" data-dismiss="modal">Load</button>
+                        <hr>
+                    {% endfor %}
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>

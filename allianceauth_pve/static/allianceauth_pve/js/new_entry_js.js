@@ -316,8 +316,8 @@ function addRole(initial) {
     }
 }
 
-function removeRole(index) {
-    if (rolesFormNum > 1 && index >= 0 && index < rolesFormNum) {
+function removeRole(index, allowEmpty = false) {
+    if ((allowEmpty || rolesFormNum > 1) && index >= 0 && index < rolesFormNum) {
         const roleSpan = rolesContainer.querySelector(`#roles_form-${index}-name_span`);
 
         for (let i = 0; i < formNum; i++) {
@@ -357,6 +357,23 @@ function removeRole(index) {
         rolesFormNum--;
         totalRoleForms.setAttribute('value', `${rolesFormNum}`);
     }
+}
+
+function loadRolesSetup(pk, rotation_id) {
+    const request = new Request(`/pve/rotation/${rotation_id}/rolessetups/${pk}/`, { headers: { 'X-CSRFToken': csrftoken } });
+    fetch(request, { method: "GET", credentials: "same-origin" }).then(res => {
+        res.json().then(data => {
+            for (let i = rolesFormNum - 1; i >= 0; i--) {
+                removeRole(i, true);
+            }
+            rolesFormNum = 0;
+            totalRoleForms.setAttribute('value', `${rolesFormNum}`);
+
+            data.result.forEach(item => {
+                addRole({ name: item.name, value: item.value });
+            });
+        });
+    });
 }
 
 searchBtn.addEventListener("click", e => {
