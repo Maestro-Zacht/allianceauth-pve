@@ -90,7 +90,11 @@
 
                         <tbody>
                             {% for row in summary_first %}
+                                {% if row.user == user.pk %}
+                                <tr class="info">
+                                {% else %}
                                 <tr>
+                                {% endif %}
                                     <td>
                                         <img src="{{ row.character_id|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
                                         {{ row.character_name }}
@@ -122,7 +126,11 @@
 
                         <tbody>
                             {% for row in summary_second %}
+                                {% if row.user == user.pk %}
+                                <tr class="info">
+                                {% else %}
                                 <tr>
+                                {% endif %}
                                     <td>
                                         <img src="{{ row.character_id|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
                                         {{ row.character_name }}

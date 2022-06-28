@@ -14,7 +14,7 @@ from django.views.generic.detail import DetailView
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.authentication.models import CharacterOwnership
 
-from .models import Entry, EntryCharacter, Rotation, EntryRole, RoleSetup
+from .models import Entry, EntryCharacter, Rotation, EntryRole
 from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm, NewRoleFormSet
 from .actions import running_averages
 
