@@ -204,7 +204,7 @@
                             <small>{% for role in rolesetup.roles.all %}{{ role.name }} ({{ role.value }}), {% endfor %}</small>
                         </div>
                         <br>
-                        <button type="button" class="btn btn-success" onclick="loadRolesSetup({{ rolesetup.pk }}, {{ rotation.pk }})" data-dismiss="modal">Load</button>
+                        <button type="button" class="btn btn-success" onclick="loadRolesSetup('{{ rolesetup.name }}')" data-dismiss="modal">Load</button>
                         <hr>
                     {% endfor %}
                     <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
@@ -222,4 +222,23 @@
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
     })
+
+    const rolesList = {
+        {% for setup in rolessetups %}
+            {{ setup.name }}: {
+                {% for role in setup.roles.all %}
+                    {{ role.name }}: {{ role.value }},
+                {% endfor %}
+            },
+        {% endfor %}
+    }
+
+    function loadRolesSetup(setupName) {
+        for (let i = rolesFormNum - 1; i >= 0; i--) {
+            removeRole(i, true);
+        }
+        for (let [roleName, value] of Object.entries(rolesList[setupName])) {
+            addRole({ name: roleName, value: value });
+        }
+    }
 {% endblock extra_script %}

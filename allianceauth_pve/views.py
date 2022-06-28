@@ -298,22 +298,5 @@ def create_rotation(request):
     return render(request, 'allianceauth_pve/rotation_create.html', context=context)
 
 
-def load_roles_setup(request, rotation_id, pk):
-    try:
-        rotation = Rotation.objects.prefetch_related('roles_setups__roles').get(pk=rotation_id)
-        setup = rotation.roles_setups.alias(roles_num=Count('roles')).filter(roles_num__gt=0).get(pk=pk)
-    except (RoleSetup.DoesNotExist, Rotation.DoesNotExist):
-        return JsonResponse({'error': 'not found'})
-
-    return JsonResponse({
-        'result': [
-            {
-                'name': role.name,
-                'value': role.value,
-            } for role in setup.roles.all()
-        ]
-    })
-
-
 class EntryDetailView(DetailView):
     model = Entry

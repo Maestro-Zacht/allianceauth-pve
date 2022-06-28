@@ -16,5 +16,4 @@ urlpatterns = [
     path('entry/<int:entry_id>/delete/', views.delete_entry, name='delete_entry'),
     path('ratters/', views.get_avaiable_ratters, name='all_ratters'),
     path('ratters/<str:name>/', views.get_avaiable_ratters, name='search_ratters'),
-    path('rotation/<int:rotation_id>/rolessetups/<int:pk>/', views.load_roles_setup, name='load_role_setup'),
 ]
