@@ -12,7 +12,7 @@ Features
 ========
 
 This package aims at helping groups of people manage PvE sessions, centralized loot management and loot taxes.
-[!test](./images/new_rotation.png)
+![test](./images/new_rotation.png)
 
 Rotations are a sort of containers for entries. When created, they have some options to customize the behavior of the tool with the entries, such as tax rate, count of setups of the system before ratting etc.
 
