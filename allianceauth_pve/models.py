@@ -146,10 +146,6 @@ class Entry(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, related_name='+')
     updated_at = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        verbose_name = 'entry'
-        verbose_name_plural = 'entries'
-
     @property
     def total_shares_count(self):
         return self.ratting_shares.aggregate(val=models.Count('user_id', distinct=True))['val']
@@ -208,6 +204,8 @@ class Entry(models.Model):
 
     class Meta:
         default_permissions = ()
+        verbose_name = 'entry'
+        verbose_name_plural = 'entries'
 
 
 class EntryRole(models.Model):
