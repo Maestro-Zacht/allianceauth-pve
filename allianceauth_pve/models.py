@@ -79,7 +79,7 @@ class Rotation(models.Model):
     actual_total = models.FloatField(default=0)
 
     max_daily_setups = models.PositiveSmallIntegerField(default=1, help_text='The maximum number of helped setup per day. If more are submitted, only this number is counted. 0 for deactivating helped setups.')
-    min_people_share_setup = models.PositiveSmallIntegerField(default=3, help_text='The minimum number of people in an entry to consider the helped setup valid.')
+    min_people_share_setup = models.PositiveSmallIntegerField(default=3, help_text='The minimum number of users in an entry to consider the helped setup valid.')
 
     tax_rate = models.FloatField(default=0, help_text='Tax rate in percentage')
     is_closed = models.BooleanField(default=False)
@@ -236,6 +236,6 @@ class RotationSetupSummary(models.Model):
     valid_setups = models.IntegerField()
 
     class Meta:
-        managed = False  # this is a view, check 0003 and 0005
+        managed = False  # this is a view, check 0012
         db_table = 'allianceauth_pve_setup_summary'
         default_permissions = ()
