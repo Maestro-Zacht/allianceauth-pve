@@ -21,7 +21,7 @@ Rotations are a sort of containers for entries. When created, they have some opt
 They can be created by the people with the right permission (see [below](#permissions)). For them, a button will be avaiable in the main page. It'll lead to a form for creating a rotation.
 
 
-![New Rotation](./images/new_rotation.png)
+![New Rotation](https://github.com/Maestro-Zacht/allianceauth-pve/raw/main/images/new_rotation.png)
 
 
 | Field                  | Description                                                                                                                                                                                                   |
@@ -41,7 +41,7 @@ Entries are the corrisponding of an actual PvE fleet. They consist in an estimat
 When an Entry is submitted to a rotation, all the rules of tax rate and setups are applied and the loot value is split between the participants according to their share weight.
 To add an entry to a rotation, click on the plus button on the bottom left of the screen.
 
-![Entry Form](./images/entry_form.png)
+![Entry Form](https://raw.githubusercontent.com/Maestro-Zacht/allianceauth-pve/main/images/entry_form.png)
 
 Every entry has a list of shares. To add a share, search for the character you want to add in the panel on the right and click the add button.
 
@@ -56,13 +56,13 @@ On the center of the right panel there is the Estimated total section. There is 
 On the right of the Estimated total field there are 4 buttons for incrementing the site count of the shares. If you hover each of them there'll be a tooltip telling what each button does.
 The ones that change selected chars only edit the shares with the green arrow. This is helpful if you are doing the form while you are running the sites: if a person leaves, you can click on the arrow and it'll be unselected.
 
-![Selected Shares](./images/select_button.png)
+![Selected Shares](https://raw.githubusercontent.com/Maestro-Zacht/allianceauth-pve/main/images/select_button.png)
 
 Once you have submitted the entry, you'll see updating the summary and the entry list on the rotation page. You can edit an entry by clicking the arrow on the right of the row in the entry list and then click on the edit button.
 
 When the loot is sold, a person with the right permission (see [below](#permissions)) can close the rotation and insert the sales value in the form. Then the closed rotation page will be shown with the right amount of money to send to each person, calculated on the sales value.
 
-![Close Rotation Button](./images/close_rotation.png)
+![Close Rotation Button](https://raw.githubusercontent.com/Maestro-Zacht/allianceauth-pve/main/images/close_rotation.png)
 
 You can see all the closed rotations from the dashboard.
 
