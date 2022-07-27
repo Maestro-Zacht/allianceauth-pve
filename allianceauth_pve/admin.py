@@ -1,7 +1,6 @@
 from django.contrib import admin
-from django import forms
 
-from .models import Rotation, Entry, EntryCharacter, PveButton
+from .models import Rotation, Entry, EntryCharacter, PveButton, RoleSetup, GeneralRole
 
 
 @admin.register(Rotation)
@@ -43,3 +42,14 @@ class EntryAdmin(admin.ModelAdmin):
 class PveButtonAdmin(admin.ModelAdmin):
     search_fields = ('text',)
     list_display = ('text', 'amount',)
+
+
+class GeneralRoleInline(admin.TabularInline):
+    model = GeneralRole
+
+
+@admin.register(RoleSetup)
+class RoleSetupAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name', 'roles__name',)
+    inlines = (GeneralRoleInline,)

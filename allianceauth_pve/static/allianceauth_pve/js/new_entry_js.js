@@ -316,8 +316,8 @@ function addRole(initial) {
     }
 }
 
-function removeRole(index) {
-    if (rolesFormNum > 1 && index >= 0 && index < rolesFormNum) {
+function removeRole(index, allowEmpty = false) {
+    if ((allowEmpty || rolesFormNum > 1) && index >= 0 && index < rolesFormNum) {
         const roleSpan = rolesContainer.querySelector(`#roles_form-${index}-name_span`);
 
         for (let i = 0; i < formNum; i++) {

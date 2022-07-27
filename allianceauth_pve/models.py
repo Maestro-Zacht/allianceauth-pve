@@ -47,13 +47,39 @@ class PveButton(models.Model):
         default_permissions = ()
 
 
+class RoleSetup(models.Model):
+    name = models.CharField(max_length=64, unique=True)
+
+    def __str__(self) -> str:
+        return self.name
+
+    class Meta:
+        default_permissions = ()
+
+
+class GeneralRole(models.Model):
+    setup = models.ForeignKey(RoleSetup, on_delete=models.CASCADE, related_name='roles')
+
+    name = models.CharField(max_length=64)
+    value = models.PositiveIntegerField('relative role value', help_text="Relative role value. Share values are computed using this field. If there are 2 roles with 10 and 15, they'll receive 10/25 and 15/25 of the share value.")
+
+    def __str__(self) -> str:
+        return self.name
+
+    class Meta:
+        default_permissions = ()
+        constraints = [
+            models.UniqueConstraint(fields=['setup', 'name'], name='unique_role_name_per_setup'),
+        ]
+
+
 class Rotation(models.Model):
     name = models.CharField(max_length=128)
 
     actual_total = models.FloatField(default=0)
 
     max_daily_setups = models.PositiveSmallIntegerField(default=1, help_text='The maximum number of helped setup per day. If more are submitted, only this number is counted. 0 for deactivating helped setups.')
-    min_people_share_setup = models.PositiveSmallIntegerField(default=3, help_text='The minimum number of people in an entry to consider the helped setup valid.')
+    min_people_share_setup = models.PositiveSmallIntegerField(default=3, help_text='The minimum number of users in an entry to consider the helped setup valid.')
 
     tax_rate = models.FloatField(default=0, help_text='Tax rate in percentage')
     is_closed = models.BooleanField(default=False)
@@ -65,6 +91,7 @@ class Rotation(models.Model):
     priority = models.IntegerField(default=0, help_text='Ordering priority. The higher priorities are in the first positions.')
 
     entry_buttons = models.ManyToManyField(PveButton, related_name='+', help_text='Button to be shown in the Entry form.')
+    roles_setups = models.ManyToManyField(RoleSetup, related_name='+', help_text='Setup avaiable for loading in the Entry form.')
 
     objects = RotationManager()
 
@@ -118,10 +145,6 @@ class Entry(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, related_name='+')
     updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = 'entry'
-        verbose_name_plural = 'entries'
 
     @property
     def total_shares_count(self):
@@ -181,6 +204,8 @@ class Entry(models.Model):
 
     class Meta:
         default_permissions = ()
+        verbose_name = 'entry'
+        verbose_name_plural = 'entries'
 
 
 class EntryRole(models.Model):
@@ -198,6 +223,9 @@ class EntryRole(models.Model):
 
     class Meta:
         default_permissions = ()
+        constraints = [
+            models.UniqueConstraint(fields=['entry', 'name'], name='unique_role_name_per_entry'),
+        ]
 
 
 class RotationSetupSummary(models.Model):
@@ -208,6 +236,6 @@ class RotationSetupSummary(models.Model):
     valid_setups = models.IntegerField()
 
     class Meta:
-        managed = False  # this is a view, check 0003 and 0005
+        managed = False  # this is a view, check 0012
         db_table = 'allianceauth_pve_setup_summary'
         default_permissions = ()

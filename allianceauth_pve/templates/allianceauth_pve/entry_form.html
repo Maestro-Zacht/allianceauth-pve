@@ -3,6 +3,7 @@
 {% load bootstrap %}
 {% load evelinks %}
 {% load pvefilters %}
+{% load humanize %}
 
 {% block page_title %}New Entry{% endblock page_title %}
 
@@ -52,24 +53,27 @@
                                 {% endfor %}
                                 
                             </div>
-                            <div style="margin-top: 10px; text-align: center;">
-                                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#newRoleModal"><i class="fas fa-plus"></i></button>
+                            <div class="field" style="justify-content: space-around;">
+                                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#newRoleModal">New Role</button>
+                                {% if rolessetups.count > 0 %}
+                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#roleSetupsModal">Load Roles Setup</button>
+                                {% endif %}
                             </div>
                             <hr>
                             
                             <div id="pve-buttons">
                                 {% for pvebutton in rotation.entry_buttons.all %}
-                                    <button type="button" class="btn btn-info" onclick="incrementEstimatedTotal({{ pvebutton.amount }})">{{ pvebutton.text }}</button>
+                                    <button type="button" class="btn btn-info" onclick="incrementEstimatedTotal({{ pvebutton.amount }})" data-toggle="tooltip" data-placement="top" title="{{ pvebutton.amount|floatformat|intcomma }} ISK">{{ pvebutton.text }}</button>
                                 {% endfor %}
                             </div>
                             {{ entryform.non_field_errors }}
                             <div class="field">
                                 {{ entryform.estimated_total.label_tag }}
                                 {{ entryform.estimated_total }}
-                                <button type="button" id="incrementAllButton" class="btn btn-success btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Increment All Shares"><i class="fas fa-user-plus"></i></button>
-                                <button type="button" id="incrementSelectedButton" class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Increment Selected Shares"><i class="fas fa-user-cog"></i></button>
-                                <button type="button" id="decrementSelectedButton" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Decrement Selected Shares"><i class="fas fa-user-cog"></i></button>
-                                <button type="button" id="decrementAllButton" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Decrement All Shares"><i class="fas fa-user-minus"></i></button>
+                                <button type="button" id="incrementAllButton" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="Increment All Shares"><i class="fas fa-user-plus"></i></button>
+                                <button type="button" id="incrementSelectedButton" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="top" title="Increment Selected Shares"><i class="fas fa-user-cog"></i></button>
+                                <button type="button" id="decrementSelectedButton" class="btn btn-warning btn-sm" data-toggle="tooltip" data-placement="top" title="Decrement Selected Shares"><i class="fas fa-user-cog"></i></button>
+                                <button type="button" id="decrementAllButton" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="top" title="Decrement All Shares"><i class="fas fa-user-minus"></i></button>
                             </div>
                             {{ entryform.estimated_total.errors }}
                             <hr>
@@ -186,6 +190,28 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="roleSetupsModal" tabindex="-1" role="dialog" aria-labelledby="roleSetupsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Choose Setup</h5>
+                </div>
+                <div class="modal-body">
+                    {% for rolesetup in rolessetups %}
+                        <div>
+                            <p>{{ rolesetup.name }}</p>
+                            <small>{% for role in rolesetup.roles.all %}{{ role.name }} ({{ role.value }}), {% endfor %}</small>
+                        </div>
+                        <br>
+                        <button type="button" class="btn btn-success" onclick="loadRolesSetup('{{ rolesetup.name }}')" data-dismiss="modal">Load</button>
+                        <hr>
+                    {% endfor %}
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
 
 {% block extra_javascript %}
@@ -193,4 +219,26 @@
 {% endblock extra_javascript %}
 
 {% block extra_script %}
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+
+    const rolesList = {
+        {% for setup in rolessetups %}
+            {{ setup.name }}: {
+                {% for role in setup.roles.all %}
+                    {{ role.name }}: {{ role.value }},
+                {% endfor %}
+            },
+        {% endfor %}
+    }
+
+    function loadRolesSetup(setupName) {
+        for (let i = rolesFormNum - 1; i >= 0; i--) {
+            removeRole(i, true);
+        }
+        for (let [roleName, value] of Object.entries(rolesList[setupName])) {
+            addRole({ name: roleName, value: value });
+        }
+    }
 {% endblock extra_script %}

@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.core.paginator import Paginator
-from django.db.models import F, Q
+from django.db.models import F, Q, Count
 from django.db import transaction
 from django.views.generic.detail import DetailView
 
@@ -254,6 +254,7 @@ def add_entry(request, rotation_id, entry_id=None):
         'shareforms': share_form,
         'roleforms': role_form,
         'rotation': rotation,
+        'rolessetups': rotation.roles_setups.alias(roles_num=Count('roles')).filter(roles_num__gt=0)
     }
 
     return render(request, 'allianceauth_pve/entry_form.html', context=context)
