@@ -9,5 +9,3 @@ recursive-exclude * *.py[co]
 
 recursive-include allianceauth_pve/templates *
 recursive-include allianceauth_pve/static *
-
-recursive-include docs *.md conf.py Makefile make.bat *.jpg *.png *.gif
