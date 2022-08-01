@@ -1,5 +1,7 @@
 from django.test import SimpleTestCase
 
+from ..views import *
+
 
 class TestUrls(SimpleTestCase):
 
