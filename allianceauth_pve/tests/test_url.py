@@ -1,6 +1,6 @@
 from django.test import SimpleTestCase
 
-from ..views import *
+from ..urls import *
 
 
 class TestUrls(SimpleTestCase):
