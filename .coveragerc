@@ -1,6 +1,12 @@
 [run]
 branch = True
-source = allianceauth_pve
+source = ./allianceauth_pve/
+omit =
+    */tests.py
+    */tests/*.py
+    */migrations/*
+    doc/*
+    */scripts/*
 
 [report]
 exclude_lines =
@@ -9,9 +15,3 @@ exclude_lines =
     raise NotImplementedError
     if __name__ == .__main__.:
 ignore_errors = True
-omit =
-    */tests.py
-    */tests/*.py
-    */migrations/*
-    doc/*
-    */scripts/*
