@@ -283,6 +283,7 @@ function addRole(initial) {
         valueInput.name = `roles-${rolesFormNum}-value`;
         valueInput.id = `id_roles-${rolesFormNum}-value`;
         valueInput.value = data.value;
+        valueInput.min = 0;
 
         const deleteButton = document.createElement('button');
         deleteButton.type = 'button';
