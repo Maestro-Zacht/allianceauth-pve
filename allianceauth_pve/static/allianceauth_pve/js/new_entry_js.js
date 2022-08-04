@@ -13,6 +13,8 @@ let totalRoleForms = document.querySelector("#id_roles-TOTAL_FORMS");
 let rolesFormNum = totalRoleForms.getAttribute('value');
 const rolesContainer = document.getElementById('roles-div');
 const submitRoleButton = document.getElementById('submitNewRoleButton');
+const customIncrementButton = document.getElementById('custom_increment_button');
+const customIncrementInput = document.getElementById('custom_increment_inp');
 const roleSet = new Set();
 
 function getCookie(name) {
@@ -258,8 +260,8 @@ function isUserSelected(index) {
 }
 
 function incrementEstimatedTotal(value) {
-    let newValue = +estimatedTotalInput.value + value;
-    if (newValue > 0 && newValue < +estimatedTotalInput.max) {
+    let newValue = +estimatedTotalInput.value + +value;
+    if (newValue > +estimatedTotalInput.min && newValue < +estimatedTotalInput.max) {
         estimatedTotalInput.value = newValue;
     }
 }
@@ -283,6 +285,7 @@ function addRole(initial) {
         valueInput.name = `roles-${rolesFormNum}-value`;
         valueInput.id = `id_roles-${rolesFormNum}-value`;
         valueInput.value = data.value;
+        valueInput.min = 0;
 
         const deleteButton = document.createElement('button');
         deleteButton.type = 'button';
@@ -469,4 +472,9 @@ document.querySelectorAll('button[id^="delete-role-"]').forEach((element) => {
     const eID = element.id.match(/[0-9]+/g)[0];
     const roleSpan = document.getElementById(`roles_form-${eID}-name_span`);
     roleSet.add(roleSpan.textContent);
+});
+
+customIncrementButton.addEventListener('click', (e) => {
+    incrementEstimatedTotal(customIncrementInput.value);
+    customIncrementInput.setAttribute('value', 0);
 });
