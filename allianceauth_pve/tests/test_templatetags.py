@@ -48,6 +48,48 @@ class TestGetMainCharacterFilter(TestCase):
         self.assertEqual(res, '')
 
 
+class TestGetCharAttrFilter(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.testuser = AuthUtils.create_user('aauth_testuser')
+        cls.testcharacter = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar', 2116790529)
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.template = Template('{% load pvefilters %}{{ char|get_char_attr:"character_name" }}')
+
+    def test_character_success(self):
+        context = Context({'char': self.testcharacter})
+
+        res = self.template.render(context)
+
+        self.assertEqual(res, self.testcharacter.character_name)
+
+    def test_int_success(self):
+        context = Context({'char': self.testcharacter.pk})
+
+        res = self.template.render(context)
+
+        self.assertEqual(res, self.testcharacter.character_name)
+
+    def test_int_fail(self):
+        context = Context({'char': self.testcharacter.pk + 10})
+
+        res = self.template.render(context)
+
+        self.assertEqual(res, '')
+
+    def test_param_not_valid(self):
+        context = Context({'char': 'not valid param'})
+
+        res = self.template.render(context)
+
+        self.assertEqual(res, '')
+
+
 class TestPvEVersionedStatic(SimpleTestCase):
     """
     Tests for allianceauth_pve_versioned_static template tag
