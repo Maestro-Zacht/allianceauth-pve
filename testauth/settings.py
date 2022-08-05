@@ -162,8 +162,12 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": str(os.path.join(BASE_DIR, "alliance_auth.sqlite3")),
+        "ENGINE": "django.db.backends.postgresql",
+        'NAME': 'allianceauth_pve_test',
+        'USER': 'aauth',
+        'PASSWORD': 'postgres',
+        'HOST': 'localhost',
+        'PORT': '5432',
     },
 }
 
