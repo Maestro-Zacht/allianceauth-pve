@@ -1,7 +1,51 @@
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase
 from django.template import Context, Template
 
+from allianceauth.tests.auth_utils import AuthUtils
+
 from allianceauth_pve import __version__
+
+
+class TestGetMainCharacterFilter(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.testuser = AuthUtils.create_user('aauth_testuser')
+        cls.testcharacter = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar', 2116790529)
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.template = Template('{% load pvefilters %}{{ user|get_main_character }}')
+
+    def test_user_success(self):
+        context = Context({'user': self.testuser})
+
+        res = self.template.render(context)
+
+        self.assertEqual(res, 'aauth_testchar')
+
+    def test_int_success(self):
+        context = Context({'user': self.testuser.pk})
+
+        res = self.template.render(context)
+
+        self.assertEqual(res, 'aauth_testchar')
+
+    def test_param_not_valid(self):
+        context = Context({'user': 'not valid param'})
+
+        res = self.template.render(context)
+
+        self.assertEqual(res, '')
+
+    def test_int_fail(self):
+        context = Context({'user': self.testuser.pk + 10})
+
+        res = self.template.render(context)
+
+        self.assertEqual(res, '')
 
 
 class TestPvEVersionedStatic(SimpleTestCase):
