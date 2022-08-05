@@ -1,10 +1,10 @@
-from django.test import SimpleTestCase, TestCase
+from django.test import SimpleTestCase
 from django.template import Context, Template
 
 from allianceauth_pve import __version__
 
 
-class TestPvEVersionedStatic(TestCase):
+class TestPvEVersionedStatic(SimpleTestCase):
     """
     Tests for allianceauth_pve_versioned_static template tag
     """
