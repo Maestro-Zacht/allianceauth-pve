@@ -25,6 +25,9 @@ def get_char_attr(character_obj, attr: str):
     if isinstance(character_obj, EveCharacter):
         return getattr(character_obj, attr)
     elif isinstance(character_obj, int):
-        return getattr(EveCharacter.objects.get(pk=character_obj), attr)
+        try:
+            return getattr(EveCharacter.objects.get(pk=character_obj), attr)
+        except:
+            return ''
     else:
         return ''
