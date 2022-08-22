@@ -64,7 +64,7 @@ def dashboard(request):
 def rotation_view(request, rotation_id):
     r = get_object_or_404(Rotation, pk=rotation_id)
 
-    if request.method == 'POST':
+    if request.method == 'POST' and not r.is_closed:
         closeform = CloseRotationForm(request.POST)
 
         if closeform.is_valid():
@@ -145,6 +145,11 @@ def get_avaiable_ratters(request, name=None):
 @permission_required('allianceauth_pve.manage_entries')
 def add_entry(request, rotation_id, entry_id=None):
     rotation = get_object_or_404(Rotation, pk=rotation_id)
+
+    if rotation.is_closed:
+        messages.error(request, 'The rotation is closed, you cannot add an entry')
+        return redirect('allianceauth_pve:rotation_view', rotation_id)
+
     if entry_id:
         entry = get_object_or_404(Entry, pk=entry_id)
         if entry.rotation_id != rotation_id:
@@ -264,7 +269,7 @@ def add_entry(request, rotation_id, entry_id=None):
 @permission_required('allianceauth_pve.manage_entries')
 def delete_entry(request, entry_id):
     entry = get_object_or_404(Entry, pk=entry_id)
-    if entry.created_by != request.user and not request.user.is_superuser:
+    if (entry.created_by != request.user and not request.user.is_superuser) or entry.rotation.is_closed:
         messages.error(request, "You cannot delete this entry")
         return redirect('allianceauth_pve:rotation_view', entry.rotation_id)
 
