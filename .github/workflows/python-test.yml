@@ -108,6 +108,7 @@ jobs:
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v3
         with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos but fails for rate limits
           name: build
           path: dist
           if-no-files-found: ignore
