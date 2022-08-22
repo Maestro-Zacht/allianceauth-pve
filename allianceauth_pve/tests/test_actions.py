@@ -36,7 +36,9 @@ class TestRunningAverages(TestCase):
             entry=entry,
             user=cls.testuser,
             user_character=cls.testcharacter,
+            role=role,
             site_count=1,
+            helped_setup=False
         )
 
         entry.update_share_totals()
