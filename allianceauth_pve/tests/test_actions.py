@@ -35,7 +35,7 @@ class TestRunningAverages(TestCase):
         share = EntryCharacter.objects.create(
             entry=entry,
             user=cls.testuser,
-            user_charater=cls.testcharacter,
+            user_character=cls.testcharacter,
             site_count=1,
         )
 
