@@ -23,16 +23,20 @@ jobs:
           - 5432:5432
 
     strategy:
-      # Set Python and Django version to test for the stable release of AllianceAuth
       matrix:
-        # Don't forget to change the Python version for [upload-coverage] as well
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+        aa-version: ["2", "3"]
+        exclude:
+          - python-version: "3.6"
+            aa-version: "3"
+          - python-version: "3.7"
+            aa-version: "3"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install redis
+      - name: Install redis and postgres
         run: sudo apt-get install -y redis-tools redis-server postgresql postgresql-contrib
 
       - name: Verify that redis is up
@@ -49,8 +53,9 @@ jobs:
           python -m pip install --upgrade tox tox-gh-actions
 
       - name: Run Tox
-        # Run tox using the version of Python in `PATH`
         run: tox -v
+        env:
+          AAVERSION: ${{ matrix.aa-version }}
 
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
