@@ -3,7 +3,7 @@ from django.utils import timezone
 
 from allianceauth.tests.auth_utils import AuthUtils
 
-from ..models import Rotation, Entry, EntryCharacter, EntryRole, RoleSetup, PveButton
+from ..models import GeneralRole, Rotation, Entry, EntryCharacter, EntryRole, RoleSetup, PveButton
 
 
 class TestRoleSetup(TestCase):
@@ -27,6 +27,21 @@ class TestPveButton(TestCase):
 
     def test_str(self):
         self.assertEqual(str(self.pvebutton), self.pvebutton.text)
+
+
+class TestGeneralRole(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.rolesetup = RoleSetup.objects.create(name='testrolesetup')
+        cls.generalrole = GeneralRole.objects.create(
+            setup=cls.rolesetup,
+            name='testgeneralrole',
+            value=1
+        )
+
+    def test_str(self):
+        self.assertEqual(str(self.generalrole), self.generalrole.name)
 
 
 class TestRotation(TestCase):
