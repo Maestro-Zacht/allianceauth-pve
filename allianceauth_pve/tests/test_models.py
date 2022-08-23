@@ -130,3 +130,55 @@ class TestRotation(TestCase):
 
     def test_str(self):
         self.assertEqual(str(self.rotation), f'{self.rotation.pk} {self.rotation.name}')
+
+
+class TestEntry(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.testuser = AuthUtils.create_user('aauth_testuser')
+        cls.testcharacter = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar', 2116790529)
+
+        cls.rotation: Rotation = Rotation.objects.create(
+            name='test1rot',
+            tax_rate=10.0
+        )
+
+        cls.entry: Entry = Entry.objects.create(
+            rotation=cls.rotation,
+            created_by=cls.testuser,
+            estimated_total=1_000_000_000.0
+        )
+
+        role = EntryRole.objects.create(
+            entry=cls.entry,
+            name='testrole1',
+            value=1
+        )
+
+        share = EntryCharacter.objects.create(
+            entry=cls.entry,
+            user=cls.testuser,
+            user_character=cls.testcharacter,
+            role=role,
+            site_count=1,
+            helped_setup=False
+        )
+
+        cls.entry.update_share_totals()
+
+    def test_total_shares_count(self):
+        self.assertEqual(self.entry.total_shares_count, 1)
+
+    def test_estimated_total_after_tax(self):
+        self.assertAlmostEqual(self.entry.estimated_total_after_tax, 900_000_000.0)
+
+    def test_actual_total_after_tax(self):
+        self.rotation.actual_total = 900_000_000
+        self.rotation.is_closed = True
+        self.rotation.closed_at = timezone.now()
+        self.rotation.save()
+        for e in self.rotation.entries.all():
+            e.update_share_totals()
+
+        self.assertAlmostEqual(self.entry.actual_total_after_tax, 810_000_000.0)
