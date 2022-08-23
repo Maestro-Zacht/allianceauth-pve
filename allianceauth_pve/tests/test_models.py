@@ -47,10 +47,10 @@ class TestRotation(TestCase):
 
         row = summary.first()
 
-        self.assertEqual(row.user, self.testuser)
-        self.assertEqual(row.helped_setups, 0)
-        self.assertEqual(row.estimated_total, 1_000_000_000)
-        self.assertEqual(row.actual_total, 0)
+        self.assertEqual(row['user'], self.testuser)
+        self.assertEqual(row['helped_setups'], 0)
+        self.assertEqual(row['estimated_total'], 1_000_000_000)
+        self.assertEqual(row['actual_total'], 0)
 
     def test_summary_closed(self):
         self.rotation.actual_total = 900_000_000
@@ -66,10 +66,10 @@ class TestRotation(TestCase):
 
         row = summary.first()
 
-        self.assertEqual(row.user, self.testuser)
-        self.assertEqual(row.helped_setups, 0)
-        self.assertEqual(row.estimated_total, 1_000_000_000)
-        self.assertEqual(row.actual_total, 900_000_000)
+        self.assertEqual(row['user'], self.testuser)
+        self.assertEqual(row['helped_setups'], 0)
+        self.assertEqual(row['estimated_total'], 1_000_000_000)
+        self.assertEqual(row['actual_total'], 900_000_000)
 
     def test_days_since(self):
         self.assertEqual(self.rotation.days_since, 0)
