@@ -1,6 +1,8 @@
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase
 
-from ..forms import NewRoleFormSet
+from allianceauth.tests.auth_utils import AuthUtils
+
+from ..forms import NewRoleFormSet, NewShareFormSet
 
 
 class TestNewRoleFormSet(SimpleTestCase):
@@ -45,6 +47,117 @@ class TestNewRoleFormSet(SimpleTestCase):
             'roles-4-value': '4'
         }
 
-        role_form = NewRoleFormSet(invalid_data)
+        role_form = NewRoleFormSet(invalid_data, prefix='roles')
 
         self.assertFalse(role_form.is_valid())
+
+
+class TestNewShareFormset(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.testuser = AuthUtils.create_user('aauth_testuser')
+        cls.testcharacter = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar', 2116790529)
+
+        cls.testuser2 = AuthUtils.create_user('aauth_testuser2')
+        cls.testcharacter2 = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar2', 795853496)
+
+    def test_valid(self):
+        valid_data = {
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '0',
+            'form-MIN_NUM_FORMS': '0',
+            'form-MAX_NUM_FORMS': '1000',
+            'form-0-user': '1',
+            'form-0-character': '1',
+            'form-0-role': 'Krab',
+            'form-0-site_count': '1',
+            'form-1-user': '2',
+            'form-1-character': '2',
+            'form-1-role': 'Krab',
+            'form-1-site_count': '1'
+        }
+
+        new_share_form = NewShareFormSet(valid_data)
+
+        self.assertTrue(new_share_form.is_valid())
+
+    def test_user_invalid(self):
+        invalid_data = {
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '0',
+            'form-MIN_NUM_FORMS': '0',
+            'form-MAX_NUM_FORMS': '1000',
+            'form-0-user': '50',
+            'form-0-character': '1',
+            'form-0-role': 'Krab',
+            'form-0-site_count': '1',
+            'form-1-user': '2',
+            'form-1-character': '2',
+            'form-1-role': 'Krab',
+            'form-1-site_count': '1'
+        }
+
+        new_share_form = NewShareFormSet(invalid_data)
+
+        self.assertFalse(new_share_form.is_valid())
+
+    def test_character_invalid(self):
+        invalid_data = {
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '0',
+            'form-MIN_NUM_FORMS': '0',
+            'form-MAX_NUM_FORMS': '1000',
+            'form-0-user': '1',
+            'form-0-character': '50',
+            'form-0-role': 'Krab',
+            'form-0-site_count': '1',
+            'form-1-user': '2',
+            'form-1-character': '2',
+            'form-1-role': 'Krab',
+            'form-1-site_count': '1'
+        }
+
+        new_share_form = NewShareFormSet(invalid_data)
+
+        self.assertFalse(new_share_form.is_valid())
+
+    def test_multishare_invalid(self):
+        invalid_data = {
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '0',
+            'form-MIN_NUM_FORMS': '0',
+            'form-MAX_NUM_FORMS': '1000',
+            'form-0-user': '1',
+            'form-0-character': '1',
+            'form-0-role': 'Krab',
+            'form-0-site_count': '1',
+            'form-1-user': '1',
+            'form-1-character': '1',
+            'form-1-role': 'Krab',
+            'form-1-site_count': '1'
+        }
+
+        new_share_form = NewShareFormSet(invalid_data)
+
+        self.assertFalse(new_share_form.is_valid())
+
+    def test_ownership_invalid(self):
+        invalid_data = {
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '0',
+            'form-MIN_NUM_FORMS': '0',
+            'form-MAX_NUM_FORMS': '1000',
+            'form-0-user': '1',
+            'form-0-character': '1',
+            'form-0-role': 'Krab',
+            'form-0-site_count': '1',
+            'form-1-user': '1',
+            'form-1-character': '2',
+            'form-1-role': 'Krab',
+            'form-1-site_count': '1'
+        }
+
+        new_share_form = NewShareFormSet(invalid_data)
+
+        self.assertFalse(new_share_form.is_valid())
