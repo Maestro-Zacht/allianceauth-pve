@@ -64,7 +64,7 @@ class TestNewShareFormset(TestCase):
 
     def test_valid(self):
         valid_data = {
-            'form-TOTAL_FORMS': '2',
+            'form-TOTAL_FORMS': '1',
             'form-INITIAL_FORMS': '0',
             'form-MIN_NUM_FORMS': '0',
             'form-MAX_NUM_FORMS': '1000',
@@ -72,10 +72,10 @@ class TestNewShareFormset(TestCase):
             'form-0-character': self.testcharacter.pk,
             'form-0-role': 'Krab',
             'form-0-site_count': '1',
-            'form-1-user': self.testuser2.pk,
-            'form-1-character': self.testcharacter2.pk,
-            'form-1-role': 'Krab',
-            'form-1-site_count': '1'
+            # 'form-1-user': self.testuser2.pk,
+            # 'form-1-character': self.testcharacter2.pk,
+            # 'form-1-role': 'Krab',
+            # 'form-1-site_count': '1'
         }
 
         new_share_form = NewShareFormSet(valid_data)
