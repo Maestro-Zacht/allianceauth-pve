@@ -3,7 +3,17 @@ from django.utils import timezone
 
 from allianceauth.tests.auth_utils import AuthUtils
 
-from ..models import Rotation, Entry, EntryCharacter, EntryRole
+from ..models import Rotation, Entry, EntryCharacter, EntryRole, RoleSetup
+
+
+class TestRoleSetup(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.rolesetup = RoleSetup.objects.create(name='testrolesetup')
+
+    def test_str(self):
+        self.assertEqual(str(self.rolesetup), self.rolesetup.name)
 
 
 class TestRotation(TestCase):
