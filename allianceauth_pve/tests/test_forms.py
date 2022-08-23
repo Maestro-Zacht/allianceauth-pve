@@ -168,7 +168,7 @@ class TestNewShareFormset(TestCase):
             'form-MIN_NUM_FORMS': '0',
             'form-MAX_NUM_FORMS': '1000',
             'form-0-user': self.testuser.pk,
-            'form-0-character': self.testcharacter.pk,
+            'form-0-character': self.testcharacter2.pk,
             'form-0-role': 'Krab',
             'form-0-site_count': '1',
             'form-1-user': self.testuser2.pk,
