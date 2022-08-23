@@ -55,7 +55,7 @@ class NewShareForm(forms.Form):
     character = CharacterPkField(required=True, widget=forms.TextInput(attrs={'style': 'display: none;', 'class': 'character-pk-list'}))
     helped_setup = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'setup'}))
     site_count = forms.IntegerField(min_value=0, required=True, widget=forms.NumberInput(attrs={'style': 'width: 10ch;'}))
-    role = forms.ChoiceField(required=False, widget=forms.Select(attrs={'class': 'form-control', 'style': 'height: auto;'}))
+    role = forms.ChoiceField(required=True, widget=forms.Select(attrs={'class': 'form-control', 'style': 'height: auto;'}))
 
 
 class NewShareFormset(forms.BaseFormSet):
