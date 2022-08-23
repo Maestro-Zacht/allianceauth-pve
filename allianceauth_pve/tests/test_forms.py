@@ -60,7 +60,7 @@ class TestNewShareFormset(TestCase):
         cls.testcharacter = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar', 2116790529)
 
         cls.testuser2 = AuthUtils.create_user('aauth_testuser2')
-        cls.testcharacter2 = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar2', 795853496)
+        cls.testcharacter2 = AuthUtils.add_main_character_2(cls.testuser2, 'aauth_testchar2', 795853496)
 
     def test_valid(self):
         valid_data = {
@@ -83,11 +83,6 @@ class TestNewShareFormset(TestCase):
         roles_choices = [('Krab', 'Krab')]
         for form in new_share_form:
             form.fields['role'].choices = roles_choices
-
-        if not new_share_form.is_valid():
-            print(new_share_form.errors)
-            for error in new_share_form.non_form_errors():
-                print(error)
 
         self.assertTrue(new_share_form.is_valid())
 
