@@ -47,7 +47,7 @@ class TestRotation(TestCase):
 
         row = summary.first()
 
-        self.assertEqual(row['user'], self.testuser)
+        self.assertEqual(row['user'], self.testuser.pk)
         self.assertEqual(row['helped_setups'], 0)
         self.assertEqual(row['estimated_total'], 1_000_000_000)
         self.assertEqual(row['actual_total'], 0)
@@ -66,7 +66,7 @@ class TestRotation(TestCase):
 
         row = summary.first()
 
-        self.assertEqual(row['user'], self.testuser)
+        self.assertEqual(row['user'], self.testuser.pk)
         self.assertEqual(row['helped_setups'], 0)
         self.assertEqual(row['estimated_total'], 1_000_000_000)
         self.assertEqual(row['actual_total'], 900_000_000)
