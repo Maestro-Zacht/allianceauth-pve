@@ -182,3 +182,40 @@ class TestEntry(TestCase):
             e.update_share_totals()
 
         self.assertAlmostEqual(self.entry.actual_total_after_tax, 810_000_000.0)
+
+
+class TestEntryRole(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.testuser = AuthUtils.create_user('aauth_testuser')
+        cls.testcharacter = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar', 2116790529)
+
+        cls.rotation: Rotation = Rotation.objects.create(
+            name='test1rot',
+            tax_rate=10.0
+        )
+
+        entry: Entry = Entry.objects.create(
+            rotation=cls.rotation,
+            created_by=cls.testuser,
+            estimated_total=1_000_000_000.0
+        )
+
+        cls.role1: EntryRole = EntryRole.objects.create(
+            entry=entry,
+            name='testrole1',
+            value=1
+        )
+
+        cls.role2: EntryRole = EntryRole.objects.create(
+            entry=entry,
+            name='testrole2',
+            value=2
+        )
+
+    def test_str(self):
+        self.assertEqual(str(self.role1), self.role1.name)
+
+    def test_approximate_percentage(self):
+        self.assertAlmostEqual(self.role1.approximate_percentage, 100 / 3)
+        self.assertAlmostEqual(self.role2.approximate_percentage, 200 / 3)
