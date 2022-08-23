@@ -10,10 +10,10 @@ class RotationAdmin(admin.ModelAdmin):
     search_fields = ('name', )
     readonly_fields = ('actual_total', 'closed_at',)
 
-    def save_model(self, request, obj, form, change) -> None:
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
         for entry in obj.entries.all():
             entry.update_share_totals()
-        return super().save_model(request, obj, form, change)
 
 
 class EntryCharacterInline(admin.TabularInline):
