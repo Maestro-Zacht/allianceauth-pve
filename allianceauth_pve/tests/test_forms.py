@@ -80,6 +80,10 @@ class TestNewShareFormset(TestCase):
 
         new_share_form = NewShareFormSet(valid_data)
 
+        roles_choices = [('Krab', 'Krab')]
+        for form in new_share_form:
+            form.fields['role'].choices = roles_choices
+
         self.assertTrue(new_share_form.is_valid())
 
     def test_user_invalid(self):
@@ -99,6 +103,10 @@ class TestNewShareFormset(TestCase):
         }
 
         new_share_form = NewShareFormSet(invalid_data)
+
+        roles_choices = [('Krab', 'Krab')]
+        for form in new_share_form:
+            form.fields['role'].choices = roles_choices
 
         self.assertFalse(new_share_form.is_valid())
 
@@ -120,6 +128,10 @@ class TestNewShareFormset(TestCase):
 
         new_share_form = NewShareFormSet(invalid_data)
 
+        roles_choices = [('Krab', 'Krab')]
+        for form in new_share_form:
+            form.fields['role'].choices = roles_choices
+
         self.assertFalse(new_share_form.is_valid())
 
     def test_multishare_invalid(self):
@@ -140,6 +152,10 @@ class TestNewShareFormset(TestCase):
 
         new_share_form = NewShareFormSet(invalid_data)
 
+        roles_choices = [('Krab', 'Krab')]
+        for form in new_share_form:
+            form.fields['role'].choices = roles_choices
+
         self.assertFalse(new_share_form.is_valid())
 
     def test_ownership_invalid(self):
@@ -159,5 +175,9 @@ class TestNewShareFormset(TestCase):
         }
 
         new_share_form = NewShareFormSet(invalid_data)
+
+        roles_choices = [('Krab', 'Krab')]
+        for form in new_share_form:
+            form.fields['role'].choices = roles_choices
 
         self.assertFalse(new_share_form.is_valid())
