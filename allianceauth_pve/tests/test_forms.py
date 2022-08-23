@@ -84,6 +84,11 @@ class TestNewShareFormset(TestCase):
         for form in new_share_form:
             form.fields['role'].choices = roles_choices
 
+        if not new_share_form.is_valid():
+            print(new_share_form.errors)
+            for error in new_share_form.non_form_errors():
+                print(error)
+
         self.assertTrue(new_share_form.is_valid())
 
     def test_user_invalid(self):
