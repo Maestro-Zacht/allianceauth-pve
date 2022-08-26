@@ -223,11 +223,6 @@ class TestEntry(TestCase):
         self.entry.update_share_totals()
         self.assertEqual(self.rotation.entries.count(), 0)
 
-    def test_update_share_totals_0_roles(self):
-        self.role.delete()
-        self.entry.update_share_totals()
-        self.assertEqual(self.rotation.entries.count(), 0)
-
 
 class TestEntryRole(TestCase):
     @classmethod
