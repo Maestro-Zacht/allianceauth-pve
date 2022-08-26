@@ -214,9 +214,9 @@ class TestEntry(TestCase):
         newshare1.refresh_from_db()
         newshare2.refresh_from_db()
 
-        self.assertAlmostEqual(self.share.estimated_share_total, 10**9 / 3)
-        self.assertAlmostEqual(newshare1.estimated_share_total, 10**9 / 3)
-        self.assertAlmostEqual(newshare2.estimated_share_total, 10**9 / 3)
+        self.assertAlmostEqual(self.share.estimated_share_total, 900_000_000 / 3)
+        self.assertAlmostEqual(newshare1.estimated_share_total, 900_000_000 / 3)
+        self.assertAlmostEqual(newshare2.estimated_share_total, 900_000_000 / 3)
 
         self.assertEqual(self.share.actual_share_total, 0)
         self.assertEqual(newshare1.actual_share_total, 0)
