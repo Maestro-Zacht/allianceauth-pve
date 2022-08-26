@@ -176,18 +176,9 @@ else:
 DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
-if os.environ.get('DBENGINE') == 'postgres':
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            'NAME': 'postgres',
-            'USER': 'postgres',
-            'PASSWORD': 'postgres',
-            'HOST': 'localhost',
-            'PORT': '5432',
-        },
-    }
-else:
+try:
+    pkg_resources.get_distribution('psycopg2-binary')
+except pkg_resources.DistributionNotFound:
     DATABASES = {
         "default": {
             "ENGINE": 'django.db.backends.mysql',
@@ -196,6 +187,17 @@ else:
             'PASSWORD': 'mysql',
             'HOST': 'localhost',
             'PORT': '3306',
+        },
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            'NAME': 'postgres',
+            'USER': 'postgres',
+            'PASSWORD': 'postgres',
+            'HOST': 'localhost',
+            'PORT': '5432',
         },
     }
 
