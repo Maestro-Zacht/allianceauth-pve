@@ -210,6 +210,10 @@ class TestEntry(TestCase):
 
         self.entry.update_share_totals()
 
+        self.share.refresh_from_db()
+        newshare1.refresh_from_db()
+        newshare2.refresh_from_db()
+
         self.assertAlmostEqual(self.share.estimated_share_total, 10**9 / 3)
         self.assertAlmostEqual(newshare1.estimated_share_total, 10**9 / 3)
         self.assertAlmostEqual(newshare2.estimated_share_total, 10**9 / 3)
