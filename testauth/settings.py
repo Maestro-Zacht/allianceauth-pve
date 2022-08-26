@@ -175,16 +175,29 @@ else:
 
 DEBUG = True
 ALLOWED_HOSTS = ["*"]
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    },
-}
+
+if os.environ.get('DATABASEENGINE') == 'postgres':
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            'NAME': 'postgres',
+            'USER': 'postgres',
+            'PASSWORD': 'postgres',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        },
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": 'django.db.backends.mysql',
+            'NAME': 'mysql',
+            'USER': 'root',
+            'PASSWORD': 'mysql',
+            'HOST': 'localhost',
+            'PORT': '3306',
+        },
+    }
 
 SITE_NAME = "Alliance Auth"
 
