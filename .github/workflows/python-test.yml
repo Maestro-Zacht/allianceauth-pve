@@ -68,19 +68,6 @@ jobs:
     name: Test Coverage (Python ${{ matrix.python-version }} AllianceAuth v${{ matrix.aa-version }} MySQL)
     runs-on: ubuntu-latest
 
-    services:
-      database:
-        image: mysql
-        env:
-          MYSQL_ROOT_PASSWORD: mysql
-        options: >-
-          --health-cmd "mysqladmin ping"
-          --health-interval 10s
-          --health-timeout 10s
-          --health-retries 10
-        ports:
-          - 3306:3306
-
     strategy:
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11-dev"]
@@ -90,6 +77,10 @@ jobs:
             aa-version: "3"
 
     steps:
+      - name: Set up MySQL
+        run: |
+          sudo /etc/init.d/mysql start
+
       - name: Checkout
         uses: actions/checkout@v3
 
