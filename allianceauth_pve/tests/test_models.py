@@ -139,6 +139,12 @@ class TestEntry(TestCase):
         cls.testuser = AuthUtils.create_user('aauth_testuser')
         cls.testcharacter = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar', 2116790529)
 
+        cls.testuser2 = AuthUtils.create_user('aauth_testuser2')
+        cls.testcharacter2 = AuthUtils.add_main_character_2(cls.testuser2, 'aauth_testchar2', 795853496)
+
+        cls.testuser3 = AuthUtils.create_user('aauth_testuser3')
+        cls.testcharacter3 = AuthUtils.add_main_character_2(cls.testuser3, 'aauth_testchar3', 781335233)
+
         cls.rotation: Rotation = Rotation.objects.create(
             name='test1rot',
             tax_rate=10.0
@@ -150,17 +156,17 @@ class TestEntry(TestCase):
             estimated_total=1_000_000_000.0
         )
 
-        role = EntryRole.objects.create(
+        cls.role = EntryRole.objects.create(
             entry=cls.entry,
             name='testrole1',
             value=1
         )
 
-        share = EntryCharacter.objects.create(
+        cls.share: EntryCharacter = EntryCharacter.objects.create(
             entry=cls.entry,
             user=cls.testuser,
             user_character=cls.testcharacter,
-            role=role,
+            role=cls.role,
             site_count=1,
             helped_setup=False
         )
@@ -182,6 +188,45 @@ class TestEntry(TestCase):
             e.update_share_totals()
 
         self.assertAlmostEqual(self.entry.actual_total_after_tax, 810_000_000.0)
+
+    def test_update_share_totals_valid(self):
+        newshare1 = EntryCharacter.objects.create(
+            entry=self.entry,
+            user=self.testuser2,
+            user_character=self.testcharacter2,
+            role=self.role,
+            site_count=1,
+            helped_setup=False
+        )
+
+        newshare2 = EntryCharacter.objects.create(
+            entry=self.entry,
+            user=self.testuser3,
+            user_character=self.testcharacter3,
+            role=self.role,
+            site_count=1,
+            helped_setup=True
+        )
+
+        self.entry.update_share_totals()
+
+        self.assertAlmostEqual(self.share.estimated_share_total, 10**9 / 3)
+        self.assertAlmostEqual(newshare1.estimated_share_total, 10**9 / 3)
+        self.assertAlmostEqual(newshare2.estimated_share_total, 10**9 / 3)
+
+        self.assertEqual(self.share.actual_share_total, 0)
+        self.assertEqual(newshare1.actual_share_total, 0)
+        self.assertEqual(newshare2.actual_share_total, 0)
+
+    def test_update_share_totals_0_shares(self):
+        self.share.delete()
+        self.entry.update_share_totals()
+        self.assertEqual(self.rotation.entries.count(), 0)
+
+    def test_update_share_totals_0_roles(self):
+        self.role.delete()
+        self.entry.update_share_totals()
+        self.assertEqual(self.rotation.entries.count(), 0)
 
 
 class TestEntryRole(TestCase):
