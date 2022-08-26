@@ -176,7 +176,7 @@ else:
 DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
-if os.environ.get('DATABASEENGINE') == 'postgres':
+if os.environ.get('DBENGINE') == 'postgres':
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
