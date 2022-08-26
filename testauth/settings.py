@@ -184,7 +184,7 @@ except pkg_resources.DistributionNotFound:
             "ENGINE": 'django.db.backends.mysql',
             'NAME': 'mysql',
             'USER': 'root',
-            'PASSWORD': 'mysql',
+            'PASSWORD': 'root',
             'HOST': 'localhost',
             'PORT': '3306',
         },
