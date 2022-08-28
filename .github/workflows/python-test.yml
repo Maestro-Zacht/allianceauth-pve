@@ -3,8 +3,8 @@ name: Checks
 on: [push, pull_request]
 
 jobs:
-  test-postgres:
-    name: Test Coverage (Python ${{ matrix.python-version }} AllianceAuth v${{ matrix.aa-version }} Postgres)
+  test-coverage:
+    name: Test Coverage (Python ${{ matrix.python-version }} AllianceAuth v${{ matrix.aa-version }} ${{ matrix.database }})
     runs-on: ubuntu-latest
 
     services:
@@ -25,69 +25,28 @@ jobs:
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11-dev"]
         aa-version: ["2", "3"]
-        exclude:
-          - python-version: "3.7"
-            aa-version: "3"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install redis and postgres
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y redis-tools redis-server postgresql postgresql-contrib
-
-      - name: Verify that redis is up
-        run: redis-cli ping
-
-      - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install Tox and any other packages
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade tox tox-gh-actions
-
-      - name: Run Tox
-        run: tox -v
-        env:
-          AAVERSION: ${{ matrix.aa-version }}
-          DATABASEENGINE: "postgres"
-
-      - name: Upload Coverage Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-python${{ matrix.python-version }}-AA${{ matrix.aa-version }}-postgres
-          path: coverage.xml
-          if-no-files-found: ignore
-
-  test-mysql:
-    name: Test Coverage (Python ${{ matrix.python-version }} AllianceAuth v${{ matrix.aa-version }} MySQL)
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11-dev"]
-        aa-version: ["2", "3"]
+        database: ["postgres", "mysql"]
         exclude:
           - python-version: "3.7"
             aa-version: "3"
 
     steps:
       - name: Set up MySQL
-        run: |
-          sudo /etc/init.d/mysql start
+        run: sudo /etc/init.d/mysql start
+        if: matrix.database == "mysql"
 
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Update packae index
+        run: sudo apt-get update
+
       - name: Install redis
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y redis-tools redis-server
+        run: sudo apt-get install -y redis-tools redis-server
+
+      - name: Install postgres
+        run: sudo apt-get install -y postgresql postgresql-contrib
+        if: matrix.database == "postgres"
 
       - name: Verify that redis is up
         run: redis-cli ping
@@ -106,19 +65,19 @@ jobs:
         run: tox -v
         env:
           AAVERSION: ${{ matrix.aa-version }}
-          DATABASEENGINE: "mysql"
+          DATABASEENGINE: ${{ matrix.database }}
 
       - name: Upload Coverage Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: coverage-python${{ matrix.python-version }}-AA${{ matrix.aa-version }}-mysql
+          name: coverage-python${{ matrix.python-version }}-AA${{ matrix.aa-version }}-${{ matrix.database }}
           path: coverage.xml
           if-no-files-found: ignore
 
   upload-coverage:
     name: Upload to Codecov
     runs-on: ubuntu-latest
-    needs: [test-postgres, test-mysql]
+    needs: [test-coverage]
 
     steps:
       - name: Checkout
@@ -138,7 +97,7 @@ jobs:
           verbose: true # optional (default = false)
 
   build-test:
-    needs: [test-postgres, test-mysql]
+    needs: [test-coverage]
     name: PyPi Build Test
     runs-on: ubuntu-latest
 
