@@ -24,4 +24,4 @@ class TestHooks(TestCase):
         self.client.force_login(self.testuser)
 
         response = self.client.get(reverse('allianceauth_pve:index'))
-        self.assertRedirects(response, reverse(settings.LOGIN_URL))
+        self.assertRedirects(response, reverse(settings.LOGIN_URL) + f"?next={reverse('allianceauth_pve:index')}")
