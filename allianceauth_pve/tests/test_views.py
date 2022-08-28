@@ -115,6 +115,8 @@ class TestCreateRotationView(TestCase):
             'name': 'testrot1',
             'priority': '1',
             'tax_rate': '1.0',
+            'max_daily_setups': '1',
+            'min_people_share_setup': '3',
         }
 
         response = self.client.post(reverse('allianceauth_pve:new_rotation'), form_data)
@@ -132,6 +134,7 @@ class TestCreateRotationView(TestCase):
             'name': 'testrot1',
             'priority': '1',
             'tax_rate': '1.0',
+            'max_daily_setups': '1',
             'min_people_share_setup': '-5'
         }
 
