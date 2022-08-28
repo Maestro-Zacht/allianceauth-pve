@@ -20,6 +20,16 @@ jobs:
         ports:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps port 6379 on service container to the host
+          - 6379:6379
 
     strategy:
       matrix:
@@ -38,18 +48,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Update packae index
-        run: sudo apt-get update
-
-      - name: Install redis
-        run: sudo apt-get install -y redis-tools redis-server
-
       - name: Install postgres
-        run: sudo apt-get install -y postgresql postgresql-contrib
+        run: sudo apt-get update && sudo apt-get install -y postgresql postgresql-contrib
         if: matrix.database == 'postgres'
-
-      - name: Verify that redis is up
-        run: redis-cli ping
 
       - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
