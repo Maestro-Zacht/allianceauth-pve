@@ -13,8 +13,8 @@ class TestIndex(TestCase):
 
         cls.testuser = AuthUtils.add_permissions_to_user_by_name(['allianceauth_pve.access_pve'], cls.testuser)
 
-        cls.client.force_login(cls.testuser)
-
     def test_index(self):
+        self.client.force_login(self.testuser)
+
         response = self.client.get(reverse('allianceauth_pve:index'))
         self.assertRedirects(response, reverse('allianceauth_pve:dashboard'))
