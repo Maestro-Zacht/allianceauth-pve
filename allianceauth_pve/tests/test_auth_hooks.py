@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
+from django.conf import settings
 
 from allianceauth.tests.auth_utils import AuthUtils
 
@@ -23,4 +24,4 @@ class TestHooks(TestCase):
         self.client.force_login(self.testuser)
 
         response = self.client.get(reverse('allianceauth_pve:index'))
-        self.assertEqual(response.status_code, 403)
+        self.assertRedirects(response, reverse(settings.LOGIN_URL))
