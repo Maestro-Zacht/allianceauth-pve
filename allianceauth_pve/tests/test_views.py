@@ -186,7 +186,7 @@ class TestGetAvaiableRatters(TestCase):
                         'user_pic': self.testcharacter.portrait_url_32,
                     },
                     {
-                        'character_id': self.testcharacter2.character_id,
+                        'character_id': self.testcharacter2.pk,
                         'character_name': self.testcharacter2.character_name,
                         'profile_pic': self.testcharacter2.portrait_url_32,
                         'user_id': self.testuser2.pk,
