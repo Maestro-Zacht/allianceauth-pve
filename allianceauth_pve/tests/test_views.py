@@ -174,7 +174,7 @@ class TestGetAvaiableRatters(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
-            response.json(),
+            response.content,
             {
                 'result': [
                     {
