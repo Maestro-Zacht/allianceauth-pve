@@ -3,7 +3,7 @@ from django.urls import reverse
 
 from allianceauth.tests.auth_utils import AuthUtils
 
-from ..models import Rotation, Entry
+from ..models import Rotation, Entry, EntryCharacter, EntryRole
 
 
 class TestIndexView(TestCase):
@@ -37,6 +37,113 @@ class TestDashboardView(TestCase):
         response = self.client.get(reverse('allianceauth_pve:dashboard'))
 
         self.assertTemplateUsed(response, 'allianceauth_pve/ratting-dashboard.html')
+
+
+class TestRotationView(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.testuser = AuthUtils.create_user('aauth_testuser')
+        cls.testcharacter = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar', 2116790529)
+
+        cls.testuser = AuthUtils.add_permissions_to_user_by_name(['allianceauth_pve.access_pve'], cls.testuser)
+
+        cls.rotation: Rotation = Rotation.objects.create(
+            name='test1rot'
+        )
+
+        entry = Entry.objects.create(
+            rotation=cls.rotation,
+            created_by=cls.testuser,
+            estimated_total=1_000_000_000.0
+        )
+
+        role = EntryRole.objects.create(
+            entry=entry,
+            name='testrole1',
+            value=1
+        )
+
+        EntryCharacter.objects.create(
+            entry=entry,
+            user=cls.testuser,
+            user_character=cls.testcharacter,
+            role=role,
+            site_count=1,
+            helped_setup=False
+        )
+
+    def test_rotation_open(self):
+        self.client.force_login(self.testuser)
+
+        response = self.client.get(reverse('allianceauth_pve:rotation_view', args=[self.rotation.pk]))
+
+        self.assertTemplateUsed(response, 'allianceauth_pve/rotation.html')
+
+    def test_rotation_closed(self):
+        self.rotation.is_closed = True
+        self.rotation.save()
+
+        self.client.force_login(self.testuser)
+
+        response = self.client.get(reverse('allianceauth_pve:rotation_view', args=[self.rotation.pk]))
+
+        self.assertTemplateUsed(response, 'allianceauth_pve/rotation.html')
+
+    def test_close_rotation_valid(self):
+        self.testuser = AuthUtils.add_permissions_to_user_by_name(['allianceauth_pve.manage_rotations'], self.testuser)
+
+        self.client.force_login(self.testuser)
+
+        form_data = {
+            'sales_value': '900000000',
+        }
+
+        response = self.client.post(reverse('allianceauth_pve:rotation_view', args=[self.rotation.pk]), form_data)
+
+        self.assertEqual(response.status_code, 200)
+
+        self.rotation.refresh_from_db()
+        self.assertTrue(self.rotation.is_closed)
+        self.assertEqual(self.rotation.actual_total, 900000000)
+
+        self.assertTemplateUsed(response, 'allianceauth_pve/rotation.html')
+
+    def test_close_rotation_invalid(self):
+        self.testuser = AuthUtils.add_permissions_to_user_by_name(['allianceauth_pve.manage_rotations'], self.testuser)
+
+        self.client.force_login(self.testuser)
+
+        form_data = {
+            'sales_value': '0',
+        }
+
+        response = self.client.post(reverse('allianceauth_pve:rotation_view', args=[self.rotation.pk]), form_data)
+
+        self.assertEqual(response.status_code, 200)
+
+        self.rotation.refresh_from_db()
+        self.assertFalse(self.rotation.is_closed)
+        self.assertEqual(self.rotation.actual_total, 0)
+
+        self.assertTemplateUsed(response, 'allianceauth_pve/rotation.html')
+
+    def test_close_rotation_invalid_perms(self):
+        self.client.force_login(self.testuser)
+
+        form_data = {
+            'sales_value': '900000000',
+        }
+
+        response = self.client.post(reverse('allianceauth_pve:rotation_view', args=[self.rotation.pk]), form_data)
+
+        self.assertEqual(response.status_code, 200)
+
+        self.rotation.refresh_from_db()
+        self.assertFalse(self.rotation.is_closed)
+        self.assertEqual(self.rotation.actual_total, 0)
+
+        self.assertTemplateUsed(response, 'allianceauth_pve/rotation.html')
 
 
 class TestDeleteEntryView(TestCase):
