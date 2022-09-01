@@ -178,7 +178,7 @@ class TestGetAvaiableRatters(TestCase):
             {
                 'result': [
                     {
-                        'character_id': self.testcharacter.character_id,
+                        'character_id': self.testcharacter.pk,
                         'character_name': self.testcharacter.character_name,
                         'profile_pic': self.testcharacter.portrait_url_32,
                         'user_id': self.testuser.pk,
