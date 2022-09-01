@@ -148,6 +148,7 @@ class TestRotationView(TestCase):
 
 
 class TestGetAvaiableRatters(TestCase):
+    maxDiff = None
 
     @classmethod
     def setUpTestData(cls):
