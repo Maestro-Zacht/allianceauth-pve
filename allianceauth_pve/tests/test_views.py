@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from allianceauth.tests.auth_utils import AuthUtils
+from allianceauth.authentication.models import CharacterOwnership
 
 from ..models import Rotation, Entry, EntryCharacter, EntryRole
 
@@ -144,6 +145,57 @@ class TestRotationView(TestCase):
         self.assertEqual(self.rotation.actual_total, 0)
 
         self.assertTemplateUsed(response, 'allianceauth_pve/rotation.html')
+
+
+class TestGetAvaiableRatters(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.testuser = AuthUtils.create_user('aauth_testuser')
+        cls.testcharacter = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar', 2116790529)
+        CharacterOwnership.objects.create(character=cls.testcharacter, user=cls.testuser, owner_hash='aa1')
+
+        cls.testuser2 = AuthUtils.create_user('aauth_testuser2')
+        cls.testcharacter2 = AuthUtils.add_main_character_2(cls.testuser2, 'aauth_testchar2random', 795853496)
+        CharacterOwnership.objects.create(character=cls.testcharacter2, user=cls.testuser2, owner_hash='aa2')
+
+        cls.testuser3 = AuthUtils.create_user('aauth_testuser3')
+        cls.testcharacter3 = AuthUtils.add_main_character_2(cls.testuser3, 'aauth_testchar3', 781335233)
+        CharacterOwnership.objects.create(character=cls.testcharacter3, user=cls.testuser3, owner_hash='aa3')
+
+        cls.testuser = AuthUtils.add_permissions_to_user_by_name(['allianceauth_pve.access_pve', 'allianceauth_pve.manage_entries'], cls.testuser)
+
+        cls.testuser2 = AuthUtils.add_permissions_to_user_by_name(['allianceauth_pve.access_pve'], cls.testuser2)
+
+    def test_no_name_no_exclude(self):
+        self.client.force_login(self.testuser)
+
+        response = self.client.get(reverse('allianceauth_pve:all_ratters'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            response.json(),
+            {
+                'result': [
+                    {
+                        'character_id': self.testcharacter.character_id,
+                        'character_name': self.testcharacter.character_name,
+                        'profile_pic': self.testcharacter.portrait_url_32,
+                        'user_id': self.testuser.pk,
+                        'user_main_character_name': self.testcharacter.character_name,
+                        'user_pic': self.testcharacter.portrait_url_32,
+                    },
+                    {
+                        'character_id': self.testcharacter2.character_id,
+                        'character_name': self.testcharacter2.character_name,
+                        'profile_pic': self.testcharacter2.portrait_url_32,
+                        'user_id': self.testuser2.pk,
+                        'user_main_character_name': self.testcharacter2.character_name,
+                        'user_pic': self.testcharacter2.portrait_url_32,
+                    }
+                ]
+            }
+        )
 
 
 class TestDeleteEntryView(TestCase):
