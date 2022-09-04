@@ -132,7 +132,7 @@ class TestRotation(TestCase):
         self.assertEqual(str(self.rotation), f'{self.rotation.pk} {self.rotation.name}')
 
     def test_all_summary(self):
-        self.assertQuerysetEqual(Rotation.objects.get_setup_summary(), [{'user': self.testuser.pk, 'total_setups': 0}])
+        self.assertQuerysetEqual(Rotation.objects.get_setup_summary(), [])
 
 
 class TestEntry(TestCase):
