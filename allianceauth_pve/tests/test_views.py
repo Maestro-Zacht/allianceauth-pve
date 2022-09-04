@@ -285,7 +285,7 @@ class TestAddEntryView(TestCase):
         messages = list(get_messages(response.wsgi_request))
 
         self.assertEqual(len(messages), 1)
-        self.assertEqual(messages[0], 'The rotation is closed, you cannot add an entry')
+        self.assertEqual(messages[0].message, 'The rotation is closed, you cannot add an entry')
 
 
 class TestDeleteEntryView(TestCase):
