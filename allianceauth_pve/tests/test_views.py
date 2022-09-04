@@ -198,6 +198,58 @@ class TestGetAvaiableRatters(TestCase):
             }
         )
 
+    def test_no_name_exclude(self):
+        self.client.force_login(self.testuser)
+
+        response = self.client.get(reverse('allianceauth_pve:all_ratters'), {'excludeIds': self.testcharacter.pk})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            response.content,
+            {
+                'result': [
+                    {
+                        'character_id': self.testcharacter2.pk,
+                        'character_name': self.testcharacter2.character_name,
+                        'profile_pic': self.testcharacter2.portrait_url_32,
+                        'user_id': self.testuser2.pk,
+                        'user_main_character_name': self.testcharacter2.character_name,
+                        'user_pic': self.testcharacter2.portrait_url_32,
+                    }
+                ]
+            }
+        )
+
+    def test_name_no_exclude(self):
+        self.client.force_login(self.testuser)
+
+        response = self.client.get(reverse('allianceauth_pve:search_ratters', args=['random']))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            response.content,
+            {
+                'result': [
+                    {
+                        'character_id': self.testcharacter2.pk,
+                        'character_name': self.testcharacter2.character_name,
+                        'profile_pic': self.testcharacter2.portrait_url_32,
+                        'user_id': self.testuser2.pk,
+                        'user_main_character_name': self.testcharacter2.character_name,
+                        'user_pic': self.testcharacter2.portrait_url_32,
+                    }
+                ]
+            }
+        )
+
+    def test_name_exclude(self):
+        self.client.force_login(self.testuser)
+
+        response = self.client.get(reverse('allianceauth_pve:search_ratters', args=['random']), {'excludeIds': self.testcharacter.pk})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(response.content, {'result': []})
+
 
 class TestDeleteEntryView(TestCase):
 
