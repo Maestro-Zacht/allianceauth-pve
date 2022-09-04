@@ -274,6 +274,8 @@ class TestAddEntryView(TestCase):
 
         response = self.client.get(reverse('allianceauth_pve:new_entry', args=[self.rotation.pk]))
 
+        self.assertRedirects(response, reverse('allianceauth_pve:rotation_view', args=[self.rotation.pk]))
+
         messages = get_messages(response)
 
         self.assertEqual(len(messages), 1)
