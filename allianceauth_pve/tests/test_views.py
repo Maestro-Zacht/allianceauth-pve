@@ -264,6 +264,10 @@ class TestAddEntryView(TestCase):
         cls.testcharacter2 = AuthUtils.add_main_character_2(cls.testuser2, 'aauth_testchar2random', 795853496)
         CharacterOwnership.objects.create(character=cls.testcharacter2, user=cls.testuser2, owner_hash='aa2')
 
+        cls.testuser = AuthUtils.add_permissions_to_user_by_name(['allianceauth_pve.access_pve', 'allianceauth_pve.manage_entries'], cls.testuser)
+
+        cls.testuser2 = AuthUtils.add_permissions_to_user_by_name(['allianceauth_pve.access_pve'], cls.testuser2)
+
         cls.rotation: Rotation = Rotation.objects.create(
             name='test1rot'
         )
@@ -271,6 +275,8 @@ class TestAddEntryView(TestCase):
     def test_rotation_closed(self):
         self.rotation.is_closed = True
         self.rotation.save()
+
+        self.client.force_login(self.testuser)
 
         response = self.client.get(reverse('allianceauth_pve:new_entry', args=[self.rotation.pk]))
 
