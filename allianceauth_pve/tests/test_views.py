@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
+from django.contrib.messages import get_messages
 
 from allianceauth.tests.auth_utils import AuthUtils
 from allianceauth.authentication.models import CharacterOwnership
@@ -249,6 +250,34 @@ class TestGetAvaiableRatters(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response.content, {'result': []})
+
+
+class TestAddEntryView(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.testuser = AuthUtils.create_user('aauth_testuser')
+        cls.testcharacter = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar', 2116790529)
+        CharacterOwnership.objects.create(character=cls.testcharacter, user=cls.testuser, owner_hash='aa1')
+
+        cls.testuser2 = AuthUtils.create_user('aauth_testuser2')
+        cls.testcharacter2 = AuthUtils.add_main_character_2(cls.testuser2, 'aauth_testchar2random', 795853496)
+        CharacterOwnership.objects.create(character=cls.testcharacter2, user=cls.testuser2, owner_hash='aa2')
+
+        cls.rotation: Rotation = Rotation.objects.create(
+            name='test1rot'
+        )
+
+    def test_rotation_closed(self):
+        self.rotation.is_closed = True
+        self.rotation.save()
+
+        response = self.client.get(reverse('allianceauth_pve:new_entry', args=[self.rotation.pk]))
+
+        messages = get_messages(response)
+
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0], 'The rotation is closed, you cannot add an entry')
 
 
 class TestDeleteEntryView(TestCase):
