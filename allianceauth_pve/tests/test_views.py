@@ -282,7 +282,7 @@ class TestAddEntryView(TestCase):
 
         self.assertRedirects(response, reverse('allianceauth_pve:rotation_view', args=[self.rotation.pk]))
 
-        messages = get_messages(response)
+        messages = list(get_messages(response))
 
         self.assertEqual(len(messages), 1)
         self.assertEqual(messages[0], 'The rotation is closed, you cannot add an entry')
