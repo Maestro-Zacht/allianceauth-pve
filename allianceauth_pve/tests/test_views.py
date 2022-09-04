@@ -245,7 +245,7 @@ class TestGetAvaiableRatters(TestCase):
     def test_name_exclude(self):
         self.client.force_login(self.testuser)
 
-        response = self.client.get(reverse('allianceauth_pve:search_ratters', args=['random']), {'excludeIds': self.testcharacter.pk})
+        response = self.client.get(reverse('allianceauth_pve:search_ratters', args=['random']), {'excludeIds': self.testcharacter2.pk})
 
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response.content, {'result': []})
