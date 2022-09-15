@@ -538,18 +538,18 @@ class TestAddEntryView(TestCase):
 
         self.assertEqual(self.rotation.entries.count(), 1)
 
-        entry: Entry = self.rotation.entries.exclude(pk=self.entry.pk).get()
+        self.entry.refresh_from_db()
 
-        self.assertEqual(entry.roles.count(), 1)
-        role: EntryRole = entry.roles.get()
+        self.assertEqual(self.entry.roles.count(), 1)
+        role: EntryRole = self.entry.roles.get()
         self.assertEqual(role.name, 'Krabs')
         self.assertEqual(role.value, 1)
 
-        self.assertEqual(entry.ratting_shares.count(), 2)
+        self.assertEqual(self.entry.ratting_shares.count(), 2)
 
-        estimated_total = entry.ratting_shares.aggregate(val=Sum('estimated_share_total'))['val']
+        estimated_total = self.entry.ratting_shares.aggregate(val=Sum('estimated_share_total'))['val']
         self.assertAlmostEqual(estimated_total, 1660200000.0)
-        self.assertAlmostEqual(estimated_total, entry.estimated_total)
+        self.assertAlmostEqual(estimated_total, self.entry.estimated_total)
 
 
 class TestDeleteEntryView(TestCase):
