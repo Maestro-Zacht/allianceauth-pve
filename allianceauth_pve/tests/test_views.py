@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.messages import get_messages
+from django.db.models import Sum
 
 from allianceauth.tests.auth_utils import AuthUtils
 from allianceauth.authentication.models import CharacterOwnership
@@ -266,10 +267,31 @@ class TestAddEntryView(TestCase):
 
         cls.testuser = AuthUtils.add_permissions_to_user_by_name(['allianceauth_pve.access_pve', 'allianceauth_pve.manage_entries'], cls.testuser)
 
-        cls.testuser2 = AuthUtils.add_permissions_to_user_by_name(['allianceauth_pve.access_pve'], cls.testuser2)
+        cls.testuser2 = AuthUtils.add_permissions_to_user_by_name(['allianceauth_pve.access_pve', 'allianceauth_pve.manage_entries'], cls.testuser2)
 
         cls.rotation: Rotation = Rotation.objects.create(
             name='test1rot'
+        )
+
+        cls.entry: Entry = Entry.objects.create(
+            rotation=cls.rotation,
+            created_by=cls.testuser,
+            estimated_total=1_000_000_000.0
+        )
+
+        cls.role: EntryRole = EntryRole.objects.create(
+            entry=cls.entry,
+            name='Krab',
+            value=1
+        )
+
+        EntryCharacter.objects.create(
+            entry=cls.entry,
+            user=cls.testuser,
+            user_character=cls.testcharacter,
+            role=cls.role,
+            site_count=1,
+            helped_setup=False
         )
 
     def test_rotation_closed(self):
@@ -286,6 +308,274 @@ class TestAddEntryView(TestCase):
 
         self.assertEqual(len(messages), 1)
         self.assertEqual(messages[0].message, 'The rotation is closed, you cannot add an entry')
+
+    def test_wrong_rotation(self):
+        rot = Rotation.objects.create(name='otherrot')
+
+        self.client.force_login(self.testuser)
+
+        response = self.client.get(reverse('allianceauth_pve:edit_entry', args=[rot.pk, self.entry.pk]))
+
+        self.assertRedirects(response, reverse('allianceauth_pve:rotation_view', args=[rot.pk]))
+
+        messages = list(get_messages(response.wsgi_request))
+
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].message, "The selected entry doesn't belong to the selected rotation")
+
+    def test_user_not_allowed(self):
+        self.client.force_login(self.testuser2)
+
+        response = self.client.get(reverse('allianceauth_pve:edit_entry', args=[self.rotation.pk, self.entry.pk]))
+
+        self.assertRedirects(response, reverse('allianceauth_pve:rotation_view', args=[self.rotation.pk]))
+
+        messages = list(get_messages(response.wsgi_request))
+
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].message, "You cannot edit this entry")
+
+    def test_valid_get_new_entry(self):
+        self.client.force_login(self.testuser)
+
+        response = self.client.get(reverse('allianceauth_pve:new_entry', args=[self.rotation.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'allianceauth_pve/entry_form.html')
+
+    def test_valid_get_edit_entry(self):
+        self.client.force_login(self.testuser)
+
+        response = self.client.get(reverse('allianceauth_pve:edit_entry', args=[self.rotation.pk, self.entry.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'allianceauth_pve/entry_form.html')
+
+    def test_post_invalid_role_form(self):
+        self.client.force_login(self.testuser)
+
+        form_data = {
+            'roles-TOTAL_FORMS': '1',
+            'roles-INITIAL_FORMS': '1',
+            'roles-MIN_NUM_FORMS': '1',
+            'roles-MAX_NUM_FORMS': '1000',
+            'roles-0-name': 'Krab',
+            'roles-0-value': '-1',
+            'estimated_total': '553400000',
+            'form-TOTAL_FORMS': '1',
+            'form-INITIAL_FORMS': '0',
+            'form-MIN_NUM_FORMS': '0',
+            'form-MAX_NUM_FORMS': '1000',
+            'form-0-user': self.testuser.pk,
+            'form-0-character': self.testcharacter.pk,
+            'form-0-role': 'Krab',
+            'form-0-site_count': '1'
+        }
+
+        response = self.client.post(reverse('allianceauth_pve:new_entry', args=[self.rotation.pk]), form_data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'allianceauth_pve/entry_form.html')
+
+    def test_post_invalid_entry_form(self):
+        self.client.force_login(self.testuser)
+
+        form_data = {
+            'roles-TOTAL_FORMS': '1',
+            'roles-INITIAL_FORMS': '1',
+            'roles-MIN_NUM_FORMS': '1',
+            'roles-MAX_NUM_FORMS': '1000',
+            'roles-0-name': 'Krab',
+            'roles-0-value': '1',
+            'estimated_total': '0',
+            'form-TOTAL_FORMS': '1',
+            'form-INITIAL_FORMS': '0',
+            'form-MIN_NUM_FORMS': '0',
+            'form-MAX_NUM_FORMS': '1000',
+            'form-0-user': self.testuser.pk,
+            'form-0-character': self.testcharacter.pk,
+            'form-0-role': 'Krab',
+            'form-0-site_count': '1'
+        }
+
+        response = self.client.post(reverse('allianceauth_pve:new_entry', args=[self.rotation.pk]), form_data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'allianceauth_pve/entry_form.html')
+
+    def test_post_invalid_share_form(self):
+        self.client.force_login(self.testuser)
+
+        form_data = {
+            'roles-TOTAL_FORMS': '1',
+            'roles-INITIAL_FORMS': '1',
+            'roles-MIN_NUM_FORMS': '1',
+            'roles-MAX_NUM_FORMS': '1000',
+            'roles-0-name': 'Krab',
+            'roles-0-value': '1',
+            'estimated_total': '10',
+            'form-TOTAL_FORMS': '1',
+            'form-INITIAL_FORMS': '0',
+            'form-MIN_NUM_FORMS': '0',
+            'form-MAX_NUM_FORMS': '1000',
+            'form-0-user': self.testuser.pk,
+            'form-0-character': self.testcharacter.pk,
+            'form-0-role': 'Krab',
+            'form-0-site_count': '-1'
+        }
+
+        response = self.client.post(reverse('allianceauth_pve:new_entry', args=[self.rotation.pk]), form_data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'allianceauth_pve/entry_form.html')
+
+    def test_post_no_shares(self):
+        self.client.force_login(self.testuser)
+
+        form_data = {
+            'roles-TOTAL_FORMS': '1',
+            'roles-INITIAL_FORMS': '1',
+            'roles-MIN_NUM_FORMS': '1',
+            'roles-MAX_NUM_FORMS': '1000',
+            'roles-0-name': 'Krab',
+            'roles-0-value': '1',
+            'estimated_total': '10',
+            'form-TOTAL_FORMS': '0',
+            'form-INITIAL_FORMS': '0',
+            'form-MIN_NUM_FORMS': '0',
+            'form-MAX_NUM_FORMS': '1000',
+        }
+
+        response = self.client.post(reverse('allianceauth_pve:new_entry', args=[self.rotation.pk]), form_data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'allianceauth_pve/entry_form.html')
+
+    def test_post_invalid_share_form(self):
+        self.client.force_login(self.testuser)
+
+        form_data = {
+            'roles-TOTAL_FORMS': '1',
+            'roles-INITIAL_FORMS': '1',
+            'roles-MIN_NUM_FORMS': '1',
+            'roles-MAX_NUM_FORMS': '1000',
+            'roles-0-name': 'Krab',
+            'roles-0-value': '1',
+            'estimated_total': '553400000',
+            'form-TOTAL_FORMS': '1',
+            'form-INITIAL_FORMS': '0',
+            'form-MIN_NUM_FORMS': '0',
+            'form-MAX_NUM_FORMS': '1000',
+            'form-0-user': self.testuser.pk,
+            'form-0-character': self.testcharacter.pk,
+            'form-0-role': 'Krab',
+            'form-0-site_count': '1'
+        }
+
+        response = self.client.post(reverse('allianceauth_pve:new_entry', args=[self.rotation.pk]), form_data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'allianceauth_pve/entry_form.html')
+
+    def test_post_valid_new_entry(self):
+        self.client.force_login(self.testuser)
+
+        form_data = {
+            'roles-TOTAL_FORMS': '1',
+            'roles-INITIAL_FORMS': '1',
+            'roles-MIN_NUM_FORMS': '1',
+            'roles-MAX_NUM_FORMS': '1000',
+            'roles-0-name': 'Krab',
+            'roles-0-value': '1',
+            'estimated_total': '1660200000.0',
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '0',
+            'form-MIN_NUM_FORMS': '0',
+            'form-MAX_NUM_FORMS': '1000',
+            'form-0-user': self.testuser.pk,
+            'form-0-character': self.testcharacter.pk,
+            'form-0-role': 'Krab',
+            'form-0-helped_setup': 'on',
+            'form-0-site_count': '2',
+            'form-1-user': self.testuser2.pk,
+            'form-1-character': self.testcharacter2.pk,
+            'form-1-role': 'Krab',
+            'form-1-site_count': '1'
+        }
+
+        response = self.client.post(reverse('allianceauth_pve:new_entry', args=[self.rotation.pk]), form_data)
+
+        self.assertRedirects(response, reverse('allianceauth_pve:rotation_view', args=[self.rotation.pk]))
+
+        messages = list(get_messages(response.wsgi_request))
+
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].message, "Entry added successfully")
+
+        self.assertEqual(self.rotation.entries.exclude(pk=self.entry.pk).count(), 1)
+
+        entry: Entry = self.rotation.entries.exclude(pk=self.entry.pk).get()
+
+        self.assertEqual(entry.roles.count(), 1)
+        role: EntryRole = entry.roles.get()
+        self.assertEqual(role.name, 'Krab')
+        self.assertEqual(role.value, 1)
+
+        self.assertEqual(entry.ratting_shares.count(), 2)
+
+        estimated_total = entry.ratting_shares.aggregate(val=Sum('estimated_share_total'))['val']
+        self.assertAlmostEqual(estimated_total, 1660200000.0)
+        self.assertAlmostEqual(estimated_total, entry.estimated_total)
+
+    def test_post_valid_edit_entry(self):
+        self.client.force_login(self.testuser)
+
+        form_data = {
+            'roles-TOTAL_FORMS': '1',
+            'roles-INITIAL_FORMS': '1',
+            'roles-MIN_NUM_FORMS': '1',
+            'roles-MAX_NUM_FORMS': '1000',
+            'roles-0-name': 'Krabs',
+            'roles-0-value': '1',
+            'estimated_total': '1660200000.0',
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '1',
+            'form-MIN_NUM_FORMS': '0',
+            'form-MAX_NUM_FORMS': '1000',
+            'form-0-user': self.testuser.pk,
+            'form-0-character': self.testcharacter.pk,
+            'form-0-role': 'Krab',
+            'form-0-helped_setup': 'on',
+            'form-0-site_count': '2',
+            'form-1-user': self.testuser2.pk,
+            'form-1-character': self.testcharacter2.pk,
+            'form-1-role': 'Krab',
+            'form-1-site_count': '1'
+        }
+
+        response = self.client.post(reverse('allianceauth_pve:edit_entry', args=[self.rotation.pk, self.entry.pk]), form_data)
+
+        self.assertRedirects(response, reverse('allianceauth_pve:rotation_view', args=[self.rotation.pk]))
+
+        messages = list(get_messages(response.wsgi_request))
+
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].message, "Entry added successfully")
+
+        self.assertEqual(self.rotation.entries.exclude(pk=self.entry.pk).count(), 1)
+
+        entry: Entry = self.rotation.entries.exclude(pk=self.entry.pk).get()
+
+        self.assertEqual(entry.roles.count(), 1)
+        role: EntryRole = entry.roles.get()
+        self.assertEqual(role.name, 'Krabs')
+        self.assertEqual(role.value, 1)
+
+        self.assertEqual(entry.ratting_shares.count(), 2)
+
+        estimated_total = entry.ratting_shares.aggregate(val=Sum('estimated_share_total'))['val']
+        self.assertAlmostEqual(estimated_total, 1660200000.0)
+        self.assertAlmostEqual(estimated_total, entry.estimated_total)
 
 
 class TestDeleteEntryView(TestCase):

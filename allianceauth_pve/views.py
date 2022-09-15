@@ -1,6 +1,6 @@
 import datetime
-from django.http import JsonResponse
 
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
@@ -196,21 +196,20 @@ def add_entry(request, rotation_id, entry_id=None):
                         setups = set()
 
                         for new_share in share_form.cleaned_data:
-                            if len(new_share) > 0:
-                                role = entry.roles.get(name=new_share['role'])
+                            role = entry.roles.get(name=new_share['role'])
 
-                                setup = new_share['helped_setup'] and new_share['user'] not in setups
-                                if setup:
-                                    setups.add(new_share['user'])
+                            setup = new_share['helped_setup'] and new_share['user'] not in setups
+                            if setup:
+                                setups.add(new_share['user'])
 
-                                to_add.append(EntryCharacter(
-                                    entry=entry,
-                                    role=role,
-                                    user_character_id=new_share['character'],
-                                    user_id=new_share['user'],
-                                    site_count=new_share['site_count'],
-                                    helped_setup=setup,
-                                ))
+                            to_add.append(EntryCharacter(
+                                entry=entry,
+                                role=role,
+                                user_character_id=new_share['character'],
+                                user_id=new_share['user'],
+                                site_count=new_share['site_count'],
+                                helped_setup=setup,
+                            ))
 
                         EntryCharacter.objects.bulk_create(to_add)
 
