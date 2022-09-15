@@ -199,7 +199,7 @@ class TestEntry(TestCase):
         self.assertAlmostEqual(self.entry.actual_total_after_tax, 810_000_000.0)
 
     def test_update_share_totals_valid(self):
-        for count1, count2, count3, value1, value2, value3 in itertools.product(range(11), repeat=6):
+        for count1, count2, count3, value1, value2, value3 in itertools.product(range(6), repeat=6):
             total_count = count1 + count2 + count3
             total_roles = value1 + value2 + value3
             total_value = value1 * count1 + value2 * count2 + value3 * count3
