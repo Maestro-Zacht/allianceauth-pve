@@ -21,7 +21,9 @@ class TestHooks(TestCase):
         self.assertRedirects(response, reverse('allianceauth_pve:dashboard'))
 
     def test_render_hook_fail(self):
+        self.testuser = AuthUtils.add_permissions_to_user_by_name(['allianceauth_pve.manage_rotations'], self.testuser)
+
         self.client.force_login(self.testuser)
 
-        response = self.client.get(reverse('allianceauth_pve:index'))
-        self.assertRedirects(response, reverse(settings.LOGIN_URL) + f"?next={reverse('allianceauth_pve:index')}")
+        response = self.client.get(reverse('allianceauth_pve:new_rotation'))
+        self.assertRedirects(response, reverse(settings.LOGIN_URL) + f"?next={reverse('allianceauth_pve:new_rotation')}")
