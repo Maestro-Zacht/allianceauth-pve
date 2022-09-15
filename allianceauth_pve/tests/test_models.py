@@ -202,7 +202,8 @@ class TestEntry(TestCase):
         for count1, count2, count3, value1, value2, value3 in itertools.product(range(11), repeat=6):
             total_count = count1 + count2 + count3
             total_roles = value1 + value2 + value3
-            if total_count > 0 and total_roles > 0:
+            total_value = value1 * count1 + value2 * count2 + value3 * count3
+            if total_count > 0 and total_roles > 0 and total_value > 0:
                 entry: Entry = Entry.objects.create(
                     rotation=self.rotation,
                     created_by=self.testuser,
@@ -254,8 +255,6 @@ class TestEntry(TestCase):
                 share1.refresh_from_db()
                 share2.refresh_from_db()
                 share3.refresh_from_db()
-
-                total_value = value1 * count1 + value2 * count2 + value3 * count3
 
                 self.assertAlmostEqual(share1.estimated_share_total, 900_000_000 * count1 * value1 / total_value, places=2)
                 self.assertAlmostEqual(share2.estimated_share_total, 900_000_000 * count2 * value2 / total_value, places=2)
