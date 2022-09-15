@@ -536,7 +536,7 @@ class TestAddEntryView(TestCase):
         self.assertEqual(len(messages), 1)
         self.assertEqual(messages[0].message, "Entry added successfully")
 
-        self.assertEqual(self.rotation.entries.exclude(pk=self.entry.pk).count(), 1)
+        self.assertEqual(self.rotation.entries.count(), 1)
 
         entry: Entry = self.rotation.entries.exclude(pk=self.entry.pk).get()
 
