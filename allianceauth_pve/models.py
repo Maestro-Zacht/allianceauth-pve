@@ -15,9 +15,9 @@ class General(models.Model):
         managed = False
         default_permissions = ()
         permissions = (
-            ("access_pve", "Can access pve pages and be added in entries"),
-            ('manage_entries', "Can do CRUD operations with entries"),
-            ("manage_rotations", "Can do CRUD operations with rotations"),
+            ("access_pve", "Access PvE: Can access pve pages and be added in entries"),
+            ('manage_entries', "Manage Entries: Can do CRUD operations with entries"),
+            ("manage_rotations", "Manage Rotations: Can do CRUD operations with rotations"),
         )
 
 
