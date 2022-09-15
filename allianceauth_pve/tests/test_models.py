@@ -199,7 +199,7 @@ class TestEntry(TestCase):
         self.assertAlmostEqual(self.entry.actual_total_after_tax, 810_000_000.0)
 
     def test_update_share_totals_valid(self):
-        for count1, count2, count3 in itertools.product(range(6), repeat=3):
+        for count1, count2, count3 in itertools.product(range(1, 6), repeat=3):
             total_count = count1 + count2 + count3
             if total_count > 0:
                 entry: Entry = Entry.objects.create(
@@ -232,7 +232,6 @@ class TestEntry(TestCase):
 
                 entry.update_share_totals()
 
-                print(f"{count1}, {count2}, {count3}")
                 self.assertTrue(Entry.objects.filter(pk=entry.pk).exists())
 
                 share1.refresh_from_db()
