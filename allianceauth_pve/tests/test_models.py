@@ -5,8 +5,11 @@ from django.utils import timezone
 from django.db.models import Sum
 
 from allianceauth.tests.auth_utils import AuthUtils
+from allianceauth.services.hooks import get_extension_logger
 
 from ..models import GeneralRole, Rotation, Entry, EntryCharacter, EntryRole, RoleSetup, PveButton
+
+logger = get_extension_logger(__name__)
 
 
 class TestRoleSetup(TestCase):
@@ -229,6 +232,7 @@ class TestEntry(TestCase):
 
                 entry.update_share_totals()
 
+                logger.debug(f"{count1}, {count2}, {count3}")
                 self.assertTrue(Entry.objects.filter(pk=entry.pk).exists())
 
                 share1.refresh_from_db()
