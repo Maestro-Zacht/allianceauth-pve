@@ -518,12 +518,12 @@ class TestAddEntryView(TestCase):
             'form-MAX_NUM_FORMS': '1000',
             'form-0-user': self.testuser.pk,
             'form-0-character': self.testcharacter.pk,
-            'form-0-role': 'Krab',
+            'form-0-role': 'Krabs',
             'form-0-helped_setup': 'on',
             'form-0-site_count': '2',
             'form-1-user': self.testuser2.pk,
             'form-1-character': self.testcharacter2.pk,
-            'form-1-role': 'Krab',
+            'form-1-role': 'Krabs',
             'form-1-site_count': '1'
         }
 
