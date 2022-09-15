@@ -244,12 +244,12 @@ class TestEntry(TestCase):
                 share2.refresh_from_db()
                 share3.refresh_from_db()
 
-                self.assertAlmostEqual(share1.estimated_share_total, 900_000_000 * count1 / total_count)
-                self.assertAlmostEqual(share2.estimated_share_total, 900_000_000 * count2 / total_count)
-                self.assertAlmostEqual(share3.estimated_share_total, 900_000_000 * count3 / total_count)
+                self.assertAlmostEqual(share1.estimated_share_total, 900_000_000 * count1 / total_count, places=2)
+                self.assertAlmostEqual(share2.estimated_share_total, 900_000_000 * count2 / total_count, places=2)
+                self.assertAlmostEqual(share3.estimated_share_total, 900_000_000 * count3 / total_count, places=2)
 
                 sum_estimated = entry.ratting_shares.aggregate(val=Sum('estimated_share_total'))['val']
-                self.assertAlmostEqual(sum_estimated, entry.estimated_total_after_tax)
+                self.assertAlmostEqual(sum_estimated, entry.estimated_total_after_tax, places=2)
 
                 self.assertEqual(share1.actual_share_total, 0)
                 self.assertEqual(share2.actual_share_total, 0)
