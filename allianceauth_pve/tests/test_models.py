@@ -199,7 +199,7 @@ class TestEntry(TestCase):
         self.assertAlmostEqual(self.entry.actual_total_after_tax, 810_000_000.0)
 
     def test_update_share_totals_valid(self):
-        for count1, count2, count3 in itertools.product(range(1, 6), repeat=3):
+        for count1, count2, count3 in itertools.product(range(6), repeat=3):
             total_count = count1 + count2 + count3
             if total_count > 0:
                 entry: Entry = Entry.objects.create(
@@ -208,25 +208,31 @@ class TestEntry(TestCase):
                     estimated_total=1_000_000_000
                 )
 
+                role = EntryRole.objects.create(
+                    entry=entry,
+                    name='Krab',
+                    value=1
+                )
+
                 share1: EntryCharacter = EntryCharacter.objects.create(
                     entry=entry,
                     user=self.testuser,
                     user_character=self.testcharacter,
-                    role=self.role,
+                    role=role,
                     site_count=count1,
                 )
                 share2: EntryCharacter = EntryCharacter.objects.create(
                     entry=entry,
                     user=self.testuser2,
                     user_character=self.testcharacter2,
-                    role=self.role,
+                    role=role,
                     site_count=count2,
                 )
                 share3: EntryCharacter = EntryCharacter.objects.create(
                     entry=entry,
                     user=self.testuser3,
                     user_character=self.testcharacter3,
-                    role=self.role,
+                    role=role,
                     site_count=count3,
                 )
 
