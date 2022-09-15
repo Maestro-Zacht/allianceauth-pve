@@ -229,6 +229,8 @@ class TestEntry(TestCase):
 
                 entry.update_share_totals()
 
+                self.assertTrue(Entry.objects.filter(pk=entry.pk).exists())
+
                 share1.refresh_from_db()
                 share2.refresh_from_db()
                 share3.refresh_from_db()
