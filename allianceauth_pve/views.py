@@ -187,8 +187,7 @@ def add_entry(request, rotation_id, entry_id=None):
                         to_add = []
 
                         for new_role in role_form.cleaned_data:
-                            if len(new_role) > 0:
-                                to_add.append(EntryRole(entry=entry, name=new_role['name'], value=new_role['value']))
+                            to_add.append(EntryRole(entry=entry, name=new_role['name'], value=new_role['value']))
 
                         EntryRole.objects.bulk_create(to_add)
                         to_add.clear()
