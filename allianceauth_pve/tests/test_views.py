@@ -451,32 +451,6 @@ class TestAddEntryView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'allianceauth_pve/entry_form.html')
 
-    def test_post_invalid_share_form(self):
-        self.client.force_login(self.testuser)
-
-        form_data = {
-            'roles-TOTAL_FORMS': '1',
-            'roles-INITIAL_FORMS': '1',
-            'roles-MIN_NUM_FORMS': '1',
-            'roles-MAX_NUM_FORMS': '1000',
-            'roles-0-name': 'Krab',
-            'roles-0-value': '1',
-            'estimated_total': '553400000',
-            'form-TOTAL_FORMS': '1',
-            'form-INITIAL_FORMS': '0',
-            'form-MIN_NUM_FORMS': '0',
-            'form-MAX_NUM_FORMS': '1000',
-            'form-0-user': self.testuser.pk,
-            'form-0-character': self.testcharacter.pk,
-            'form-0-role': 'Krab',
-            'form-0-site_count': '1'
-        }
-
-        response = self.client.post(reverse('allianceauth_pve:new_entry', args=[self.rotation.pk]), form_data)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'allianceauth_pve/entry_form.html')
-
     def test_post_valid_new_entry(self):
         self.client.force_login(self.testuser)
 
