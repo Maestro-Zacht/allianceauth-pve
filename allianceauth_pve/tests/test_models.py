@@ -199,40 +199,51 @@ class TestEntry(TestCase):
         self.assertAlmostEqual(self.entry.actual_total_after_tax, 810_000_000.0)
 
     def test_update_share_totals_valid(self):
-        for count1, count2, count3 in itertools.product(range(6), repeat=3):
+        for count1, count2, count3, value1, value2, value3 in itertools.product(range(11), repeat=6):
             total_count = count1 + count2 + count3
-            if total_count > 0:
+            total_roles = value1 + value2 + value3
+            if total_count > 0 and total_roles > 0:
                 entry: Entry = Entry.objects.create(
                     rotation=self.rotation,
                     created_by=self.testuser,
                     estimated_total=1_000_000_000
                 )
 
-                role = EntryRole.objects.create(
+                role1: EntryRole = EntryRole.objects.create(
                     entry=entry,
-                    name='Krab',
-                    value=1
+                    name='role1',
+                    value=value1
+                )
+                role2: EntryRole = EntryRole.objects.create(
+                    entry=entry,
+                    name='role2',
+                    value=value2
+                )
+                role3: EntryRole = EntryRole.objects.create(
+                    entry=entry,
+                    name='role3',
+                    value=value3
                 )
 
                 share1: EntryCharacter = EntryCharacter.objects.create(
                     entry=entry,
                     user=self.testuser,
                     user_character=self.testcharacter,
-                    role=role,
+                    role=role1,
                     site_count=count1,
                 )
                 share2: EntryCharacter = EntryCharacter.objects.create(
                     entry=entry,
                     user=self.testuser2,
                     user_character=self.testcharacter2,
-                    role=role,
+                    role=role2,
                     site_count=count2,
                 )
                 share3: EntryCharacter = EntryCharacter.objects.create(
                     entry=entry,
                     user=self.testuser3,
                     user_character=self.testcharacter3,
-                    role=role,
+                    role=role3,
                     site_count=count3,
                 )
 
@@ -244,9 +255,11 @@ class TestEntry(TestCase):
                 share2.refresh_from_db()
                 share3.refresh_from_db()
 
-                self.assertAlmostEqual(share1.estimated_share_total, 900_000_000 * count1 / total_count, places=2)
-                self.assertAlmostEqual(share2.estimated_share_total, 900_000_000 * count2 / total_count, places=2)
-                self.assertAlmostEqual(share3.estimated_share_total, 900_000_000 * count3 / total_count, places=2)
+                total_value = value1 * count1 + value2 * count2 + value3 * count3
+
+                self.assertAlmostEqual(share1.estimated_share_total, 900_000_000 * count1 * value1 / total_value, places=2)
+                self.assertAlmostEqual(share2.estimated_share_total, 900_000_000 * count2 * value2 / total_value, places=2)
+                self.assertAlmostEqual(share3.estimated_share_total, 900_000_000 * count3 * value3 / total_value, places=2)
 
                 sum_estimated = entry.ratting_shares.aggregate(val=Sum('estimated_share_total'))['val']
                 self.assertAlmostEqual(sum_estimated, entry.estimated_total_after_tax, places=2)
@@ -294,5 +307,5 @@ class TestEntryRole(TestCase):
         self.assertEqual(str(self.role1), self.role1.name)
 
     def test_approximate_percentage(self):
-        self.assertAlmostEqual(self.role1.approximate_percentage, 100 / 3)
-        self.assertAlmostEqual(self.role2.approximate_percentage, 200 / 3)
+        self.assertAlmostEqual(self.role1.approximate_percentage, (1 / 3) * 100)
+        self.assertAlmostEqual(self.role2.approximate_percentage, (2 / 3) * 100)
