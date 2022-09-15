@@ -232,7 +232,7 @@ class TestEntry(TestCase):
 
                 entry.update_share_totals()
 
-                logger.debug(f"{count1}, {count2}, {count3}")
+                print(f"{count1}, {count2}, {count3}")
                 self.assertTrue(Entry.objects.filter(pk=entry.pk).exists())
 
                 share1.refresh_from_db()
