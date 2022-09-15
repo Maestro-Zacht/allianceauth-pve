@@ -25,7 +25,7 @@ class TestHooks(TestCase):
 
         self.client.force_login(self.testuser)
 
-        response = self.client.get(reverse('allianceauth_pve:index'))
+        response = self.client.get(reverse('allianceauth_pve:dashboard'))
         self.assertContains(response, self.html_menu, html=True)
 
     def test_render_hook_fail(self):
