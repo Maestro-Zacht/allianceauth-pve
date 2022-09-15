@@ -325,3 +325,9 @@ LOGGING = False
 
 NOTIFICATIONS_REFRESH_TIME = 30
 NOTIFICATIONS_MAX_PER_USER = 50
+
+# This is your website's URL, set it accordingly
+SITE_URL = "https://example.com"
+
+# Django security
+CSRF_TRUSTED_ORIGINS = [SITE_URL]
