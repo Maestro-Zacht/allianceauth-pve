@@ -1,6 +1,5 @@
 from django.test import TestCase
 from django.urls import reverse
-from django.conf import settings
 
 from allianceauth.tests.auth_utils import AuthUtils
 
@@ -12,9 +11,9 @@ class TestHooks(TestCase):
         cls.testuser = AuthUtils.create_user('aauth_testuser')
         cls.testcharacter = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar', 2116790529)
 
-        cls.html_menu = """
+        cls.html_menu = f"""
             <li>
-                <a class="active" href="/pve/">
+                <a class="active" href="{reverse('allianceauth_pve:index')}">
                     <i class="fas fa-wallet"></i> PvE Tool
                 </a>
             </li>
