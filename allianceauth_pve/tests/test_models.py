@@ -1,5 +1,8 @@
+import itertools
+
 from django.test import TestCase
 from django.utils import timezone
+from django.db.models import Sum
 
 from allianceauth.tests.auth_utils import AuthUtils
 
@@ -193,37 +196,53 @@ class TestEntry(TestCase):
         self.assertAlmostEqual(self.entry.actual_total_after_tax, 810_000_000.0)
 
     def test_update_share_totals_valid(self):
-        newshare1 = EntryCharacter.objects.create(
-            entry=self.entry,
-            user=self.testuser2,
-            user_character=self.testcharacter2,
-            role=self.role,
-            site_count=1,
-            helped_setup=False
-        )
+        for count1, count2, count3 in itertools.product(range(6), repeat=3):
+            total_count = count1 + count2 + count3
+            if total_count > 0:
+                entry: Entry = Entry.objects.create(
+                    rotation=self.rotation,
+                    created_by=self.testuser,
+                    estimated_total=1_000_000_000
+                )
 
-        newshare2 = EntryCharacter.objects.create(
-            entry=self.entry,
-            user=self.testuser3,
-            user_character=self.testcharacter3,
-            role=self.role,
-            site_count=1,
-            helped_setup=True
-        )
+                share1: EntryCharacter = EntryCharacter.objects.create(
+                    entry=entry,
+                    user=self.testuser,
+                    user_character=self.testcharacter,
+                    role=self.role,
+                    site_count=count1,
+                )
+                share2: EntryCharacter = EntryCharacter.objects.create(
+                    entry=entry,
+                    user=self.testuser2,
+                    user_character=self.testcharacter2,
+                    role=self.role,
+                    site_count=count2,
+                )
+                share3: EntryCharacter = EntryCharacter.objects.create(
+                    entry=entry,
+                    user=self.testuser3,
+                    user_character=self.testcharacter3,
+                    role=self.role,
+                    site_count=count3,
+                )
 
-        self.entry.update_share_totals()
+                entry.update_share_totals()
 
-        self.share.refresh_from_db()
-        newshare1.refresh_from_db()
-        newshare2.refresh_from_db()
+                share1.refresh_from_db()
+                share2.refresh_from_db()
+                share3.refresh_from_db()
 
-        self.assertAlmostEqual(self.share.estimated_share_total, 900_000_000 / 3)
-        self.assertAlmostEqual(newshare1.estimated_share_total, 900_000_000 / 3)
-        self.assertAlmostEqual(newshare2.estimated_share_total, 900_000_000 / 3)
+                self.assertAlmostEqual(share1.estimated_share_total, 900_000_000 * count1 / total_count)
+                self.assertAlmostEqual(share2.estimated_share_total, 900_000_000 * count2 / total_count)
+                self.assertAlmostEqual(share3.estimated_share_total, 900_000_000 * count3 / total_count)
 
-        self.assertEqual(self.share.actual_share_total, 0)
-        self.assertEqual(newshare1.actual_share_total, 0)
-        self.assertEqual(newshare2.actual_share_total, 0)
+                sum_estimated = entry.ratting_shares.aggregate(val=Sum('estimated_share_total'))['val']
+                self.assertAlmostEqual(sum_estimated, entry.estimated_total_after_tax)
+
+                self.assertEqual(share1.actual_share_total, 0)
+                self.assertEqual(share2.actual_share_total, 0)
+                self.assertEqual(share3.actual_share_total, 0)
 
     def test_update_share_totals_0_shares(self):
         self.share.delete()

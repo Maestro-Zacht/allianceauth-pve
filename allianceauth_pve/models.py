@@ -24,8 +24,7 @@ class General(models.Model):
 class RotationQueryset(models.QuerySet):
     def get_setup_summary(self):
         return RotationSetupSummary.objects.filter(rotation__in=self).order_by().values('user')\
-            .annotate(total_setups=Coalesce(models.Sum('valid_setups'), 0))\
-
+            .annotate(total_setups=Coalesce(models.Sum('valid_setups'), 0))
 
 
 class RotationManager(models.Manager):
