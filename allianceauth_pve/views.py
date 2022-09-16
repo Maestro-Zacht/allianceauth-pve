@@ -114,14 +114,12 @@ def get_avaiable_ratters(request, name=None):
     content_type = ContentType.objects.get_for_model(General)
     permission = Permission.objects.get(content_type=content_type, codename='access_pve')
 
-    ratting_users = User.objects.filter(
-        Q(groups__permissions=permission) |
-        Q(user_permissions=permission) |
-        Q(profile__state__permissions=permission),
-        profile__main_character__isnull=False,
+    ownerships = CharacterOwnership.objects.filter(
+        Q(user__groups__permissions=permission) |
+        Q(user__user_permissions=permission) |
+        Q(user__profile__state__permissions=permission),
+        user__profile__main_character__isnull=False,
     )
-
-    ownerships = CharacterOwnership.objects.filter(user__in=ratting_users)
 
     if name:
         ownerships = ownerships.filter(character__character_name__icontains=name)
