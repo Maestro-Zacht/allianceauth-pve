@@ -4,7 +4,8 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.db.models import F, Q, Count
@@ -14,7 +15,7 @@ from django.views.generic.detail import DetailView
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.authentication.models import CharacterOwnership
 
-from .models import Entry, EntryCharacter, Rotation, EntryRole
+from .models import Entry, EntryCharacter, Rotation, EntryRole, General
 from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm, NewRoleFormSet
 from .actions import running_averages
 
@@ -110,10 +111,13 @@ def rotation_view(request, rotation_id):
 @login_required
 @permission_required('allianceauth_pve.manage_entries')
 def get_avaiable_ratters(request, name=None):
+    content_type = ContentType.objects.get_for_model(General)
+    permission = Permission.objects.get(content_type=content_type, codename='access_pve')
+
     ratting_users = User.objects.filter(
-        Q(groups__permissions__codename='access_pve') |
-        Q(user_permissions__codename='access_pve') |
-        Q(profile__state__permissions__codename='access_pve'),
+        Q(groups__permissions=permission) |
+        Q(user_permissions=permission) |
+        Q(profile__state__permissions=permission),
         profile__main_character__isnull=False,
     )
 
