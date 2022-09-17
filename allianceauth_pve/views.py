@@ -1,10 +1,11 @@
 import datetime
-from django.http import JsonResponse
 
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.db.models import F, Q, Count
@@ -14,7 +15,7 @@ from django.views.generic.detail import DetailView
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.authentication.models import CharacterOwnership
 
-from .models import Entry, EntryCharacter, Rotation, EntryRole
+from .models import Entry, EntryCharacter, Rotation, EntryRole, General
 from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm, NewRoleFormSet
 from .actions import running_averages
 
@@ -64,7 +65,7 @@ def dashboard(request):
 def rotation_view(request, rotation_id):
     r = get_object_or_404(Rotation, pk=rotation_id)
 
-    if request.method == 'POST':
+    if request.method == 'POST' and not r.is_closed and request.user.has_perm('allianceauth_pve.manage_rotations'):
         closeform = CloseRotationForm(request.POST)
 
         if closeform.is_valid():
@@ -110,14 +111,15 @@ def rotation_view(request, rotation_id):
 @login_required
 @permission_required('allianceauth_pve.manage_entries')
 def get_avaiable_ratters(request, name=None):
-    ratting_users = User.objects.filter(
-        Q(groups__permissions__codename='access_pve') |
-        Q(user_permissions__codename='access_pve') |
-        Q(profile__state__permissions__codename='access_pve'),
-        profile__main_character__isnull=False,
-    )
+    content_type = ContentType.objects.get_for_model(General)
+    permission = Permission.objects.get(content_type=content_type, codename='access_pve')
 
-    ownerships = CharacterOwnership.objects.filter(user__in=ratting_users)
+    ownerships = CharacterOwnership.objects.filter(
+        Q(user__groups__permissions=permission) |
+        Q(user__user_permissions=permission) |
+        Q(user__profile__state__permissions=permission),
+        user__profile__main_character__isnull=False,
+    )
 
     if name:
         ownerships = ownerships.filter(character__character_name__icontains=name)
@@ -145,6 +147,11 @@ def get_avaiable_ratters(request, name=None):
 @permission_required('allianceauth_pve.manage_entries')
 def add_entry(request, rotation_id, entry_id=None):
     rotation = get_object_or_404(Rotation, pk=rotation_id)
+
+    if rotation.is_closed:
+        messages.error(request, 'The rotation is closed, you cannot add an entry')
+        return redirect('allianceauth_pve:rotation_view', rotation_id)
+
     if entry_id:
         entry = get_object_or_404(Entry, pk=entry_id)
         if entry.rotation_id != rotation_id:
@@ -182,8 +189,7 @@ def add_entry(request, rotation_id, entry_id=None):
                         to_add = []
 
                         for new_role in role_form.cleaned_data:
-                            if len(new_role) > 0:
-                                to_add.append(EntryRole(entry=entry, name=new_role['name'], value=new_role['value']))
+                            to_add.append(EntryRole(entry=entry, name=new_role['name'], value=new_role['value']))
 
                         EntryRole.objects.bulk_create(to_add)
                         to_add.clear()
@@ -191,21 +197,20 @@ def add_entry(request, rotation_id, entry_id=None):
                         setups = set()
 
                         for new_share in share_form.cleaned_data:
-                            if len(new_share) > 0:
-                                role = entry.roles.get(name=new_share['role'])
+                            role = entry.roles.get(name=new_share['role'])
 
-                                setup = new_share['helped_setup'] and new_share['user'] not in setups
-                                if setup:
-                                    setups.add(new_share['user'])
+                            setup = new_share['helped_setup'] and new_share['user'] not in setups
+                            if setup:
+                                setups.add(new_share['user'])
 
-                                to_add.append(EntryCharacter(
-                                    entry=entry,
-                                    role=role,
-                                    user_character_id=new_share['character'],
-                                    user_id=new_share['user'],
-                                    site_count=new_share['site_count'],
-                                    helped_setup=setup,
-                                ))
+                            to_add.append(EntryCharacter(
+                                entry=entry,
+                                role=role,
+                                user_character_id=new_share['character'],
+                                user_id=new_share['user'],
+                                site_count=new_share['site_count'],
+                                helped_setup=setup,
+                            ))
 
                         EntryCharacter.objects.bulk_create(to_add)
 
@@ -264,7 +269,7 @@ def add_entry(request, rotation_id, entry_id=None):
 @permission_required('allianceauth_pve.manage_entries')
 def delete_entry(request, entry_id):
     entry = get_object_or_404(Entry, pk=entry_id)
-    if entry.created_by != request.user and not request.user.is_superuser:
+    if (entry.created_by != request.user and not request.user.is_superuser) or entry.rotation.is_closed:
         messages.error(request, "You cannot delete this entry")
         return redirect('allianceauth_pve:rotation_view', entry.rotation_id)
 

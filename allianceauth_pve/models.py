@@ -15,17 +15,16 @@ class General(models.Model):
         managed = False
         default_permissions = ()
         permissions = (
-            ("access_pve", "Can access pve pages and be added in entries"),
-            ('manage_entries', "Can do CRUD operations with entries"),
-            ("manage_rotations", "Can do CRUD operations with rotations"),
+            ("access_pve", "Access PvE: Can access pve pages and be added in entries"),
+            ('manage_entries', "Manage Entries: Can do CRUD operations with entries"),
+            ("manage_rotations", "Manage Rotations: Can do CRUD operations with rotations"),
         )
 
 
 class RotationQueryset(models.QuerySet):
     def get_setup_summary(self):
         return RotationSetupSummary.objects.filter(rotation__in=self).order_by().values('user')\
-            .annotate(total_setups=Coalesce(models.Sum('valid_setups'), 0))\
-
+            .annotate(total_setups=Coalesce(models.Sum('valid_setups'), 0))
 
 
 class RotationManager(models.Manager):
@@ -90,8 +89,8 @@ class Rotation(models.Model):
 
     priority = models.IntegerField(default=0, help_text='Ordering priority. The higher priorities are in the first positions.')
 
-    entry_buttons = models.ManyToManyField(PveButton, related_name='+', help_text='Button to be shown in the Entry form.')
-    roles_setups = models.ManyToManyField(RoleSetup, related_name='+', help_text='Setup avaiable for loading in the Entry form.')
+    entry_buttons = models.ManyToManyField(PveButton, related_name='+', help_text='Button to be shown in the Entry form.', blank=True)
+    roles_setups = models.ManyToManyField(RoleSetup, related_name='+', help_text='Setup avaiable for loading in the Entry form.', blank=True)
 
     objects = RotationManager()
 

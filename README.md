@@ -1,6 +1,7 @@
 # allianceauth-pve
 
 [![version](https://img.shields.io/pypi/v/allianceauth_pve.svg)](https://pypi.python.org/pypi/allianceauth_pve)
+[![codecov](https://codecov.io/gh/Maestro-Zacht/allianceauth-pve/branch/main/graph/badge.svg?token=STDS7TSGHX)](https://codecov.io/gh/Maestro-Zacht/allianceauth-pve)
 
 
 PvE tool for AllianceAuth

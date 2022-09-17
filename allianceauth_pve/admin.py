@@ -8,12 +8,12 @@ class RotationAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'priority', 'created_at', 'days_since', 'is_closed', 'closed_at', 'is_paid_out', )
     list_filter = ('is_closed', 'is_paid_out', )
     search_fields = ('name', )
-    readonly_fields = ('actual_total', 'closed_at',)
+    readonly_fields = ('closed_at',)
 
-    def save_model(self, request, obj, form, change) -> None:
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
         for entry in obj.entries.all():
             entry.update_share_totals()
-        return super().save_model(request, obj, form, change)
 
 
 class EntryCharacterInline(admin.TabularInline):
