@@ -61,7 +61,7 @@ class TestNewRoleFormSet(SimpleTestCase):
             'roles-0-name': 'roleS0R0',
             'roles-0-value': '0',
             'roles-1-name': 'roleS0R1',
-            'roles-1-value': '1',
+            'roles-1-value': '-1',
             'roles-2-name': 'roleS0R2',
             'roles-2-value': '2',
             'roles-3-name': 'roleS0R3',
@@ -197,6 +197,30 @@ class TestNewShareFormset(TestCase):
             'form-1-character': self.testcharacter.pk,
             'form-1-role': 'Krab',
             'form-1-site_count': '1'
+        }
+
+        new_share_form = NewShareFormSet(invalid_data)
+
+        roles_choices = [('Krab', 'Krab')]
+        for form in new_share_form:
+            form.fields['role'].choices = roles_choices
+
+        self.assertFalse(new_share_form.is_valid())
+
+    def test_site_count_invalid(self):
+        invalid_data = {
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '0',
+            'form-MIN_NUM_FORMS': '0',
+            'form-MAX_NUM_FORMS': '1000',
+            'form-0-user': self.testuser.pk,
+            'form-0-character': self.testcharacter.pk,
+            'form-0-role': 'Krab',
+            'form-0-site_count': '1',
+            'form-1-user': self.testuser2.pk,
+            'form-1-character': self.testcharacter2.pk,
+            'form-1-role': 'Krab',
+            'form-1-site_count': '0'
         }
 
         new_share_form = NewShareFormSet(invalid_data)

@@ -17,7 +17,7 @@ class NewEntryForm(forms.Form):
 
 class NewRoleForm(forms.Form):
     name = forms.CharField(widget=forms.HiddenInput())
-    value = forms.IntegerField(min_value=1)
+    value = forms.IntegerField(min_value=0)
 
 
 class NewRoleFormset(forms.BaseFormSet):
@@ -54,7 +54,7 @@ class NewShareForm(forms.Form):
     user = UserPkField(required=True, widget=forms.TextInput(attrs={'style': 'display: none;', 'class': 'user-pk-list'}))
     character = CharacterPkField(required=True, widget=forms.TextInput(attrs={'style': 'display: none;', 'class': 'character-pk-list'}))
     helped_setup = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'setup'}))
-    site_count = forms.IntegerField(min_value=0, required=True, widget=forms.NumberInput(attrs={'style': 'width: 10ch;'}))
+    site_count = forms.IntegerField(min_value=1, required=True, widget=forms.NumberInput(attrs={'style': 'width: 10ch;'}))
     role = forms.ChoiceField(required=True, widget=forms.Select(attrs={'class': 'form-control', 'style': 'height: auto;'}))
 
 
