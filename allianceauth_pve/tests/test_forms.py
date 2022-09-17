@@ -61,7 +61,7 @@ class TestNewRoleFormSet(SimpleTestCase):
             'roles-0-name': 'roleS0R0',
             'roles-0-value': '0',
             'roles-1-name': 'roleS0R1',
-            'roles-1-value': '-1',
+            'roles-1-value': '1',
             'roles-2-name': 'roleS0R2',
             'roles-2-value': '2',
             'roles-3-name': 'roleS0R3',

@@ -17,7 +17,7 @@ class NewEntryForm(forms.Form):
 
 class NewRoleForm(forms.Form):
     name = forms.CharField(widget=forms.HiddenInput())
-    value = forms.IntegerField(min_value=0)
+    value = forms.IntegerField(min_value=1)
 
 
 class NewRoleFormset(forms.BaseFormSet):
