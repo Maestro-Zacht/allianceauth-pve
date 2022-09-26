@@ -8,7 +8,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.core.paginator import Paginator
-from django.db.models import F, Q, Count
+from django.db.models import F, Q, Count, Exists, OuterRef
 from django.db import transaction
 from django.views.generic.detail import DetailView
 from django.conf import settings
@@ -123,7 +123,11 @@ def get_avaiable_ratters(request, name=None):
     )
 
     if name:
-        ownerships = ownerships.filter(character__character_name__icontains=name)
+        alts_name = CharacterOwnership.objects.filter(user=OuterRef('user'), character__character_name__icontains=name)
+        ownerships = ownerships.filter(
+            Q(character__character_name__icontains=name) |
+            Exists(alts_name)
+        )
 
     exclude_ids = request.GET.getlist('excludeIds', [])
 
