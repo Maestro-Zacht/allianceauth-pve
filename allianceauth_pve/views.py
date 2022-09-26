@@ -138,7 +138,7 @@ def get_avaiable_ratters(request, name=None):
                 'user_id': ownership.user_id,
                 'user_main_character_name': ownership.user.profile.main_character.character_name,
                 'user_pic': ownership.user.profile.main_character.portrait_url_32,
-            } for ownership in ownerships.select_related('character', 'user__profile__main_character')
+            } for ownership in ownerships.select_related('character', 'user__profile__main_character').distinct()
         ],
     })
 
