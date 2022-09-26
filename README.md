@@ -72,6 +72,13 @@ Buttons and Roles Setups
 
 Buttons and roles setups can be created in the admin page by people who have access.
 
+Settings
+--------
+
+| Setting          | Default | Description                                                      |
+| ---------------- | ------- | ---------------------------------------------------------------- |
+| `PVE_ONLY_MAINS` | `False` | When set to `True`, only main characters are shown in search bar |
+
 Help wanted
 ===========
 

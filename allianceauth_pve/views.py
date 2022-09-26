@@ -4,13 +4,14 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.db.models import F, Q, Count
 from django.db import transaction
 from django.views.generic.detail import DetailView
+from django.conf import settings
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.authentication.models import CharacterOwnership
@@ -128,6 +129,9 @@ def get_avaiable_ratters(request, name=None):
 
     if len(exclude_ids) > 0:
         ownerships = ownerships.exclude(character_id__in=exclude_ids)
+
+    if getattr(settings, 'PVE_ONLY_MAINS', False):
+        ownerships = ownerships.filter(character=F('user__profile__main_character'))
 
     return JsonResponse({
         'result': [
