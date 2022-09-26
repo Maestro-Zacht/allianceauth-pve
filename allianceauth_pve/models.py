@@ -87,7 +87,7 @@ class Rotation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     closed_at = models.DateTimeField(blank=True, null=True)
 
-    priority = models.IntegerField(default=0, help_text='Ordering priority. The higher priorities are in the first positions.')
+    priority = models.IntegerField(default=100, help_text='Ordering priority. The higher priorities are in the first positions.')
 
     entry_buttons = models.ManyToManyField(PveButton, related_name='+', help_text='Button to be shown in the Entry form.', blank=True)
     roles_setups = models.ManyToManyField(RoleSetup, related_name='+', help_text='Setup avaiable for loading in the Entry form.', blank=True)
