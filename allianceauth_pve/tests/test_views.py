@@ -386,7 +386,7 @@ class TestAddEntryView(TestCase):
         messages = list(get_messages(response.wsgi_request))
 
         self.assertEqual(len(messages), 1)
-        self.assertEqual(messages[0].message, 'Form not valid, you need at least 1 person to receive loot')
+        self.assertEqual(messages[0].message, 'Error: Form not valid, you need at least 1 person to receive loot')
 
     def test_post_valid_new_entry(self):
         self.client.force_login(self.testuser)
