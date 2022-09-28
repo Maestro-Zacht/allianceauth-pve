@@ -1,10 +1,11 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.contrib.messages import get_messages
 from django.db.models import Sum
 
 from allianceauth.tests.auth_utils import AuthUtils
 from allianceauth.authentication.models import CharacterOwnership
+from allianceauth.eveonline.models import EveCharacter
 
 from ..models import Rotation, Entry, EntryCharacter, EntryRole
 
@@ -251,6 +252,35 @@ class TestGetAvaiableRatters(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response.content, {'result': []})
+
+    @override_settings(PVE_ONLY_MAINS=True)
+    def test_alt_name(self):
+        self.client.force_login(self.testuser)
+
+        testcharacter2bis = EveCharacter.objects.create(
+            character_id=1510588747,
+            character_name='aauth_testchar3bis'
+        )
+        CharacterOwnership.objects.create(character=testcharacter2bis, user=self.testuser2, owner_hash='aa2')
+
+        response = self.client.get(reverse('allianceauth_pve:search_ratters', args=['bis']))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            response.content,
+            {
+                'result': [
+                    {
+                        'character_id': self.testcharacter2.pk,
+                        'character_name': self.testcharacter2.character_name,
+                        'profile_pic': self.testcharacter2.portrait_url_32,
+                        'user_id': self.testuser2.pk,
+                        'user_main_character_name': self.testcharacter2.character_name,
+                        'user_pic': self.testcharacter2.portrait_url_32,
+                    }
+                ]
+            }
+        )
 
 
 class TestAddEntryView(TestCase):
