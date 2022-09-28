@@ -131,6 +131,7 @@ class TestCheckFormsValid(TestCase):
         self.form_data.pop('form-0-character')
         self.form_data.pop('form-0-role')
         self.form_data.pop('form-0-site_count')
+        self.form_data['form-TOTAL_FORMS'] = '0'
 
         errors = check_forms_valid(*self.get_forms())
 
