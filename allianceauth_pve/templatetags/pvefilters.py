@@ -9,6 +9,12 @@ register = template.Library()
 
 @register.filter
 def get_main_character(eve_obj):
+    if isinstance(eve_obj, str):
+        try:
+            eve_obj = int(eve_obj)
+        except:
+            return ''
+
     if isinstance(eve_obj, User):
         return eve_obj.profile.main_character
     elif isinstance(eve_obj, int):
@@ -22,6 +28,12 @@ def get_main_character(eve_obj):
 
 @register.filter
 def get_char_attr(character_obj, attr: str):
+    if isinstance(character_obj, str):
+        try:
+            character_obj = int(character_obj)
+        except:
+            return ''
+
     if isinstance(character_obj, EveCharacter):
         return getattr(character_obj, attr)
     elif isinstance(character_obj, int):
