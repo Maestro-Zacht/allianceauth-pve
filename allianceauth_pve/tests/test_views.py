@@ -355,7 +355,7 @@ class TestAddEntryView(TestCase):
         self.client.force_login(self.testuser)
 
         form_data = {
-            'roles-TOTAL_FORMS': '1',
+            'roles-TOTAL_FORMS': '2',
             'roles-INITIAL_FORMS': '1',
             'roles-MIN_NUM_FORMS': '1',
             'roles-MAX_NUM_FORMS': '1000',
