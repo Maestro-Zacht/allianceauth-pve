@@ -184,7 +184,7 @@ function addCharacter(initial) {
     const count = document.createElement("input");
     count.type = "number";
     count.name = `form-${formNum}-site_count`;
-    count.min = "1";
+    count.min = "0";
     count.id = `id_form-${formNum}-site_count`;
     count.value = data.count;
     count.style.width = "10ch";
