@@ -140,9 +140,11 @@ class TestCheckFormsValid(TestCase):
 
     def test_no_loot_given(self):
         self.form_data.update({
+            'roles-TOTAL_FORMS': '2',
             'roles-0-value': '0',
             'roles-1-value': '1',
             'roles-1-name': 'Krab2',
+            'form-TOTAL_FORMS': '2',
             'form-1-user': self.testuser2.pk,
             'form-1-character': self.testcharacter2.pk,
             'form-1-role': 'Krab',
