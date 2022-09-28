@@ -220,7 +220,7 @@ class TestNewShareFormset(TestCase):
             'form-1-user': self.testuser2.pk,
             'form-1-character': self.testcharacter2.pk,
             'form-1-role': 'Krab',
-            'form-1-site_count': '0'
+            'form-1-site_count': '-1'
         }
 
         new_share_form = NewShareFormSet(invalid_data)
