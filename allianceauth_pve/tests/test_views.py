@@ -268,7 +268,7 @@ class TestGetAvaiableRatters(TestCase):
             faction_id=None,
             faction_name=''
         )
-        CharacterOwnership.objects.create(character=testcharacter2bis, user=self.testuser2, owner_hash='aa2')
+        CharacterOwnership.objects.create(character=testcharacter2bis, user=self.testuser2, owner_hash='aa2bis')
 
         response = self.client.get(reverse('allianceauth_pve:search_ratters', args=['bis']))
 
