@@ -260,9 +260,14 @@ function isUserSelected(index) {
 }
 
 function incrementEstimatedTotal(value) {
-    let newValue = +estimatedTotalInput.value + +value;
-    if (newValue > +estimatedTotalInput.min && newValue < +estimatedTotalInput.max) {
+    let newValue = estimatedTotalInput.value.replace(decimal_separators_re, "");
+    newValue = +newValue + +value;
+    if (
+        newValue > +estimatedTotalInput.attributes.minvalue.value &&
+        newValue < +estimatedTotalInput.attributes.maxvalue.value
+    ) {
         estimatedTotalInput.value = newValue;
+        estimatedTotalInput.dispatchEvent(new Event('input', { bubbles: true }));
     }
 }
 

@@ -1,4 +1,5 @@
 import datetime
+import re
 
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -170,7 +171,10 @@ def add_entry(request, rotation_id, entry_id=None):
             return redirect('allianceauth_pve:rotation_view', rotation_id)
 
     if request.method == 'POST':
-        entry_form = NewEntryForm(request.POST)
+        copied_data = request.POST.copy()
+
+        copied_data['estimated_total'] = re.sub(r'[\D\s_\.\-]', '', copied_data['estimated_total'])
+        entry_form = NewEntryForm(copied_data)
         share_form = NewShareFormSet(request.POST)
         role_form = NewRoleFormSet(request.POST, prefix='roles')
 
