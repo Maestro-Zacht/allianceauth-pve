@@ -25,7 +25,7 @@ class TestRunningAverages(TestCase):
         entry: Entry = Entry.objects.create(
             rotation=rotation,
             created_by=cls.testuser,
-            estimated_total=1_000_000_000.0
+            estimated_total=1_000_000_000
         )
 
         role = EntryRole.objects.create(

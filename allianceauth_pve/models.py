@@ -37,7 +37,7 @@ class RotationManager(models.Manager):
 
 class PveButton(models.Model):
     text = models.CharField(max_length=16, unique=True)
-    amount = models.FloatField(validators=[MinValueValidator(-1000000000000), MaxValueValidator(1000000000000)])
+    amount = models.IntegerField(validators=[MinValueValidator(-1000000000000), MaxValueValidator(1000000000000)])
 
     def __str__(self) -> str:
         return self.text
@@ -139,7 +139,7 @@ class EntryCharacter(models.Model):
 
 class Entry(models.Model):
     rotation = models.ForeignKey(Rotation, on_delete=models.CASCADE, related_name='entries')
-    estimated_total = models.FloatField(default=0)
+    estimated_total = models.PositiveIntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, related_name='+')

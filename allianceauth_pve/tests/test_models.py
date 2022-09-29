@@ -64,7 +64,7 @@ class TestRotation(TestCase):
         entry: Entry = Entry.objects.create(
             rotation=cls.rotation,
             created_by=cls.testuser,
-            estimated_total=1_000_000_000.0
+            estimated_total=1_000_000_000
         )
 
         role = EntryRole.objects.create(
@@ -132,7 +132,7 @@ class TestRotation(TestCase):
         self.assertAlmostEqual(self.rotation.sales_percentage, 0.9)
 
     def test_estimated_total(self):
-        self.assertAlmostEqual(self.rotation.estimated_total, 1_000_000_000.0)
+        self.assertAlmostEqual(self.rotation.estimated_total, 1_000_000_000)
 
     def test_str(self):
         self.assertEqual(str(self.rotation), f'{self.rotation.pk} {self.rotation.name}')
@@ -162,7 +162,7 @@ class TestEntry(TestCase):
         cls.entry: Entry = Entry.objects.create(
             rotation=cls.rotation,
             created_by=cls.testuser,
-            estimated_total=1_000_000_000.0
+            estimated_total=1_000_000_000
         )
 
         cls.role = EntryRole.objects.create(
@@ -287,7 +287,7 @@ class TestEntryRole(TestCase):
         entry: Entry = Entry.objects.create(
             rotation=cls.rotation,
             created_by=cls.testuser,
-            estimated_total=1_000_000_000.0
+            estimated_total=1_000_000_000
         )
 
         cls.role1: EntryRole = EntryRole.objects.create(

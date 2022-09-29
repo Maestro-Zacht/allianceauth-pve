@@ -31,7 +31,7 @@
                         <li class="list-group-item text-center"><p>{{ entry.created_at|date:"d/m/Y G:i e" }}</p></li>
                         <li class="list-group-item text-center"><p>Shares</p><p>{{ entry.total_shares_count }}</p></li>
                         <li class="list-group-item text-center"><p>Total After Tax</p><p>{{ entry.estimated_total_after_tax|floatformat|intcomma }}</p></li>
-                        <li class="list-group-item text-center"><p>Total</p><p>{{ entry.estimated_total|floatformat|intcomma }}</p></li>
+                        <li class="list-group-item text-center"><p>Total</p><p>{{ entry.estimated_total|intcomma }}</p></li>
                         <li class="list-group-item text-center">
                             <p>Created By</p>
                             <div style="display: flex; text-align: right;">

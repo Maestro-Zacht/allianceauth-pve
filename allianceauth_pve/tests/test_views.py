@@ -59,7 +59,7 @@ class TestRotationView(TestCase):
         entry = Entry.objects.create(
             rotation=cls.rotation,
             created_by=cls.testuser,
-            estimated_total=1_000_000_000.0
+            estimated_total=1_000_000_000
         )
 
         role = EntryRole.objects.create(
@@ -313,7 +313,7 @@ class TestAddEntryView(TestCase):
         cls.entry: Entry = Entry.objects.create(
             rotation=cls.rotation,
             created_by=cls.testuser,
-            estimated_total=1_000_000_000.0
+            estimated_total=1_000_000_000
         )
 
         cls.role: EntryRole = EntryRole.objects.create(
@@ -400,7 +400,7 @@ class TestAddEntryView(TestCase):
             'roles-0-value': '1',
             'roles-1-name': 'Krab2',
             'roles-1-value': '0',
-            'estimated_total': '1660200000.0',
+            'estimated_total': '1660200000',
             'form-TOTAL_FORMS': '2',
             'form-INITIAL_FORMS': '0',
             'form-MIN_NUM_FORMS': '0',
@@ -435,7 +435,7 @@ class TestAddEntryView(TestCase):
             'roles-MAX_NUM_FORMS': '1000',
             'roles-0-name': 'Krab',
             'roles-0-value': '1',
-            'estimated_total': '1660200000.0',
+            'estimated_total': '1660200000',
             'form-TOTAL_FORMS': '2',
             'form-INITIAL_FORMS': '0',
             'form-MIN_NUM_FORMS': '0',
@@ -485,7 +485,7 @@ class TestAddEntryView(TestCase):
             'roles-MAX_NUM_FORMS': '1000',
             'roles-0-name': 'Krabs',
             'roles-0-value': '1',
-            'estimated_total': '1660200000.0',
+            'estimated_total': '1660200000',
             'form-TOTAL_FORMS': '2',
             'form-INITIAL_FORMS': '1',
             'form-MIN_NUM_FORMS': '0',
@@ -547,7 +547,7 @@ class TestDeleteEntryView(TestCase):
         cls.entry: Entry = Entry.objects.create(
             rotation=cls.rotation,
             created_by=cls.testuser,
-            estimated_total=1_000_000_000.0
+            estimated_total=1_000_000_000
         )
 
     def test_delete_success(self):
