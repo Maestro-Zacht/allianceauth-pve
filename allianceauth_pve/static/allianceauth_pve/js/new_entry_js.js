@@ -480,6 +480,7 @@ document.querySelectorAll('button[id^="delete-role-"]').forEach((element) => {
 });
 
 customIncrementButton.addEventListener('click', (e) => {
-    incrementEstimatedTotal(customIncrementInput.value);
+    let value = customIncrementInput.value.replace(decimal_separators_re, "");
+    incrementEstimatedTotal(value);
     customIncrementInput.setAttribute('value', 0);
 });
