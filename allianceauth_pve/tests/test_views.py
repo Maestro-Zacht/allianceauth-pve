@@ -100,7 +100,7 @@ class TestRotationView(TestCase):
         self.client.force_login(self.testuser)
 
         form_data = {
-            'sales_value': '900000000',
+            'sales_value': '900,000,000',
         }
 
         response = self.client.post(reverse('allianceauth_pve:rotation_view', args=[self.rotation.pk]), form_data)
@@ -136,7 +136,7 @@ class TestRotationView(TestCase):
         self.client.force_login(self.testuser)
 
         form_data = {
-            'sales_value': '900000000',
+            'sales_value': '900,000,000',
         }
 
         response = self.client.post(reverse('allianceauth_pve:rotation_view', args=[self.rotation.pk]), form_data)
