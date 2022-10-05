@@ -260,7 +260,7 @@ function isUserSelected(index) {
 }
 
 function incrementEstimatedTotal(value) {
-    let newValue = estimatedTotalInput.value.replace(decimal_separators_re, "");
+    let newValue = estimatedTotalInput.value.replaceAll(',', "");
     newValue = +newValue + +value;
     if (
         newValue > +estimatedTotalInput.attributes.minvalue.value &&
@@ -480,7 +480,7 @@ document.querySelectorAll('button[id^="delete-role-"]').forEach((element) => {
 });
 
 customIncrementButton.addEventListener('click', (e) => {
-    let value = customIncrementInput.value.replace(decimal_separators_re, "");
+    let value = customIncrementInput.value.replaceAll(',', "");
     incrementEstimatedTotal(value);
     customIncrementInput.setAttribute('value', 0);
 });

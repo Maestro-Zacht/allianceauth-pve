@@ -1,8 +1,6 @@
-const decimal_separators_re = /[\D\s_\.\-]/g;
-
 function onInput(ev) {
-    const value = +ev.currentTarget.value.replace(decimal_separators_re, "");
-    ev.currentTarget.value = value.toLocaleString();
+    const value = +ev.currentTarget.value.replaceAll(",", "");
+    ev.currentTarget.value = value.toLocaleString('en-GB');
 }
 
 $(".localized-input").on("input", onInput);

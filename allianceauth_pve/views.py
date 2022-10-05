@@ -173,7 +173,7 @@ def add_entry(request, rotation_id, entry_id=None):
     if request.method == 'POST':
         copied_data = request.POST.copy()
 
-        copied_data['estimated_total'] = re.sub(r'[\D\s_\.\-]', '', copied_data['estimated_total'])
+        copied_data['estimated_total'] = copied_data['estimated_total'].replace(',', '')
         entry_form = NewEntryForm(copied_data)
         share_form = NewShareFormSet(request.POST)
         role_form = NewRoleFormSet(request.POST, prefix='roles')
