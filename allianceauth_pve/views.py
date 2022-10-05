@@ -129,7 +129,7 @@ def get_avaiable_ratters(request, name=None):
         alts_name = CharacterOwnership.objects.filter(user=OuterRef('user'), character__character_name__icontains=name)
         ownerships = ownerships.filter(
             Q(character__character_name__icontains=name) |
-            Exists(alts_name)
+            (Exists(alts_name) & Q(character=F('user__profile__main_character')))
         )
 
     exclude_ids = request.GET.getlist('excludeIds', [])
