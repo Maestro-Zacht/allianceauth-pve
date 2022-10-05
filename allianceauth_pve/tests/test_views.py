@@ -270,6 +270,19 @@ class TestGetAvaiableRatters(TestCase):
         )
         CharacterOwnership.objects.create(character=testcharacter2bis, user=self.testuser2, owner_hash='aa2bis')
 
+        testcharacter2tris = EveCharacter.objects.create(
+            character_id=391334192,
+            character_name='aauth_testchar3tris',
+            corporation_id=int(2345),
+            corporation_name='',
+            corporation_ticker='',
+            alliance_id=None,
+            alliance_name='',
+            faction_id=None,
+            faction_name=''
+        )
+        CharacterOwnership.objects.create(character=testcharacter2bis, user=self.testuser2, owner_hash='aa2tris')
+
         response = self.client.get(reverse('allianceauth_pve:search_ratters', args=['bis']))
 
         self.assertEqual(response.status_code, 200)
