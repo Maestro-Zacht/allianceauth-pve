@@ -68,7 +68,9 @@ def rotation_view(request, rotation_id):
     r = get_object_or_404(Rotation, pk=rotation_id)
 
     if request.method == 'POST' and not r.is_closed and request.user.has_perm('allianceauth_pve.manage_rotations'):
-        closeform = CloseRotationForm(request.POST)
+        copied_data = request.POST.copy()
+        copied_data['sales_value'] = copied_data['sales_value'].replace(',', '')
+        closeform = CloseRotationForm(copied_data)
 
         if closeform.is_valid():
             with transaction.atomic():

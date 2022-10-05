@@ -92,4 +92,4 @@ class NewRotationForm(forms.ModelForm):
 
 
 class CloseRotationForm(forms.Form):
-    sales_value = forms.FloatField(min_value=1, required=True)
+    sales_value = forms.IntegerField(min_value=1, required=True, widget=forms.TextInput(attrs={'class': 'localized-input'}))

@@ -75,7 +75,7 @@ class GeneralRole(models.Model):
 class Rotation(models.Model):
     name = models.CharField(max_length=128)
 
-    actual_total = models.FloatField(default=0)
+    actual_total = models.PositiveBigIntegerField(default=0)
 
     max_daily_setups = models.PositiveSmallIntegerField(default=1, help_text='The maximum number of helped setup per day. If more are submitted, only this number is counted. 0 for deactivating helped setups.')
     min_people_share_setup = models.PositiveSmallIntegerField(default=3, help_text='The minimum number of users in an entry to consider the helped setup valid.')

@@ -236,6 +236,10 @@
     {% endif %}
 {% endblock content %}
 
+{% block extra_javascript %}
+    <script src="{% allianceauth_pve_static 'allianceauth_pve/js/localized_checkbox.js' %}"></script>
+{% endblock extra_javascript %}
+
 {% block extra_script %}
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
