@@ -260,9 +260,14 @@ function isUserSelected(index) {
 }
 
 function incrementEstimatedTotal(value) {
-    let newValue = +estimatedTotalInput.value + +value;
-    if (newValue > +estimatedTotalInput.min && newValue < +estimatedTotalInput.max) {
+    let newValue = estimatedTotalInput.value.replaceAll(',', "");
+    newValue = +newValue + +value;
+    if (
+        newValue > +estimatedTotalInput.attributes.minvalue.value &&
+        newValue < +estimatedTotalInput.attributes.maxvalue.value
+    ) {
         estimatedTotalInput.value = newValue;
+        estimatedTotalInput.dispatchEvent(new Event('input', { bubbles: true }));
     }
 }
 
@@ -475,6 +480,7 @@ document.querySelectorAll('button[id^="delete-role-"]').forEach((element) => {
 });
 
 customIncrementButton.addEventListener('click', (e) => {
-    incrementEstimatedTotal(customIncrementInput.value);
+    let value = customIncrementInput.value.replaceAll(',', "");
+    incrementEstimatedTotal(value);
     customIncrementInput.setAttribute('value', 0);
 });

@@ -168,7 +168,7 @@
                                     <td>{{ entry.created_at|date:"d/m/Y G:i e" }}</td>
                                     <td>{{ entry.total_shares_count }}</td>
                                     <td>{{ entry.estimated_total_after_tax|floatformat|intcomma }}</td>
-                                    <td>{{ entry.estimated_total|floatformat|intcomma }}</td>
+                                    <td>{{ entry.estimated_total|intcomma }}</td>
                                     <td>
                                         <img src="{{ entry.created_by.profile.main_character|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
                                         {{ entry.created_by.profile.main_character.character_name }}
@@ -235,6 +235,10 @@
         </div>
     {% endif %}
 {% endblock content %}
+
+{% block extra_javascript %}
+    <script src="{% allianceauth_pve_static 'allianceauth_pve/js/localized_checkbox.js' %}"></script>
+{% endblock extra_javascript %}
 
 {% block extra_script %}
     $(function () {

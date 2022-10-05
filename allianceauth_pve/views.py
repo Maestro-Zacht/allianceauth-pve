@@ -1,4 +1,5 @@
 import datetime
+import re
 
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -67,7 +68,9 @@ def rotation_view(request, rotation_id):
     r = get_object_or_404(Rotation, pk=rotation_id)
 
     if request.method == 'POST' and not r.is_closed and request.user.has_perm('allianceauth_pve.manage_rotations'):
-        closeform = CloseRotationForm(request.POST)
+        copied_data = request.POST.copy()
+        copied_data['sales_value'] = copied_data['sales_value'].replace(',', '')
+        closeform = CloseRotationForm(copied_data)
 
         if closeform.is_valid():
             with transaction.atomic():
@@ -126,7 +129,7 @@ def get_avaiable_ratters(request, name=None):
         alts_name = CharacterOwnership.objects.filter(user=OuterRef('user'), character__character_name__icontains=name)
         ownerships = ownerships.filter(
             Q(character__character_name__icontains=name) |
-            Exists(alts_name)
+            (Exists(alts_name) & Q(character=F('user__profile__main_character')))
         )
 
     exclude_ids = request.GET.getlist('excludeIds', [])
@@ -170,7 +173,10 @@ def add_entry(request, rotation_id, entry_id=None):
             return redirect('allianceauth_pve:rotation_view', rotation_id)
 
     if request.method == 'POST':
-        entry_form = NewEntryForm(request.POST)
+        copied_data = request.POST.copy()
+
+        copied_data['estimated_total'] = copied_data['estimated_total'].replace(',', '')
+        entry_form = NewEntryForm(copied_data)
         share_form = NewShareFormSet(request.POST)
         role_form = NewRoleFormSet(request.POST, prefix='roles')
 

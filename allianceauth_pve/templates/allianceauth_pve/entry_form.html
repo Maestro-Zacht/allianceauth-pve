@@ -70,7 +70,7 @@
                             {{ entryform.non_field_errors }}
                             <div class="field">
                                 <label for="custom_increment_inp">Custom Increment: </label>
-                                <input type="number" id="custom_increment_inp" min="0" max="1000000000000" style="width: 45%;">
+                                <input type="text" class="localized-input" minvalue="-1000000000000" maxvalue="1000000000000" id="custom_increment_inp" style="width: 45%;">
                                 <button type="button" class="btn btn-primary" id="custom_increment_button">Add</button>
                             </div>
                             <p><small>Use this field to add a custom value to the total.</small></p>
@@ -223,6 +223,7 @@
 {% endblock content %}
 
 {% block extra_javascript %}
+    <script src="{% allianceauth_pve_static 'allianceauth_pve/js/localized_checkbox.js' %}"></script>
     <script src="{% allianceauth_pve_static 'allianceauth_pve/js/new_entry_js.js' %}"></script>
 {% endblock extra_javascript %}
 

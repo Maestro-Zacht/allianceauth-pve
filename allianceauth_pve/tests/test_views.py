@@ -59,7 +59,7 @@ class TestRotationView(TestCase):
         entry = Entry.objects.create(
             rotation=cls.rotation,
             created_by=cls.testuser,
-            estimated_total=1_000_000_000.0
+            estimated_total=1_000_000_000
         )
 
         role = EntryRole.objects.create(
@@ -100,7 +100,7 @@ class TestRotationView(TestCase):
         self.client.force_login(self.testuser)
 
         form_data = {
-            'sales_value': '900000000',
+            'sales_value': '900,000,000',
         }
 
         response = self.client.post(reverse('allianceauth_pve:rotation_view', args=[self.rotation.pk]), form_data)
@@ -136,7 +136,7 @@ class TestRotationView(TestCase):
         self.client.force_login(self.testuser)
 
         form_data = {
-            'sales_value': '900000000',
+            'sales_value': '900,000,000',
         }
 
         response = self.client.post(reverse('allianceauth_pve:rotation_view', args=[self.rotation.pk]), form_data)
@@ -254,7 +254,7 @@ class TestGetAvaiableRatters(TestCase):
         self.assertJSONEqual(response.content, {'result': []})
 
     @override_settings(PVE_ONLY_MAINS=True)
-    def test_alt_name(self):
+    def test_alt_name_only_main(self):
         self.client.force_login(self.testuser)
 
         testcharacter2bis = EveCharacter.objects.create(
@@ -289,6 +289,62 @@ class TestGetAvaiableRatters(TestCase):
             }
         )
 
+    def test_alt_name(self):
+        self.client.force_login(self.testuser)
+
+        testcharacter2bis = EveCharacter.objects.create(
+            character_id=1510588747,
+            character_name='aauth_testchar3bis',
+            corporation_id=int(2345),
+            corporation_name='',
+            corporation_ticker='',
+            alliance_id=None,
+            alliance_name='',
+            faction_id=None,
+            faction_name=''
+        )
+        CharacterOwnership.objects.create(character=testcharacter2bis, user=self.testuser2, owner_hash='aa2bis')
+
+        testcharacter2tris = EveCharacter.objects.create(
+            character_id=391334192,
+            character_name='aauth_testchar3tris',
+            corporation_id=int(2345),
+            corporation_name='',
+            corporation_ticker='',
+            alliance_id=None,
+            alliance_name='',
+            faction_id=None,
+            faction_name=''
+        )
+        CharacterOwnership.objects.create(character=testcharacter2tris, user=self.testuser2, owner_hash='aa2tris')
+
+        response = self.client.get(reverse('allianceauth_pve:search_ratters', args=['bis']))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            response.content,
+            {
+                'result': [
+                    {
+                        'character_id': self.testcharacter2.pk,
+                        'character_name': self.testcharacter2.character_name,
+                        'profile_pic': self.testcharacter2.portrait_url_32,
+                        'user_id': self.testuser2.pk,
+                        'user_main_character_name': self.testcharacter2.character_name,
+                        'user_pic': self.testcharacter2.portrait_url_32,
+                    },
+                    {
+                        'character_id': testcharacter2bis.pk,
+                        'character_name': testcharacter2bis.character_name,
+                        'profile_pic': testcharacter2bis.portrait_url_32,
+                        'user_id': self.testuser2.pk,
+                        'user_main_character_name': self.testcharacter2.character_name,
+                        'user_pic': self.testcharacter2.portrait_url_32,
+                    }
+                ]
+            }
+        )
+
 
 class TestAddEntryView(TestCase):
 
@@ -313,7 +369,7 @@ class TestAddEntryView(TestCase):
         cls.entry: Entry = Entry.objects.create(
             rotation=cls.rotation,
             created_by=cls.testuser,
-            estimated_total=1_000_000_000.0
+            estimated_total=1_000_000_000
         )
 
         cls.role: EntryRole = EntryRole.objects.create(
@@ -400,7 +456,7 @@ class TestAddEntryView(TestCase):
             'roles-0-value': '1',
             'roles-1-name': 'Krab2',
             'roles-1-value': '0',
-            'estimated_total': '1660200000.0',
+            'estimated_total': '1660200000',
             'form-TOTAL_FORMS': '2',
             'form-INITIAL_FORMS': '0',
             'form-MIN_NUM_FORMS': '0',
@@ -435,7 +491,7 @@ class TestAddEntryView(TestCase):
             'roles-MAX_NUM_FORMS': '1000',
             'roles-0-name': 'Krab',
             'roles-0-value': '1',
-            'estimated_total': '1660200000.0',
+            'estimated_total': '1660200000',
             'form-TOTAL_FORMS': '2',
             'form-INITIAL_FORMS': '0',
             'form-MIN_NUM_FORMS': '0',
@@ -485,7 +541,7 @@ class TestAddEntryView(TestCase):
             'roles-MAX_NUM_FORMS': '1000',
             'roles-0-name': 'Krabs',
             'roles-0-value': '1',
-            'estimated_total': '1660200000.0',
+            'estimated_total': '1660200000',
             'form-TOTAL_FORMS': '2',
             'form-INITIAL_FORMS': '1',
             'form-MIN_NUM_FORMS': '0',
@@ -547,7 +603,7 @@ class TestDeleteEntryView(TestCase):
         cls.entry: Entry = Entry.objects.create(
             rotation=cls.rotation,
             created_by=cls.testuser,
-            estimated_total=1_000_000_000.0
+            estimated_total=1_000_000_000
         )
 
     def test_delete_success(self):

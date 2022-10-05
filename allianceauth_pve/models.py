@@ -37,7 +37,7 @@ class RotationManager(models.Manager):
 
 class PveButton(models.Model):
     text = models.CharField(max_length=16, unique=True)
-    amount = models.FloatField(validators=[MinValueValidator(-1000000000000), MaxValueValidator(1000000000000)])
+    amount = models.BigIntegerField(validators=[MinValueValidator(-1000000000000), MaxValueValidator(1000000000000)])
 
     def __str__(self) -> str:
         return self.text
@@ -75,7 +75,7 @@ class GeneralRole(models.Model):
 class Rotation(models.Model):
     name = models.CharField(max_length=128)
 
-    actual_total = models.FloatField(default=0)
+    actual_total = models.PositiveBigIntegerField(default=0)
 
     max_daily_setups = models.PositiveSmallIntegerField(default=1, help_text='The maximum number of helped setup per day. If more are submitted, only this number is counted. 0 for deactivating helped setups.')
     min_people_share_setup = models.PositiveSmallIntegerField(default=3, help_text='The minimum number of users in an entry to consider the helped setup valid.')
@@ -113,7 +113,7 @@ class Rotation(models.Model):
 
     @property
     def estimated_total(self):
-        return self.entries.aggregate(estimated_total=Coalesce(models.Sum('estimated_total'), 0.0))['estimated_total']
+        return self.entries.aggregate(estimated_total=Coalesce(models.Sum('estimated_total'), 0))['estimated_total']
 
     def __str__(self):
         return f'{self.pk} {self.name}'
@@ -139,7 +139,7 @@ class EntryCharacter(models.Model):
 
 class Entry(models.Model):
     rotation = models.ForeignKey(Rotation, on_delete=models.CASCADE, related_name='entries')
-    estimated_total = models.FloatField(default=0)
+    estimated_total = models.PositiveBigIntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, related_name='+')
