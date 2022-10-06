@@ -101,7 +101,7 @@
                                     </td>
                                     <td>{{ row.helped_setups }}</td>
                                     {% if rotation.is_closed %}
-                                        <td>{{ row.actual_total|floatformat:0|intcomma }}</td>
+                                        <td class="copy-text">{{ row.actual_total|floatformat:0|intcomma }}</td>
                                     {% endif %}
                                     <td>{{ row.estimated_total|floatformat:0|intcomma }}</td>
                                 </tr>
@@ -238,6 +238,7 @@
 
 {% block extra_javascript %}
     <script src="{% allianceauth_pve_static 'allianceauth_pve/js/localized_checkbox.js' %}"></script>
+    <script src="{% allianceauth_pve_static 'allianceauth_pve/js/copy_text.js' %}"></script>
 {% endblock extra_javascript %}
 
 {% block extra_script %}
