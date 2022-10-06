@@ -2,9 +2,15 @@ name: Checks
 
 on:
   push:
+    paths-ignore:
+      - "**/templates/**"
+      - "**/static/**"
     branches:
       - main
   pull_request:
+    paths-ignore:
+      - "**/templates/**"
+      - "**/static/**"
 
 jobs:
   test-coverage:
