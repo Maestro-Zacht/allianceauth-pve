@@ -4,4 +4,11 @@ function copyText(event) {
     window.alert("Copied: " + text);
 }
 
+function rowCopied(event) {
+    if (event.target.classList.contains("copy-text")) {
+        event.currentTarget.classList.add('copied');
+    }
+}
+
 $(".copy-text").on("click", copyText);
+$(".copy-row").on("click", rowCopied);

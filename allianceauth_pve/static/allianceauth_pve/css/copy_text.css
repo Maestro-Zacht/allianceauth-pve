@@ -1,3 +1,7 @@
 .copy-text:hover {
     cursor: pointer;
 }
+
+.copied {
+    background-color: rgb(60, 21, 35) !important;
+}

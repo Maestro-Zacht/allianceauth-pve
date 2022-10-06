@@ -94,9 +94,9 @@
                         <tbody>
                             {% for row in summary_first %}
                                 {% if row.user == user.pk and not rotation.is_closed %}
-                                <tr class="info">
+                                <tr class="info copy-row">
                                 {% else %}
-                                <tr>
+                                <tr class="copy-row">
                                 {% endif %}
                                     <td>
                                         <img src="{{ row.character_id|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
@@ -134,9 +134,9 @@
                         <tbody>
                             {% for row in summary_second %}
                                 {% if row.user == user.pk and not rotation.is_closed %}
-                                <tr class="info">
+                                <tr class="info copy-row">
                                 {% else %}
-                                <tr>
+                                <tr class="copy-row">
                                 {% endif %}
                                     <td>
                                         <img src="{{ row.character_id|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
