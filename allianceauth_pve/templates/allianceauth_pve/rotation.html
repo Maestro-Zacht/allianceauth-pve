@@ -5,6 +5,9 @@
 
 {% block page_title %}Rotation {{ rotation.name }}{% endblock page_title %}
 {% block extra_css %}
+{% if rotation.is_closed %}
+    <link rel="stylesheet" type="text/css" href="{% allianceauth_pve_static 'allianceauth_pve/css/copy_text.css' %}">
+{% endif %}
 <style>
     .row-pve {
         display: flex;
@@ -90,14 +93,18 @@
 
                         <tbody>
                             {% for row in summary_first %}
-                                {% if row.user == user.pk %}
+                                {% if row.user == user.pk and not rotation.is_closed %}
                                 <tr class="info">
                                 {% else %}
                                 <tr>
                                 {% endif %}
                                     <td>
                                         <img src="{{ row.character_id|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
-                                        {{ row.character_name }}
+                                        {% if rotation.is_closed %}
+                                            <span class="copy-text">{{ row.character_name }}</span>
+                                        {% else %}
+                                            {{ row.character_name }}
+                                        {% endif %}
                                     </td>
                                     <td>{{ row.helped_setups }}</td>
                                     {% if rotation.is_closed %}
@@ -126,18 +133,22 @@
 
                         <tbody>
                             {% for row in summary_second %}
-                                {% if row.user == user.pk %}
+                                {% if row.user == user.pk and not rotation.is_closed %}
                                 <tr class="info">
                                 {% else %}
                                 <tr>
                                 {% endif %}
                                     <td>
                                         <img src="{{ row.character_id|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
-                                        {{ row.character_name }}
+                                        {% if rotation.is_closed %}
+                                            <span class="copy-text">{{ row.character_name }}</span>
+                                        {% else %}
+                                            {{ row.character_name }}
+                                        {% endif %}
                                     </td>
                                     <td>{{ row.helped_setups }}</td>
                                     {% if rotation.is_closed %}
-                                        <td>{{ row.actual_total|floatformat:0|intcomma }}</td>
+                                        <td class="copy-text">{{ row.actual_total|floatformat:0|intcomma }}</td>
                                     {% endif %}
                                     <td>{{ row.estimated_total|floatformat:0|intcomma }}</td>
                                 </tr>
@@ -238,7 +249,9 @@
 
 {% block extra_javascript %}
     <script src="{% allianceauth_pve_static 'allianceauth_pve/js/localized_checkbox.js' %}"></script>
-    <script src="{% allianceauth_pve_static 'allianceauth_pve/js/copy_text.js' %}"></script>
+    {% if rotation.is_closed %}
+        <script src="{% allianceauth_pve_static 'allianceauth_pve/js/copy_text.js' %}"></script>
+    {% endif %}
 {% endblock extra_javascript %}
 
 {% block extra_script %}
