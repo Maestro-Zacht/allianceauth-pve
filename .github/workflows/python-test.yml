@@ -2,19 +2,27 @@ name: Checks
 
 on:
   push:
-    paths-ignore:
-      - "**/templates/**"
-      - "**/static/**"
-      - "**.md"
-      - "**.txt"
+    paths:
+      - "**.py"
+      - "**.cfg"
+      - "**.ini"
+      - ".github/**"
+      - "MANIFEST.in"
+      - "pyproject.toml"
+      - "codecov.yml"
+      - ".coveragerc"
     branches:
       - main
   pull_request:
-    paths-ignore:
-      - "**/templates/**"
-      - "**/static/**"
-      - "**.md"
-      - "**.txt"
+    paths:
+      - "**.py"
+      - "**.cfg"
+      - "**.ini"
+      - ".github/**"
+      - "MANIFEST.in"
+      - "pyproject.toml"
+      - "codecov.yml"
+      - ".coveragerc"
 
 jobs:
   test-coverage:
