@@ -7,6 +7,7 @@
 {% block extra_css %}
 {% if rotation.is_closed %}
     <link rel="stylesheet" type="text/css" href="{% allianceauth_pve_static 'allianceauth_pve/css/copy_text.css' %}">
+    <link href="{% allianceauth_pve_static 'allianceauth_pve/css/spop.css' %}" rel="stylesheet" type="text/css">
 {% endif %}
 <style>
     .row-pve {
@@ -115,7 +116,7 @@
                                         <td>{{ row.estimated_total|floatformat:0|intcomma }}</td>
                                         {% if rotation.is_closed %}
                                             <td>
-                                                <i class="fas fa-times-circle" style="transform: scale(1.5, 1.5);"></i>
+                                                <i class="fas fa-times-circle undo-copy" style="transform: scale(1.5, 1.5);" data-toggle="tooltip" data-placement="top" title="Remove Copy Color"></i>
                                             </td>
                                         {% endif %}
                                     </tr>
@@ -218,6 +219,7 @@
 {% block extra_javascript %}
     <script src="{% allianceauth_pve_static 'allianceauth_pve/js/localized_checkbox.js' %}"></script>
     {% if rotation.is_closed %}
+        <script src="{% allianceauth_pve_static 'allianceauth_pve/js/spop.js' %}"></script>
         <script src="{% allianceauth_pve_static 'allianceauth_pve/js/copy_text.js' %}"></script>
     {% endif %}
 {% endblock extra_javascript %}
