@@ -5,12 +5,16 @@ on:
     paths-ignore:
       - "**/templates/**"
       - "**/static/**"
+      - "**.md"
+      - "**.txt"
     branches:
       - main
   pull_request:
     paths-ignore:
       - "**/templates/**"
       - "**/static/**"
+      - "**.md"
+      - "**.txt"
 
 jobs:
   test-coverage:
