@@ -76,86 +76,54 @@
                 <h3 class="panel-title text-center">Summary</h3>
             </div>
             <div class="row-pve">
-                <div class="column-pve">
-                    <table class="table table-aa">
-                        <thead>
-                            <tr>
-                                <th>Character</th>
-                                <th>Setups</th>
-                                {% if rotation.is_closed %}
-                                    <th>Actual Total</th>
-                                    <th>Estimated Total</th>
-                                {% else %}
-                                    <th>Total</th>
-                                {% endif %}
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            {% for row in summary_first %}
-                                {% if row.user == user.pk and not rotation.is_closed %}
-                                <tr class="info copy-row">
-                                {% else %}
-                                <tr class="copy-row">
-                                {% endif %}
-                                    <td>
-                                        <img src="{{ row.character_id|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
-                                        {% if rotation.is_closed %}
-                                            <span class="copy-text">{{ row.character_name }}</span>
-                                        {% else %}
-                                            {{ row.character_name }}
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ row.helped_setups }}</td>
+                {% for summary in summaries %}
+                    <div class="column-pve">
+                        <table class="table table-aa">
+                            <thead>
+                                <tr>
+                                    <th>Character</th>
+                                    <th>Setups</th>
                                     {% if rotation.is_closed %}
-                                        <td class="copy-text">{{ row.actual_total|floatformat:0|intcomma }}</td>
+                                        <th>Actual Total</th>
+                                        <th>Estimated Total</th>
+                                        <th></th>
+                                    {% else %}
+                                        <th>Total</th>
                                     {% endif %}
-                                    <td>{{ row.estimated_total|floatformat:0|intcomma }}</td>
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="column-pve">
-                    <table class="table table-aa">
-                        <thead>
-                            <tr>
-                                <th>Character</th>
-                                <th>Setups</th>
-                                {% if rotation.is_closed %}
-                                    <th>Actual Total</th>
-                                    <th>Estimated Total</th>
-                                {% else %}
-                                    <th>Total</th>
-                                {% endif %}
-                            </tr>
-                        </thead>
+                            </thead>
 
-                        <tbody>
-                            {% for row in summary_second %}
-                                {% if row.user == user.pk and not rotation.is_closed %}
-                                <tr class="info copy-row">
-                                {% else %}
-                                <tr class="copy-row">
-                                {% endif %}
-                                    <td>
-                                        <img src="{{ row.character_id|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
-                                        {% if rotation.is_closed %}
-                                            <span class="copy-text">{{ row.character_name }}</span>
-                                        {% else %}
-                                            {{ row.character_name }}
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ row.helped_setups }}</td>
-                                    {% if rotation.is_closed %}
-                                        <td class="copy-text">{{ row.actual_total|floatformat:0|intcomma }}</td>
+                            <tbody>
+                                {% for row in summary %}
+                                    {% if row.user == user.pk and not rotation.is_closed %}
+                                    <tr class="info copy-row">
+                                    {% else %}
+                                    <tr class="copy-row">
                                     {% endif %}
-                                    <td>{{ row.estimated_total|floatformat:0|intcomma }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                                        <td>
+                                            <img src="{{ row.character_id|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
+                                            {% if rotation.is_closed %}
+                                                <span class="copy-text">{{ row.character_name }}</span>
+                                            {% else %}
+                                                {{ row.character_name }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ row.helped_setups }}</td>
+                                        {% if rotation.is_closed %}
+                                            <td class="copy-text">{{ row.actual_total|floatformat:0|intcomma }}</td>
+                                        {% endif %}
+                                        <td>{{ row.estimated_total|floatformat:0|intcomma }}</td>
+                                        {% if rotation.is_closed %}
+                                            <td>
+                                                <i class="fas fa-times-circle" style="transform: scale(1.5, 1.5);"></i>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endfor %}
             </div>
         </div>
         {% if not rotation.is_closed %}
