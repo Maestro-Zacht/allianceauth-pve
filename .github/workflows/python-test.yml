@@ -11,6 +11,7 @@ on:
       - "pyproject.toml"
       - "codecov.yml"
       - ".coveragerc"
+      - "!**.md"
     branches:
       - main
   pull_request:
@@ -23,6 +24,7 @@ on:
       - "pyproject.toml"
       - "codecov.yml"
       - ".coveragerc"
+      - "!**.md"
 
 jobs:
   test-coverage:
