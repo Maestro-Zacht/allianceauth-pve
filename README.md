@@ -67,6 +67,11 @@ When the loot is sold, a person with the right permission (see [below](#permissi
 
 You can see all the closed rotations from the dashboard.
 
+Closed Rotation
+---------------
+
+In a closed rotation summary, you can click on a character name and on an actual total to copy their value. Once you do so, the corresponding row in the table will be of a different color to help tracking down who is already being copied. To reset a row color, click on the `X` button on the right of the row.
+
 Buttons and Roles Setups
 ------------------------
 

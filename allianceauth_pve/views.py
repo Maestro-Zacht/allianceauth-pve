@@ -103,8 +103,7 @@ def rotation_view(request, rotation_id):
 
     context = {
         'rotation': r,
-        'summary_first': summary[:summary_count_half],
-        'summary_second': summary[summary_count_half:],
+        'summaries': [summary[:summary_count_half], summary[summary_count_half:]],
         'entries': entries_paginator.get_page(page),
         'closeform': closeform,
     }

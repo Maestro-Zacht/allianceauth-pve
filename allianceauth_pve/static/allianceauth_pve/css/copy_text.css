@@ -1,0 +1,15 @@
+.copy-text:hover {
+    cursor: pointer;
+}
+
+.undo-copy {
+    color: rgb(200, 14, 87);
+}
+
+.undo-copy:hover {
+    cursor: pointer;
+}
+
+.copied {
+    background-color: rgb(60, 21, 35) !important;
+}
