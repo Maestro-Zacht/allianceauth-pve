@@ -57,7 +57,7 @@ class EntryCharacterQueryset(models.QuerySet):
         return self.annotate(
             total_v=models.Subquery(total_values, output_field=models.FloatField())
         ).annotate(
-            weight_t=models.F('site_count') * models.F('role__value')
+            weight_t=models.ExpressionWrapper(models.F('site_count') * models.F('role__value'), output_field=models.FloatField())
         ).annotate(
             relative_v=models.F('weight_t') / models.F('total_v')
         ).annotate(
