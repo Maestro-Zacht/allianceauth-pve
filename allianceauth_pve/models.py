@@ -35,6 +35,48 @@ class RotationManager(models.Manager):
         return self.get_queryset().get_setup_summary()
 
 
+class EntryCharacterQueryset(models.QuerySet):
+    def with_totals(self):
+        total_values = (
+            EntryCharacter.objects
+            .filter(entry_id=models.OuterRef('entry_id'))
+            .annotate(weight_value=models.F('site_count') * models.F('role__value'))
+            .values('entry')
+            .annotate(total_value=models.Sum('weight_value'))
+            .values('total_value')
+        )
+
+        estimated_total = (
+            Entry.objects
+            .filter(rotation=models.OuterRef('entry__rotation'))
+            .values('rotation')
+            .annotate(estimated_total=models.Sum('estimated_total'))
+            .values('estimated_total')
+        )
+
+        return self.annotate(
+            estimated_total_fly=(
+                (models.F('site_count') * models.F('role__value')) /
+                models.Subquery(total_values, output_field=models.FloatField())
+            ) *
+            models.F('entry__estimated_total')
+        ).annotate(
+            actual_total_fly=models.Case(
+                models.When(entry__rotation__actual_total=0, then=0.0),
+                default=models.F('estimated_total_fly') *
+                (models.F('entry__rotation__actual_total') / models.Subquery(estimated_total))
+            )
+        )
+
+
+class EntryCharacterManager(models.Manager):
+    def get_queryset(self):
+        return EntryCharacterQueryset(self.model, using=self._db)
+
+    def with_totals(self):
+        return self.get_queryset().with_totals()
+
+
 class PveButton(models.Model):
     text = models.CharField(max_length=16, unique=True)
     amount = models.BigIntegerField(validators=[MinValueValidator(-1000000000000), MaxValueValidator(1000000000000)])
@@ -132,6 +174,8 @@ class EntryCharacter(models.Model):
     helped_setup = models.BooleanField(default=False)
     estimated_share_total = models.FloatField(default=0)
     actual_share_total = models.FloatField(default=0)
+
+    objects = EntryCharacterManager()
 
     class Meta:
         default_permissions = ()
