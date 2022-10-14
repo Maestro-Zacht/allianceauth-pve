@@ -57,14 +57,9 @@ class EntryCharacterQueryset(models.QuerySet):
         return self.annotate(
             total_v=models.Subquery(total_values, output_field=models.FloatField())
         ).annotate(
-            weight_t=models.ExpressionWrapper(models.F('site_count') * models.F('role__value'), output_field=models.FloatField())
+            divis=models.ExpressionWrapper(models.F('entry__estimated_total'), output_field=models.FloatField()) / models.F('total_v')
         ).annotate(
-            relative_v=models.F('weight_t') / models.F('total_v')
-        ).annotate(
-            estimated_total_fly=(
-                models.F('relative_v')
-            ) *
-            models.F('entry__estimated_total')
+            estimated_total_fly=models.F('divis') * models.F('site_count') * models.F('role__value')
         ).annotate(
             actual_total_fly=models.Case(
                 models.When(entry__rotation__actual_total=0, then=0.0),
