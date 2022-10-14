@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, Cast
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from allianceauth.services.hooks import get_extension_logger
@@ -55,11 +55,12 @@ class EntryCharacterQueryset(models.QuerySet):
         )
 
         return self.annotate(
-            total_v=models.Subquery(total_values, output_field=models.FloatField())
-        ).annotate(
-            divis=models.ExpressionWrapper(models.F('entry__estimated_total'), output_field=models.FloatField()) / models.F('total_v')
-        ).annotate(
-            estimated_total_fly=models.F('divis') * models.F('site_count') * models.F('role__value')
+            estimated_total_fly=(
+                Cast(models.F('entry__estimated_total'), output_field=models.FloatField()) *
+                (100 - models.F('entry__rotation__tax_rate')) / 100 *
+                models.F('site_count') * models.F('role__value') /
+                models.Subquery(total_values)
+            )
         ).annotate(
             actual_total_fly=models.Case(
                 models.When(entry__rotation__actual_total=0, then=0.0),
