@@ -43,14 +43,10 @@ class TestRunningAverages(TestCase):
             helped_setup=False
         )
 
-        entry.update_share_totals()
-
         rotation.actual_total = 900_000_000
         rotation.is_closed = True
         rotation.closed_at = timezone.now()
         rotation.save()
-        for e in rotation.entries.all():
-            e.update_share_totals()
 
     def test_valid_interval(self):
         res = running_averages(self.testuser, timezone.now() - datetime.timedelta(days=1), timezone.now() + datetime.timedelta(days=1))

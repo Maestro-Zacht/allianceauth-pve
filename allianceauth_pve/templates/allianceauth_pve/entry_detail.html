@@ -86,7 +86,7 @@
                     </thead>
 
                     <tbody>
-                        {% for share in entry.ratting_shares.all %}
+                        {% for share in entry.ratting_shares.with_totals %}
                             <tr>
                                 <td style="text-align: left;">
                                     <img src="{{ share.user.profile.main_character|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">

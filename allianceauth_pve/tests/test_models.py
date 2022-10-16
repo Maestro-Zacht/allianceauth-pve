@@ -1,4 +1,5 @@
 import itertools
+import random
 
 from django.test import TestCase
 from django.utils import timezone
@@ -82,8 +83,6 @@ class TestRotation(TestCase):
             helped_setup=False
         )
 
-        entry.update_share_totals()
-
     def test_summary_open(self):
         summary = self.rotation.summary
 
@@ -101,8 +100,6 @@ class TestRotation(TestCase):
         self.rotation.is_closed = True
         self.rotation.closed_at = timezone.now()
         self.rotation.save()
-        for e in self.rotation.entries.all():
-            e.update_share_totals()
 
         summary = self.rotation.summary
 
@@ -126,8 +123,6 @@ class TestRotation(TestCase):
         self.rotation.is_closed = True
         self.rotation.closed_at = timezone.now()
         self.rotation.save()
-        for e in self.rotation.entries.all():
-            e.update_share_totals()
 
         self.assertAlmostEqual(self.rotation.sales_percentage, 0.9)
 
@@ -180,8 +175,6 @@ class TestEntry(TestCase):
             helped_setup=False
         )
 
-        cls.entry.update_share_totals()
-
     def test_total_shares_count(self):
         self.assertEqual(self.entry.total_shares_count, 1)
 
@@ -193,21 +186,21 @@ class TestEntry(TestCase):
         self.rotation.is_closed = True
         self.rotation.closed_at = timezone.now()
         self.rotation.save()
-        for e in self.rotation.entries.all():
-            e.update_share_totals()
 
         self.assertAlmostEqual(self.entry.actual_total_after_tax, 810_000_000.0)
 
-    def test_update_share_totals_valid(self):
+    def test_with_totals_valid(self):
         for count1, count2, count3, value1, value2, value3 in itertools.combinations_with_replacement(range(8), 6):
             total_count = count1 + count2 + count3
             total_roles = value1 + value2 + value3
             total_value = value1 * count1 + value2 * count2 + value3 * count3
             if total_count > 0 and total_roles > 0 and total_value > 0:
+                estimated_total = random.randint(100_000_000, 10_000_000_000)
+
                 entry: Entry = Entry.objects.create(
                     rotation=self.rotation,
                     created_by=self.testuser,
-                    estimated_total=1_000_000_000
+                    estimated_total=estimated_total
                 )
 
                 role1: EntryRole = EntryRole.objects.create(
@@ -248,29 +241,22 @@ class TestEntry(TestCase):
                     site_count=count3,
                 )
 
-                entry.update_share_totals()
-
                 self.assertTrue(Entry.objects.filter(pk=entry.pk).exists())
 
-                share1.refresh_from_db()
-                share2.refresh_from_db()
-                share3.refresh_from_db()
+                share1 = EntryCharacter.objects.with_totals().get(pk=share1.pk)
+                share2 = EntryCharacter.objects.with_totals().get(pk=share2.pk)
+                share3 = EntryCharacter.objects.with_totals().get(pk=share3.pk)
 
-                self.assertAlmostEqual(share1.estimated_share_total, 900_000_000 * count1 * value1 / total_value, places=2)
-                self.assertAlmostEqual(share2.estimated_share_total, 900_000_000 * count2 * value2 / total_value, places=2)
-                self.assertAlmostEqual(share3.estimated_share_total, 900_000_000 * count3 * value3 / total_value, places=2)
+                self.assertAlmostEqual(share1.estimated_share_total, estimated_total * 0.9 * count1 * value1 / total_value, places=2)
+                self.assertAlmostEqual(share2.estimated_share_total, estimated_total * 0.9 * count2 * value2 / total_value, places=2)
+                self.assertAlmostEqual(share3.estimated_share_total, estimated_total * 0.9 * count3 * value3 / total_value, places=2)
 
-                sum_estimated = entry.ratting_shares.aggregate(val=Sum('estimated_share_total'))['val']
+                sum_estimated = entry.ratting_shares.with_totals().aggregate(val=Sum('estimated_share_total'))['val']
                 self.assertAlmostEqual(sum_estimated, entry.estimated_total_after_tax, places=2)
 
                 self.assertEqual(share1.actual_share_total, 0)
                 self.assertEqual(share2.actual_share_total, 0)
                 self.assertEqual(share3.actual_share_total, 0)
-
-    def test_update_share_totals_0_shares(self):
-        self.share.delete()
-        self.entry.update_share_totals()
-        self.assertEqual(self.rotation.entries.count(), 0)
 
 
 class TestEntryRole(TestCase):

@@ -35,6 +35,49 @@ class RotationManager(models.Manager):
         return self.get_queryset().get_setup_summary()
 
 
+class EntryCharacterQueryset(models.QuerySet):
+    def with_totals(self):
+        total_values = (
+            EntryCharacter.objects
+            .filter(entry_id=models.OuterRef('entry_id'))
+            .annotate(weight_value=models.F('site_count') * models.F('role__value'))
+            .values('entry')
+            .annotate(total_value=models.Sum('weight_value'))
+            .values('total_value')
+        )
+
+        estimated_total = (
+            Entry.objects
+            .filter(rotation=models.OuterRef('entry__rotation'))
+            .values('rotation')
+            .annotate(estimated_total=models.Sum('estimated_total'))
+            .values('estimated_total')
+        )
+
+        return self.annotate(
+            estimated_share_total=(
+                models.F('entry__estimated_total') *
+                (100 - models.F('entry__rotation__tax_rate')) / 100 *
+                models.F('site_count') * models.F('role__value') /
+                models.Subquery(total_values)
+            )
+        ).annotate(
+            actual_share_total=models.Case(
+                models.When(entry__rotation__actual_total=0, then=0.0),
+                default=models.F('estimated_share_total') *
+                models.F('entry__rotation__actual_total') / models.Subquery(estimated_total)
+            )
+        )
+
+
+class EntryCharacterManager(models.Manager):
+    def get_queryset(self):
+        return EntryCharacterQueryset(self.model, using=self._db)
+
+    def with_totals(self):
+        return self.get_queryset().with_totals()
+
+
 class PveButton(models.Model):
     text = models.CharField(max_length=16, unique=True)
     amount = models.BigIntegerField(validators=[MinValueValidator(-1000000000000), MaxValueValidator(1000000000000)])
@@ -97,10 +140,14 @@ class Rotation(models.Model):
     @property
     def summary(self):
         setup_summary = Rotation.objects.filter(pk=self.pk).get_setup_summary().filter(user_id=models.OuterRef('user_id')).values('total_setups')
-        return EntryCharacter.objects.filter(entry__rotation=self).values('user').order_by()\
-            .annotate(helped_setups=Coalesce(models.Subquery(setup_summary[:1]), 0))\
-            .annotate(estimated_total=models.Sum('estimated_share_total'))\
+        return (
+            EntryCharacter.objects.filter(entry__rotation=self)
+            .with_totals()
+            .values('user').order_by()
+            .annotate(helped_setups=Coalesce(models.Subquery(setup_summary[:1]), 0))
+            .annotate(estimated_total=models.Sum('estimated_share_total'))
             .annotate(actual_total=models.Sum('actual_share_total'))
+        )
 
     @property
     def days_since(self):
@@ -130,8 +177,8 @@ class EntryCharacter(models.Model):
 
     site_count = models.PositiveIntegerField(default=1)
     helped_setup = models.BooleanField(default=False)
-    estimated_share_total = models.FloatField(default=0)
-    actual_share_total = models.FloatField(default=0)
+
+    objects = EntryCharacterManager()
 
     class Meta:
         default_permissions = ()
@@ -158,49 +205,6 @@ class Entry(models.Model):
     def actual_total_after_tax(self):
         return self.estimated_total_after_tax * self.rotation.sales_percentage
 
-    def update_share_totals(self):
-        sum_sites = self.ratting_shares.aggregate(val=Coalesce(models.Sum('site_count'), 0))['val']
-
-        self.roles.alias(char_count=models.Count('shares')).filter(char_count=0).delete()
-        num_roles = self.roles.count()
-        if sum_sites == 0 or num_roles == 0:
-            self.delete()
-        else:
-            self.save()
-
-            estimated_total_after_tax = self.estimated_total * (100 - self.rotation.tax_rate) / 100
-            actual_total_after_tax = estimated_total_after_tax * self.rotation.sales_percentage
-
-            if settings.DATABASES[self.ratting_shares.db]['ENGINE'] == 'django.db.backends.mysql':
-                total_value = 0
-                for role in self.roles.all():
-                    total_value += role.shares.annotate(weighted_share_value=models.F('site_count') * models.Value(role.value))\
-                        .aggregate(val=models.Sum('weighted_share_value'))['val']
-
-                for role in self.roles.all():
-                    role.shares\
-                        .annotate(weighted_share_value=models.F('site_count') * models.Value(role.value))\
-                        .annotate(relative_value=models.F('weighted_share_value') / models.Value(total_value, output_field=models.FloatField()))\
-                        .update(
-                            estimated_share_total=models.Value(estimated_total_after_tax) * models.F('relative_value'),
-                            actual_share_total=models.Value(actual_total_after_tax) * models.F('relative_value'),
-                        )
-            else:
-                role_val_query = EntryRole.objects.filter(pk=models.OuterRef('role_id')).values('value')
-
-                annotated_shares = self.ratting_shares\
-                    .annotate(role_val=models.Subquery(role_val_query))\
-                    .annotate(weighted_share_value=models.F('site_count') * models.F('role_val'))
-
-                total_value = annotated_shares.aggregate(val=models.Sum('weighted_share_value'))['val']
-
-                annotated_shares\
-                    .annotate(relative_value=models.F('weighted_share_value') / models.Value(total_value, output_field=models.FloatField()))\
-                    .update(
-                        estimated_share_total=models.Value(estimated_total_after_tax) * models.F('relative_value'),
-                        actual_share_total=models.Value(actual_total_after_tax) * models.F('relative_value'),
-                    )
-
     class Meta:
         default_permissions = ()
         verbose_name = 'entry'
@@ -218,7 +222,11 @@ class EntryRole(models.Model):
 
     @property
     def approximate_percentage(self):
-        return self.value * 100 / self.entry.roles.aggregate(val=models.Sum('value'))['val']
+        return self.value * 100 / (
+            EntryRole.objects
+            .filter(entry_id=self.entry_id)
+            .aggregate(val=models.Sum('value'))['val']
+        )
 
     class Meta:
         default_permissions = ()

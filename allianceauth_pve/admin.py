@@ -10,11 +10,6 @@ class RotationAdmin(admin.ModelAdmin):
     search_fields = ('name', )
     readonly_fields = ('closed_at',)
 
-    def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
-        for entry in obj.entries.all():
-            entry.update_share_totals()
-
 
 class EntryCharacterInline(admin.TabularInline):
     model = EntryCharacter
@@ -29,6 +24,15 @@ class EntryCharacterInline(admin.TabularInline):
         'estimated_share_total',
         'actual_share_total',
     )
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).with_totals()
+
+    def estimated_share_total(self, obj):
+        return obj.estimated_share_total
+
+    def actual_share_total(self, obj):
+        return obj.actual_share_total
 
 
 @admin.register(Entry)

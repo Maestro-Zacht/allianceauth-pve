@@ -78,8 +78,6 @@ def rotation_view(request, rotation_id):
                 r.is_closed = True
                 r.closed_at = timezone.now()
                 r.save()
-                for entry in r.entries.all():
-                    entry.update_share_totals()
 
             closeform = None
     elif not r.is_closed:
@@ -222,8 +220,6 @@ def add_entry(request, rotation_id, entry_id=None):
 
                 EntryCharacter.objects.bulk_create(to_add)
 
-                entry.update_share_totals()
-
             messages.success(request, 'Entry added successfully')
 
             return redirect('allianceauth_pve:rotation_view', rotation_id)
@@ -299,7 +295,6 @@ def create_rotation(request):
             rotation = rotation_form.save()
 
             messages.success(request, "Rotation created successfully")
-
             return redirect('allianceauth_pve:rotation_view', rotation.pk)
     else:
         rotation_form = NewRotationForm()

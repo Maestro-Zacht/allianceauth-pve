@@ -527,7 +527,7 @@ class TestAddEntryView(TestCase):
 
         self.assertEqual(entry.ratting_shares.count(), 2)
 
-        estimated_total = entry.ratting_shares.aggregate(val=Sum('estimated_share_total'))['val']
+        estimated_total = entry.ratting_shares.with_totals().aggregate(val=Sum('estimated_share_total'))['val']
         self.assertAlmostEqual(estimated_total, 1660200000.0)
         self.assertAlmostEqual(estimated_total, entry.estimated_total)
 
@@ -577,7 +577,7 @@ class TestAddEntryView(TestCase):
 
         self.assertEqual(self.entry.ratting_shares.count(), 2)
 
-        estimated_total = self.entry.ratting_shares.aggregate(val=Sum('estimated_share_total'))['val']
+        estimated_total = self.entry.ratting_shares.with_totals().aggregate(val=Sum('estimated_share_total'))['val']
         self.assertAlmostEqual(estimated_total, 1660200000.0)
         self.assertAlmostEqual(estimated_total, self.entry.estimated_total)
 
