@@ -392,13 +392,16 @@ searchBtn.addEventListener("click", e => {
     ).then(res => {
         res.json().then(data => {
             let results = [];
-            data.result.forEach((value, index, array) => {
+            data.result.forEach((value) => {
                 const profile_image = document.createElement('img');
                 profile_image.src = value.profile_pic;
                 profile_image.classList.add('img-circle');
                 profile_image.style.marginRight = "1rem";
 
-                let characterInfo = createSpan(value.character_name);
+                let characterInfo = createSpan(`${value.character_name} (${value.char_status})`);
+                characterInfo.setAttribute('data-toggle', 'tooltip');
+                characterInfo.setAttribute('data-placement', 'top');
+                characterInfo.setAttribute('title', value.char_tooltip);
 
                 let addButton = document.createElement('button');
                 addButton.textContent = "Add";
@@ -419,6 +422,9 @@ searchBtn.addEventListener("click", e => {
 
             if (results.length > 0) {
                 searchResults.replaceChildren(...results);
+                $(function () {
+                    $('[data-toggle="tooltip"]').tooltip()
+                })
             } else {
                 searchResults.replaceChildren(createSpan('No results', 'all-cols head'));
             }
