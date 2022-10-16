@@ -188,6 +188,8 @@ class TestGetAvaiableRatters(TestCase):
                         'user_id': self.testuser.pk,
                         'user_main_character_name': self.testcharacter.character_name,
                         'user_pic': self.testcharacter.portrait_url_32,
+                        'char_status': 'Main',
+                        'char_tooltip': '',
                     },
                     {
                         'character_id': self.testcharacter2.pk,
@@ -196,6 +198,8 @@ class TestGetAvaiableRatters(TestCase):
                         'user_id': self.testuser2.pk,
                         'user_main_character_name': self.testcharacter2.character_name,
                         'user_pic': self.testcharacter2.portrait_url_32,
+                        'char_status': 'Main',
+                        'char_tooltip': '',
                     }
                 ]
             }
@@ -218,6 +222,8 @@ class TestGetAvaiableRatters(TestCase):
                         'user_id': self.testuser2.pk,
                         'user_main_character_name': self.testcharacter2.character_name,
                         'user_pic': self.testcharacter2.portrait_url_32,
+                        'char_status': 'Main',
+                        'char_tooltip': '',
                     }
                 ]
             }
@@ -240,6 +246,8 @@ class TestGetAvaiableRatters(TestCase):
                         'user_id': self.testuser2.pk,
                         'user_main_character_name': self.testcharacter2.character_name,
                         'user_pic': self.testcharacter2.portrait_url_32,
+                        'char_status': 'Main',
+                        'char_tooltip': '',
                     }
                 ]
             }
@@ -284,6 +292,8 @@ class TestGetAvaiableRatters(TestCase):
                         'user_id': self.testuser2.pk,
                         'user_main_character_name': self.testcharacter2.character_name,
                         'user_pic': self.testcharacter2.portrait_url_32,
+                        'char_status': 'Main',
+                        'char_tooltip': testcharacter2bis.character_name,
                     }
                 ]
             }
@@ -332,6 +342,8 @@ class TestGetAvaiableRatters(TestCase):
                         'user_id': self.testuser2.pk,
                         'user_main_character_name': self.testcharacter2.character_name,
                         'user_pic': self.testcharacter2.portrait_url_32,
+                        'char_status': 'Main',
+                        'char_tooltip': f'{testcharacter2bis.character_name}, {testcharacter2tris.character_name}',
                     },
                     {
                         'character_id': testcharacter2bis.pk,
@@ -340,6 +352,8 @@ class TestGetAvaiableRatters(TestCase):
                         'user_id': self.testuser2.pk,
                         'user_main_character_name': self.testcharacter2.character_name,
                         'user_pic': self.testcharacter2.portrait_url_32,
+                        'char_status': 'Alt',
+                        'char_tooltip': self.testcharacter2.character_name,
                     }
                 ]
             }
