@@ -176,30 +176,16 @@ else:
 DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
-try:
-    pkg_resources.get_distribution('psycopg2-binary')
-except pkg_resources.DistributionNotFound:
-    DATABASES = {
-        "default": {
-            "ENGINE": 'django.db.backends.mysql',
-            'NAME': 'mysql',
-            'USER': 'root',
-            'PASSWORD': 'root',
-            'HOST': 'localhost',
-            'PORT': '3306',
-        },
-    }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            'NAME': 'postgres',
-            'USER': 'postgres',
-            'PASSWORD': 'postgres',
-            'HOST': 'localhost',
-            'PORT': '5432',
-        },
-    }
+DATABASES = {
+    "default": {
+        "ENGINE": 'django.db.backends.mysql',
+        'NAME': 'mysql',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    },
+}
 
 SITE_NAME = "Alliance Auth"
 

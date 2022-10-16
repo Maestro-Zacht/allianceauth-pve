@@ -32,18 +32,6 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      database:
-        image: postgres
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          # Maps tcp port 5432 on service container to the host
-          - 5432:5432
       redis:
         image: redis
         options: >-
@@ -59,12 +47,10 @@ jobs:
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11-dev"]
         aa-version: ["2", "3"]
-        database: ["postgres", "mysql"]
 
     steps:
       - name: Set up MySQL
         run: sudo /etc/init.d/mysql start
-        if: matrix.database == 'mysql'
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -84,12 +70,11 @@ jobs:
         run: tox -v
         env:
           AAVERSION: ${{ matrix.aa-version }}
-          DATABASEENGINE: ${{ matrix.database }}
 
       - name: Upload Coverage Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: coverage-python${{ matrix.python-version }}-AA${{ matrix.aa-version }}-${{ matrix.database }}
+          name: coverage-python${{ matrix.python-version }}-AA${{ matrix.aa-version }}
           path: coverage.xml
           if-no-files-found: ignore
 
