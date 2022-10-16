@@ -575,7 +575,7 @@ class TestAddEntryView(TestCase):
         self.assertEqual(role.name, 'Krabs')
         self.assertEqual(role.value, 1)
 
-        self.assertEqual(self.entry.count(), 2)
+        self.assertEqual(self.entry.ratting_shares.count(), 2)
 
         estimated_total = self.entry.ratting_shares.with_totals().aggregate(val=Sum('estimated_share_total'))['val']
         self.assertAlmostEqual(estimated_total, 1660200000.0)
