@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-from django.db.models.functions import Coalesce, Cast
+from django.db.models.functions import Coalesce
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from allianceauth.services.hooks import get_extension_logger

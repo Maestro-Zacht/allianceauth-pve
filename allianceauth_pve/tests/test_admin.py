@@ -5,10 +5,10 @@ from django.utils import timezone
 from allianceauth.tests.auth_utils import AuthUtils
 
 from ..models import Rotation, Entry, EntryCharacter, EntryRole
-from ..admin import RotationAdmin
+from ..admin import EntryCharacterInline, RotationAdmin
 
 
-class TestRotationAdmin(TestCase):
+class TestEntryCharacterAdmin(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -40,17 +40,37 @@ class TestRotationAdmin(TestCase):
             helped_setup=False
         )
 
-        entry.update_share_totals()
-
         cls.rotation.actual_total = 900_000_000
         cls.rotation.is_closed = True
         cls.rotation.closed_at = timezone.now()
         cls.rotation.save()
-        for e in cls.rotation.entries.all():
-            e.update_share_totals()
 
-    def test_save_model(self):
-        modeladmin = RotationAdmin(Rotation, AdminSite())
+        cls.modeladmin = EntryCharacterInline(EntryCharacter, AdminSite())
 
-        self.rotation.actual_total = 950_000_000
-        modeladmin.save_model(obj=self.rotation, request=None, form=None, change=None)
+    def test_get_queryset(self):
+        qs = self.modeladmin.get_queryset(request=None)
+
+        self.assertEqual(qs.count(), 1)
+
+        row = qs[0]
+
+        self.assertAlmostEqual(row.estimated_share_total, 1_000_000_000.0, places=2)
+        self.assertAlmostEqual(row.actual_share_total, 900_000_000.0, places=2)
+
+    def test_estimated_share_total(self):
+        qs = self.modeladmin.get_queryset(request=None)
+
+        self.assertEqual(qs.count(), 1)
+
+        row = qs[0]
+
+        self.assertAlmostEqual(self.modeladmin.estimated_share_total(row), 1_000_000_000.0, places=2)
+
+    def test_actual_share_total(self):
+        qs = self.modeladmin.get_queryset(request=None)
+
+        self.assertEqual(qs.count(), 1)
+
+        row = qs[0]
+
+        self.assertAlmostEqual(self.modeladmin.actual_share_total(row), 900_000_000.0, places=2)
