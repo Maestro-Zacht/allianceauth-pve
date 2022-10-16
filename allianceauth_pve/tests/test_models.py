@@ -251,7 +251,7 @@ class TestEntry(TestCase):
                 self.assertAlmostEqual(share2.estimated_share_total, estimated_total * 0.9 * count2 * value2 / total_value, places=2)
                 self.assertAlmostEqual(share3.estimated_share_total, estimated_total * 0.9 * count3 * value3 / total_value, places=2)
 
-                sum_estimated = entry.ratting_shares.aggregate(val=Sum('estimated_share_total'))['val']
+                sum_estimated = entry.ratting_shares.with_totals().aggregate(val=Sum('estimated_share_total'))['val']
                 self.assertAlmostEqual(sum_estimated, entry.estimated_total_after_tax, places=2)
 
                 self.assertEqual(share1.actual_share_total, 0)
