@@ -1,5 +1,5 @@
 from django.contrib.admin.sites import AdminSite
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.utils import timezone
 
 from allianceauth.tests.auth_utils import AuthUtils
@@ -14,6 +14,8 @@ class TestEntryCharacterAdmin(TestCase):
     def setUpTestData(cls):
         cls.testuser = AuthUtils.create_user('aauth_testuser')
         cls.testcharacter = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar', 2116790529)
+        cls.testuser.is_superuser = True
+        cls.testuser.save()
 
         cls.rotation: Rotation = Rotation.objects.create(
             name='test1rot'
@@ -47,8 +49,12 @@ class TestEntryCharacterAdmin(TestCase):
 
         cls.modeladmin = EntryCharacterInline(EntryCharacter, AdminSite())
 
+        request_factory = RequestFactory()
+        cls.request = request_factory.get('/fake')
+        cls.request.user = cls.testuser
+
     def test_get_queryset(self):
-        qs = self.modeladmin.get_queryset(request=None)
+        qs = self.modeladmin.get_queryset(request=self.request)
 
         self.assertEqual(qs.count(), 1)
 
@@ -58,7 +64,7 @@ class TestEntryCharacterAdmin(TestCase):
         self.assertAlmostEqual(row.actual_share_total, 900_000_000.0, places=2)
 
     def test_estimated_share_total(self):
-        qs = self.modeladmin.get_queryset(request=None)
+        qs = self.modeladmin.get_queryset(request=self.request)
 
         self.assertEqual(qs.count(), 1)
 
@@ -67,7 +73,7 @@ class TestEntryCharacterAdmin(TestCase):
         self.assertAlmostEqual(self.modeladmin.estimated_share_total(row), 1_000_000_000.0, places=2)
 
     def test_actual_share_total(self):
-        qs = self.modeladmin.get_queryset(request=None)
+        qs = self.modeladmin.get_queryset(request=self.request)
 
         self.assertEqual(qs.count(), 1)
 
