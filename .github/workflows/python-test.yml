@@ -45,7 +45,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11-dev"]
+        python-version: ["3.8", "3.9", "3.10", "3.11-dev", "pypy3.8", "pypy3.9"]
         aa-version: ["2", "3"]
 
     steps:
@@ -74,7 +74,7 @@ jobs:
       - name: Upload Coverage Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: coverage-python${{ matrix.python-version }}-AA${{ matrix.aa-version }}
+          name: coverage-${{ matrix.python-version }}-AA${{ matrix.aa-version }}
           path: coverage.xml
           if-no-files-found: ignore
 
