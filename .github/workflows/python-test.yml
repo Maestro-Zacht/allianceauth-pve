@@ -28,7 +28,7 @@ on:
 
 jobs:
   test-coverage:
-    name: Test Coverage (Python ${{ matrix.python-version }} AllianceAuth v${{ matrix.aa-version }} ${{ matrix.database }})
+    name: Test Coverage (Python ${{ matrix.python-version }} AllianceAuth v${{ matrix.aa-version }})
     runs-on: ubuntu-latest
 
     services:
