@@ -77,13 +77,10 @@ ROOT_URLCONF = "allianceauth.urls"
 LOCALE_PATHS = (os.path.join(BASE_DIR, "locale/"),)
 
 
-def ugettext(s): return s
-
-
 LANGUAGES = (
-    ("en", ugettext("English")),
-    ("de", ugettext("German")),
-    ("es", ugettext("Spanish")),
+    ("en", "English"),
+    ("de", "German"),
+    ("es", "Spanish"),
 )
 
 TEMPLATES = [
