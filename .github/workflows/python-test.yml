@@ -2,29 +2,17 @@ name: Checks
 
 on:
   push:
-    paths:
-      - "**.py"
-      - "**.cfg"
-      - "**.ini"
-      - ".github/**"
-      - "MANIFEST.in"
-      - "pyproject.toml"
-      - "codecov.yml"
-      - ".coveragerc"
-      - "!**.md"
+    paths-ignore:
+      - "**.css"
+      - "**.js"
+      - "**.md"
     branches:
       - main
   pull_request:
-    paths:
-      - "**.py"
-      - "**.cfg"
-      - "**.ini"
-      - ".github/**"
-      - "MANIFEST.in"
-      - "pyproject.toml"
-      - "codecov.yml"
-      - ".coveragerc"
-      - "!**.md"
+    paths-ignore:
+      - "**.css"
+      - "**.js"
+      - "**.md"
 
 jobs:
   test-coverage:
@@ -45,7 +33,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11-dev", "pypy3.8", "pypy3.9"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "pypy3.8", "pypy3.9"]
         aa-version: ["2", "3"]
 
     steps:
@@ -101,7 +89,6 @@ jobs:
           verbose: true # optional (default = false)
 
   build-test:
-    needs: [test-coverage]
     name: PyPi Build Test
     runs-on: ubuntu-latest
 
@@ -109,10 +96,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Python 3.10
+      - name: Setup Python 3
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: "3.x"
+          check-latest: true
 
       - name: Install Tools
         run: |
