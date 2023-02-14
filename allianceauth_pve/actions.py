@@ -6,7 +6,10 @@ from .models import EntryCharacter, Rotation
 from .forms import NewEntryForm, NewShareFormSet, NewRoleFormSet
 
 
-def running_averages(user, start_date, end_date=timezone.now()):
+def running_averages(user, start_date, end_date=None):
+    if end_date is None:
+        end_date = timezone.now()
+
     rotations = Rotation.objects.filter(closed_at__range=(start_date, end_date)).get_setup_summary().filter(user=user).values('total_setups')
     result = (
         EntryCharacter.objects
