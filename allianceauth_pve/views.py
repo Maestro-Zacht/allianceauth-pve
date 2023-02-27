@@ -37,8 +37,19 @@ def index(request):
 @login_required
 @permission_required('allianceauth_pve.access_pve')
 def dashboard(request):
-    open_rots = Rotation.objects.filter(is_closed=False).order_by('-priority')
-    closed_rots = Rotation.objects.filter(is_closed=True).order_by('-closed_at')
+    open_rots = (
+        Rotation.objects
+        .annotate(summary_count=Count('entries__ratting_shares__user', distinct=True))
+        .filter(is_closed=False)
+        .order_by('-priority')
+    )
+
+    closed_rots = (
+        Rotation.objects
+        .annotate(summary_count=Count('entries__ratting_shares__user', distinct=True))
+        .filter(is_closed=True)
+        .order_by('-closed_at')
+    )
 
     paginator_open = Paginator(open_rots, 10)
     paginator_closed = Paginator(closed_rots, 10)

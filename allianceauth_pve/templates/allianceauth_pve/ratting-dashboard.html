@@ -100,7 +100,7 @@
                                             <tr>
                                                 <td style="width: 25%;"><a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}">{{ rotation.name }}</a></td>
                                                 <td style="width: 25%;">{{ rotation.days_since }}</td>
-                                                <td style="width: 25%;">{{ rotation.summary.count }}</td>
+                                                <td style="width: 25%;">{{ rotation.summary_count }}</td>
                                                 <td style="width: 25%;">{{ rotation.estimated_total|floatformat|intcomma }}</td>
                                             </tr>
                                         {% endfor %}
@@ -162,7 +162,7 @@
                                             <tr>
                                                 <td style="width: 25%;"><a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}">{{ rotation.pk }} - {{ rotation.name }}</a></td>
                                                 <td style="width: 25%;">{{ rotation.closed_at }}</td>
-                                                <td style="width: 25%;">{{ rotation.summary.count }}</td>
+                                                <td style="width: 25%;">{{ rotation.summary_count }}</td>
                                                 <td style="width: 25%;">{{ rotation.actual_total|floatformat|intcomma }}</td>
                                             </tr>
                                         {% endfor %}
