@@ -26,7 +26,7 @@ def running_averages(user, start_date, end_date=None):
         )
     )
 
-    if result.exists():
+    if result:
         return result[0]
     else:
         return {}

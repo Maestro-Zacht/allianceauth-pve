@@ -1,13 +1,16 @@
+from unittest.mock import patch
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.contrib.messages import get_messages
 from django.db.models import Sum
+from django.core.cache import cache
 
 from allianceauth.tests.auth_utils import AuthUtils
 from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.eveonline.models import EveCharacter
 
 from ..models import Rotation, Entry, EntryCharacter, EntryRole
+from ..views import RUNNING_AVERAGES_CACHE_PREFIX
 
 
 class TestIndexView(TestCase):
@@ -41,6 +44,16 @@ class TestDashboardView(TestCase):
         response = self.client.get(reverse('allianceauth_pve:dashboard'))
 
         self.assertTemplateUsed(response, 'allianceauth_pve/ratting-dashboard.html')
+
+        self.assertTrue(cache.has_key(f"{RUNNING_AVERAGES_CACHE_PREFIX}_{self.testuser.pk}_30"))
+        self.assertTrue(cache.has_key(f"{RUNNING_AVERAGES_CACHE_PREFIX}_{self.testuser.pk}_90"))
+        self.assertTrue(cache.has_key(f"{RUNNING_AVERAGES_CACHE_PREFIX}_{self.testuser.pk}_180"))
+        self.assertTrue(cache.has_key(f"{RUNNING_AVERAGES_CACHE_PREFIX}_{self.testuser.pk}_365"))
+
+        with patch('allianceauth_pve.views.running_averages') as mock_running_average:
+            response = self.client.get(reverse('allianceauth_pve:dashboard'))
+
+            self.assertFalse(mock_running_average.called)
 
 
 class TestRotationView(TestCase):
