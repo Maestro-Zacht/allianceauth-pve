@@ -25,6 +25,7 @@ logger = get_extension_logger(__name__)
 
 
 RUNNING_AVERAGES_CACHE_PREFIX = 'pve_running_averages'
+RUNNING_AVERAGES_CACHE_TIMEOUT = 60 * 60
 
 
 @login_required
@@ -47,25 +48,27 @@ def dashboard(request):
 
     today = timezone.now().date()
 
-    one_month_average = cache.get(f"{RUNNING_AVERAGES_CACHE_PREFIX}_{request.user.pk}_30")
+    key_prefix = f"{RUNNING_AVERAGES_CACHE_PREFIX}_{request.user.pk}"
+
+    one_month_average = cache.get(f"{key_prefix}_30")
     if one_month_average is None:
         one_month_average = running_averages(request.user, today - datetime.timedelta(days=30))
-        cache.set(f"{RUNNING_AVERAGES_CACHE_PREFIX}_{request.user.pk}_30", one_month_average, 60 * 60)
+        cache.set(f"{key_prefix}_30", one_month_average, RUNNING_AVERAGES_CACHE_TIMEOUT)
 
-    three_month_average = cache.get(f"{RUNNING_AVERAGES_CACHE_PREFIX}_{request.user.pk}_90")
+    three_month_average = cache.get(f"{key_prefix}_90")
     if three_month_average is None:
         three_month_average = running_averages(request.user, today - datetime.timedelta(days=30 * 3))
-        cache.set(f"{RUNNING_AVERAGES_CACHE_PREFIX}_{request.user.pk}_90", three_month_average, 60 * 60)
+        cache.set(f"{key_prefix}_90", three_month_average, RUNNING_AVERAGES_CACHE_TIMEOUT)
 
-    six_month_average = cache.get(f"{RUNNING_AVERAGES_CACHE_PREFIX}_{request.user.pk}_180")
+    six_month_average = cache.get(f"{key_prefix}_180")
     if six_month_average is None:
         six_month_average = running_averages(request.user, today - datetime.timedelta(days=30 * 6))
-        cache.set(f"{RUNNING_AVERAGES_CACHE_PREFIX}_{request.user.pk}_180", six_month_average, 60 * 60)
+        cache.set(f"{key_prefix}_180", six_month_average, RUNNING_AVERAGES_CACHE_TIMEOUT)
 
-    one_year_average = cache.get(f"{RUNNING_AVERAGES_CACHE_PREFIX}_{request.user.pk}_365")
+    one_year_average = cache.get(f"{key_prefix}_365")
     if one_year_average is None:
         one_year_average = running_averages(request.user, today - datetime.timedelta(days=30 * 12))
-        cache.set(f"{RUNNING_AVERAGES_CACHE_PREFIX}_{request.user.pk}_365", one_year_average, 60 * 60)
+        cache.set(f"{key_prefix}_365", one_year_average, RUNNING_AVERAGES_CACHE_TIMEOUT)
 
     context = {
         'open_count': open_rots.count(),
