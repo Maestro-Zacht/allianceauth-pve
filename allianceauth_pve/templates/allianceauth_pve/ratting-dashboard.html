@@ -3,8 +3,6 @@
 
 {% block page_title %}PvE Dashboard{% endblock page_title %}
 
-{% block extra_css %}
-{% endblock extra_css %}
 
 {% block content %}
     <div class="col-lg-12">
@@ -126,7 +124,7 @@
                                     {% for npage in open_rots.paginator.page_range %}
                                         {% if npage == open_rots.number %}
                                             <li class="page-item active"><a href="?page_open={{ npage }}">{{ npage }}</a></li>
-                                        {% elif npage > open_rots.number|add:"-3" and npage < open_rots.number|add:"3" and npage != 1 and npage != open_rots.paginator.num_pages %}
+                                        {% elif npage > open_rots.number|add:"-6" and npage < open_rots.number|add:"6" and npage != 1 and npage != open_rots.paginator.num_pages %}
                                             <li class="page-item"><a href="?page_open={{ npage }}">{{ npage }}</a></li>
                                         {% endif %}
                                     {% endfor %}
@@ -162,7 +160,7 @@
                                     <tbody>
                                         {% for rotation in closed_rots %}
                                             <tr>
-                                                <td style="width: 25%;"><a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}">{{ rotation.name }}</a></td>
+                                                <td style="width: 25%;"><a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}">{{ rotation.pk }} - {{ rotation.name }}</a></td>
                                                 <td style="width: 25%;">{{ rotation.closed_at }}</td>
                                                 <td style="width: 25%;">{{ rotation.summary.count }}</td>
                                                 <td style="width: 25%;">{{ rotation.actual_total|floatformat|intcomma }}</td>
@@ -188,7 +186,7 @@
                                     {% for npage in closed_rots.paginator.page_range %}
                                         {% if npage == closed_rots.number %}
                                             <li class="page-item active"><a href="?page_closed={{ npage }}">{{ npage }}</a></li>
-                                        {% elif npage > closed_rots.number|add:'-3' and npage < closed_rots.number|add:'3' and npage != 1 and npage != closed_rots.paginator.num_pages %}
+                                        {% elif npage > closed_rots.number|add:'-6' and npage < closed_rots.number|add:'6' and npage != 1 and npage != closed_rots.paginator.num_pages %}
                                             <li class="page-item"><a href="?page_closed={{ npage }}">{{ npage }}</a></li>
                                         {% endif %}
                                     {% endfor %}
