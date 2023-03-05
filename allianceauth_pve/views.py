@@ -126,7 +126,14 @@ def rotation_view(request, rotation_id):
         character_id=F('user__profile__main_character__character_id'),
     )
 
-    summary_count_half = summary.count() // 2
+    summary_count_half = (
+        r
+        .entries
+        .aggregate(
+            res=Count('ratting_shares__user', distinct=True)
+        )['res']
+        // 2
+    )
 
     entries_paginator = Paginator(r.entries.order_by('-created_at'), 10)
     page = request.GET.get('page')
