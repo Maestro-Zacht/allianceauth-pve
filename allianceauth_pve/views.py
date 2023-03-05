@@ -27,6 +27,8 @@ logger = get_extension_logger(__name__)
 RUNNING_AVERAGES_CACHE_PREFIX = 'pve_running_averages'
 RUNNING_AVERAGES_CACHE_TIMEOUT = 60 * 60
 
+ROTATION_SUMMARY_CACHE_TIMEOUT = 60 * 60 * 24
+
 
 @login_required
 @permission_required('allianceauth_pve.access_pve')
@@ -117,30 +119,36 @@ def rotation_view(request, rotation_id):
     else:
         closeform = None
 
-    summary = r.summary.order_by('-estimated_total').values(
-        'user',
-        'helped_setups',
-        'estimated_total',
-        'actual_total',
-        character_name=F('user__profile__main_character__character_name'),
-        character_id=F('user__profile__main_character__character_id'),
-    )
+    summaries = cache.get(f"ratting_summary_{rotation_id}")
+    if summaries is None:
+        summary = r.summary.order_by('-estimated_total').values(
+            'user',
+            'helped_setups',
+            'estimated_total',
+            'actual_total',
+            character_name=F('user__profile__main_character__character_name'),
+            character_id=F('user__profile__main_character__character_id'),
+        )
 
-    summary_count_half = (
-        r
-        .entries
-        .aggregate(
-            res=Count('ratting_shares__user', distinct=True)
-        )['res']
-        // 2
-    )
+        summary_count_half = (
+            r
+            .entries
+            .aggregate(
+                res=Count('ratting_shares__user', distinct=True)
+            )['res']
+            // 2
+        )
+
+        summaries = [summary[:summary_count_half], summary[summary_count_half:]]
+
+        cache.set(f"ratting_summary_{rotation_id}", summaries, ROTATION_SUMMARY_CACHE_TIMEOUT)
 
     entries_paginator = Paginator(r.entries.order_by('-created_at'), 10)
     page = request.GET.get('page')
 
     context = {
         'rotation': r,
-        'summaries': [summary[:summary_count_half], summary[summary_count_half:]],
+        'summaries': summaries,
         'entries': entries_paginator.get_page(page),
         'closeform': closeform,
     }
@@ -263,6 +271,8 @@ def add_entry(request, rotation_id, entry_id=None):
 
             messages.success(request, 'Entry added successfully')
 
+            cache.delete(f"ratting_summary_{rotation_id}")
+
             return redirect('allianceauth_pve:rotation_view', rotation_id)
 
         else:
@@ -322,6 +332,8 @@ def delete_entry(request, entry_id):
 
     entry.delete()
     messages.success(request, "Entry deleted successfully")
+
+    cache.delete(f"ratting_summary_{rotation_id}")
 
     return redirect('allianceauth_pve:rotation_view', rotation_id)
 
