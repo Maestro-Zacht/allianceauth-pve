@@ -107,11 +107,12 @@ def rotation_view(request, rotation_id):
         closeform = CloseRotationForm(copied_data)
 
         if closeform.is_valid():
-            with transaction.atomic():
-                r.actual_total = closeform.cleaned_data['sales_value']
-                r.is_closed = True
-                r.closed_at = timezone.now()
-                r.save()
+            r.actual_total = closeform.cleaned_data['sales_value']
+            r.is_closed = True
+            r.closed_at = timezone.now()
+            r.save()
+
+            cache.delete(f"ratting_summary_{rotation_id}")
 
             closeform = None
     elif not r.is_closed:
@@ -119,8 +120,8 @@ def rotation_view(request, rotation_id):
     else:
         closeform = None
 
-    summaries = cache.get(f"ratting_summary_{rotation_id}")
-    if summaries is None:
+    summary = cache.get(f"ratting_summary_{rotation_id}")
+    if summary is None:
         summary = r.summary.order_by('-estimated_total').values(
             'user',
             'helped_setups',
@@ -130,25 +131,23 @@ def rotation_view(request, rotation_id):
             character_id=F('user__profile__main_character__character_id'),
         )
 
-        summary_count_half = (
-            r
-            .entries
-            .aggregate(
-                res=Count('ratting_shares__user', distinct=True)
-            )['res']
-            // 2
-        )
+        cache.set(f"ratting_summary_{rotation_id}", summary, ROTATION_SUMMARY_CACHE_TIMEOUT)
 
-        summaries = [summary[:summary_count_half], summary[summary_count_half:]]
-
-        cache.set(f"ratting_summary_{rotation_id}", summaries, ROTATION_SUMMARY_CACHE_TIMEOUT)
+    summary_count_half = (
+        r
+        .entries
+        .aggregate(
+            res=Count('ratting_shares__user', distinct=True)
+        )['res']
+        // 2
+    )
 
     entries_paginator = Paginator(r.entries.order_by('-created_at'), 10)
     page = request.GET.get('page')
 
     context = {
         'rotation': r,
-        'summaries': summaries,
+        'summaries': [summary[:summary_count_half], summary[summary_count_half:]],
         'entries': entries_paginator.get_page(page),
         'closeform': closeform,
     }
