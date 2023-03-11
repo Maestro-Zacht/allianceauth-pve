@@ -171,12 +171,15 @@ class TestEntry(TestCase):
             user=cls.testuser,
             user_character=cls.testcharacter,
             role=cls.role,
-            site_count=1,
+            site_count=2,
             helped_setup=False
         )
 
-    def test_total_shares_count(self):
-        self.assertEqual(self.entry.total_shares_count, 1)
+    def test_total_user_count(self):
+        self.assertEqual(self.entry.total_user_count, 1)
+
+    def test_total_site_count(self):
+        self.assertEqual(self.entry.total_site_count, 2)
 
     def test_estimated_total_after_tax(self):
         self.assertAlmostEqual(self.entry.estimated_total_after_tax, 900_000_000.0)

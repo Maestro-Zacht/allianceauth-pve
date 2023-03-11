@@ -193,8 +193,12 @@ class Entry(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     @property
-    def total_shares_count(self):
+    def total_user_count(self):
         return self.ratting_shares.aggregate(val=models.Count('user_id', distinct=True))['val']
+
+    @property
+    def total_site_count(self):
+        return self.ratting_shares.aggregate(val=models.Sum('site_count'))['val']
 
     @property
     def estimated_total_after_tax(self):
