@@ -38,11 +38,16 @@
 {% block content %}
     <div class="col-lg-12">
         <h1 class="page-header text-center">{{ rotation.name }}</h1>
-        {% if perms.allianceauth_pve.manage_rotations and not rotation.is_closed %}
-            <div style="text-align: right; margin-bottom: 10px;">
-                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#closeRotationModal">Close Rotation</button>
+        <div>
+            <div style="margin-bottom: 10px; margin-right: 10px; display: inline-block;">
+                <a href="{% url 'allianceauth_pve:dashboard' %}" class="btn btn-danger">Back</a>
             </div>
-        {% endif %}
+            {% if perms.allianceauth_pve.manage_rotations and not rotation.is_closed %}
+                <div style="margin-bottom: 10px; display: inline-block;">
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#closeRotationModal">Close Rotation</button>
+                </div>
+            {% endif %}
+        </div>
         <div class="panel panel-default">
             <div class="flex-center-horizontal">
                 <ul class="list-group list-group-horizontal" style="margin-bottom: 0;">
@@ -194,7 +199,6 @@
         {% if perms.allianceauth_pve.manage_entries and not rotation.is_closed %}
             <a href="{% url 'allianceauth_pve:new_entry' rotation.pk %}" class="float-button-pve" data-toggle="tooltip" data-placement="top" title="New Entry"><i class="fa fa-plus" style="margin-top:22px;"></i></a>
         {% endif %}
-        <a href="{% url 'allianceauth_pve:dashboard' %}" class="btn btn-danger" style="margin-bottom: 10px;">Back</a>
     </div>
 
     {% if perms.allianceauth_pve.manage_rotations and not rotation.is_closed %}
