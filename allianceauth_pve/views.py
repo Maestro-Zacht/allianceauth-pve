@@ -101,6 +101,8 @@ def dashboard(request):
 def rotation_view(request, rotation_id):
     r = get_object_or_404(Rotation, pk=rotation_id)
 
+    summary_cache_key = f"ratting_summary_{rotation_id}"
+
     if request.method == 'POST' and not r.is_closed and request.user.has_perm('allianceauth_pve.manage_rotations'):
         copied_data = request.POST.copy()
         copied_data['sales_value'] = copied_data['sales_value'].replace(',', '')
@@ -112,7 +114,7 @@ def rotation_view(request, rotation_id):
             r.closed_at = timezone.now()
             r.save()
 
-            cache.delete(f"ratting_summary_{rotation_id}")
+            cache.delete(summary_cache_key)
 
             closeform = None
     elif not r.is_closed:
@@ -120,7 +122,7 @@ def rotation_view(request, rotation_id):
     else:
         closeform = None
 
-    summary = cache.get(f"ratting_summary_{rotation_id}")
+    summary = cache.get(summary_cache_key)
     if summary is None:
         summary = r.summary.order_by('-estimated_total').values(
             'user',
@@ -131,7 +133,7 @@ def rotation_view(request, rotation_id):
             character_id=F('user__profile__main_character__character_id'),
         )
 
-        cache.set(f"ratting_summary_{rotation_id}", summary, ROTATION_SUMMARY_CACHE_TIMEOUT)
+        cache.set(summary_cache_key, summary, ROTATION_SUMMARY_CACHE_TIMEOUT)
 
     summary_count_half = (
         r
