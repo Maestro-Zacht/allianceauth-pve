@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.db.models.functions import Coalesce
 from django.core.validators import MinValueValidator, MaxValueValidator
 
@@ -18,13 +19,19 @@ class General(models.Model):
             ("access_pve", "Access PvE: Can access pve pages and be added in entries"),
             ('manage_entries', "Manage Entries: Can do CRUD operations with entries"),
             ("manage_rotations", "Manage Rotations: Can do CRUD operations with rotations"),
+            ('manage_funding_projects', 'Manage Funding Projects: Can do CRUD operations with funding projects'),
         )
 
 
 class RotationQueryset(models.QuerySet):
     def get_setup_summary(self):
-        return RotationSetupSummary.objects.filter(rotation__in=self).order_by().values('user')\
+        return (
+            RotationSetupSummary.objects
+            .filter(rotation__in=self)
+            .order_by()
+            .values('user')
             .annotate(total_setups=Coalesce(models.Sum('valid_setups'), 0))
+        )
 
 
 class RotationManager(models.Manager):
@@ -55,18 +62,35 @@ class EntryCharacterQueryset(models.QuerySet):
         )
 
         return self.annotate(
-            estimated_share_total=(
+            _share_total=(
                 models.F('entry__estimated_total') *
                 (100 - models.F('entry__rotation__tax_rate')) / 100 *
                 models.F('site_count') * models.F('role__value') /
                 models.Subquery(total_values)
             )
         ).annotate(
-            actual_share_total=models.Case(
-                models.When(entry__rotation__actual_total=0, then=0.0),
-                default=models.F('estimated_share_total') *
-                models.F('entry__rotation__actual_total') / models.Subquery(estimated_total)
+            estimated_share_total=models.Case(
+                models.When(
+                    entry__funding_project__isnull=True,
+                    then=models.F('_share_total')
+                ),
+                default=models.F('_share_total') * (100 - models.F('entry__funding_percentage')) / 100
             )
+        ).annotate(
+            estimated_funding_amount=models.Case(
+                models.When(
+                    entry__funding_project__isnull=True,
+                    then=0
+                ),
+                default=models.F('_share_total') - models.F('estimated_share_total')
+            )
+        ).annotate(
+            actual_share_total=models.F('estimated_share_total') *
+            models.F('entry__rotation__actual_total') / models.Subquery(estimated_total)
+
+        ).annotate(
+            actual_funding_amount=models.F('estimated_funding_amount') *
+            models.F('entry__rotation__actual_total') / models.Subquery(estimated_total)
         )
 
 
@@ -125,7 +149,6 @@ class Rotation(models.Model):
 
     tax_rate = models.FloatField(default=0, help_text='Tax rate in percentage')
     is_closed = models.BooleanField(default=False)
-    is_paid_out = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     closed_at = models.DateTimeField(blank=True, null=True)
@@ -188,6 +211,18 @@ class Entry(models.Model):
     rotation = models.ForeignKey(Rotation, on_delete=models.CASCADE, related_name='entries')
     estimated_total = models.PositiveBigIntegerField(default=0)
 
+    funding_project = models.ForeignKey(
+        'FundingProject',
+        on_delete=models.RESTRICT,
+        related_name='entries',
+        null=True,
+        blank=True
+    )
+    funding_percentage = models.PositiveSmallIntegerField(
+        default=0,
+        validators=[MinValueValidator(0), MaxValueValidator(100)]
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, related_name='+')
     updated_at = models.DateTimeField(auto_now=True)
@@ -249,4 +284,37 @@ class RotationSetupSummary(models.Model):
     class Meta:
         managed = False  # this is a view, check 0012
         db_table = 'allianceauth_pve_setup_summary'
+        default_permissions = ()
+
+
+class FundingProject(models.Model):
+    name = models.CharField(max_length=128)
+    goal = models.PositiveBigIntegerField(default=1)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+    @cached_property
+    def current_total(self):
+        return (
+            EntryCharacter.objects.filter(
+                entry__rotation__is_closed=True,
+                entry__funding_percentage__gt=0,
+                entry__funding_project=self
+            )
+            .with_totals()
+            .aggregate(
+                current_total=Coalesce(
+                    models.Sum('actual_funding_amount'),
+                    0
+                )
+            )['current_total']
+        )
+
+    @cached_property
+    def current_percentage(self):
+        return self.current_total / self.goal * 100
+
+    class Meta:
         default_permissions = ()

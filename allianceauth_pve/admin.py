@@ -5,8 +5,8 @@ from .models import Rotation, Entry, EntryCharacter, PveButton, RoleSetup, Gener
 
 @admin.register(Rotation)
 class RotationAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'priority', 'created_at', 'days_since', 'is_closed', 'closed_at', 'is_paid_out', )
-    list_filter = ('is_closed', 'is_paid_out', )
+    list_display = ('pk', 'name', 'priority', 'created_at', 'days_since', 'is_closed', 'closed_at', )
+    list_filter = ('is_closed', )
     search_fields = ('name', )
     readonly_fields = ('closed_at',)
 
