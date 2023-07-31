@@ -18,7 +18,7 @@ from allianceauth.services.hooks import get_extension_logger
 from allianceauth.authentication.models import CharacterOwnership
 
 from .models import Entry, EntryCharacter, Rotation, EntryRole, General, FundingProject
-from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm, NewRoleFormSet
+from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm, NewRoleFormSet, NewFundingProjectForm
 from .actions import running_averages, check_forms_valid
 
 logger = get_extension_logger(__name__)
@@ -367,3 +367,22 @@ def create_rotation(request):
 
 class EntryDetailView(DetailView):
     model = Entry
+
+
+def new_project_view(request):
+    if request.method == 'POST':
+        project_form = NewFundingProjectForm(request.POST)
+
+        if project_form.is_valid():
+            project_form.save()
+
+            messages.success(request, "Project created successfully")
+            return redirect('allianceauth_pve:dashboard')
+    else:
+        project_form = NewFundingProjectForm()
+
+    context = {
+        'form': project_form,
+    }
+
+    return render(request, 'allianceauth_pve/funding_project_create.html', context=context)

@@ -218,7 +218,7 @@
 
             <li>
                 <a data-toggle="tab" href="#closed_projects">
-                    Closed Projects
+                    Finished Projects
                 </a>
             </li>
         </ul>
@@ -256,7 +256,7 @@
                             {% endif %}
                         </div>
                         {% if perms.allianceauth_pve.manage_funding_projects or user.is_superuser %}
-                            <a href="#" class="btn btn-info">New Funding Project (TODO)</a>
+                            <a href="{% url 'allianceauth_pve:new_project' %}" class="btn btn-info">New Funding Project</a>
                         {% endif %}
                     </div>
 

@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
@@ -6,7 +7,7 @@ from allianceauth.services.hooks import get_extension_logger
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.authentication.models import CharacterOwnership
 
-from .models import Rotation
+from .models import Rotation, FundingProject
 
 logger = get_extension_logger(__name__)
 
@@ -93,3 +94,21 @@ class NewRotationForm(forms.ModelForm):
 
 class CloseRotationForm(forms.Form):
     sales_value = forms.IntegerField(min_value=1, required=True, widget=forms.TextInput(attrs={'class': 'localized-input'}))
+
+
+class FundingProjectNameField(forms.CharField):
+    def validate(self, value):
+        super().validate(value)
+        if FundingProject.objects.filter(name=value, is_active=True).exists():
+            raise ValidationError('Project name already exists!')
+
+
+class NewFundingProjectForm(forms.ModelForm):
+    class Meta:
+        model = FundingProject
+        fields = (
+            'name',
+            'goal',
+        )
+
+    name = FundingProjectNameField(required=True)

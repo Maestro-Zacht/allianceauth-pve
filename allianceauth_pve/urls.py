@@ -16,4 +16,5 @@ urlpatterns = [
     path('entry/<int:entry_id>/delete/', views.delete_entry, name='delete_entry'),
     path('ratters/', views.get_avaiable_ratters, name='all_ratters'),
     path('ratters/<str:name>/', views.get_avaiable_ratters, name='search_ratters'),
+    path('project/new/', views.new_project_view, name='new_project'),
 ]
