@@ -17,7 +17,7 @@ from django.core.cache import cache
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.authentication.models import CharacterOwnership
 
-from .models import Entry, EntryCharacter, Rotation, EntryRole, General
+from .models import Entry, EntryCharacter, Rotation, EntryRole, General, FundingProject
 from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm, NewRoleFormSet
 from .actions import running_averages, check_forms_valid
 
@@ -83,6 +83,9 @@ def dashboard(request):
         one_year_average = running_averages(request.user, today - datetime.timedelta(days=30 * 12))
         cache.set(f"{key_prefix}_365", one_year_average, RUNNING_AVERAGES_CACHE_TIMEOUT)
 
+    open_projects = FundingProject.objects.filter(is_active=True)
+    closed_projects = FundingProject.objects.filter(is_active=False)
+
     context = {
         'open_count': open_rots.count(),
         'open_rots': paginator_open.get_page(npage_open),
@@ -92,6 +95,8 @@ def dashboard(request):
         'threemonth': three_month_average,
         'sixmonth': six_month_average,
         'oneyear': one_year_average,
+        'open_projects': open_projects,
+        'closed_projects': closed_projects,
     }
     return render(request, 'allianceauth_pve/ratting-dashboard.html', context=context)
 
