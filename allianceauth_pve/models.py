@@ -80,9 +80,12 @@ class EntryCharacterQueryset(models.QuerySet):
             estimated_funding_amount=models.Case(
                 models.When(
                     entry__funding_project__isnull=True,
-                    then=0
+                    then=models.Value(0, output_field=models.PositiveBigIntegerField())
                 ),
-                default=models.F('_share_total') - models.F('estimated_share_total')
+                default=models.ExpressionWrapper(
+                    models.F('_share_total') - models.F('estimated_share_total'),
+                    output_field=models.PositiveBigIntegerField()
+                )
             )
         ).annotate(
             actual_share_total=models.F('estimated_share_total') *
@@ -292,6 +295,9 @@ class FundingProject(models.Model):
     goal = models.PositiveBigIntegerField(default=1)
     is_active = models.BooleanField(default=True)
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
     def __str__(self):
         return self.name
 
@@ -312,9 +318,17 @@ class FundingProject(models.Model):
             )['current_total']
         )
 
-    @cached_property
+    @property
     def current_percentage(self):
         return self.current_total / self.goal * 100
+
+    @property
+    def days_since(self):
+        return (timezone.now() - self.created_at).days
+
+    @property
+    def completed_in_days(self):
+        return None if self.completed_at is None else (self.completed_at - self.created_at).days
 
     class Meta:
         default_permissions = ()
