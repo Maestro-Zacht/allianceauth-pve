@@ -112,3 +112,4 @@ class NewFundingProjectForm(forms.ModelForm):
         )
 
     name = FundingProjectNameField(required=True)
+    goal = forms.IntegerField(min_value=1, required=True, widget=forms.TextInput(attrs={'class': 'localized-input'}))

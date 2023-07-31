@@ -371,7 +371,9 @@ class EntryDetailView(DetailView):
 
 def new_project_view(request):
     if request.method == 'POST':
-        project_form = NewFundingProjectForm(request.POST)
+        copied_data = request.POST.copy()
+        copied_data['goal'] = copied_data['goal'].replace(',', '')
+        project_form = NewFundingProjectForm(copied_data)
 
         if project_form.is_valid():
             project_form.save()
