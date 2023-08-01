@@ -327,7 +327,7 @@ class FundingProject(models.Model):
             )['current_total']
         )
 
-    @property
+    @cached_property
     def current_percentage(self):
         return self.current_total / self.goal * 100
 
