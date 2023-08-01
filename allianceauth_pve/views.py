@@ -407,7 +407,7 @@ class FundingProjectDetailView(DetailView):
 
 
 def toggle_complete_project(request, pk: int):
-    if not request.user.has_perms('allianceauth_pve.manage_funding_projects'):
+    if not request.user.has_perm('allianceauth_pve.manage_funding_projects'):
         messages.error(request, "You don't have the permission to do this.")
     else:
         funding_project = get_object_or_404(FundingProject, pk=pk)
