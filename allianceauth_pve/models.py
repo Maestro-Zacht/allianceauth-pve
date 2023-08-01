@@ -339,5 +339,28 @@ class FundingProject(models.Model):
     def completed_in_days(self):
         return None if self.completed_at is None else (self.completed_at - self.created_at).days
 
+    @cached_property
+    def num_participants(self) -> int:
+        return EntryCharacter.objects.filter(
+            entry__rotation__is_closed=True,
+            entry__funding_percentage__gt=0,
+            entry__funding_project=self
+        ).aggregate(
+            num=models.Count('user', distinct=True)
+        )['num']
+
+    @property
+    def summary(self):
+        return (
+            EntryCharacter.objects.filter(
+                entry__rotation__is_closed=True,
+                entry__funding_percentage__gt=0,
+                entry__funding_project=self
+            )
+            .with_totals().order_by()
+            .values('user')
+            .annotate(actual_total=models.Sum('actual_funding_amount'))
+        )
+
     class Meta:
         default_permissions = ()

@@ -381,3 +381,39 @@ def new_project_view(request):
     }
 
     return render(request, 'allianceauth_pve/funding_project_create.html', context=context)
+
+
+class FundingProjectDetailView(DetailView):
+    model = FundingProject
+    context_object_name = 'funding_project'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        funding_project: FundingProject = context['funding_project']
+
+        summary = funding_project.summary.order_by('-actual_total').values(
+            'user',
+            'actual_total',
+            character_name=F('user__profile__main_character__character_name'),
+            character_id=F('user__profile__main_character__character_id'),
+        )
+
+        count_half = funding_project.num_participants // 2 + funding_project.num_participants % 2
+
+        context['summaries'] = [summary[:count_half], summary[count_half:]]
+
+        return context
+
+
+def toggle_complete_project(request, pk: int):
+    if not request.user.has_perms('allianceauth_pve.manage_funding_projects'):
+        messages.error(request, "You don't have the permission to do this.")
+    else:
+        funding_project = get_object_or_404(FundingProject, pk=pk)
+        funding_project.is_active = not funding_project.is_active
+        funding_project.save()
+
+        messages.success(request, f"Project {'reopened' if funding_project.is_active else 'completed'}!")
+
+    return redirect('allianceauth_pve:project_detail', pk)
