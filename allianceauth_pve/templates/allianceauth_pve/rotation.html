@@ -4,35 +4,28 @@
 {% load bootstrap %}
 
 {% block page_title %}Rotation {{ rotation.name }}{% endblock page_title %}
-{% block extra_css %}
-{% if rotation.is_closed %}
-    <link rel="stylesheet" type="text/css" href="{% allianceauth_pve_static 'allianceauth_pve/css/copy_text.css' %}">
-    <link href="{% allianceauth_pve_static 'allianceauth_pve/css/spop.css' %}" rel="stylesheet" type="text/css">
-{% endif %}
-<style>
-    .row-pve {
-        display: flex;
-    }
-    
-    .column-pve {
-        flex: 50%;
-        padding: 10px;
-    }
 
-    .float-button-pve {
-        position:fixed;
-        width:60px;
-        height:60px;
-        bottom:20px;
-        right:40px;
-        background-color:#0C9;
-        color:#FFF;
-        border-radius:50px;
-        text-align:center;
-        padding:0;
-        margin:0;
-    }
-</style>
+{% block extra_css %}
+    {% if rotation.is_closed %}
+        <link rel="stylesheet" type="text/css" href="{% allianceauth_pve_static 'allianceauth_pve/css/copy_text.css' %}">
+        <link href="{% allianceauth_pve_static 'allianceauth_pve/css/spop.css' %}" rel="stylesheet" type="text/css">
+    {% endif %}
+    <link href="{% allianceauth_pve_static 'allianceauth_pve/css/double_table.css' %}" rel="stylesheet" type="text/css">
+    <style>
+        .float-button-pve {
+            position:fixed;
+            width:60px;
+            height:60px;
+            bottom:20px;
+            right:40px;
+            background-color:#0C9;
+            color:#FFF;
+            border-radius:50px;
+            text-align:center;
+            padding:0;
+            margin:0;
+        }
+    </style>
 {% endblock extra_css %}
 
 {% block content %}

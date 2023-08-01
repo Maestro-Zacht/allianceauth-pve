@@ -140,14 +140,7 @@ def rotation_view(request, rotation_id):
 
         cache.set(summary_cache_key, summary, ROTATION_SUMMARY_CACHE_TIMEOUT)
 
-    summary_count_half = (
-        r
-        .entries
-        .aggregate(
-            res=Count('ratting_shares__user', distinct=True)
-        )['res']
-        // 2
-    )
+    summary_count_half = r.num_participants // 2 + r.num_participants % 2
 
     entries_paginator = Paginator(r.entries.order_by('-created_at'), 10)
     page = request.GET.get('page')

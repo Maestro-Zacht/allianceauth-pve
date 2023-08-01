@@ -168,8 +168,8 @@ class Rotation(models.Model):
         setup_summary = Rotation.objects.filter(pk=self.pk).get_setup_summary().filter(user_id=models.OuterRef('user_id')).values('total_setups')
         return (
             EntryCharacter.objects.filter(entry__rotation=self)
-            .with_totals()
-            .values('user').order_by()
+            .with_totals().order_by()
+            .values('user')
             .annotate(helped_setups=Coalesce(models.Subquery(setup_summary[:1]), 0))
             .annotate(estimated_total=models.Sum('estimated_share_total'))
             .annotate(actual_total=models.Sum('actual_share_total'))
@@ -187,6 +187,15 @@ class Rotation(models.Model):
     @property
     def estimated_total(self):
         return self.entries.aggregate(estimated_total=Coalesce(models.Sum('estimated_total'), 0))['estimated_total']
+
+    @cached_property
+    def num_participants(self):
+        return (
+            EntryCharacter.objects
+            .filter(entry__rotation=self)
+            .aggregate(num=models.Count('user', distinct=True))
+            ['num']
+        )
 
     def __str__(self):
         return f'{self.pk} {self.name}'
