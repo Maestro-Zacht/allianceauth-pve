@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from django.contrib.auth.models import Permission
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.core.paginator import Paginator
@@ -383,9 +384,11 @@ def new_project_view(request):
     return render(request, 'allianceauth_pve/funding_project_create.html', context=context)
 
 
-class FundingProjectDetailView(DetailView):
+class FundingProjectDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = FundingProject
     context_object_name = 'funding_project'
+
+    permission_required = 'allianceauth_pve.manage_funding_projects'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -406,14 +409,13 @@ class FundingProjectDetailView(DetailView):
         return context
 
 
+@login_required
+@permission_required('allianceauth_pve.manage_funding_projects')
 def toggle_complete_project(request, pk: int):
-    if not request.user.has_perm('allianceauth_pve.manage_funding_projects'):
-        messages.error(request, "You don't have the permission to do this.")
-    else:
-        funding_project = get_object_or_404(FundingProject, pk=pk)
-        funding_project.is_active = not funding_project.is_active
-        funding_project.save()
+    funding_project = get_object_or_404(FundingProject, pk=pk)
+    funding_project.is_active = not funding_project.is_active
+    funding_project.save()
 
-        messages.success(request, f"Project {'reopened' if funding_project.is_active else 'completed'}!")
+    messages.success(request, f"Project {'reopened' if funding_project.is_active else 'completed'}!")
 
     return redirect('allianceauth_pve:project_detail', pk)
