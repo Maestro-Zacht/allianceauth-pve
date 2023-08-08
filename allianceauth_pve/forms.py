@@ -1,4 +1,3 @@
-from typing import Any, Dict
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
@@ -13,7 +12,27 @@ logger = get_extension_logger(__name__)
 
 
 class NewEntryForm(forms.Form):
-    estimated_total = forms.IntegerField(min_value=1, max_value=1000000000000, initial=0, required=True, widget=forms.TextInput(attrs={'style': 'width: 50%', 'class': 'localized-input', 'minvalue': 1, 'maxvalue': 1000000000000}))
+    estimated_total = forms.IntegerField(
+        min_value=1,
+        max_value=1000000000000,
+        initial=0,
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                'style': 'width: 50%',
+                'class': 'localized-input',
+                'minvalue': 1,
+                'maxvalue': 1000000000000
+            }
+        )
+    )
+
+    funding_project = forms.ModelChoiceField(
+        queryset=FundingProject.objects.filter(is_active=True),
+        required=False,
+        widget=forms.Select(attrs={'style': 'color: #000; width: 40%;'}),
+    )
+    funding_amount = forms.IntegerField(max_value=100, min_value=0, initial=0, label="Percentage")
 
 
 class NewRoleForm(forms.Form):

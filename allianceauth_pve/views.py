@@ -233,11 +233,15 @@ def add_entry(request, rotation_id, entry_id=None):
                     entry.ratting_shares.all().delete()
                     entry.roles.all().delete()
                     entry.estimated_total = entry_form.cleaned_data['estimated_total']
+                    entry.funding_project = entry_form.cleaned_data['funding_project']
+                    entry.funding_percentage = entry_form.cleaned_data['funding_amount']
                     entry.save()
                 else:
                     entry = Entry.objects.create(
                         rotation=rotation,
                         estimated_total=entry_form.cleaned_data['estimated_total'],
+                        funding_project=entry_form.cleaned_data['funding_project'],
+                        funding_percentage=entry_form.cleaned_data['funding_amount'],
                         created_by=request.user,
                     )
 
@@ -281,7 +285,11 @@ def add_entry(request, rotation_id, entry_id=None):
 
     else:
         if entry_id:
-            entry_form = NewEntryForm(initial={'estimated_total': entry.estimated_total})
+            entry_form = NewEntryForm(initial={
+                'estimated_total': entry.estimated_total,
+                'funding_project': entry.funding_project,
+                'funding_amount': entry.funding_percentage
+            })
             share_form = NewShareFormSet(initial=[
                 {
                     'user': share.user_id,
@@ -315,6 +323,7 @@ def add_entry(request, rotation_id, entry_id=None):
         'roleforms': role_form,
         'rotation': rotation,
         'rolessetups': rotation.roles_setups.alias(roles_num=Count('roles')).filter(roles_num__gt=0),
+        'show_funding_projects': FundingProject.objects.filter(is_active=True).exists(),
     }
 
     return render(request, 'allianceauth_pve/entry_form.html', context=context)

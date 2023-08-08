@@ -181,10 +181,9 @@ class Rotation(models.Model):
 
     @property
     def sales_percentage(self):
-        estimated = self.estimated_total
-        return 0.00 if not self.actual_total or estimated == 0 else self.actual_total / estimated
+        return 0.0 if not self.actual_total or self.estimated_total == 0 else self.actual_total / self.estimated_total
 
-    @property
+    @cached_property
     def estimated_total(self):
         return self.entries.aggregate(estimated_total=Coalesce(models.Sum('estimated_total'), 0))['estimated_total']
 
@@ -255,6 +254,14 @@ class Entry(models.Model):
     @property
     def actual_total_after_tax(self):
         return self.estimated_total_after_tax * self.rotation.sales_percentage
+
+    @cached_property
+    def estimated_funding_total(self):
+        return (
+            0
+            if self.funding_project is None or self.funding_percentage == 0
+            else self.ratting_shares.with_totals().aggregate(tot=models.Sum('estimated_funding_amount'))['tot']
+        )
 
     class Meta:
         default_permissions = ()
