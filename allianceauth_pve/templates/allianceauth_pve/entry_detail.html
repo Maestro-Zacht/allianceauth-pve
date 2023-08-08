@@ -30,6 +30,9 @@
                     <ul class="list-group list-group-horizontal" style="margin-bottom: 0;">
                         <li class="list-group-item text-center"><p>{{ entry.created_at|date:"d/m/Y G:i e" }}</p></li>
                         <li class="list-group-item text-center"><p>Users</p><p>{{ entry.total_user_count }}</p></li>
+                        {% if entry.funding_project and entry.funding_percentage > 0 %}
+                            <li class="list-group-item text-center"><p>Funding Project</p><p>{{ entry.funding_project }} ({{ entry.funding_percentage }}&percnt;)</p></li>
+                        {% endif %}
                         <li class="list-group-item text-center"><p>Total After Tax</p><p>{{ entry.estimated_total_after_tax|floatformat|intcomma }}</p></li>
                         <li class="list-group-item text-center"><p>Total</p><p>{{ entry.estimated_total|intcomma }}</p></li>
                         <li class="list-group-item text-center">
@@ -82,6 +85,9 @@
                             <th>Helped Setups</th>
                             <th>Count</th>
                             <th>Share Total</th>
+                            {% if entry.funding_project and entry.funding_percentage > 0 %}
+                                <th>Estimated Project Contribution</th>
+                            {% endif %}
                         </tr>
                     </thead>
 
@@ -106,6 +112,9 @@
                                 </td>
                                 <td>{{ share.site_count }}</td>
                                 <td>{{ share.estimated_share_total|floatformat|intcomma }}</td>
+                                {% if entry.funding_project and entry.funding_percentage > 0 %}
+                                    <td>{{ share.estimated_funding_amount|intcomma }}</td>
+                                {% endif %}
                             </tr>
                         {% endfor %}
                     </tbody>
