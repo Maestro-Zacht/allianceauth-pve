@@ -29,6 +29,7 @@ RUNNING_AVERAGES_CACHE_PREFIX = 'pve_running_averages'
 RUNNING_AVERAGES_CACHE_TIMEOUT = 60 * 60
 
 ROTATION_SUMMARY_CACHE_TIMEOUT = 60 * 60 * 24
+FUNDING_PROJECT_CACHE_TIMEOUT = ROTATION_SUMMARY_CACHE_TIMEOUT * 7
 
 
 @login_required
@@ -121,6 +122,9 @@ def rotation_view(request, rotation_id):
             r.save()
 
             cache.delete(summary_cache_key)
+            cache.delete_many(
+                (f"project_summary_{pk}" for pk in FundingProject.objects.affected_by(r).values_list('pk', flat=True))
+            )
 
             closeform = None
     elif not r.is_closed:
@@ -368,8 +372,9 @@ def create_rotation(request):
     return render(request, 'allianceauth_pve/rotation_create.html', context=context)
 
 
-class EntryDetailView(DetailView):
+class EntryDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = Entry
+    permission_required = 'allianceauth_pve.access_pve'
 
 
 def new_project_view(request):
@@ -397,19 +402,22 @@ class FundingProjectDetailView(LoginRequiredMixin, PermissionRequiredMixin, Deta
     model = FundingProject
     context_object_name = 'funding_project'
 
-    permission_required = 'allianceauth_pve.manage_funding_projects'
+    permission_required = 'allianceauth_pve.access_pve'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         funding_project: FundingProject = context['funding_project']
 
-        summary = funding_project.summary.order_by('-actual_total').values(
-            'user',
-            'actual_total',
-            character_name=F('user__profile__main_character__character_name'),
-            character_id=F('user__profile__main_character__character_id'),
-        )
+        summary = cache.get(f"project_summary_{funding_project.pk}")
+        if summary is None:
+            summary = funding_project.summary.order_by('-actual_total').values(
+                'user',
+                'actual_total',
+                character_name=F('user__profile__main_character__character_name'),
+                character_id=F('user__profile__main_character__character_id'),
+            )
+            cache.set(f"project_summary_{funding_project.pk}", summary, FUNDING_PROJECT_CACHE_TIMEOUT)
 
         count_half = funding_project.num_participants // 2 + funding_project.num_participants % 2
 
@@ -423,6 +431,11 @@ class FundingProjectDetailView(LoginRequiredMixin, PermissionRequiredMixin, Deta
 def toggle_complete_project(request, pk: int):
     funding_project = get_object_or_404(FundingProject, pk=pk)
     funding_project.is_active = not funding_project.is_active
+    if funding_project.is_active:
+        funding_project.completed_at = None
+    else:
+        funding_project.completed_at = timezone.now()
+
     funding_project.save()
 
     messages.success(request, f"Project {'reopened' if funding_project.is_active else 'completed'}!")

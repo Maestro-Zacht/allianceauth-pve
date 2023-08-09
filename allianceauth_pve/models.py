@@ -96,6 +96,13 @@ class EntryCharacterQueryset(models.QuerySet):
             models.F('entry__rotation__actual_total') / models.Subquery(estimated_total)
         )
 
+    def with_contributions_to(self, funding_project):
+        return self.filter(
+            entry__rotation__is_closed=True,
+            entry__funding_percentage__gt=0,
+            entry__funding_project=funding_project
+        )
+
 
 class EntryCharacterManager(models.Manager):
     def get_queryset(self):
@@ -103,6 +110,9 @@ class EntryCharacterManager(models.Manager):
 
     def with_totals(self):
         return self.get_queryset().with_totals()
+
+    def with_contributions_to(self, funding_project):
+        return self.get_queryset().with_contributions_to(funding_project)
 
 
 class PveButton(models.Model):
@@ -238,20 +248,20 @@ class Entry(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, related_name='+')
     updated_at = models.DateTimeField(auto_now=True)
 
-    @property
+    @cached_property
     def total_user_count(self):
         return self.ratting_shares.aggregate(val=models.Count('user_id', distinct=True))['val']
 
-    @property
+    @cached_property
     def total_site_count(self):
         return self.ratting_shares.aggregate(val=models.Sum('site_count'))['val']
 
-    @property
+    @cached_property
     def estimated_total_after_tax(self):
         tax_perc = (100 - self.rotation.tax_rate) / 100
         return self.estimated_total * tax_perc
 
-    @property
+    @cached_property
     def actual_total_after_tax(self):
         return self.estimated_total_after_tax * self.rotation.sales_percentage
 
@@ -278,7 +288,7 @@ class EntryRole(models.Model):
     def __str__(self) -> str:
         return self.name
 
-    @property
+    @cached_property
     def approximate_percentage(self):
         return self.value * 100 / (
             EntryRole.objects
@@ -306,6 +316,25 @@ class RotationSetupSummary(models.Model):
         default_permissions = ()
 
 
+class FundingProjectQueryset(models.QuerySet):
+    def affected_by(self, rotation: Rotation):
+        return self.filter(
+            models.Exists(Entry.objects.filter(
+                funding_project_id=models.OuterRef('pk'),
+                rotation=rotation,
+                funding_percentage__gt=0,
+            ))
+        )
+
+
+class FundingProjectManager(models.Manager):
+    def get_queryset(self):
+        return FundingProjectQueryset(self.model, using=self._db)
+
+    def affected_by(self, rotation: Rotation):
+        return self.get_queryset().affected_by(rotation)
+
+
 class FundingProject(models.Model):
     name = models.CharField(max_length=128)
     goal = models.PositiveBigIntegerField(default=1)
@@ -314,17 +343,16 @@ class FundingProject(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
 
+    objects = FundingProjectManager()
+
     def __str__(self):
         return self.name
 
     @cached_property
     def current_total(self):
         return (
-            EntryCharacter.objects.filter(
-                entry__rotation__is_closed=True,
-                entry__funding_percentage__gt=0,
-                entry__funding_project=self
-            )
+            EntryCharacter.objects
+            .with_contributions_to(self)
             .with_totals()
             .aggregate(
                 current_total=Coalesce(
@@ -348,23 +376,17 @@ class FundingProject(models.Model):
 
     @cached_property
     def num_participants(self) -> int:
-        return EntryCharacter.objects.filter(
-            entry__rotation__is_closed=True,
-            entry__funding_percentage__gt=0,
-            entry__funding_project=self
-        ).aggregate(
+        return EntryCharacter.objects.with_contributions_to(self).aggregate(
             num=models.Count('user', distinct=True)
         )['num']
 
     @property
     def summary(self):
         return (
-            EntryCharacter.objects.filter(
-                entry__rotation__is_closed=True,
-                entry__funding_percentage__gt=0,
-                entry__funding_project=self
-            )
-            .with_totals().order_by()
+            EntryCharacter.objects
+            .with_contributions_to(self)
+            .with_totals()
+            .order_by()
             .values('user')
             .annotate(actual_total=models.Sum('actual_funding_amount'))
         )
