@@ -496,7 +496,9 @@ class TestAddEntryView(TestCase):
             'form-1-user': self.testuser2.pk,
             'form-1-character': self.testcharacter2.pk,
             'form-1-role': 'Krab',
-            'form-1-site_count': '0'
+            'form-1-site_count': '0',
+            'funding_project': '',
+            'funding_amount': '0',
         }
 
         response = self.client.post(reverse('allianceauth_pve:new_entry', args=[self.rotation.pk]), form_data)
@@ -531,7 +533,9 @@ class TestAddEntryView(TestCase):
             'form-1-user': self.testuser2.pk,
             'form-1-character': self.testcharacter2.pk,
             'form-1-role': 'Krab',
-            'form-1-site_count': '1'
+            'form-1-site_count': '1',
+            'funding_project': '',
+            'funding_amount': '0',
         }
 
         response = self.client.post(reverse('allianceauth_pve:new_entry', args=[self.rotation.pk]), form_data)
@@ -581,7 +585,9 @@ class TestAddEntryView(TestCase):
             'form-1-user': self.testuser2.pk,
             'form-1-character': self.testcharacter2.pk,
             'form-1-role': 'Krabs',
-            'form-1-site_count': '1'
+            'form-1-site_count': '1',
+            'funding_project': '',
+            'funding_amount': '0',
         }
 
         response = self.client.post(reverse('allianceauth_pve:edit_entry', args=[self.rotation.pk, self.entry.pk]), form_data)
