@@ -67,6 +67,15 @@ When the loot is sold, a person with the right permission (see [below](#permissi
 
 You can see all the closed rotations from the dashboard.
 
+Funding Projects
+----------------
+
+In the dashboard, there is a section for funding projects. People with the appropriate permission (see [below](#permissions)) can create projects and add them to the list. When adding entries, an active funding project can be selected with a percentage of the entry to be added to the project. The money will be added to the project total once the rotation is closed.
+
+In each project page, there is a list of the people who have contributed to the project and the total amount of money they have contributed and the current completion percentage of the project.
+
+Projects need to be closed manually by people with the appropriate permission and they will not appear during entry creation.
+
 Closed Rotation
 ---------------
 
@@ -116,6 +125,7 @@ The following permissions are provided:
 1. `access_pve`: only users with this permission can see the tool and be added in entries.
 2. `manage_entries`: only users with this permissions can create entries.
 3. `manage_rotations`: only users with this permissions can create and close rotations.
+4. `manage_funding_projects`: only users with this permissions can create and close funding projects.
 
 You'll have to assign this permissions to desired groups/states to make the tool work.
 
