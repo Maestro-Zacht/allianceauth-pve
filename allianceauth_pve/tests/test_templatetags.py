@@ -110,6 +110,20 @@ class TestGetCharAttrFilter(TestCase):
         self.assertEqual(res, '')
 
 
+class TestMinValueFilter(SimpleTestCase):
+
+    def test_min_value(self):
+        context = Context({"value1": 1, "value2": 2})
+        template_to_render = Template(
+            "{% load pvefilters %}"
+            "{% min_value value1 value2 %}"
+        )
+
+        rendered_template = template_to_render.render(context)
+
+        self.assertEqual("1", rendered_template)
+
+
 class TestPvEVersionedStatic(SimpleTestCase):
     """
     Tests for allianceauth_pve_versioned_static template tag
