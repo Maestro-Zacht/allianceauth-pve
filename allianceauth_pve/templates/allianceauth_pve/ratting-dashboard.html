@@ -138,6 +138,10 @@
                                 </ul>
                             </div>
                         {% endif %}
+
+                        {% if perms.allianceauth_pve.manage_rotations or user.is_superuser %}
+                            <a href="{% url 'allianceauth_pve:new_rotation' %}" class="btn btn-info">New Rotation</a>
+                        {% endif %}
                     </div>
 
                     {% if is_closed_param %}
@@ -204,8 +208,89 @@
                 </div>
             </div>
         </div>
-        {% if perms.allianceauth_pve.manage_rotations or user.is_superuser %}
-            <a href="{% url 'allianceauth_pve:new_rotation' %}" class="btn btn-info">New Rotation</a>
-        {% endif %}
+
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a data-toggle="tab" href="#active_projects">
+                    Active Projects
+                </a>
+            </li>
+
+            <li>
+                <a data-toggle="tab" href="#closed_projects">
+                    Finished Projects
+                </a>
+            </li>
+        </ul>
+        <div class="panel panel-default panel-tabs-aa">
+            <div class="panel-body">
+                <div class="tab-content">
+                    <div id="active_projects" class="tab-pane active">
+                        <div class="table-responsive">
+                            {% if open_projects.count > 0 %}
+                                <table class="table table-aa">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 20%;">Name</th>
+                                            <th style="width: 20%;">Age (days)</th>
+                                            <th style="width: 20%;">Current Total</th>
+                                            <th style="width: 20%;">Goal</th>
+                                            <th style="width: 20%;">Completion</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for project in open_projects %}
+                                            <tr>
+                                                <td style="width: 20%;"><a href="{% url 'allianceauth_pve:project_detail' project.pk %}">{{ project.name }}</a></td>
+                                                <td style="width: 20%;">{{ project.days_since }}</td>
+                                                <td style="width: 20%;">{{ project.current_total|intcomma }}</td>
+                                                <td style="width: 20%;">{{ project.goal|intcomma }}</td>
+                                                <td style="width: 20%;">{{ project.current_percentage|floatformat }} %</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <div class="alert alert-warning text-center">No active projects</div>
+                            {% endif %}
+                        </div>
+                        {% if perms.allianceauth_pve.manage_funding_projects or user.is_superuser %}
+                            <a href="{% url 'allianceauth_pve:new_project' %}" class="btn btn-info">New Funding Project</a>
+                        {% endif %}
+                    </div>
+
+                    <div id="closed_projects" class="tab-pane">
+                        <div class="table-responsive">
+                            {% if closed_projects.count > 0 %}
+                                <table class="table table-aa">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 25%;">Name</th>
+                                            <th style="width: 25%;">Completed in (days)</th>
+                                            <th style="width: 25%;">Goal</th>
+                                            <th style="width: 25%;">Actual total</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for project in closed_projects %}
+                                            <tr>
+                                                <td style="width: 25%;"><a href="{% url 'allianceauth_pve:project_detail' project.pk %}">{{ project.name }}</a></td>
+                                                <td style="width: 25%;">{{ project.completed_in_days }}</td>
+                                                <td style="width: 25%;">{{ project.goal|intcomma }}</td>
+                                                <td style="width: 25%;">{{ project.current_total|intcomma }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <div class="alert alert-warning text-center">No closed projects</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock content %}

@@ -1,12 +1,12 @@
 from django.contrib import admin
 
-from .models import Rotation, Entry, EntryCharacter, PveButton, RoleSetup, GeneralRole
+from .models import Rotation, Entry, EntryCharacter, PveButton, RoleSetup, GeneralRole, FundingProject
 
 
 @admin.register(Rotation)
 class RotationAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'priority', 'created_at', 'days_since', 'is_closed', 'closed_at', 'is_paid_out', )
-    list_filter = ('is_closed', 'is_paid_out', )
+    list_display = ('pk', 'name', 'priority', 'created_at', 'days_since', 'is_closed', 'closed_at', )
+    list_filter = ('is_closed', )
     search_fields = ('name', )
     readonly_fields = ('closed_at',)
 
@@ -57,3 +57,11 @@ class RoleSetupAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name', 'roles__name',)
     inlines = (GeneralRoleInline,)
+
+
+@admin.register(FundingProject)
+class FundingProjectAdmin(admin.ModelAdmin):
+    list_display = ('name', 'goal', 'is_active', 'created_at', 'completed_at',)
+    search_fields = ('name',)
+    list_filter = ('is_active',)
+    readonly_fields = ('completed_at',)

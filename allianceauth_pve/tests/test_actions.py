@@ -88,7 +88,9 @@ class TestCheckFormsValid(TestCase):
             'form-0-user': cls.testuser.pk,
             'form-0-character': cls.testcharacter.pk,
             'form-0-role': 'Krab',
-            'form-0-site_count': '1'
+            'form-0-site_count': '1',
+            'funding_project': '',
+            'funding_amount': '0',
         }
 
     def get_forms(self):

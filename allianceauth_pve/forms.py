@@ -6,13 +6,33 @@ from allianceauth.services.hooks import get_extension_logger
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.authentication.models import CharacterOwnership
 
-from .models import Rotation
+from .models import Rotation, FundingProject
 
 logger = get_extension_logger(__name__)
 
 
 class NewEntryForm(forms.Form):
-    estimated_total = forms.IntegerField(min_value=1, max_value=1000000000000, initial=0, required=True, widget=forms.TextInput(attrs={'style': 'width: 50%', 'class': 'localized-input', 'minvalue': 1, 'maxvalue': 1000000000000}))
+    estimated_total = forms.IntegerField(
+        min_value=1,
+        max_value=1000000000000,
+        initial=0,
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                'style': 'width: 50%',
+                'class': 'localized-input',
+                'minvalue': 1,
+                'maxvalue': 1000000000000
+            }
+        )
+    )
+
+    funding_project = forms.ModelChoiceField(
+        queryset=FundingProject.objects.filter(is_active=True),
+        required=False,
+        widget=forms.Select(attrs={'style': 'color: #000; width: 40%;'}),
+    )
+    funding_amount = forms.IntegerField(max_value=100, min_value=0, initial=0, label="Percentage")
 
 
 class NewRoleForm(forms.Form):
@@ -93,3 +113,22 @@ class NewRotationForm(forms.ModelForm):
 
 class CloseRotationForm(forms.Form):
     sales_value = forms.IntegerField(min_value=1, required=True, widget=forms.TextInput(attrs={'class': 'localized-input'}))
+
+
+class FundingProjectNameField(forms.CharField):
+    def validate(self, value):
+        super().validate(value)
+        if FundingProject.objects.filter(name=value, is_active=True).exists():
+            raise ValidationError('Project name already exists!')
+
+
+class NewFundingProjectForm(forms.ModelForm):
+    class Meta:
+        model = FundingProject
+        fields = (
+            'name',
+            'goal',
+        )
+
+    name = FundingProjectNameField(required=True)
+    goal = forms.IntegerField(min_value=1, required=True, widget=forms.TextInput(attrs={'class': 'localized-input'}))

@@ -3,7 +3,8 @@ from django.test import SimpleTestCase, TestCase
 from allianceauth.tests.auth_utils import AuthUtils
 from allianceauth.authentication.models import CharacterOwnership
 
-from ..forms import NewRoleFormSet, NewShareFormSet
+from ..forms import NewRoleFormSet, NewShareFormSet, NewFundingProjectForm
+from ..models import FundingProject
 
 
 class TestNewRoleFormSet(SimpleTestCase):
@@ -230,3 +231,30 @@ class TestNewShareFormset(TestCase):
             form.fields['role'].choices = roles_choices
 
         self.assertFalse(new_share_form.is_valid())
+
+
+class TestNewFundingProjectForm(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.project = FundingProject.objects.create(name='Test Project', goal=1000)
+
+    def test_valid(self):
+        valid_data = {
+            'name': 'Test Project 2',
+            'goal': 1000
+        }
+
+        new_project_form = NewFundingProjectForm(valid_data)
+
+        self.assertTrue(new_project_form.is_valid())
+
+    def test_name_invalid(self):
+        invalid_data = {
+            'name': 'Test Project',
+            'goal': 1000
+        }
+
+        new_project_form = NewFundingProjectForm(invalid_data)
+
+        self.assertFalse(new_project_form.is_valid())

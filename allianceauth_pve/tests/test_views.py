@@ -9,7 +9,7 @@ from allianceauth.tests.auth_utils import AuthUtils
 from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.eveonline.models import EveCharacter
 
-from ..models import Rotation, Entry, EntryCharacter, EntryRole
+from ..models import Rotation, Entry, EntryCharacter, EntryRole, FundingProject
 from ..views import RUNNING_AVERAGES_CACHE_PREFIX
 
 
@@ -496,7 +496,9 @@ class TestAddEntryView(TestCase):
             'form-1-user': self.testuser2.pk,
             'form-1-character': self.testcharacter2.pk,
             'form-1-role': 'Krab',
-            'form-1-site_count': '0'
+            'form-1-site_count': '0',
+            'funding_project': '',
+            'funding_amount': '0',
         }
 
         response = self.client.post(reverse('allianceauth_pve:new_entry', args=[self.rotation.pk]), form_data)
@@ -531,7 +533,9 @@ class TestAddEntryView(TestCase):
             'form-1-user': self.testuser2.pk,
             'form-1-character': self.testcharacter2.pk,
             'form-1-role': 'Krab',
-            'form-1-site_count': '1'
+            'form-1-site_count': '1',
+            'funding_project': '',
+            'funding_amount': '0',
         }
 
         response = self.client.post(reverse('allianceauth_pve:new_entry', args=[self.rotation.pk]), form_data)
@@ -581,7 +585,9 @@ class TestAddEntryView(TestCase):
             'form-1-user': self.testuser2.pk,
             'form-1-character': self.testcharacter2.pk,
             'form-1-role': 'Krabs',
-            'form-1-site_count': '1'
+            'form-1-site_count': '1',
+            'funding_project': '',
+            'funding_amount': '0',
         }
 
         response = self.client.post(reverse('allianceauth_pve:edit_entry', args=[self.rotation.pk, self.entry.pk]), form_data)
@@ -711,3 +717,116 @@ class TestCreateRotationView(TestCase):
         response = self.client.post(reverse('allianceauth_pve:new_rotation'), form_data)
 
         self.assertTemplateUsed(response, 'allianceauth_pve/rotation_create.html')
+
+
+class TestNewProjectView(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.testuser = AuthUtils.create_user('aauth_testuser')
+        cls.testcharacter = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar', 2116790529)
+
+        cls.testuser = AuthUtils.add_permissions_to_user_by_name(['allianceauth_pve.access_pve', 'allianceauth_pve.manage_funding_projects'], cls.testuser)
+
+    def test_get(self):
+        self.client.force_login(self.testuser)
+
+        response = self.client.get(reverse('allianceauth_pve:new_project'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'allianceauth_pve/funding_project_create.html')
+
+    def test_post_success(self):
+        self.client.force_login(self.testuser)
+
+        form_data = {
+            'name': 'testproj1',
+            'goal': '1000000000',
+        }
+
+        response = self.client.post(reverse('allianceauth_pve:new_project'), form_data)
+
+        self.assertEqual(FundingProject.objects.count(), 1)
+
+        self.assertRedirects(response, reverse('allianceauth_pve:dashboard'))
+
+    def test_post_invalid(self):
+        self.client.force_login(self.testuser)
+
+        form_data = {
+            'name': 'testproj1',
+            'goal': '-1000000000',
+        }
+
+        response = self.client.post(reverse('allianceauth_pve:new_project'), form_data)
+
+        self.assertTemplateUsed(response, 'allianceauth_pve/funding_project_create.html')
+
+
+class TestFundingProjectDetailView(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.testuser = AuthUtils.create_user('aauth_testuser')
+        cls.testcharacter = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar', 2116790529)
+
+        cls.testuser = AuthUtils.add_permissions_to_user_by_name(['allianceauth_pve.access_pve'], cls.testuser)
+
+        cls.project = FundingProject.objects.create(name='testproj1', goal=1_000_000_000)
+
+    def test_context(self):
+        self.client.force_login(self.testuser)
+
+        self.assertFalse(cache.has_key(f"project_summary_{self.project.pk}"))
+
+        response = self.client.get(reverse('allianceauth_pve:project_detail', args=[self.project.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'allianceauth_pve/fundingproject_detail.html')
+
+        self.assertIn('summaries', response.context)
+
+        self.assertTrue(cache.has_key(f"project_summary_{self.project.pk}"))
+
+        with patch('allianceauth_pve.models.FundingProject.summary') as mock_summary:
+            response = self.client.get(reverse('allianceauth_pve:project_detail', args=[self.project.pk]))
+
+            self.assertEqual(response.status_code, 200)
+            self.assertFalse(mock_summary.called)
+
+
+class TestToggleCompleteProjectView(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.testuser = AuthUtils.create_user('aauth_testuser')
+        cls.testcharacter = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar', 2116790529)
+
+        cls.testuser = AuthUtils.add_permissions_to_user_by_name(['allianceauth_pve.access_pve', 'allianceauth_pve.manage_funding_projects'], cls.testuser)
+
+        cls.project: FundingProject = FundingProject.objects.create(name='testproj1', goal=1_000_000_000)
+
+    def test_close(self):
+        self.client.force_login(self.testuser)
+
+        response = self.client.get(reverse('allianceauth_pve:project_toggle_complete', args=[self.project.pk]))
+
+        self.assertRedirects(response, reverse('allianceauth_pve:project_detail', args=[self.project.pk]))
+
+        self.project.refresh_from_db()
+
+        self.assertFalse(self.project.is_active)
+
+    def test_open(self):
+        self.project.is_active = False
+        self.project.save()
+
+        self.client.force_login(self.testuser)
+
+        response = self.client.get(reverse('allianceauth_pve:project_toggle_complete', args=[self.project.pk]))
+
+        self.assertRedirects(response, reverse('allianceauth_pve:project_detail', args=[self.project.pk]))
+
+        self.project.refresh_from_db()
+
+        self.assertTrue(self.project.is_active)

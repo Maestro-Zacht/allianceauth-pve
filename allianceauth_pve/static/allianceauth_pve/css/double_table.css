@@ -1,0 +1,8 @@
+.row-pve {
+    display: flex;
+}
+
+.column-pve {
+    flex: 50%;
+    padding: 10px;
+}

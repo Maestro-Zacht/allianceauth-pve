@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from django.contrib.auth.models import Permission
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.core.paginator import Paginator
@@ -17,8 +18,8 @@ from django.core.cache import cache
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.authentication.models import CharacterOwnership
 
-from .models import Entry, EntryCharacter, Rotation, EntryRole, General
-from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm, NewRoleFormSet
+from .models import Entry, EntryCharacter, Rotation, EntryRole, General, FundingProject
+from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm, NewRoleFormSet, NewFundingProjectForm
 from .actions import running_averages, check_forms_valid
 
 logger = get_extension_logger(__name__)
@@ -28,6 +29,7 @@ RUNNING_AVERAGES_CACHE_PREFIX = 'pve_running_averages'
 RUNNING_AVERAGES_CACHE_TIMEOUT = 60 * 60
 
 ROTATION_SUMMARY_CACHE_TIMEOUT = 60 * 60 * 24
+FUNDING_PROJECT_CACHE_TIMEOUT = ROTATION_SUMMARY_CACHE_TIMEOUT * 7
 
 
 @login_required
@@ -83,6 +85,9 @@ def dashboard(request):
         one_year_average = running_averages(request.user, today - datetime.timedelta(days=30 * 12))
         cache.set(f"{key_prefix}_365", one_year_average, RUNNING_AVERAGES_CACHE_TIMEOUT)
 
+    open_projects = FundingProject.objects.filter(is_active=True)
+    closed_projects = FundingProject.objects.filter(is_active=False)
+
     context = {
         'open_count': open_rots.count(),
         'open_rots': paginator_open.get_page(npage_open),
@@ -92,6 +97,8 @@ def dashboard(request):
         'threemonth': three_month_average,
         'sixmonth': six_month_average,
         'oneyear': one_year_average,
+        'open_projects': open_projects,
+        'closed_projects': closed_projects,
     }
     return render(request, 'allianceauth_pve/ratting-dashboard.html', context=context)
 
@@ -115,6 +122,9 @@ def rotation_view(request, rotation_id):
             r.save()
 
             cache.delete(summary_cache_key)
+            cache.delete_many(
+                (f"project_summary_{pk}" for pk in FundingProject.objects.affected_by(r).values_list('pk', flat=True))
+            )
 
             closeform = None
     elif not r.is_closed:
@@ -135,14 +145,7 @@ def rotation_view(request, rotation_id):
 
         cache.set(summary_cache_key, summary, ROTATION_SUMMARY_CACHE_TIMEOUT)
 
-    summary_count_half = (
-        r
-        .entries
-        .aggregate(
-            res=Count('ratting_shares__user', distinct=True)
-        )['res']
-        // 2
-    )
+    summary_count_half = r.num_participants // 2 + r.num_participants % 2
 
     entries_paginator = Paginator(r.entries.order_by('-created_at'), 10)
     page = request.GET.get('page')
@@ -234,11 +237,15 @@ def add_entry(request, rotation_id, entry_id=None):
                     entry.ratting_shares.all().delete()
                     entry.roles.all().delete()
                     entry.estimated_total = entry_form.cleaned_data['estimated_total']
+                    entry.funding_project = entry_form.cleaned_data['funding_project']
+                    entry.funding_percentage = entry_form.cleaned_data['funding_amount']
                     entry.save()
                 else:
                     entry = Entry.objects.create(
                         rotation=rotation,
                         estimated_total=entry_form.cleaned_data['estimated_total'],
+                        funding_project=entry_form.cleaned_data['funding_project'],
+                        funding_percentage=entry_form.cleaned_data['funding_amount'],
                         created_by=request.user,
                     )
 
@@ -282,7 +289,11 @@ def add_entry(request, rotation_id, entry_id=None):
 
     else:
         if entry_id:
-            entry_form = NewEntryForm(initial={'estimated_total': entry.estimated_total})
+            entry_form = NewEntryForm(initial={
+                'estimated_total': entry.estimated_total,
+                'funding_project': entry.funding_project,
+                'funding_amount': entry.funding_percentage
+            })
             share_form = NewShareFormSet(initial=[
                 {
                     'user': share.user_id,
@@ -316,6 +327,7 @@ def add_entry(request, rotation_id, entry_id=None):
         'roleforms': role_form,
         'rotation': rotation,
         'rolessetups': rotation.roles_setups.alias(roles_num=Count('roles')).filter(roles_num__gt=0),
+        'show_funding_projects': FundingProject.objects.filter(is_active=True).exists(),
     }
 
     return render(request, 'allianceauth_pve/entry_form.html', context=context)
@@ -360,5 +372,72 @@ def create_rotation(request):
     return render(request, 'allianceauth_pve/rotation_create.html', context=context)
 
 
-class EntryDetailView(DetailView):
+class EntryDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = Entry
+    permission_required = 'allianceauth_pve.access_pve'
+
+
+def new_project_view(request):
+    if request.method == 'POST':
+        copied_data = request.POST.copy()
+        copied_data['goal'] = copied_data['goal'].replace(',', '')
+        project_form = NewFundingProjectForm(copied_data)
+
+        if project_form.is_valid():
+            project_form.save()
+
+            messages.success(request, "Project created successfully")
+            return redirect('allianceauth_pve:dashboard')
+    else:
+        project_form = NewFundingProjectForm()
+
+    context = {
+        'form': project_form,
+    }
+
+    return render(request, 'allianceauth_pve/funding_project_create.html', context=context)
+
+
+class FundingProjectDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    model = FundingProject
+    context_object_name = 'funding_project'
+
+    permission_required = 'allianceauth_pve.access_pve'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        funding_project: FundingProject = context['funding_project']
+
+        summary = cache.get(f"project_summary_{funding_project.pk}")
+        if summary is None:
+            summary = funding_project.summary.order_by('-actual_total').values(
+                'user',
+                'actual_total',
+                character_name=F('user__profile__main_character__character_name'),
+                character_id=F('user__profile__main_character__character_id'),
+            )
+            cache.set(f"project_summary_{funding_project.pk}", summary, FUNDING_PROJECT_CACHE_TIMEOUT)
+
+        count_half = funding_project.num_participants // 2 + funding_project.num_participants % 2
+
+        context['summaries'] = [summary[:count_half], summary[count_half:]]
+
+        return context
+
+
+@login_required
+@permission_required('allianceauth_pve.manage_funding_projects')
+def toggle_complete_project(request, pk: int):
+    funding_project = get_object_or_404(FundingProject, pk=pk)
+    funding_project.is_active = not funding_project.is_active
+    if funding_project.is_active:
+        funding_project.completed_at = None
+    else:
+        funding_project.completed_at = timezone.now()
+
+    funding_project.save()
+
+    messages.success(request, f"Project {'reopened' if funding_project.is_active else 'completed'}!")
+
+    return redirect('allianceauth_pve:project_detail', pk)

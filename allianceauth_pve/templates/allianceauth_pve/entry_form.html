@@ -147,6 +147,19 @@
 
                                 {% endfor %}
                             </div>
+                            {% if show_funding_projects %}
+                                <hr>
+                                <div class="text-center">
+                                    <span>Funding Project</span>
+                                </div>
+                                <br>
+                                <div class="field" style="justify-content: space-around;">
+                                    {{ entryform.funding_project }}
+                                    <div>
+                                        <span style="margin-right: 5px;">{{ entryform.funding_amount.label }}</span> {{ entryform.funding_amount }}
+                                    </div>
+                                </div>
+                            {% endif %}
                             <div style="text-align: right; margin-top: 15px;">
                                 <a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}" class="btn btn-danger">Back</a>
                                 <button type="submit" class="btn btn-primary" style="margin-left: 5px;">Submit</button>

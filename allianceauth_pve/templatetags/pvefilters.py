@@ -43,3 +43,8 @@ def get_char_attr(character_obj, attr: str):
             return ''
     else:
         return ''
+
+
+@register.simple_tag
+def min_value(*args):
+    return min(*args)
