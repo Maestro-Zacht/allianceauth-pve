@@ -459,3 +459,39 @@ class TestFundingProject(TestCase):
         self.funding_project.save()
 
         self.assertEqual(self.funding_project.completed_in_days, 1)
+
+    def test_affected_by(self):
+        project2 = FundingProject.objects.create(
+            name='testproject2',
+            goal=1_000_000_000
+        )
+
+        rotation2 = Rotation.objects.create(
+            name='test2rot',
+            tax_rate=0.0
+        )
+
+        entry2 = Entry.objects.create(
+            rotation=rotation2,
+            created_by=self.testuser,
+            estimated_total=1_000_000_000,
+            funding_project=project2,
+            funding_percentage=50,
+        )
+
+        role2 = EntryRole.objects.create(
+            entry=entry2,
+            name='testrole2',
+            value=1
+        )
+
+        EntryCharacter.objects.create(
+            entry=entry2,
+            user=self.testuser,
+            user_character=self.testcharacter,
+            role=role2,
+            site_count=2,
+            helped_setup=False
+        )
+
+        self.assertQuerysetEqual(FundingProject.objects.affected_by(rotation2), [project2.pk], transform=lambda x: x.pk)
