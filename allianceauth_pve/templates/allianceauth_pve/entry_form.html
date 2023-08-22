@@ -159,6 +159,11 @@
                                         <span style="margin-right: 5px;">{{ entryform.funding_amount.label }}</span> {{ entryform.funding_amount }}
                                     </div>
                                 </div>
+                            {% else %}
+                                <div style="display: none;">
+                                    {{ entryform.funding_project }}
+                                    {{ entryform.funding_amount }}
+                                </div>
                             {% endif %}
                             <div style="text-align: right; margin-top: 15px;">
                                 <a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}" class="btn btn-danger">Back</a>
