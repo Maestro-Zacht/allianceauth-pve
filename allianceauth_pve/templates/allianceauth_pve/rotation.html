@@ -6,6 +6,7 @@
 {% block page_title %}Rotation {{ rotation.name }}{% endblock page_title %}
 
 {% block extra_css %}
+    {% include 'bundles/datatables-css.html' %}
     {% if rotation.is_closed %}
         <link rel="stylesheet" type="text/css" href="{% allianceauth_pve_static 'allianceauth_pve/css/copy_text.css' %}">
         <link href="{% allianceauth_pve_static 'allianceauth_pve/css/spop.css' %}" rel="stylesheet" type="text/css">
@@ -131,7 +132,7 @@
                     <h3 class="panel-title text-center">Entries</h3>
                 </div>
                 <div class="panel-body">
-                    <table class="table table-aa">
+                    <table class="table table-aa" id="entries_table">
                         <thead>
                             <th scope="row">Date</th>
                             <th scope="row">User Count</th>
@@ -158,34 +159,6 @@
                             {% endfor %}
                         </tbody>
                     </table>
-
-                    {% if entries.paginator.num_pages > 1 %}
-                        <div>
-                            <ul class="pagination pagination-sm">
-                                {% if entries.has_previous %}
-                                    <li class="page-item"><a href="?page={{ entries.previous_page_number  }}">&laquo;</a></li>
-                                    <li class="page-item"><a href="?page=1">1</a></li>
-                                {% else %}
-                                    <li class="page-item disabled"><a href="#">&laquo;</a></li>
-                                {% endif %}
-
-                                {% for npage in entries.paginator.page_range %}
-                                    {% if npage == entries.number %}
-                                        <li class="page-item active"><a href="?page={{ npage }}">{{ npage }}</a></li>
-                                    {% elif npage > entries.number|add:"-3" and npage < entries.number|add:"3" and npage != 1 and npage != entries.paginator.num_pages %}
-                                        <li class="page-item"><a href="?page={{ npage }}">{{ npage }}</a></li>
-                                    {% endif %}
-                                {% endfor %}
-
-                                {% if entries.has_next %}
-                                    <li class="page-item"><a href="?page={{ entries.paginator.num_pages }}">{{ entries.paginator.num_pages }}</a></li>
-                                    <li class="page-item"><a href="?page={{ entries.next_page_number  }}">&raquo;</a></li>
-                                {% else %}
-                                    <li class="page-item disabled"><a href="#">&raquo;</a></li>
-                                {% endif %}
-                            </ul>
-                        </div>
-                    {% endif %}
                 </div>
             </div>
         {% endif %}
@@ -216,6 +189,7 @@
 {% endblock content %}
 
 {% block extra_javascript %}
+{% include 'bundles/datatables-js.html' %}
     <script src="{% allianceauth_pve_static 'allianceauth_pve/js/localized_checkbox.js' %}"></script>
     {% if rotation.is_closed %}
         <script src="{% allianceauth_pve_static 'allianceauth_pve/js/spop.js' %}"></script>
@@ -227,4 +201,13 @@
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
     })
+    $(document).ready(function() {
+        $('#entries_table').DataTable({
+            columnDefs: [
+                { targets: [0, 1, 2, 3, 4, 6], searchable: false }
+            ],
+            paging: true,
+            ordering: false,
+        });
+    });
 {% endblock extra_script %}

@@ -3,6 +3,9 @@
 
 {% block page_title %}PvE Dashboard{% endblock page_title %}
 
+{% block extra_css %}
+    {% include 'bundles/datatables-css.html' %}
+{% endblock extra_css %}
 
 {% block content %}
     <div class="col-lg-12">
@@ -15,36 +18,36 @@
                 <ul class="list-group list-group-horizontal text-center" style="margin-bottom: 0;">
                     <li class="list-group-item">
                         <p><strong>1 month</strong></p>
-                        {% if onemonth.actual_total %}
-                            <p>{{ onemonth.actual_total|floatformat|intcomma }}</p>
-                            <p>{{ onemonth.helped_setups }} setup(s)</p>
+                        {% if averages.onemonth.actual_total %}
+                            <p>{{ averages.onemonth.actual_total|floatformat|intcomma }}</p>
+                            <p>{{ averages.onemonth.helped_setups }} setup(s)</p>
                         {% else %}
                             <p>No activity in the last month</p>
                         {% endif %}
                     </li>
                     <li class="list-group-item">
                         <p><strong>3 months</strong></p>
-                        {% if threemonth.actual_total %}
-                            <p>{{ threemonth.actual_total|floatformat|intcomma }}</p>
-                            <p>{{ threemonth.helped_setups }} setup(s)</p>
+                        {% if averages.threemonth.actual_total %}
+                            <p>{{ averages.threemonth.actual_total|floatformat|intcomma }}</p>
+                            <p>{{ averages.threemonth.helped_setups }} setup(s)</p>
                         {% else %}
                             <p>No activity in the last 3 months</p>
                         {% endif %}
                     </li>
                     <li class="list-group-item">
                         <p><strong>6 months</strong></p>
-                        {% if sixmonth.actual_total %}
-                            <p>{{ sixmonth.actual_total|floatformat|intcomma }}</p>
-                            <p>{{ sixmonth.helped_setups }} setup(s)</p>
+                        {% if averages.sixmonth.actual_total %}
+                            <p>{{ averages.sixmonth.actual_total|floatformat|intcomma }}</p>
+                            <p>{{ averages.sixmonth.helped_setups }} setup(s)</p>
                         {% else %}
                             <p>No activity in the last 6 months</p>
                         {% endif %}
                     </li>
                     <li class="list-group-item">
                         <p><strong>1 year</strong></p>
-                        {% if oneyear.actual_total %}
-                            <p>{{ oneyear.actual_total|floatformat|intcomma }}</p>
-                            <p>{{ oneyear.helped_setups }} setup(s)</p>
+                        {% if averages.oneyear.actual_total %}
+                            <p>{{ averages.oneyear.actual_total|floatformat|intcomma }}</p>
+                            <p>{{ averages.oneyear.helped_setups }} setup(s)</p>
                         {% else %}
                             <p>No activity in the last year</p>
                         {% endif %}
@@ -53,22 +56,13 @@
             </div>
         </div>
         <ul class="nav nav-tabs">
-            {% if is_closed_param %}
-                <li>
-            {% else %}
-                <li class="active">
-            {% endif %}
+            <li class="active">
                 <a data-toggle="tab" href="#open">
                     Open Rotations
-                    <span class="badge">{{ open_count }}</span>
+                    <span class="badge">{{ open_rots.count }}</span>
                 </a>
             </li>
-
-            {% if is_closed_param %}
-                <li class="active">
-            {% else %}
-                <li>
-            {% endif %}
+            <li>
                 <a data-toggle="tab" href="#closed">
                     Closed Rotations
                 </a>
@@ -78,14 +72,10 @@
         <div class="panel panel-default panel-tabs-aa">
             <div class="panel-body">
                 <div class="tab-content">
-                    {% if is_closed_param %}
-                        <div id="open" class="tab-pane">
-                    {% else %}
-                        <div id="open" class="tab-pane active">
-                    {% endif %}
-                        {% if open_count > 0 %}
+                    <div id="open" class="tab-pane active">
+                        {% if open_rots.count > 0 %}
                             <div class="table-responsive">
-                                <table class="table table-aa">
+                                <table class="table table-aa" id="open_rotations">
                                     <thead>
                                         <tr>
                                             <th style="width: 25%;">Name</th>
@@ -110,48 +100,15 @@
                         {% else %}
                             <div class="alert alert-warning text-center">No open rotations</div>
                         {% endif %}
-                        
-                        {% if open_rots.paginator.num_pages > 1 %}
-                            <div>
-                                <ul class="pagination pagination-sm">
-                                    {% if open_rots.has_previous %}
-                                        <li class="page-item"><a href="?page_open={{ open_rots.previous_page_number  }}">&laquo;</a></li>
-                                        <li class="page-item"><a href="?page_open=1">1</a></li>
-                                    {% else %}
-                                        <li class="page-item disabled"><a href="#">&laquo;</a></li>
-                                    {% endif %}
-
-                                    {% for npage in open_rots.paginator.page_range %}
-                                        {% if npage == open_rots.number %}
-                                            <li class="page-item active"><a href="?page_open={{ npage }}">{{ npage }}</a></li>
-                                        {% elif npage > open_rots.number|add:"-6" and npage < open_rots.number|add:"6" and npage != 1 and npage != open_rots.paginator.num_pages %}
-                                            <li class="page-item"><a href="?page_open={{ npage }}">{{ npage }}</a></li>
-                                        {% endif %}
-                                    {% endfor %}
-
-                                    {% if open_rots.has_next %}
-                                        <li class="page-item"><a href="?page_open={{ open_rots.paginator.num_pages }}">{{ open_rots.paginator.num_pages }}</a></li>
-                                        <li class="page-item"><a href="?page_open={{ open_rots.next_page_number  }}">&raquo;</a></li>
-                                    {% else %}
-                                        <li class="page-item disabled"><a href="#">&raquo;</a></li>
-                                    {% endif %}
-                                </ul>
-                            </div>
-                        {% endif %}
-
                         {% if perms.allianceauth_pve.manage_rotations or user.is_superuser %}
                             <a href="{% url 'allianceauth_pve:new_rotation' %}" class="btn btn-info">New Rotation</a>
                         {% endif %}
                     </div>
 
-                    {% if is_closed_param %}
-                        <div id="closed" class="tab-pane active">
-                    {% else %}
-                        <div id="closed" class="tab-pane">
-                    {% endif %}
-                        {% if closed_rots.paginator.count > 0 %}
+                    <div id="closed" class="tab-pane">
+                        {% if closed_rots.count > 0 %}
                             <div class="table-responsive">
-                                <table class="table table-aa">
+                                <table class="table table-aa" id="closed_rotations">
                                     <thead>
                                         <tr>
                                             <th style="width: 25%;">Name</th>
@@ -174,35 +131,7 @@
                                 </table>
                             </div>
                         {% else %}
-                            <div class="alert alert-warning text-center">No open rotations</div>
-                        {% endif %}
-
-                        {% if closed_rots.paginator.num_pages > 1 %}
-                            <div>
-                                <ul class="pagination pagination-sm">
-                                    {% if closed_rots.has_previous %}
-                                        <li class="page-item"><a href="?page_closed={{ closed_rots.previous_page_number  }}">&laquo;</a></li>
-                                        <li class="page-item"><a href="?page_closed=1">1</a></li>
-                                    {% else %}
-                                        <li class="page-item disabled"><a href="#">&laquo;</a></li>
-                                    {% endif %}
-
-                                    {% for npage in closed_rots.paginator.page_range %}
-                                        {% if npage == closed_rots.number %}
-                                            <li class="page-item active"><a href="?page_closed={{ npage }}">{{ npage }}</a></li>
-                                        {% elif npage > closed_rots.number|add:'-6' and npage < closed_rots.number|add:'6' and npage != 1 and npage != closed_rots.paginator.num_pages %}
-                                            <li class="page-item"><a href="?page_closed={{ npage }}">{{ npage }}</a></li>
-                                        {% endif %}
-                                    {% endfor %}
-
-                                    {% if closed_rots.has_next %}
-                                        <li class="page-item"><a href="?page_closed={{ closed_rots.paginator.num_pages }}">{{ closed_rots.paginator.num_pages }}</a></li>
-                                        <li class="page-item"><a href="?page_closed={{ closed_rots.next_page_number  }}">&raquo;</a></li>
-                                    {% else %}
-                                        <li class="page-item disabled"><a href="#">&raquo;</a></li>
-                                    {% endif %}
-                                </ul>
-                            </div>
+                            <div class="alert alert-warning text-center">No closed rotations</div>
                         {% endif %}
                     </div>
                 </div>
@@ -228,7 +157,7 @@
                     <div id="active_projects" class="tab-pane active">
                         <div class="table-responsive">
                             {% if open_projects.count > 0 %}
-                                <table class="table table-aa">
+                                <table class="table table-aa" id="open_projects">
                                     <thead>
                                         <tr>
                                             <th style="width: 20%;">Name</th>
@@ -263,7 +192,7 @@
                     <div id="closed_projects" class="tab-pane">
                         <div class="table-responsive">
                             {% if closed_projects.count > 0 %}
-                                <table class="table table-aa">
+                                <table class="table table-aa" id="closed_projects_table">
                                     <thead>
                                         <tr>
                                             <th style="width: 25%;">Name</th>
@@ -294,3 +223,44 @@
         </div>
     </div>
 {% endblock content %}
+
+{% block extra_javascript %}
+    {% include 'bundles/datatables-js.html' %}
+{% endblock extra_javascript %}
+
+{% block extra_script %}
+    $(document).ready(function() {
+        $('#open_rotations').DataTable({
+            columnDefs: [
+                { targets: [1, 2, 3], searchable: false}
+            ],
+            paging: true,
+            ordering: false,
+            searching: true
+        });
+        $('#closed_rotations').DataTable({
+            columnDefs: [
+                { targets: [1, 2, 3], searchable: false}
+            ],
+            paging: true,
+            ordering: false,
+            searching: true
+        });
+        $('#open_projects').DataTable({
+            columnDefs: [
+                { targets: [1, 2, 3, 4], searchable: false}
+            ],
+            paging: true,
+            ordering: false,
+            searching: true
+        });
+        $('#closed_projects_table').DataTable({
+            columnDefs: [
+                { targets: [1, 2, 3], searchable: false}
+            ],
+            paging: true,
+            ordering: false,
+            searching: true
+        });
+    });
+{% endblock extra_script %}
