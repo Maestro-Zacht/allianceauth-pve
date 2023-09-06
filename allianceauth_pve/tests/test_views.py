@@ -45,10 +45,7 @@ class TestDashboardView(TestCase):
 
         self.assertTemplateUsed(response, 'allianceauth_pve/ratting-dashboard.html')
 
-        self.assertTrue(cache.has_key(f"{RUNNING_AVERAGES_CACHE_PREFIX}_{self.testuser.pk}_30"))
-        self.assertTrue(cache.has_key(f"{RUNNING_AVERAGES_CACHE_PREFIX}_{self.testuser.pk}_90"))
-        self.assertTrue(cache.has_key(f"{RUNNING_AVERAGES_CACHE_PREFIX}_{self.testuser.pk}_180"))
-        self.assertTrue(cache.has_key(f"{RUNNING_AVERAGES_CACHE_PREFIX}_{self.testuser.pk}_365"))
+        self.assertTrue(cache.has_key(f"{RUNNING_AVERAGES_CACHE_PREFIX}_{self.testuser.pk}"))
 
         with patch('allianceauth_pve.views.running_averages') as mock_running_average:
             response = self.client.get(reverse('allianceauth_pve:dashboard'))
