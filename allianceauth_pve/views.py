@@ -63,27 +63,17 @@ def dashboard(request):
 
     today = timezone.now().date()
 
-    key_prefix = f"{RUNNING_AVERAGES_CACHE_PREFIX}_{request.user.pk}"
+    averages_key = f"{RUNNING_AVERAGES_CACHE_PREFIX}_{request.user.pk}"
+    averages = cache.get(averages_key)
+    if averages is None:
+        averages = {
+            'onemonth': running_averages(request.user, today - datetime.timedelta(days=30)),
+            'threemonth': running_averages(request.user, today - datetime.timedelta(days=30 * 3)),
+            'sixmonth': running_averages(request.user, today - datetime.timedelta(days=30 * 6)),
+            'oneyear': running_averages(request.user, today - datetime.timedelta(days=30 * 12)),
+        }
 
-    one_month_average = cache.get(f"{key_prefix}_30")
-    if one_month_average is None:
-        one_month_average = running_averages(request.user, today - datetime.timedelta(days=30))
-        cache.set(f"{key_prefix}_30", one_month_average, RUNNING_AVERAGES_CACHE_TIMEOUT)
-
-    three_month_average = cache.get(f"{key_prefix}_90")
-    if three_month_average is None:
-        three_month_average = running_averages(request.user, today - datetime.timedelta(days=30 * 3))
-        cache.set(f"{key_prefix}_90", three_month_average, RUNNING_AVERAGES_CACHE_TIMEOUT)
-
-    six_month_average = cache.get(f"{key_prefix}_180")
-    if six_month_average is None:
-        six_month_average = running_averages(request.user, today - datetime.timedelta(days=30 * 6))
-        cache.set(f"{key_prefix}_180", six_month_average, RUNNING_AVERAGES_CACHE_TIMEOUT)
-
-    one_year_average = cache.get(f"{key_prefix}_365")
-    if one_year_average is None:
-        one_year_average = running_averages(request.user, today - datetime.timedelta(days=30 * 12))
-        cache.set(f"{key_prefix}_365", one_year_average, RUNNING_AVERAGES_CACHE_TIMEOUT)
+        cache.set(averages_key, averages, RUNNING_AVERAGES_CACHE_TIMEOUT)
 
     open_projects = FundingProject.objects.filter(is_active=True)
     closed_projects = FundingProject.objects.filter(is_active=False)
@@ -93,10 +83,7 @@ def dashboard(request):
         'open_rots': paginator_open.get_page(npage_open),
         'closed_rots': paginator_closed.get_page(npage_closed),
         'is_closed_param': npage_closed is not None,
-        'onemonth': one_month_average,
-        'threemonth': three_month_average,
-        'sixmonth': six_month_average,
-        'oneyear': one_year_average,
+        'averages': averages,
         'open_projects': open_projects,
         'closed_projects': closed_projects,
     }
