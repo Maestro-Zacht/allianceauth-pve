@@ -126,13 +126,10 @@ def rotation_view(request, rotation_id):
 
     summary_count_half = r.num_participants // 2 + r.num_participants % 2
 
-    entries_paginator = Paginator(r.entries.order_by('-created_at'), 10)
-    page = request.GET.get('page')
-
     context = {
         'rotation': r,
         'summaries': [summary[:summary_count_half], summary[summary_count_half:]],
-        'entries': entries_paginator.get_page(page),
+        'entries': r.entries.order_by('-created_at'),
         'closeform': closeform,
     }
 
