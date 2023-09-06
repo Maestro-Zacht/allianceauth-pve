@@ -55,12 +55,6 @@ def dashboard(request):
         .order_by('-closed_at')
     )
 
-    paginator_open = Paginator(open_rots, 10)
-    paginator_closed = Paginator(closed_rots, 10)
-
-    npage_open = request.GET.get('page_open')
-    npage_closed = request.GET.get('page_closed')
-
     today = timezone.now().date()
 
     averages_key = f"{RUNNING_AVERAGES_CACHE_PREFIX}_{request.user.pk}"
@@ -79,10 +73,8 @@ def dashboard(request):
     closed_projects = FundingProject.objects.filter(is_active=False)
 
     context = {
-        'open_count': open_rots.count(),
-        'open_rots': paginator_open.get_page(npage_open),
-        'closed_rots': paginator_closed.get_page(npage_closed),
-        'is_closed_param': npage_closed is not None,
+        'open_rots': open_rots,
+        'closed_rots': closed_rots,
         'averages': averages,
         'open_projects': open_projects,
         'closed_projects': closed_projects,
