@@ -16,7 +16,7 @@ on:
 
 jobs:
   test-coverage:
-    name: Test Coverage (Python ${{ matrix.python-version }} AllianceAuth v${{ matrix.aa-version }})
+    name: Test Coverage (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
 
     services:
@@ -34,7 +34,6 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
-        aa-version: ["2", "3"]
 
     steps:
       - name: Set up MySQL
@@ -56,13 +55,11 @@ jobs:
 
       - name: Run Tox
         run: tox -v
-        env:
-          AAVERSION: ${{ matrix.aa-version }}
 
       - name: Upload Coverage Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: coverage-${{ matrix.python-version }}-AA${{ matrix.aa-version }}
+          name: coverage-${{ matrix.python-version }}
           path: coverage.xml
           if-no-files-found: ignore
 
@@ -104,8 +101,8 @@ jobs:
 
       - name: Install Tools
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade build setuptools wheel
+          python -m pip install -U pip
+          pip install -U build
       - name: Package Build
         env:
           STACKMANAGER_VERSION: 9999
