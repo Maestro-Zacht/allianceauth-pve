@@ -443,7 +443,7 @@ class TestFundingProject(TestCase):
     def test_properties(self):
         self.assertEqual(self.funding_project.current_total, 500_000_000)
 
-        self.assertEqual(self.funding_project.current_percentage, 50)
+        self.assertEqual(self.funding_project.actual_percentage, 50)
 
         self.assertEqual(self.funding_project.days_since, 0)
 
