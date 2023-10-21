@@ -1,7 +1,7 @@
 from unittest.mock import patch
 from django.test import TestCase, override_settings
 from django.urls import reverse
-from django.contrib.messages import get_messages
+from django.contrib.messages import get_messages, DEFAULT_LEVELS
 from django.db.models import Sum
 from django.core.cache import cache
 
@@ -611,6 +611,49 @@ class TestAddEntryView(TestCase):
         self.assertAlmostEqual(estimated_total, 1660200000.0)
         self.assertAlmostEqual(estimated_total, self.entry.estimated_total)
 
+    def test_funding_project_delete_cache(self):
+        self.client.force_login(self.testuser)
+
+        funding_project = FundingProject.objects.create(
+            name='test',
+            goal=1_000_000_000
+        )
+
+        self.client.get(reverse('allianceauth_pve:project_detail', args=[funding_project.pk]))
+
+        self.assertTrue(cache.has_key(f"project_summary_{funding_project.pk}"))
+
+        form_data = {
+            'roles-TOTAL_FORMS': '1',
+            'roles-INITIAL_FORMS': '1',
+            'roles-MIN_NUM_FORMS': '1',
+            'roles-MAX_NUM_FORMS': '1000',
+            'roles-0-name': 'Krabs',
+            'roles-0-value': '1',
+            'estimated_total': '1660200000',
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '1',
+            'form-MIN_NUM_FORMS': '0',
+            'form-MAX_NUM_FORMS': '1000',
+            'form-0-user': self.testuser.pk,
+            'form-0-character': self.testcharacter.pk,
+            'form-0-role': 'Krabs',
+            'form-0-helped_setup': 'on',
+            'form-0-site_count': '2',
+            'form-1-user': self.testuser2.pk,
+            'form-1-character': self.testcharacter2.pk,
+            'form-1-role': 'Krabs',
+            'form-1-site_count': '1',
+            'funding_project': funding_project.pk,
+            'funding_amount': '10',
+        }
+
+        response = self.client.post(reverse('allianceauth_pve:new_entry', args=[self.rotation.pk]), form_data)
+
+        self.assertRedirects(response, reverse('allianceauth_pve:rotation_view', args=[self.rotation.pk]))
+
+        self.assertFalse(cache.has_key(f"project_summary_{funding_project.pk}"))
+
 
 class TestDeleteEntryView(TestCase):
 
@@ -827,3 +870,39 @@ class TestToggleCompleteProjectView(TestCase):
         self.project.refresh_from_db()
 
         self.assertTrue(self.project.is_active)
+
+    def test_open_contributions(self):
+        self.client.force_login(self.testuser)
+
+        rotation_open = Rotation.objects.create(name='testrot1')
+
+        entry_open = Entry.objects.create(
+            rotation=rotation_open,
+            created_by=self.testuser,
+            estimated_total=1_000_000_000,
+            funding_project=self.project,
+            funding_percentage=50,
+        )
+
+        EntryCharacter.objects.create(
+            entry=entry_open,
+            user=self.testuser,
+            user_character=self.testcharacter,
+            role=EntryRole.objects.create(entry=entry_open, name='Krab', value=1),
+            site_count=1,
+            helped_setup=False
+        )
+
+        response = self.client.get(reverse('allianceauth_pve:project_toggle_complete', args=[self.project.pk]))
+
+        self.assertRedirects(response, reverse('allianceauth_pve:project_detail', args=[self.project.pk]))
+
+        self.project.refresh_from_db()
+
+        self.assertTrue(self.project.is_active)
+
+        messages = list(get_messages(response.wsgi_request))
+
+        self.assertEqual(len(messages), 1)
+
+        self.assertEqual(messages[0].level, DEFAULT_LEVELS['ERROR'])
