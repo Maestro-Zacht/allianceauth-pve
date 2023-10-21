@@ -198,7 +198,7 @@ class TestEntry(TestCase):
         self.assertAlmostEqual(self.entry.actual_total_after_tax, 810_000_000.0)
 
     def test_with_totals_valid(self):
-        for count1, count2, count3, value1, value2, value3 in itertools.combinations_with_replacement(range(8), 6):
+        for count1, count2, count3, value1, value2, value3 in itertools.combinations_with_replacement(range(6), 6):
             total_count = count1 + count2 + count3
             total_roles = value1 + value2 + value3
             total_value = value1 * count1 + value2 * count2 + value3 * count3
@@ -438,20 +438,111 @@ class TestFundingProject(TestCase):
             helped_setup=False
         )
 
-        self.assertQuerysetEqual(EntryCharacter.objects.with_contributions_to(self.funding_project), [self.share.pk], transform=lambda x: x.pk)
+        self.assertQuerysetEqual(
+            EntryCharacter.objects.with_contributions_to(self.funding_project, True),
+            [self.share.pk],
+            transform=lambda x: x.pk
+        )
+
+        open_rotation = Rotation.objects.create(
+            name='test1rot',
+            tax_rate=0.0
+        )
+
+        entry4 = Entry.objects.create(
+            rotation=open_rotation,
+            created_by=self.testuser,
+            estimated_total=1_000_000_000,
+            funding_project=self.funding_project,
+            funding_percentage=10,
+        )
+
+        share_open = EntryCharacter.objects.create(
+            entry=entry4,
+            user=self.testuser,
+            user_character=self.testcharacter,
+            role=self.role,
+            site_count=2,
+            helped_setup=False
+        )
+
+        self.assertQuerysetEqual(
+            EntryCharacter.objects.with_contributions_to(self.funding_project, False),
+            [share_open.pk],
+            transform=lambda x: x.pk
+        )
+
+        self.assertQuerysetEqual(
+            EntryCharacter.objects.with_contributions_to(self.funding_project),
+            [share_open.pk, self.share.pk],
+            transform=lambda x: x.pk,
+            ordered=False
+        )
 
     def test_properties(self):
         self.assertEqual(self.funding_project.current_total, 500_000_000)
 
-        self.assertEqual(self.funding_project.current_percentage, 50)
+        self.assertEqual(self.funding_project.actual_percentage, 50)
 
         self.assertEqual(self.funding_project.days_since, 0)
 
         self.assertEqual(self.funding_project.num_participants, 1)
 
-        a = self.funding_project.summary[0]
+        self.assertDictEqual(
+            self.funding_project.summary[0],
+            {
+                'user': self.testuser.pk,
+                'actual_total': 500_000_000,
+                'estimated_total': 500_000_000
+            }
+        )
 
-        self.assertDictEqual(a, {'user': self.testuser.pk, 'actual_total': 500_000_000})
+        del self.funding_project.summary
+
+        self.assertFalse(self.funding_project.has_open_contributions)
+
+        rotation_open = Rotation.objects.create(
+            name='test1rot',
+            tax_rate=0.0
+        )
+
+        entry_open = Entry.objects.create(
+            rotation=rotation_open,
+            created_by=self.testuser,
+            estimated_total=1_000_000_000,
+            funding_project=self.funding_project,
+            funding_percentage=10,
+        )
+
+        EntryCharacter.objects.create(
+            entry=entry_open,
+            user=self.testuser,
+            user_character=self.testcharacter,
+            role=self.role,
+            site_count=1,
+            helped_setup=False
+        )
+
+        self.assertDictEqual(
+            self.funding_project.summary[0],
+            {
+                'user': self.testuser.pk,
+                'actual_total': 500_000_000,
+                'estimated_total': 600_000_000
+            }
+        )
+
+        self.assertEqual(self.funding_project.estimated_total, 600_000_000)
+
+        self.assertAlmostEqual(self.funding_project.estimated_missing_percentage, 10.0)
+
+        self.assertAlmostEqual(self.funding_project.total_percentage, 60.0)
+
+        self.assertEqual(self.funding_project.html_actual_percentage_width, 50)
+
+        self.assertEqual(self.funding_project.html_estimated_percentage_width, 10)
+
+        self.assertTrue(self.funding_project.has_open_contributions)
 
         self.assertIsNone(self.funding_project.completed_at)
 

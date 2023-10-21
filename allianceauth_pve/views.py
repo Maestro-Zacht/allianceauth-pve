@@ -256,6 +256,8 @@ def add_entry(request, rotation_id, entry_id=None):
             messages.success(request, 'Entry added successfully')
 
             cache.delete(f"ratting_summary_{rotation_id}")
+            if entry.funding_project is not None and entry.funding_percentage > 0:
+                cache.delete(f"project_summary_{entry.funding_project.pk}")
 
             return redirect('allianceauth_pve:rotation_view', rotation_id)
 
@@ -387,9 +389,10 @@ class FundingProjectDetailView(LoginRequiredMixin, PermissionRequiredMixin, Deta
 
         summary = cache.get(f"project_summary_{funding_project.pk}")
         if summary is None:
-            summary = funding_project.summary.order_by('-actual_total').values(
+            summary = funding_project.summary.order_by('-estimated_total').values(
                 'user',
                 'actual_total',
+                'estimated_total',
                 character_name=F('user__profile__main_character__character_name'),
                 character_id=F('user__profile__main_character__character_id'),
             )
@@ -406,6 +409,11 @@ class FundingProjectDetailView(LoginRequiredMixin, PermissionRequiredMixin, Deta
 @permission_required('allianceauth_pve.manage_funding_projects')
 def toggle_complete_project(request, pk: int):
     funding_project = get_object_or_404(FundingProject, pk=pk)
+
+    if funding_project.is_active and funding_project.has_open_contributions:
+        messages.error(request, "You cannot complete a project with open contributions")
+        return redirect('allianceauth_pve:project_detail', pk)
+
     funding_project.is_active = not funding_project.is_active
     if funding_project.is_active:
         funding_project.completed_at = None

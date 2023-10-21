@@ -96,12 +96,14 @@ class EntryCharacterQueryset(models.QuerySet):
             models.F('entry__rotation__actual_total') / models.Subquery(estimated_total)
         )
 
-    def with_contributions_to(self, funding_project):
-        return self.filter(
-            entry__rotation__is_closed=True,
+    def with_contributions_to(self, funding_project, rotation_closed: bool = None):
+        res = self.filter(
             entry__funding_percentage__gt=0,
             entry__funding_project=funding_project
         )
+        if rotation_closed is not None:
+            res = res.filter(entry__rotation__is_closed=rotation_closed)
+        return res
 
 
 class EntryCharacterManager(models.Manager):
@@ -111,8 +113,8 @@ class EntryCharacterManager(models.Manager):
     def with_totals(self):
         return self.get_queryset().with_totals()
 
-    def with_contributions_to(self, funding_project):
-        return self.get_queryset().with_contributions_to(funding_project)
+    def with_contributions_to(self, funding_project, rotation_closed: bool = None):
+        return self.get_queryset().with_contributions_to(funding_project, rotation_closed)
 
 
 class PveButton(models.Model):
@@ -352,7 +354,7 @@ class FundingProject(models.Model):
     def current_total(self):
         return (
             EntryCharacter.objects
-            .with_contributions_to(self)
+            .with_contributions_to(self, True)
             .with_totals()
             .aggregate(
                 current_total=Coalesce(
@@ -363,8 +365,42 @@ class FundingProject(models.Model):
         )
 
     @cached_property
-    def current_percentage(self):
+    def estimated_total(self):
+        return self.current_total + (
+            EntryCharacter.objects
+            .with_contributions_to(self, False)
+            .with_totals()
+            .aggregate(
+                estimated_total=Coalesce(
+                    models.Sum('estimated_funding_amount'),
+                    0
+                )
+            )['estimated_total']
+        )
+
+    @cached_property
+    def actual_percentage(self):
         return self.current_total / self.goal * 100
+
+    @cached_property
+    def estimated_missing_percentage(self):
+        return (self.estimated_total - self.current_total) / self.goal * 100
+
+    @cached_property
+    def total_percentage(self):
+        return self.actual_percentage + self.estimated_missing_percentage
+
+    @property
+    def html_actual_percentage_width(self):
+        return int(self.actual_percentage) if self.actual_percentage <= 100 else 100
+
+    @property
+    def html_estimated_percentage_width(self):
+        return (
+            int(self.estimated_missing_percentage)
+            if self.actual_percentage + self.estimated_missing_percentage <= 100
+            else 100 - int(self.actual_percentage)
+        )
 
     @property
     def days_since(self):
@@ -380,8 +416,19 @@ class FundingProject(models.Model):
             num=models.Count('user', distinct=True)
         )['num']
 
-    @property
+    @cached_property
     def summary(self):
+        estimated_part = (
+            EntryCharacter.objects
+            .filter(user=models.OuterRef('user'))
+            .with_contributions_to(self, False)
+            .with_totals()
+            .order_by()
+            .values('user')
+            .annotate(estimated_total=models.Sum('estimated_funding_amount'))
+            .values('estimated_total')
+        )
+
         return (
             EntryCharacter.objects
             .with_contributions_to(self)
@@ -389,7 +436,12 @@ class FundingProject(models.Model):
             .order_by()
             .values('user')
             .annotate(actual_total=models.Sum('actual_funding_amount'))
+            .annotate(estimated_total=models.F('actual_total') + Coalesce(models.Subquery(estimated_part), 0))
         )
+
+    @property
+    def has_open_contributions(self) -> bool:
+        return self.entries.filter(rotation__is_closed=False).exists()
 
     class Meta:
         default_permissions = ()

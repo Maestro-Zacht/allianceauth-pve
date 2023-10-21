@@ -162,9 +162,9 @@
                                         <tr>
                                             <th style="width: 20%;">Name</th>
                                             <th style="width: 20%;">Age (days)</th>
-                                            <th style="width: 20%;">Current Total</th>
+                                            <th style="width: 20%;">Estimated Total (Actual)</th>
                                             <th style="width: 20%;">Goal</th>
-                                            <th style="width: 20%;">Completion</th>
+                                            <th style="width: 20%;">Completed (Actual)</th>
                                         </tr>
                                     </thead>
 
@@ -173,9 +173,9 @@
                                             <tr>
                                                 <td style="width: 20%;"><a href="{% url 'allianceauth_pve:project_detail' project.pk %}">{{ project.name }}</a></td>
                                                 <td style="width: 20%;">{{ project.days_since }}</td>
-                                                <td style="width: 20%;">{{ project.current_total|intcomma }}</td>
+                                                <td style="width: 20%;">{{ project.estimated_total|intcomma }} ({{ project.current_total|intcomma }})</td>
                                                 <td style="width: 20%;">{{ project.goal|intcomma }}</td>
-                                                <td style="width: 20%;">{{ project.current_percentage|floatformat }} %</td>
+                                                <td style="width: 20%;">{{ project.total_percentage|floatformat }} &percnt; ({{ project.actual_percentage|floatformat }} &percnt;)</td>
                                             </tr>
                                         {% endfor %}
                                     </tbody>
