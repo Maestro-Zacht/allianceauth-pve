@@ -9,8 +9,6 @@ from celery.schedules import crontab
 # Django
 from django.contrib import messages
 
-# maestro edits
-import pkg_resources
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -151,23 +149,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # Bootstrap messaging css workaround
 MESSAGE_TAGS = {messages.ERROR: "danger"}
 
-if pkg_resources.get_distribution('allianceauth').version.startswith('3'):
-    CACHES = {
-        "default": {
-            "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": f"redis://localhost:6379/1",  # change the 1 here to change the database used
-        }
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://localhost:6379/1",  # change the 1 here to change the database used
     }
-else:
-    CACHES = {
-        "default": {
-            "BACKEND": "redis_cache.RedisCache",
-            "LOCATION": "localhost:6379",
-            "OPTIONS": {
-                "DB": 1,
-            }
-        }
-    }
+}
 
 
 DEBUG = True
