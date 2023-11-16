@@ -102,7 +102,18 @@ def rotation_view(request, rotation_id):
 
             cache.delete(summary_cache_key)
             cache.delete_many(
-                (f"project_summary_{pk}" for pk in FundingProject.objects.affected_by(r).values_list('pk', flat=True))
+                (
+                    f"project_summary_{pk}"
+                    for pk in FundingProject.objects.affected_by(r)
+                    .values_list('pk', flat=True)
+                )
+            )
+            cache.delete_many(
+                (
+                    f"{RUNNING_AVERAGES_CACHE_PREFIX}_{user_id}"
+                    for user_id in EntryCharacter.objects.filter(entry__rotation=r)
+                    .values_list('user_id', flat=True)
+                )
             )
 
             closeform = None
