@@ -16,10 +16,19 @@ on:
 
 jobs:
   test-coverage:
-    name: Test Coverage (Python ${{ matrix.python-version }})
+    name: Test Coverage (Python ${{ matrix.python-version }} DB ${{ matrix.database }})
     runs-on: ubuntu-latest
 
     services:
+      database:
+        image: ${{ matrix.database }}
+        env:
+          MYSQL_ROOT_PASSWORD: temp_password_aa_tox_tests
+          MYSQL_DATABASE: tox_allianceauth
+        ports:
+          - 3306:3306
+        options: --tmpfs /var/lib/mysql
+
       redis:
         image: redis
         options: >-
@@ -33,12 +42,23 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version:
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+        database:
+          # https://endoflife.date/mysql
+          - mysql:8.0     # [LTS] Maintained until: 30 Apr 2026
+          - mysql:8.2     # Latest official release
+          # https://endoflife.date/mariadb and https://mariadb.com/kb/en/mariadb-server-release-dates/
+          - mariadb:10.6  # [LTS] Maintained until: July 2026
+          - mariadb:10.11 # [LTS] Maintained until: February 2028
+          - mariadb:11.1  # Maintained until: August 2024
+
 
     steps:
-      - name: Set up MySQL
-        run: sudo /etc/init.d/mysql start
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -54,12 +74,26 @@ jobs:
           python -m pip install --upgrade tox tox-gh-actions
 
       - name: Run Tox
+        env:
+          AA_DB_HOST: 127.0.0.1
+          AA_DB_NAME: tox_allianceauth
+          AA_DB_USER: root
+          AA_DB_PASSWORD: temp_password_aa_tox_tests
+          AA_REDIS: "localhost:6379"
         run: tox -v
+
+      - name: Create report name
+        env:
+          COVERAGE_REPORT_NAME: "coverage-${{ matrix.python-version }}-${{ matrix.database }}"
+        run: |
+          COVERAGE_REPORT_NAME=${COVERAGE_REPORT_NAME//:/_}
+          echo "COVERAGE_REPORT_NAME=${COVERAGE_REPORT_NAME}" >> $GITHUB_ENV
+          echo "COVERAGE_REPORT_NAME=${COVERAGE_REPORT_NAME}"
 
       - name: Upload Coverage Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: coverage-${{ matrix.python-version }}
+          name: ${{ env.COVERAGE_REPORT_NAME }}
           path: coverage.xml
           if-no-files-found: ignore
 
