@@ -151,7 +151,7 @@
                                                 {% endif %}
                                             </td>
                                             <td>{{ share.site_count }}</td>
-                                            <td>{{ share.estimated_share_total|floatformat|intcomma }}</td>
+                                            <td>{{ share.estimated_share_total|floatformat:"g" }}</td>
                                             {% if entry.funding_project and entry.funding_percentage > 0 %}
                                                 <td>{{ share.estimated_funding_amount|intcomma }}</td>
                                             {% endif %}
