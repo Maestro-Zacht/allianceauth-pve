@@ -425,6 +425,10 @@ def toggle_complete_project(request, pk: int):
         messages.error(request, "You cannot complete a project with open contributions")
         return redirect('allianceauth_pve:project_detail', pk)
 
+    if not funding_project.is_active and FundingProject.objects.filter(is_active=True, name=funding_project.name).exists():
+        messages.error(request, "You cannot reopen this project, another one with the same name is active.")
+        return redirect('allianceauth_pve:project_detail', pk)
+
     funding_project.is_active = not funding_project.is_active
     if funding_project.is_active:
         funding_project.completed_at = None
