@@ -8,7 +8,6 @@ from django.contrib.auth.models import Permission
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
-from django.core.paginator import Paginator
 from django.db.models import F, Q, Count, Exists, OuterRef
 from django.db import transaction
 from django.views.generic.detail import DetailView
