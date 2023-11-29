@@ -817,6 +817,7 @@ class TestFundingProjectDetailView(TestCase):
     def test_context(self):
         self.client.force_login(self.testuser)
 
+        cache.delete(f"project_summary_{self.project.pk}")
         self.assertFalse(cache.has_key(f"project_summary_{self.project.pk}"))
 
         response = self.client.get(reverse('allianceauth_pve:project_detail', args=[self.project.pk]))
@@ -905,4 +906,18 @@ class TestToggleCompleteProjectView(TestCase):
 
         self.assertEqual(len(messages), 1)
 
+        self.assertEqual(messages[0].level, DEFAULT_LEVELS['ERROR'])
+
+    def test_reopen_project_with_same_name(self):
+        self.client.force_login(self.testuser)
+
+        project2: FundingProject = FundingProject.objects.create(name='testproj1', goal=10_000_000_000, is_active=False)
+
+        response = self.client.get(reverse('allianceauth_pve:project_toggle_complete', args=[project2.pk]))
+
+        project2.refresh_from_db()
+        self.assertFalse(project2.is_active)
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
         self.assertEqual(messages[0].level, DEFAULT_LEVELS['ERROR'])
