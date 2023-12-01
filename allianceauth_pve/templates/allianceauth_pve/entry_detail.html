@@ -24,68 +24,58 @@
 
 {% block content %}
     <div class="container-fluid">
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-{% if entry.funding_project and entry.funding_percentage > 0 %}6{% else %}5{% endif %} justify-content-evenly my-2">
-            <div class="col">
-                <div class="card text-center h-100">
-                    <div class="card-header">Creadet At</div>
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-center h-100">
-                            <p>{{ entry.created_at|date:"d/m/Y G:i e" }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card text-center h-100">
-                    <div class="card-header">Number of Users</div>
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-center h-100">
-                            <p>{{ entry.total_user_count }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% if entry.funding_project and entry.funding_percentage > 0 %}
-                <div class="col">
-                    <div class="card text-center h-100">
-                        <div class="card-header">Funding Project</div>
+        <div class="row my-5">
+            <div class="col-12">
+                <div class="card-group">
+                    <div class="card text-center">
+                        <div class="card-header">Creadet At</div>
                         <div class="card-body">
                             <div class="d-flex align-items-center justify-content-center h-100">
-                                <p>{{ entry.funding_project }} ({{ entry.funding_percentage }}&percnt;)</p>
+                                <p class="card-text">{{ entry.created_at|date:"d/m/Y G:i e" }}</p>
                             </div>
                         </div>
                     </div>
-                </div>
-            {% endif %}
-            <div class="col">
-                <div class="card text-center h-100">
-                    <div class="card-header">Total After Tax</div>
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-center h-100">
-                            <p>{{ entry.estimated_total_after_tax|floatformat:"g" }}</p>
+                    <div class="card text-center">
+                        <div class="card-header">Number of Users</div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <p class="card-text">{{ entry.total_user_count }}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card text-center h-100">
-                    <div class="card-header">Total</div>
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-center h-100">
-                            <p>{{ entry.estimated_total|intcomma }}</p>
+                    {% if entry.funding_project and entry.funding_percentage > 0 %}
+                        <div class="card text-center">
+                            <div class="card-header">Funding Project</div>
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-center h-100">
+                                    <p class="card-text">{{ entry.funding_project }} ({{ entry.funding_percentage }}&percnt;)</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="card text-center">
+                        <div class="card-header">Total After Tax</div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <p class="card-text">{{ entry.estimated_total_after_tax|floatformat:"g" }}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card text-center h-100">
-                    <div class="card-header">Created By</div>
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-center h-100">
-                            <div>
+                    <div class="card text-center">
+                        <div class="card-header">Total</div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <p class="card-text">{{ entry.estimated_total|intcomma }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card text-center">
+                        <div class="card-header">Created By</div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-center h-100">
                                 <img src="{{ entry.created_by.profile.main_character|character_portrait_url:32 }}" class="rounded me-2">
+                                <p class="card-text">{{ entry.created_by.profile.main_character.character_name }}</p>
                             </div>
-                            <div>{{ entry.created_by.profile.main_character.character_name }}</div>
                         </div>
                     </div>
                 </div>

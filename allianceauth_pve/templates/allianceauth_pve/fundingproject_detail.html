@@ -13,74 +13,64 @@
 {% block content %}
     <h1 class="page-header text-center">{{ funding_project.name }}</h1>
     <div class="container-fluid">
-        <div class="row my-3">
-            <div class="col">
-                <div class="card text-center h-100">
-                    <div class="card-header">Started</div>
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-center h-100">
-                            <p>{{ funding_project.created_at|date:"d/m/Y G:i e" }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% if not funding_project.is_active %}
-                <div class="col">
-                    <div class="card text-center h-100">
-                        <div class="card-header">Completed</div>
-                        <div class="card-body">
-                            <div>
-                                <p>{{ funding_project.completed_at|date:"d/m/Y G:i e" }}</p>
-                                <p>After {{ funding_project.completed_in_days }} days</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
-            <div class="col">
-                <div class="card text-center h-100">
-                    <div class="card-header">Users</div>
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-center h-100">
-                            <p>{{ funding_project.num_participants }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% if funding_project.is_active %}
-                <div class="col">
-                    <div class="card text-center h-100">
-                        <div class="card-header">Estimated Total</div>
+        <div class="row my-4">
+            <div class="col-12">
+                <div class="card-group">
+                    <div class="card text-center">
+                        <div class="card-header">Started</div>
                         <div class="card-body">
                             <div class="d-flex align-items-center justify-content-center h-100">
-                                <p>{{ funding_project.estimated_total|intcomma }}</p>
+                                <p class="card-text">{{ funding_project.created_at|date:"d/m/Y G:i e" }}</p>
                             </div>
                         </div>
                     </div>
-                </div>
-            {% endif %}
-            <div class="col">
-                <div class="card text-center h-100">
-                    <div class="card-header">Current Total</div>
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-center h-100">
-                            <p>{{ funding_project.current_total|intcomma }}</p>
+                    {% if not funding_project.is_active %}
+                        <div class="card text-center">
+                            <div class="card-header">Completed</div>
+                            <div class="card-body">
+                                <p class="card-text">{{ funding_project.completed_at|date:"d/m/Y G:i e" }}</p>
+                                <p class="card-text">After {{ funding_project.completed_in_days }} days</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="card text-center">
+                        <div class="card-header">Users</div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <p class="card-text">{{ funding_project.num_participants }}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card text-center h-100">
-                    <div class="card-header">Goal</div>
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-center h-100">
-                            <p>{{ funding_project.goal|intcomma }}</p>
+                    {% if funding_project.is_active %}
+                        <div class="card text-center">
+                            <div class="card-header">Estimated Total</div>
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-center h-100">
+                                    <p class="card-text">{{ funding_project.estimated_total|intcomma }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="card text-center">
+                        <div class="card-header">Current Total</div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <p class="card-text">{{ funding_project.current_total|intcomma }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card text-center">
+                        <div class="card-header">Goal</div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <p class="card-text">{{ funding_project.goal|intcomma }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row my-3">
+        <div class="row my-4">
             <div class="col-12">
                 <div class="progress-stacked" style="height: 20px;">
                     <div class="progress" role="progressbar" aria-label="Actual progress" aria-valuenow="{{ funding_project.html_actual_percentage_width }}" aria-valuemin="0" aria-valuemax="100" style="height: 20px; width: {{ funding_project.html_actual_percentage_width }}%">
@@ -94,7 +84,7 @@
                 </div>
             </div>
         </div>
-        <div class="row my-3">
+        <div class="row mt-4">
             <div class="col-12">
                 <div class="card">
                     <div class="card-header text-center">Contributors</div>

@@ -15,63 +15,59 @@
     <h1 class="page-header text-center">PvE Dashboard</h1>
     <div class="container-fluid">
         <div class="row my-3">
-            <div class="col-lg-3 col-sm-6">
-                <div class="card text-center">
-                    <div class="card-header">
-                        1 month
+            <div class="col-12">
+                <div class="card-group">
+                    <div class="card text-center">
+                        <div class="card-header">
+                            1 month
+                        </div>
+                        <div class="card-body">
+                            {% if averages.onemonth.actual_total %}
+                                <p>{{ averages.onemonth.actual_total|floatformat:"g" }}</p>
+                                <p>{{ averages.onemonth.helped_setups }} setup(s)</p>
+                            {% else %}
+                                <p>No activity in the last month</p>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="card-body">
-                        {% if averages.onemonth.actual_total %}
-                            <p>{{ averages.onemonth.actual_total|floatformat:"g" }}</p>
-                            <p>{{ averages.onemonth.helped_setups }} setup(s)</p>
-                        {% else %}
-                            <p>No activity in the last month</p>
-                        {% endif %}
+                    <div class="card text-center">
+                        <div class="card-header">
+                            3 months
+                        </div>
+                        <div class="card-body">
+                            {% if averages.threemonth.actual_total %}
+                                <p>{{ averages.threemonth.actual_total|floatformat:"g" }}</p>
+                                <p>{{ averages.threemonth.helped_setups }} setup(s)</p>
+                            {% else %}
+                                <p>No activity in the last 3 months</p>
+                            {% endif %}
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-sm-6">
-                <div class="card text-center">
-                    <div class="card-header">
-                        3 months
+                    <div class="card text-center">
+                        <div class="card-header">
+                            6 months
+                        </div>
+                        <div class="card-body">
+                            {% if averages.sixmonth.actual_total %}
+                                <p>{{ averages.sixmonth.actual_total|floatformat:"g" }}</p>
+                                <p>{{ averages.sixmonth.helped_setups }} setup(s)</p>
+                            {% else %}
+                                <p>No activity in the last 6 months</p>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="card-body">
-                        {% if averages.threemonth.actual_total %}
-                            <p>{{ averages.threemonth.actual_total|floatformat:"g" }}</p>
-                            <p>{{ averages.threemonth.helped_setups }} setup(s)</p>
-                        {% else %}
-                            <p>No activity in the last 3 months</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-sm-6">
-                <div class="card text-center">
-                    <div class="card-header">
-                        6 months
-                    </div>
-                    <div class="card-body">
-                        {% if averages.sixmonth.actual_total %}
-                            <p>{{ averages.sixmonth.actual_total|floatformat:"g" }}</p>
-                            <p>{{ averages.sixmonth.helped_setups }} setup(s)</p>
-                        {% else %}
-                            <p>No activity in the last 6 months</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-sm-6">
-                <div class="card text-center">
-                    <div class="card-header">
-                        12 months
-                    </div>
-                    <div class="card-body">
-                        {% if averages.oneyear.actual_total %}
-                            <p>{{ averages.oneyear.actual_total|floatformat:"g" }}</p>
-                            <p>{{ averages.oneyear.helped_setups }} setup(s)</p>
-                        {% else %}
-                            <p>No activity in the last year</p>
-                        {% endif %}
+                    <div class="card text-center">
+                        <div class="card-header">
+                            12 months
+                        </div>
+                        <div class="card-body">
+                            {% if averages.oneyear.actual_total %}
+                                <p>{{ averages.oneyear.actual_total|floatformat:"g" }}</p>
+                                <p>{{ averages.oneyear.helped_setups }} setup(s)</p>
+                            {% else %}
+                                <p>No activity in the last year</p>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
