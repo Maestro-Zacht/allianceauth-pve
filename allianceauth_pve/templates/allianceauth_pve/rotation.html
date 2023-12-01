@@ -1,187 +1,201 @@
-{% extends 'allianceauth/base.html' %}
+{% extends 'allianceauth/base-bs5.html' %}
 {% load evelinks %}
 {% load humanize %}
-{% load bootstrap %}
+{% load django_bootstrap5 %}
+
+{% block header_nav_brand %}
+    PvE Tool
+{% endblock header_nav_brand %}
 
 {% block page_title %}Rotation {{ rotation.name }}{% endblock page_title %}
 
 {% block extra_css %}
-    {% include 'bundles/datatables-css.html' %}
+    {% include "bundles/datatables-css-bs5.html" %}
     {% if rotation.is_closed %}
         <link rel="stylesheet" type="text/css" href="{% allianceauth_pve_static 'allianceauth_pve/css/copy_text.css' %}">
-        <link href="{% allianceauth_pve_static 'allianceauth_pve/css/spop.css' %}" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" type="text/css" href="{% allianceauth_pve_static 'allianceauth_pve/css/spop.css' %}">
     {% endif %}
-    <link href="{% allianceauth_pve_static 'allianceauth_pve/css/double_table.css' %}" rel="stylesheet" type="text/css">
-    <style>
-        .float-button-pve {
-            position:fixed;
-            width:60px;
-            height:60px;
-            bottom:20px;
-            right:40px;
-            background-color:#0C9;
-            color:#FFF;
-            border-radius:50px;
-            text-align:center;
-            padding:0;
-            margin:0;
-        }
-    </style>
 {% endblock extra_css %}
 
 {% block content %}
-    <div class="col-lg-12">
-        <h1 class="page-header text-center">{{ rotation.name }}</h1>
-        <div>
-            <div style="margin-bottom: 10px; margin-right: 10px; display: inline-block;">
-                <a href="{% url 'allianceauth_pve:dashboard' %}" class="btn btn-danger">Back</a>
-            </div>
-            {% if perms.allianceauth_pve.manage_rotations and not rotation.is_closed %}
-                <div style="margin-bottom: 10px; display: inline-block;">
-                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#closeRotationModal">Close Rotation</button>
-                </div>
-            {% endif %}
-        </div>
-        <div class="panel panel-default">
-            <div class="flex-center-horizontal">
-                <ul class="list-group list-group-horizontal" style="margin-bottom: 0;">
-                    <li class="list-group-item text-center">
-                        {% if rotation.is_closed %}
-                            <p class="text-center">Status</p>
-                            <p class="text-center"><b>Closed</b></p>
-                        {% else %}
-                            <p class="text-center">Age</p>
-                            <p class="text-center">{{ rotation.days_since }} days</p>
-                        {% endif %}
-                    </li>
-                    <li class="list-group-item text-center">
-                        <p class="text-center">Estimated Total</p>
-                        <p class="text-center">{{ rotation.estimated_total|floatformat:0|intcomma }}</p>
-                    </li>
-                    {% if rotation.is_closed %}
-                        <li class="list-group-item text-center">
-                            <p class="text-center">Actual Total</p>
-                            <p class="text-center">{{ rotation.actual_total|floatformat:0|intcomma }}</p>
-                        </li>
-                    {% endif %}
-                    <li class="list-group-item text-center">
-                        <p class="text-center">Tax Rate</p>
-                        <p class="text-center">{{ rotation.tax_rate|floatformat }} %</p>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h3 class="panel-title text-center">Summary</h3>
-            </div>
-            <div class="row-pve">
-                {% for summary in summaries %}
-                    <div class="column-pve">
-                        <table class="table table-aa">
-                            <thead>
-                                <tr>
-                                    <th>Character</th>
-                                    <th>Setups</th>
-                                    {% if rotation.is_closed %}
-                                        <th>Actual Total</th>
-                                        <th>Estimated Total</th>
-                                        <th></th>
-                                    {% else %}
-                                        <th>Total</th>
-                                    {% endif %}
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {% for row in summary %}
-                                    {% if row.user == user.pk and not rotation.is_closed %}
-                                    <tr class="info copy-row">
-                                    {% else %}
-                                    <tr class="copy-row">
-                                    {% endif %}
-                                        <td>
-                                            <img src="{{ row.character_id|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
-                                            {% if rotation.is_closed %}
-                                                <span class="copy-text">{{ row.character_name }}</span>
-                                            {% else %}
-                                                {{ row.character_name }}
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ row.helped_setups }}</td>
-                                        {% if rotation.is_closed %}
-                                            <td class="copy-text">{{ row.actual_total|floatformat:0|intcomma }}</td>
-                                        {% endif %}
-                                        <td>{{ row.estimated_total|floatformat:0|intcomma }}</td>
-                                        {% if rotation.is_closed %}
-                                            <td>
-                                                <i class="fas fa-times-circle undo-copy" style="transform: scale(1.5, 1.5);" data-toggle="tooltip" data-placement="top" title="Remove Copy Color"></i>
-                                            </td>
-                                        {% endif %}
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+    <h1 class="page-header text-center">{{ rotation.name }}</h1>
+    <div class="container-fluid">
+        <div class="row my-4">
+            <div class="col-12">
+                <div class="card-group">
+                    <div class="card text-center">
+                        <div class="card-header">
+                            {% if rotation.is_closed %}
+                                Status
+                            {% else %}
+                                Age
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            {% if rotation.is_closed %}
+                                Closed
+                            {% else %}
+                                {{ rotation.days_since }} days
+                            {% endif %}
+                        </div>
                     </div>
-                {% endfor %}
+                    <div class="card text-center">
+                        <div class="card-header">
+                            Estimated Total
+                        </div>
+                        <div class="card-body">
+                            {{ rotation.estimated_total|floatformat:"g" }}
+                        </div>
+                    </div>
+                    {% if rotation.is_closed %}
+                        <div class="card text-center">
+                            <div class="card-header">
+                                Actual Total
+                            </div>
+                            <div class="card-body">
+                                {{ rotation.actual_total|floatformat:"g" }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="card text-center">
+                        <div class="card-header">
+                            Tax Rate
+                        </div>
+                        <div class="card-body">
+                            {{ rotation.tax_rate|floatformat }} &percnt;
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                {% for summary in summaries %}
+                                    <div class="col-12 col-md-6">
+                                        <table class="table table-aa">
+                                            <thead>
+                                                <tr>
+                                                    <th>Character</th>
+                                                    <th>Setups</th>
+                                                    {% if rotation.is_closed %}
+                                                        <th>Actual Total</th>
+                                                        <th>Estimated Total</th>
+                                                        <th></th>
+                                                    {% else %}
+                                                        <th>Total</th>
+                                                    {% endif %}
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                                {% for row in summary %}
+                                                    <tr class="{% if row.user == user.pk and not rotation.is_closed %}bg-info bg-opacity-25 {% endif %}copy-row">
+                                                        <td>
+                                                            <img src="{{ row.character_id|character_portrait_url:32 }}" class="rounded me-2">
+                                                                <span{% if rotation.is_closed %} class="copy-text"{% endif %}>{{ row.character_name }}</span>
+                                                        </td>
+                                                        <td>{{ row.helped_setups }}</td>
+                                                        {% if rotation.is_closed %}
+                                                            <td class="copy-text">{{ row.actual_total|floatformat:0|intcomma }}</td>
+                                                        {% endif %}
+                                                        <td>{{ row.estimated_total|floatformat:0|intcomma }}</td>
+                                                        {% if rotation.is_closed %}
+                                                            <td>
+                                                                <i class="fas fa-times-circle undo-copy" style="transform: scale(1.5, 1.5);" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Remove Copy Color"></i>
+                                                            </td>
+                                                        {% endif %}
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         {% if not rotation.is_closed %}
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <h3 class="panel-title text-center">Entries</h3>
-                </div>
-                <div class="panel-body">
-                    <table class="table table-aa" id="entries_table">
-                        <thead>
-                            <th scope="row">Date</th>
-                            <th scope="row">User Count</th>
-                            <th scope="row">Share Count</th>
-                            <th scope="row">Total After Tax</th>
-                            <th scope="row">Total</th>
-                            <th scope="row">Created By</th>
-                            <th></th>
-                        </thead>
-                        <tbody>
-                            {% for entry in entries %}
-                                <tr>
-                                    <td>{{ entry.created_at|date:"d/m/Y G:i e" }}</td>
-                                    <td>{{ entry.total_user_count }}</td>
-                                    <td>{{ entry.total_site_count }}</td>
-                                    <td>{{ entry.estimated_total_after_tax|floatformat|intcomma }}</td>
-                                    <td>{{ entry.estimated_total|intcomma }}</td>
-                                    <td>
-                                        <img src="{{ entry.created_by.profile.main_character|character_portrait_url:32 }}" class="img-circle" style="margin-right: 1rem;">
-                                        {{ entry.created_by.profile.main_character.character_name }}
-                                    </td>
-                                    <td><a data-toggle="tooltip" data-placement="top" title="Show Details" href="{% url 'allianceauth_pve:entry_detail' entry.pk %}"><i class="fas fa-chevron-circle-right"></i></a></td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header text-center">Entries</div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-aa" id="entries_table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Date</th>
+                                            <th scope="col">User Count</th>
+                                            <th scope="col">Share Count</th>
+                                            <th scope="col">Total After Tax</th>
+                                            <th scope="col">Total</th>
+                                            <th scope="col">Created By</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for entry in entries %}
+                                            <tr>
+                                                <td>{{ entry.created_at|date:"d/m/Y G:i e" }}</td>
+                                                <td>{{ entry.total_user_count }}</td>
+                                                <td>{{ entry.total_site_count }}</td>
+                                                <td>{{ entry.estimated_total_after_tax|floatformat:"g" }}</td>
+                                                <td>{{ entry.estimated_total|intcomma }}</td>
+                                                <td>
+                                                    <img src="{{ entry.created_by.profile.main_character|character_portrait_url:32 }}" class="rounded me-2">
+                                                    {{ entry.created_by.profile.main_character.character_name }}
+                                                </td>
+                                                <td><a data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Show Details" href="{% url 'allianceauth_pve:entry_detail' entry.pk %}"><i class="fas fa-chevron-circle-right"></i></a></td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% if perms.allianceauth_pve.manage_entries and not rotation.is_closed %}
+                                <div class="d-flex justify-content-center">
+                                    <a href="{% url 'allianceauth_pve:new_entry' rotation.pk %}" class="btn btn-success rounded" data-bs-toggle="tooltip" data-bs-placement="top" title="New Entry"><i class="fa fa-plus"></i></a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
         {% endif %}
-        {% if perms.allianceauth_pve.manage_entries and not rotation.is_closed %}
-            <a href="{% url 'allianceauth_pve:new_entry' rotation.pk %}" class="float-button-pve" data-toggle="tooltip" data-placement="top" title="New Entry"><i class="fa fa-plus" style="margin-top:22px;"></i></a>
-        {% endif %}
+        <div class="row my-3">
+            <div class="col-12">
+                <div class="d-flex flex-row-reverse">
+                    {% if perms.allianceauth_pve.manage_rotations and not rotation.is_closed %}
+                        <button type="button" id="closeRotationButton" class="btn btn-success mx-2" data-bs-toggle="modal" data-bs-target="#closeRotationModal">Close Rotation</button>
+                    {% endif %}
+                    <a href="{% url 'allianceauth_pve:dashboard' %}" class="btn btn-danger">Back</a>
+                </div>
+            </div>
+        </div>
     </div>
-
     {% if perms.allianceauth_pve.manage_rotations and not rotation.is_closed %}
-        <div class="modal fade" id="closeRotationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
+        <div class="modal fade" id="closeRotationModal" tabindex="-1" role="dialog" aria-labelledby="closeRotationButton" aria-hidden="true">
+            <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Close Rotation</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
-                        <form method="post">
+                    <form method="post">
+                        <div class="modal-body">
                             {% csrf_token %}
-                            {{ closeform|bootstrap }}
+                            {% bootstrap_form closeform %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Dismiss</button>
                             <button type="submit" class="btn btn-primary">Confirm</button>
-                            <button type="button" class="btn btn-danger" data-dismiss="modal">Dismiss</button>
-                        </form>
-                    </div>
+                        </div>
+                     </form>
                 </div>
             </div>
         </div>
@@ -189,7 +203,7 @@
 {% endblock content %}
 
 {% block extra_javascript %}
-{% include 'bundles/datatables-js.html' %}
+{% include "bundles/datatables-js-bs5.html" %}
     <script src="{% allianceauth_pve_static 'allianceauth_pve/js/localized_checkbox.js' %}"></script>
     {% if rotation.is_closed %}
         <script src="{% allianceauth_pve_static 'allianceauth_pve/js/spop.js' %}"></script>
@@ -198,10 +212,8 @@
 {% endblock extra_javascript %}
 
 {% block extra_script %}
-    $(function () {
-        $('[data-toggle="tooltip"]').tooltip()
-    })
     $(document).ready(function() {
+        $('[data-bs-toggle="tooltip"]').tooltip();
         $('#entries_table').DataTable({
             columnDefs: [
                 { targets: [0, 1, 2, 3, 4, 6], searchable: false }
