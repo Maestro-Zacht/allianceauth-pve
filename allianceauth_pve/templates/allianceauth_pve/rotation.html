@@ -159,7 +159,7 @@
                             </div>
                             {% if perms.allianceauth_pve.manage_entries and not rotation.is_closed %}
                                 <div class="d-flex justify-content-center">
-                                    <a href="{% url 'allianceauth_pve:new_entry' rotation.pk %}" class="btn btn-success rounded" data-bs-toggle="tooltip" data-bs-placement="top" title="New Entry"><i class="fa fa-plus"></i></a>
+                                    <a href="{% url 'allianceauth_pve:new_entry' rotation.pk %}" class="btn btn-success">New Entry</a>
                                 </div>
                             {% endif %}
                         </div>
