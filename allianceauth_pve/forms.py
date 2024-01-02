@@ -19,8 +19,7 @@ class NewEntryForm(forms.Form):
         required=True,
         widget=forms.TextInput(
             attrs={
-                'style': 'width: 50%',
-                'class': 'localized-input',
+                'class': 'form-control localized-input w-50',
                 'minvalue': 1,
                 'maxvalue': 1000000000000
             }
@@ -30,14 +29,20 @@ class NewEntryForm(forms.Form):
     funding_project = forms.ModelChoiceField(
         queryset=FundingProject.objects.filter(is_active=True),
         required=False,
-        widget=forms.Select(attrs={'style': 'color: #000; width: 40%;'}),
+        widget=forms.Select(attrs={'class': 'form-control'}),
     )
-    funding_amount = forms.IntegerField(max_value=100, min_value=0, initial=0, label="Percentage")
+    funding_amount = forms.IntegerField(
+        max_value=100,
+        min_value=0,
+        initial=0,
+        label="Percentage",
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
 
 
 class NewRoleForm(forms.Form):
     name = forms.CharField(widget=forms.HiddenInput())
-    value = forms.IntegerField(min_value=0)
+    value = forms.IntegerField(min_value=0, widget=forms.NumberInput(attrs={'class': 'form-control'}))
 
 
 class NewRoleFormset(forms.BaseFormSet):
@@ -71,11 +76,11 @@ class CharacterPkField(forms.IntegerField):
 
 
 class NewShareForm(forms.Form):
-    user = UserPkField(required=True, widget=forms.TextInput(attrs={'style': 'display: none;', 'class': 'user-pk-list'}))
-    character = CharacterPkField(required=True, widget=forms.TextInput(attrs={'style': 'display: none;', 'class': 'character-pk-list'}))
+    user = UserPkField(required=True, widget=forms.TextInput(attrs={'class': 'user-pk-list d-none'}))
+    character = CharacterPkField(required=True, widget=forms.TextInput(attrs={'class': 'character-pk-list d-none'}))
     helped_setup = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'setup'}))
-    site_count = forms.IntegerField(min_value=0, required=True, widget=forms.NumberInput(attrs={'style': 'width: 10ch;'}))
-    role = forms.ChoiceField(required=True, widget=forms.Select(attrs={'class': 'form-control', 'style': 'height: auto;'}))
+    site_count = forms.IntegerField(min_value=0, required=True, widget=forms.NumberInput(attrs={'style': 'width: 7ch;', 'class': 'form-control'}))
+    role = forms.ChoiceField(required=True, widget=forms.Select(attrs={'class': 'form-control'}))
 
 
 class NewShareFormset(forms.BaseFormSet):
