@@ -1,147 +1,134 @@
-{% extends 'allianceauth/base-bs5.html' %}
+{% extends 'allianceauth_pve/base.html' %}
 {% load humanize %}
 {% load evelinks %}
 {% load pvefilters %}
 
-{% block header_nav_brand %}
-    PvE Tool
-{% endblock header_nav_brand %}
 
 {% block page_title %}Funding Project Details{% endblock page_title %}
 
 
-{% block content %}
+{% block pvecontent %}
     <h1 class="page-header text-center">{{ funding_project.name }}</h1>
-    <div class="container-fluid">
-        <div class="row my-4">
-            <div class="col-12">
-                <div class="card-group">
-                    <div class="card text-center">
-                        <div class="card-header">Started</div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center justify-content-center h-100">
-                                <p class="card-text">{{ funding_project.created_at|date:"d/m/Y G:i e" }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    {% if not funding_project.is_active %}
-                        <div class="card text-center">
-                            <div class="card-header">Completed</div>
-                            <div class="card-body">
-                                <p class="card-text">{{ funding_project.completed_at|date:"d/m/Y G:i e" }}</p>
-                                <p class="card-text">After {{ funding_project.completed_in_days }} days</p>
-                            </div>
-                        </div>
-                    {% endif %}
-                    <div class="card text-center">
-                        <div class="card-header">Users</div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center justify-content-center h-100">
-                                <p class="card-text">{{ funding_project.num_participants }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    {% if funding_project.is_active %}
-                        <div class="card text-center">
-                            <div class="card-header">Estimated Total</div>
-                            <div class="card-body">
-                                <div class="d-flex align-items-center justify-content-center h-100">
-                                    <p class="card-text">{{ funding_project.estimated_total|intcomma }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    {% endif %}
-                    <div class="card text-center">
-                        <div class="card-header">Current Total</div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center justify-content-center h-100">
-                                <p class="card-text">{{ funding_project.current_total|intcomma }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card text-center">
-                        <div class="card-header">Goal</div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center justify-content-center h-100">
-                                <p class="card-text">{{ funding_project.goal|intcomma }}</p>
-                            </div>
-                        </div>
+    <div class="col-12 mt-4">
+        <div class="card-group">
+            <div class="card text-center">
+                <div class="card-header">Started</div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-center h-100">
+                        <p class="card-text">{{ funding_project.created_at|date:"d/m/Y G:i e" }}</p>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row my-4">
-            <div class="col-12">
-                <div class="progress-stacked" style="height: 20px;">
-                    <div class="progress" role="progressbar" aria-label="Actual progress" aria-valuenow="{{ funding_project.html_actual_percentage_width }}" aria-valuemin="0" aria-valuemax="100" style="height: 20px; width: {{ funding_project.html_actual_percentage_width }}%">
-                        <div class="progress-bar {% if funding_project.is_active %}progress-bar-striped progress-bar-animated {% endif %}{% if funding_project.actual_percentage >= 100 %}bg-success{% elif funding_project.actual_percentage <= 1 %}bg-danger{% elif funding_project.actual_percentage < 25 %}bg-warning{% else %}bg-info{% endif %}">{{ funding_project.actual_percentage|floatformat }} &percnt;</div>
-                    </div>
-                    {% if funding_project.is_active %}
-                        <div class="progress{% if funding_project.actual_percentage >= 100 %} d-none{% endif %}" role="progressbar" aria-label="Estimated progress" aria-valuenow="{{ funding_project.html_estimated_percentage_width }}" aria-valuemin="0" aria-valuemax="100" style="height: 20px; width: {{ funding_project.html_estimated_percentage_width }}%">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated{% if funding_project.total_percentage >= 100 %} bg-success{% endif %}">{{ funding_project.estimated_missing_percentage|floatformat }} &percnt;</div>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header text-center">Contributors</div>
+            {% if not funding_project.is_active %}
+                <div class="card text-center">
+                    <div class="card-header">Completed</div>
                     <div class="card-body">
-                        <div class="container-fluid">
-                            <div class="row">
-                                {% for summary in summaries %}
-                                    <div class="col-12 col-md-6">
-                                        <table class="table table-aa">
-                                            <thead>
-                                                <tr>
-                                                    <th>User's Main Character</th>
-                                                    {% if funding_project.is_active %}
-                                                        <th>Estimated Total</th>
-                                                    {% endif %}
-                                                    <th>Actual Total</th>
-                                                </tr>
-                                            </thead>
-
-                                            <tbody>
-                                                {% for row in summary %}
-                                                    <tr>
-                                                        <td>
-                                                            <img src="{{ row.character_id|character_portrait_url:32 }}" class="rounded me-2">
-                                                            {{ row.character_name }}
-                                                        </td>
-                                                        {% if funding_project.is_active %}
-                                                            <td>{{ row.estimated_total|intcomma }}</td>
-                                                        {% endif %}
-                                                        <td>{{ row.actual_total|intcomma }}</td>
-                                                    </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
+                        <p class="card-text">{{ funding_project.completed_at|date:"d/m/Y G:i e" }}</p>
+                        <p class="card-text">After {{ funding_project.completed_in_days }} days</p>
+                    </div>
+                </div>
+            {% endif %}
+            <div class="card text-center">
+                <div class="card-header">Users</div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-center h-100">
+                        <p class="card-text">{{ funding_project.num_participants }}</p>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row my-3">
-            <div class="col-12">
-                <div class="d-flex flex-row-reverse">
-                    {% if perms.allianceauth_pve.manage_funding_projects %}
-                        <a href="{% url 'allianceauth_pve:project_toggle_complete' funding_project.pk %}" class="btn btn-danger ms-2">
-                            {% if funding_project.is_active %}
-                                Mark As Completed
-                            {% else %}
-                                Reopen
-                            {% endif %}
-                        </a>
-                    {% endif %}
-                    <a href="{% url 'allianceauth_pve:index' %}" class="btn btn-primary">Back</a>
+            {% if funding_project.is_active %}
+                <div class="card text-center">
+                    <div class="card-header">Estimated Total</div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-center h-100">
+                            <p class="card-text">{{ funding_project.estimated_total|intcomma }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            <div class="card text-center">
+                <div class="card-header">Current Total</div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-center h-100">
+                        <p class="card-text">{{ funding_project.current_total|intcomma }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card text-center">
+                <div class="card-header">Goal</div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-center h-100">
+                        <p class="card-text">{{ funding_project.goal|intcomma }}</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-{% endblock content %}
+    <div class="col-12 mt-4">
+        <div class="progress-stacked" style="height: 20px;">
+            <div class="progress" role="progressbar" aria-label="Actual progress" aria-valuenow="{{ funding_project.html_actual_percentage_width }}" aria-valuemin="0" aria-valuemax="100" style="height: 20px; width: {{ funding_project.html_actual_percentage_width }}%">
+                <div class="progress-bar {% if funding_project.is_active %}progress-bar-striped progress-bar-animated {% endif %}{% if funding_project.actual_percentage >= 100 %}bg-success{% elif funding_project.actual_percentage <= 1 %}bg-danger{% elif funding_project.actual_percentage < 25 %}bg-warning{% else %}bg-info{% endif %}">{{ funding_project.actual_percentage|floatformat }} &percnt;</div>
+            </div>
+            {% if funding_project.is_active %}
+                <div class="progress{% if funding_project.actual_percentage >= 100 %} d-none{% endif %}" role="progressbar" aria-label="Estimated progress" aria-valuenow="{{ funding_project.html_estimated_percentage_width }}" aria-valuemin="0" aria-valuemax="100" style="height: 20px; width: {{ funding_project.html_estimated_percentage_width }}%">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated{% if funding_project.total_percentage >= 100 %} bg-success{% endif %}">{{ funding_project.estimated_missing_percentage|floatformat }} &percnt;</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-12 mt-4">
+        <div class="card">
+            <div class="card-header text-center">Contributors</div>
+            <div class="card-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        {% for summary in summaries %}
+                            <div class="col-12 col-md-6">
+                                <table class="table table-aa">
+                                    <thead>
+                                        <tr>
+                                            <th>User's Main Character</th>
+                                            {% if funding_project.is_active %}
+                                                <th>Estimated Total</th>
+                                            {% endif %}
+                                            <th>Actual Total</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for row in summary %}
+                                            <tr>
+                                                <td>
+                                                    <img src="{{ row.character_id|character_portrait_url:32 }}" class="rounded me-2">
+                                                    {{ row.character_name }}
+                                                </td>
+                                                {% if funding_project.is_active %}
+                                                    <td>{{ row.estimated_total|intcomma }}</td>
+                                                {% endif %}
+                                                <td>{{ row.actual_total|intcomma }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 mt-3">
+        <div class="d-flex flex-row-reverse">
+            {% if perms.allianceauth_pve.manage_funding_projects %}
+                <a href="{% url 'allianceauth_pve:project_toggle_complete' funding_project.pk %}" class="btn btn-danger ms-2">
+                    {% if funding_project.is_active %}
+                        Mark As Completed
+                    {% else %}
+                        Reopen
+                    {% endif %}
+                </a>
+            {% endif %}
+            <a href="{% url 'allianceauth_pve:index' %}" class="btn btn-primary">Back</a>
+        </div>
+    </div>
+{% endblock pvecontent %}

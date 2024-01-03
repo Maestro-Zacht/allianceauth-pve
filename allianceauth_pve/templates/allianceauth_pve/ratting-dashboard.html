@@ -1,9 +1,5 @@
-{% extends 'allianceauth/base-bs5.html' %}
+{% extends 'allianceauth_pve/base.html' %}
 {% load humanize %}
-
-{% block header_nav_brand %}
-    PvE Tool
-{% endblock header_nav_brand %}
 
 {% block page_title %}PvE Dashboard{% endblock page_title %}
 
@@ -11,243 +7,235 @@
     {% include "bundles/datatables-css-bs5.html" %}
 {% endblock extra_css %}
 
-{% block content %}
+{% block pvecontent %}
     <h1 class="page-header text-center">PvE Dashboard</h1>
-    <div class="container-fluid">
-        <div class="row my-3">
-            <div class="col-12">
-                <div class="card-group">
-                    <div class="card text-center">
-                        <div class="card-header">
-                            1 month
-                        </div>
-                        <div class="card-body">
-                            {% if averages.onemonth.actual_total %}
-                                <p>{{ averages.onemonth.actual_total|floatformat:"g" }}</p>
-                                <p>{{ averages.onemonth.helped_setups }} setup(s)</p>
-                            {% else %}
-                                <p>No activity in the last month</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="card text-center">
-                        <div class="card-header">
-                            3 months
-                        </div>
-                        <div class="card-body">
-                            {% if averages.threemonth.actual_total %}
-                                <p>{{ averages.threemonth.actual_total|floatformat:"g" }}</p>
-                                <p>{{ averages.threemonth.helped_setups }} setup(s)</p>
-                            {% else %}
-                                <p>No activity in the last 3 months</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="card text-center">
-                        <div class="card-header">
-                            6 months
-                        </div>
-                        <div class="card-body">
-                            {% if averages.sixmonth.actual_total %}
-                                <p>{{ averages.sixmonth.actual_total|floatformat:"g" }}</p>
-                                <p>{{ averages.sixmonth.helped_setups }} setup(s)</p>
-                            {% else %}
-                                <p>No activity in the last 6 months</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="card text-center">
-                        <div class="card-header">
-                            12 months
-                        </div>
-                        <div class="card-body">
-                            {% if averages.oneyear.actual_total %}
-                                <p>{{ averages.oneyear.actual_total|floatformat:"g" }}</p>
-                                <p>{{ averages.oneyear.helped_setups }} setup(s)</p>
-                            {% else %}
-                                <p>No activity in the last year</p>
-                            {% endif %}
-                        </div>
-                    </div>
+    <div class="col-12 my-3">
+        <div class="card-group">
+            <div class="card text-center">
+                <div class="card-header">
+                    1 month
+                </div>
+                <div class="card-body">
+                    {% if averages.onemonth.actual_total %}
+                        <p>{{ averages.onemonth.actual_total|floatformat:"g" }}</p>
+                        <p>{{ averages.onemonth.helped_setups }} setup(s)</p>
+                    {% else %}
+                        <p>No activity in the last month</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card text-center">
+                <div class="card-header">
+                    3 months
+                </div>
+                <div class="card-body">
+                    {% if averages.threemonth.actual_total %}
+                        <p>{{ averages.threemonth.actual_total|floatformat:"g" }}</p>
+                        <p>{{ averages.threemonth.helped_setups }} setup(s)</p>
+                    {% else %}
+                        <p>No activity in the last 3 months</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card text-center">
+                <div class="card-header">
+                    6 months
+                </div>
+                <div class="card-body">
+                    {% if averages.sixmonth.actual_total %}
+                        <p>{{ averages.sixmonth.actual_total|floatformat:"g" }}</p>
+                        <p>{{ averages.sixmonth.helped_setups }} setup(s)</p>
+                    {% else %}
+                        <p>No activity in the last 6 months</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card text-center">
+                <div class="card-header">
+                    12 months
+                </div>
+                <div class="card-body">
+                    {% if averages.oneyear.actual_total %}
+                        <p>{{ averages.oneyear.actual_total|floatformat:"g" }}</p>
+                        <p>{{ averages.oneyear.helped_setups }} setup(s)</p>
+                    {% else %}
+                        <p>No activity in the last year</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
-        <div class="row my-3">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <ul class="nav nav-tabs card-header-tabs">
-                            <li class="nav-item">
-                                <button class="nav-link active" id="open-rotations-tab" data-bs-toggle="tab" data-bs-target="#open-rotations-panel" type="button" role="tab" aria-controls="open-rotations-panel" aria-selected="true">
-                                    Open Rotations
-                                    <span class="badge text-bg-primary ms-1">{{ open_rots.count }}</span>
-                                </button>
-                            </li>
-                            <li class="nav-item">
-                                <button class="nav-link" id="closed-rotations-tab" data-bs-toggle="tab" data-bs-target="#closed-rotations-panel" type="button" role="tab" aria-controls="closed-rotations-panel" aria-selected="false">
-                                    Closed Rotations
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="card-body">
-                        <div class="tab-content">
-                            <div class="tab-pane fade show active" id="open-rotations-panel" role="tabpanel" aria-labelledby="open-rotations-tab" tabindex="0">
-                                {% if open_rots.count > 0 %}
-                                    <div class="table-responsive">
-                                        <table class="table table-aa" id="open_rotations">
-                                            <thead>
-                                                <tr>
-                                                    <th style="width: 25%;">Name</th>
-                                                    <th style="width: 25%;">Age (days)</th>
-                                                    <th style="width: 25%;">Participants</th>
-                                                    <th style="width: 25%;">Current Total</th>
-                                                </tr>
-                                            </thead>
-
-                                            <tbody>
-                                                {% for rotation in open_rots %}
-                                                    <tr>
-                                                        <td style="width: 25%;"><a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}">{{ rotation.name }}</a></td>
-                                                        <td style="width: 25%;">{{ rotation.days_since }}</td>
-                                                        <td style="width: 25%;">{{ rotation.summary_count }}</td>
-                                                        <td style="width: 25%;">{{ rotation.estimated_total|floatformat|intcomma }}</td>
-                                                    </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                {% else %}
-                                    <div class="alert alert-warning text-center">No open rotations</div>
-                                {% endif %}
-                                {% if perms.allianceauth_pve.manage_rotations or user.is_superuser %}
-                                    <a href="{% url 'allianceauth_pve:new_rotation' %}" class="btn btn-info mt-2">New Rotation</a>
-                                {% endif %}
-                            </div>
-                            <div class="tab-pane fade" id="closed-rotations-panel" role="tabpanel" aria-labelledby="closed-rotations-tab" tabindex="0">
-                                {% if closed_rots.count > 0 %}
-                                    <div class="table-responsive">
-                                        <table class="table table-aa" id="closed_rotations">
-                                            <thead>
-                                                <tr>
-                                                    <th style="width: 25%;">Name</th>
-                                                    <th style="width: 25%;">Closed On</th>
-                                                    <th style="width: 25%;">Participants</th>
-                                                    <th style="width: 25%;">Total</th>
-                                                </tr>
-                                            </thead>
-
-                                            <tbody>
-                                                {% for rotation in closed_rots %}
-                                                    <tr>
-                                                        <td style="width: 25%;"><a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}">{{ rotation.pk }} - {{ rotation.name }}</a></td>
-                                                        <td style="width: 25%;">{{ rotation.closed_at }}</td>
-                                                        <td style="width: 25%;">{{ rotation.summary_count }}</td>
-                                                        <td style="width: 25%;">{{ rotation.actual_total|floatformat:"g" }}</td>
-                                                    </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                {% else %}
-                                    <div class="alert alert-warning text-center">No closed rotations</div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    </div>
+    <div class="col-12 my-3">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="open-rotations-tab" data-bs-toggle="tab" data-bs-target="#open-rotations-panel" type="button" role="tab" aria-controls="open-rotations-panel" aria-selected="true">
+                            Open Rotations
+                            <span class="badge text-bg-primary ms-1">{{ open_rots.count }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="closed-rotations-tab" data-bs-toggle="tab" data-bs-target="#closed-rotations-panel" type="button" role="tab" aria-controls="closed-rotations-panel" aria-selected="false">
+                            Closed Rotations
+                        </button>
+                    </li>
+                </ul>
             </div>
-        </div>
-        <div class="row my-3">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <ul class="nav nav-tabs card-header-tabs">
-                            <li class="nav-item">
-                                <button class="nav-link active" id="open-projects-tab" data-bs-toggle="tab" data-bs-target="#open-projects-panel" type="button" role="tab" aria-controls="open-projects-panel" aria-selected="true">
-                                    Active Projects
-                                    <span class="badge text-bg-primary ms-1">{{ open_projects.count }}</span>
-                                </button>
-                            </li>
-                            <li class="nav-item">
-                                <button class="nav-link" id="closed-projects-tab" data-bs-toggle="tab" data-bs-target="#closed-projects-panel" type="button" role="tab" aria-controls="closed-projects-panel" aria-selected="false">
-                                    Finished Projects
-                                </button>
-                            </li>
-                        </ul>
+            <div class="card-body">
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="open-rotations-panel" role="tabpanel" aria-labelledby="open-rotations-tab" tabindex="0">
+                        {% if open_rots.count > 0 %}
+                            <div class="table-responsive">
+                                <table class="table table-aa" id="open_rotations">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 25%;">Name</th>
+                                            <th style="width: 25%;">Age (days)</th>
+                                            <th style="width: 25%;">Participants</th>
+                                            <th style="width: 25%;">Current Total</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for rotation in open_rots %}
+                                            <tr>
+                                                <td style="width: 25%;"><a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}">{{ rotation.name }}</a></td>
+                                                <td style="width: 25%;">{{ rotation.days_since }}</td>
+                                                <td style="width: 25%;">{{ rotation.summary_count }}</td>
+                                                <td style="width: 25%;">{{ rotation.estimated_total|floatformat|intcomma }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning text-center">No open rotations</div>
+                        {% endif %}
+                        {% if perms.allianceauth_pve.manage_rotations or user.is_superuser %}
+                            <a href="{% url 'allianceauth_pve:new_rotation' %}" class="btn btn-info mt-2">New Rotation</a>
+                        {% endif %}
                     </div>
-                    <div class="card-body">
-                        <div class="tab-content">
-                            <div class="tab-pane fade show active" id="open-projects-panel" role="tabpanel" aria-labelledby="open-projects-tab" tabindex="0">
-                                {% if open_projects.count > 0 %}
-                                    <div class="table-responsive">
-                                        <table class="table table-aa" id="open_projects">
-                                            <thead>
-                                                <tr>
-                                                    <th style="width: 20%;">Name</th>
-                                                    <th style="width: 20%;">Age (days)</th>
-                                                    <th style="width: 20%;">Estimated Total (Actual)</th>
-                                                    <th style="width: 20%;">Goal</th>
-                                                    <th style="width: 20%;">Completed (Actual)</th>
-                                                </tr>
-                                            </thead>
+                    <div class="tab-pane fade" id="closed-rotations-panel" role="tabpanel" aria-labelledby="closed-rotations-tab" tabindex="0">
+                        {% if closed_rots.count > 0 %}
+                            <div class="table-responsive">
+                                <table class="table table-aa" id="closed_rotations">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 25%;">Name</th>
+                                            <th style="width: 25%;">Closed On</th>
+                                            <th style="width: 25%;">Participants</th>
+                                            <th style="width: 25%;">Total</th>
+                                        </tr>
+                                    </thead>
 
-                                            <tbody>
-                                                {% for project in open_projects %}
-                                                    <tr>
-                                                        <td style="width: 20%;"><a href="{% url 'allianceauth_pve:project_detail' project.pk %}">{{ project.name }}</a></td>
-                                                        <td style="width: 20%;">{{ project.days_since }}</td>
-                                                        <td style="width: 20%;">{{ project.estimated_total|intcomma }} ({{ project.current_total|intcomma }})</td>
-                                                        <td style="width: 20%;">{{ project.goal|intcomma }}</td>
-                                                        <td style="width: 20%;">{{ project.total_percentage|floatformat }} &percnt; ({{ project.actual_percentage|floatformat }} &percnt;)</td>
-                                                    </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                {% else %}
-                                    <div class="alert alert-warning text-center">No active projects</div>
-                                {% endif %}
-                                {% if perms.allianceauth_pve.manage_funding_projects or user.is_superuser %}
-                                    <a href="{% url 'allianceauth_pve:new_project' %}" class="btn btn-info mt-2">New Funding Project</a>
-                                {% endif %}
+                                    <tbody>
+                                        {% for rotation in closed_rots %}
+                                            <tr>
+                                                <td style="width: 25%;"><a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}">{{ rotation.pk }} - {{ rotation.name }}</a></td>
+                                                <td style="width: 25%;">{{ rotation.closed_at }}</td>
+                                                <td style="width: 25%;">{{ rotation.summary_count }}</td>
+                                                <td style="width: 25%;">{{ rotation.actual_total|floatformat:"g" }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="tab-pane fade" id="closed-projects-panel" role="tabpanel" aria-labelledby="closed-projects-tab" tabindex="0">
-                                {% if closed_projects.count > 0 %}
-                                    <div class="table-responsive">
-                                        <table class="table table-aa" id="closed_projects_table">
-                                            <thead>
-                                                <tr>
-                                                    <th style="width: 25%;">Name</th>
-                                                    <th style="width: 25%;">Completed in (days)</th>
-                                                    <th style="width: 25%;">Goal</th>
-                                                    <th style="width: 25%;">Actual total</th>
-                                                </tr>
-                                            </thead>
-
-                                            <tbody>
-                                                {% for project in closed_projects %}
-                                                    <tr>
-                                                        <td style="width: 25%;"><a href="{% url 'allianceauth_pve:project_detail' project.pk %}">{{ project.name }}</a></td>
-                                                        <td style="width: 25%;">{{ project.completed_in_days }}</td>
-                                                        <td style="width: 25%;">{{ project.goal|intcomma }}</td>
-                                                        <td style="width: 25%;">{{ project.current_total|intcomma }}</td>
-                                                    </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>    
-                                    </div>
-                                {% else %}
-                                    <div class="alert alert-warning text-center">No closed projects</div>
-                                {% endif %}
-                            </div>
-                        </div>
+                        {% else %}
+                            <div class="alert alert-warning text-center">No closed rotations</div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
-{% endblock content %}
+    <div class="col-12 my-3">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="open-projects-tab" data-bs-toggle="tab" data-bs-target="#open-projects-panel" type="button" role="tab" aria-controls="open-projects-panel" aria-selected="true">
+                            Active Projects
+                            <span class="badge text-bg-primary ms-1">{{ open_projects.count }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="closed-projects-tab" data-bs-toggle="tab" data-bs-target="#closed-projects-panel" type="button" role="tab" aria-controls="closed-projects-panel" aria-selected="false">
+                            Finished Projects
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="open-projects-panel" role="tabpanel" aria-labelledby="open-projects-tab" tabindex="0">
+                        {% if open_projects.count > 0 %}
+                            <div class="table-responsive">
+                                <table class="table table-aa" id="open_projects">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 20%;">Name</th>
+                                            <th style="width: 20%;">Age (days)</th>
+                                            <th style="width: 20%;">Estimated Total (Actual)</th>
+                                            <th style="width: 20%;">Goal</th>
+                                            <th style="width: 20%;">Completed (Actual)</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for project in open_projects %}
+                                            <tr>
+                                                <td style="width: 20%;"><a href="{% url 'allianceauth_pve:project_detail' project.pk %}">{{ project.name }}</a></td>
+                                                <td style="width: 20%;">{{ project.days_since }}</td>
+                                                <td style="width: 20%;">{{ project.estimated_total|intcomma }} ({{ project.current_total|intcomma }})</td>
+                                                <td style="width: 20%;">{{ project.goal|intcomma }}</td>
+                                                <td style="width: 20%;">{{ project.total_percentage|floatformat }} &percnt; ({{ project.actual_percentage|floatformat }} &percnt;)</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning text-center">No active projects</div>
+                        {% endif %}
+                        {% if perms.allianceauth_pve.manage_funding_projects or user.is_superuser %}
+                            <a href="{% url 'allianceauth_pve:new_project' %}" class="btn btn-info mt-2">New Funding Project</a>
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade" id="closed-projects-panel" role="tabpanel" aria-labelledby="closed-projects-tab" tabindex="0">
+                        {% if closed_projects.count > 0 %}
+                            <div class="table-responsive">
+                                <table class="table table-aa" id="closed_projects_table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 25%;">Name</th>
+                                            <th style="width: 25%;">Completed in (days)</th>
+                                            <th style="width: 25%;">Goal</th>
+                                            <th style="width: 25%;">Actual total</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for project in closed_projects %}
+                                            <tr>
+                                                <td style="width: 25%;"><a href="{% url 'allianceauth_pve:project_detail' project.pk %}">{{ project.name }}</a></td>
+                                                <td style="width: 25%;">{{ project.completed_in_days }}</td>
+                                                <td style="width: 25%;">{{ project.goal|intcomma }}</td>
+                                                <td style="width: 25%;">{{ project.current_total|intcomma }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>    
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning text-center">No closed projects</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock pvecontent %}
 
 {% block extra_javascript %}
     {% include "bundles/datatables-js-bs5.html" %}

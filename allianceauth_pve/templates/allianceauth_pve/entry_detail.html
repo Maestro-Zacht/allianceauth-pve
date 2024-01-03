@@ -1,10 +1,6 @@
-{% extends 'allianceauth/base-bs5.html' %}
+{% extends 'allianceauth_pve/base.html' %}
 {% load humanize %}
 {% load evelinks %}
-
-{% block header_nav_brand %}
-    PvE Tool
-{% endblock header_nav_brand %}
 
 {% block page_title %}Entry Details{% endblock page_title %}
 
@@ -22,162 +18,152 @@
     </style>
 {% endblock extra_css %}
 
-{% block content %}
-    <div class="container-fluid">
-        <div class="row my-5">
-            <div class="col-12">
-                <div class="card-group">
-                    <div class="card text-center">
-                        <div class="card-header">Creadet At</div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center justify-content-center h-100">
-                                <p class="card-text">{{ entry.created_at|date:"d/m/Y G:i e" }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card text-center">
-                        <div class="card-header">Number of Users</div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center justify-content-center h-100">
-                                <p class="card-text">{{ entry.total_user_count }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    {% if entry.funding_project and entry.funding_percentage > 0 %}
-                        <div class="card text-center">
-                            <div class="card-header">Funding Project</div>
-                            <div class="card-body">
-                                <div class="d-flex align-items-center justify-content-center h-100">
-                                    <p class="card-text">{{ entry.funding_project }} ({{ entry.funding_percentage }}&percnt;)</p>
-                                </div>
-                            </div>
-                        </div>
-                    {% endif %}
-                    <div class="card text-center">
-                        <div class="card-header">Total After Tax</div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center justify-content-center h-100">
-                                <p class="card-text">{{ entry.estimated_total_after_tax|floatformat:"g" }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card text-center">
-                        <div class="card-header">Total</div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center justify-content-center h-100">
-                                <p class="card-text">{{ entry.estimated_total|intcomma }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card text-center">
-                        <div class="card-header">Created By</div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center justify-content-center h-100">
-                                <img src="{{ entry.created_by.profile.main_character|character_portrait_url:32 }}" class="rounded me-2">
-                                <p class="card-text">{{ entry.created_by.profile.main_character.character_name }}</p>
-                            </div>
-                        </div>
+{% block pvecontent %}
+    <div class="col-12 my-3">
+        <div class="card-group">
+            <div class="card text-center">
+                <div class="card-header">Creadet At</div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-center h-100">
+                        <p class="card-text">{{ entry.created_at|date:"d/m/Y G:i e" }}</p>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row my-5">
-            <div class="col-12">
+            <div class="card text-center">
+                <div class="card-header">Number of Users</div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-center h-100">
+                        <p class="card-text">{{ entry.total_user_count }}</p>
+                    </div>
+                </div>
+            </div>
+            {% if entry.funding_project and entry.funding_percentage > 0 %}
                 <div class="card text-center">
-                    <div class="card-header">Fleet Roles</div>
+                    <div class="card-header">Funding Project</div>
                     <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-aa">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Role</th>
-                                        <th scope="col">Value</th>
-                                        <th scope="col">Approximate Percentage</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for role in entry.roles.all %}
-                                        <tr>
-                                            <td>{{ role.name }}</td>
-                                            <td>{{ role.value }}</td>
-                                            <td>{{ role.approximate_percentage|floatformat }}%</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                        <div class="d-flex align-items-center justify-content-center h-100">
+                            <p class="card-text">{{ entry.funding_project }} ({{ entry.funding_percentage }}&percnt;)</p>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="row my-3">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header text-center">Shares</div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-aa">
-                                <thead>
-                                    <tr>
-                                        <th style="text-align: left;">User's Main Character</th>
-                                        <th style="text-align: left;">Character</th>
-                                        <th>Fleet Role</th>
-                                        <th>Helped Setups</th>
-                                        <th>Count</th>
-                                        <th>Share Total</th>
-                                        {% if entry.funding_project and entry.funding_percentage > 0 %}
-                                            <th>Estimated Project Contribution</th>
-                                        {% endif %}
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    {% for share in entry.ratting_shares.with_totals %}
-                                        <tr>
-                                            <td style="text-align: left;">
-                                                <img src="{{ share.user.profile.main_character|character_portrait_url:32 }}" class="rounded me-3">
-                                                {{ share.user.profile.main_character.character_name }}
-                                            </td>
-                                            <td style="text-align: left;">
-                                                <img src="{{ share.user_character|character_portrait_url:32 }}" class="rounded me-3">
-                                                {{ share.user_character.character_name }}
-                                            </td>
-                                            <td>{{ share.role.name }}</td>
-                                            <td>
-                                                {% if share.helped_setup %}
-                                                    <i class="fas fa-heart fa-heart-red"></i>
-                                                {% else %}
-                                                    <i class="far fa-heart fa-heart-red"></i>
-                                                {% endif %}
-                                            </td>
-                                            <td>{{ share.site_count }}</td>
-                                            <td>{{ share.estimated_share_total|floatformat:"g" }}</td>
-                                            {% if entry.funding_project and entry.funding_percentage > 0 %}
-                                                <td>{{ share.estimated_funding_amount|intcomma }}</td>
-                                            {% endif %}
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+            {% endif %}
+            <div class="card text-center">
+                <div class="card-header">Total After Tax</div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-center h-100">
+                        <p class="card-text">{{ entry.estimated_total_after_tax|floatformat:"g" }}</p>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <div class="d-flex flex-row-reverse">
-                    {% if perms.allianceauth_pve.manage_entries and user == entry.created_by or user.is_superuser %}
-                        <button id="deleteButton" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEntryModal">Delete</button>
-                        <a href="{% url 'allianceauth_pve:edit_entry' entry.rotation_id entry.pk %}" class="btn btn-warning mx-2">Edit</a>
-                    {% endif %}
-                    <a href="{% url 'allianceauth_pve:rotation_view' entry.rotation_id %}" class="btn btn-primary">Back</a>
+            <div class="card text-center">
+                <div class="card-header">Total</div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-center h-100">
+                        <p class="card-text">{{ entry.estimated_total|intcomma }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card text-center">
+                <div class="card-header">Created By</div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-center h-100">
+                        <img src="{{ entry.created_by.profile.main_character|character_portrait_url:32 }}" class="rounded me-2">
+                        <p class="card-text">{{ entry.created_by.profile.main_character.character_name }}</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    
+    <div class="col-12 my-3">
+        <div class="card text-center">
+            <div class="card-header">Fleet Roles</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-aa">
+                        <thead>
+                            <tr>
+                                <th scope="col">Role</th>
+                                <th scope="col">Value</th>
+                                <th scope="col">Approximate Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for role in entry.roles.all %}
+                                <tr>
+                                    <td>{{ role.name }}</td>
+                                    <td>{{ role.value }}</td>
+                                    <td>{{ role.approximate_percentage|floatformat }}%</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 my-3">
+        <div class="card">
+            <div class="card-header text-center">Shares</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-aa">
+                        <thead>
+                            <tr>
+                                <th style="text-align: left;">User's Main Character</th>
+                                <th style="text-align: left;">Character</th>
+                                <th>Fleet Role</th>
+                                <th>Helped Setups</th>
+                                <th>Count</th>
+                                <th>Share Total</th>
+                                {% if entry.funding_project and entry.funding_percentage > 0 %}
+                                    <th>Estimated Project Contribution</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for share in entry.ratting_shares.with_totals %}
+                                <tr>
+                                    <td style="text-align: left;">
+                                        <img src="{{ share.user.profile.main_character|character_portrait_url:32 }}" class="rounded me-3">
+                                        {{ share.user.profile.main_character.character_name }}
+                                    </td>
+                                    <td style="text-align: left;">
+                                        <img src="{{ share.user_character|character_portrait_url:32 }}" class="rounded me-3">
+                                        {{ share.user_character.character_name }}
+                                    </td>
+                                    <td>{{ share.role.name }}</td>
+                                    <td>
+                                        {% if share.helped_setup %}
+                                            <i class="fas fa-heart fa-heart-red"></i>
+                                        {% else %}
+                                            <i class="far fa-heart fa-heart-red"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ share.site_count }}</td>
+                                    <td>{{ share.estimated_share_total|floatformat:"g" }}</td>
+                                    {% if entry.funding_project and entry.funding_percentage > 0 %}
+                                        <td>{{ share.estimated_funding_amount|intcomma }}</td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="d-flex flex-row-reverse">
+            {% if perms.allianceauth_pve.manage_entries and user == entry.created_by or user.is_superuser %}
+                <button id="deleteButton" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEntryModal">Delete</button>
+                <a href="{% url 'allianceauth_pve:edit_entry' entry.rotation_id entry.pk %}" class="btn btn-warning mx-2">Edit</a>
+            {% endif %}
+            <a href="{% url 'allianceauth_pve:rotation_view' entry.rotation_id %}" class="btn btn-primary">Back</a>
+        </div>
+    </div>
+
+
     {% if perms.allianceauth_pve.manage_entries and user == entry.created_by or user.is_superuser %}
         <div class="modal fade" id="deleteEntryModal" tabindex="-1" role="dialog" aria-labelledby="deleteButton" aria-hidden="true">
             <div class="modal-dialog">
@@ -197,4 +183,4 @@
             </div>
         </div>
     {% endif %}
-{% endblock content %}
+{% endblock pvecontent %}
