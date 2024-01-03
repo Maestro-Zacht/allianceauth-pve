@@ -11,6 +11,15 @@ from ..admin import EntryCharacterInline, RotationAdmin
 class TestEntryCharacterAdmin(TestCase):
 
     @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.modeladmin = EntryCharacterInline(EntryCharacter, AdminSite())
+
+        request_factory = RequestFactory()
+        cls.request = request_factory.get('/fake')
+        cls.request.user = cls.testuser
+
+    @classmethod
     def setUpTestData(cls):
         cls.testuser = AuthUtils.create_user('aauth_testuser')
         cls.testcharacter = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar', 2116790529)
@@ -33,7 +42,7 @@ class TestEntryCharacterAdmin(TestCase):
             value=1
         )
 
-        share = EntryCharacter.objects.create(
+        EntryCharacter.objects.create(
             entry=entry,
             user=cls.testuser,
             user_character=cls.testcharacter,
@@ -46,12 +55,6 @@ class TestEntryCharacterAdmin(TestCase):
         cls.rotation.is_closed = True
         cls.rotation.closed_at = timezone.now()
         cls.rotation.save()
-
-        cls.modeladmin = EntryCharacterInline(EntryCharacter, AdminSite())
-
-        request_factory = RequestFactory()
-        cls.request = request_factory.get('/fake')
-        cls.request.user = cls.testuser
 
     def test_get_queryset(self):
         qs = self.modeladmin.get_queryset(request=self.request)

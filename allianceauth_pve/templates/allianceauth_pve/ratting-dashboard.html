@@ -1,78 +1,90 @@
-{% extends 'allianceauth/base.html' %}
+{% extends 'allianceauth_pve/base.html' %}
 {% load humanize %}
 
 {% block page_title %}PvE Dashboard{% endblock page_title %}
 
 {% block extra_css %}
-    {% include 'bundles/datatables-css.html' %}
+    {% include "bundles/datatables-css-bs5.html" %}
 {% endblock extra_css %}
 
-{% block content %}
-    <div class="col-lg-12">
-        <h1 class="page-header text-center">PvE Dashboard</h1>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title text-center">Running Averages</h3>
+{% block pvecontent %}
+    <h1 class="page-header text-center">PvE Dashboard</h1>
+    <div class="col-12 my-3">
+        <div class="card-group">
+            <div class="card text-center">
+                <div class="card-header">
+                    1 month
+                </div>
+                <div class="card-body">
+                    {% if averages.onemonth.actual_total %}
+                        <p>{{ averages.onemonth.actual_total|floatformat:"g" }}</p>
+                        <p>{{ averages.onemonth.helped_setups }} setup(s)</p>
+                    {% else %}
+                        <p>No activity in the last month</p>
+                    {% endif %}
+                </div>
             </div>
-            <div class="flex-center-horizontal">
-                <ul class="list-group list-group-horizontal text-center" style="margin-bottom: 0;">
-                    <li class="list-group-item">
-                        <p><strong>1 month</strong></p>
-                        {% if averages.onemonth.actual_total %}
-                            <p>{{ averages.onemonth.actual_total|floatformat|intcomma }}</p>
-                            <p>{{ averages.onemonth.helped_setups }} setup(s)</p>
-                        {% else %}
-                            <p>No activity in the last month</p>
-                        {% endif %}
+            <div class="card text-center">
+                <div class="card-header">
+                    3 months
+                </div>
+                <div class="card-body">
+                    {% if averages.threemonth.actual_total %}
+                        <p>{{ averages.threemonth.actual_total|floatformat:"g" }}</p>
+                        <p>{{ averages.threemonth.helped_setups }} setup(s)</p>
+                    {% else %}
+                        <p>No activity in the last 3 months</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card text-center">
+                <div class="card-header">
+                    6 months
+                </div>
+                <div class="card-body">
+                    {% if averages.sixmonth.actual_total %}
+                        <p>{{ averages.sixmonth.actual_total|floatformat:"g" }}</p>
+                        <p>{{ averages.sixmonth.helped_setups }} setup(s)</p>
+                    {% else %}
+                        <p>No activity in the last 6 months</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card text-center">
+                <div class="card-header">
+                    12 months
+                </div>
+                <div class="card-body">
+                    {% if averages.oneyear.actual_total %}
+                        <p>{{ averages.oneyear.actual_total|floatformat:"g" }}</p>
+                        <p>{{ averages.oneyear.helped_setups }} setup(s)</p>
+                    {% else %}
+                        <p>No activity in the last year</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 my-3">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="open-rotations-tab" data-bs-toggle="tab" data-bs-target="#open-rotations-panel" type="button" role="tab" aria-controls="open-rotations-panel" aria-selected="true">
+                            Open Rotations
+                            <span class="badge text-bg-primary ms-1">{{ open_rots.count }}</span>
+                        </button>
                     </li>
-                    <li class="list-group-item">
-                        <p><strong>3 months</strong></p>
-                        {% if averages.threemonth.actual_total %}
-                            <p>{{ averages.threemonth.actual_total|floatformat|intcomma }}</p>
-                            <p>{{ averages.threemonth.helped_setups }} setup(s)</p>
-                        {% else %}
-                            <p>No activity in the last 3 months</p>
-                        {% endif %}
-                    </li>
-                    <li class="list-group-item">
-                        <p><strong>6 months</strong></p>
-                        {% if averages.sixmonth.actual_total %}
-                            <p>{{ averages.sixmonth.actual_total|floatformat|intcomma }}</p>
-                            <p>{{ averages.sixmonth.helped_setups }} setup(s)</p>
-                        {% else %}
-                            <p>No activity in the last 6 months</p>
-                        {% endif %}
-                    </li>
-                    <li class="list-group-item">
-                        <p><strong>1 year</strong></p>
-                        {% if averages.oneyear.actual_total %}
-                            <p>{{ averages.oneyear.actual_total|floatformat|intcomma }}</p>
-                            <p>{{ averages.oneyear.helped_setups }} setup(s)</p>
-                        {% else %}
-                            <p>No activity in the last year</p>
-                        {% endif %}
+                    <li class="nav-item">
+                        <button class="nav-link" id="closed-rotations-tab" data-bs-toggle="tab" data-bs-target="#closed-rotations-panel" type="button" role="tab" aria-controls="closed-rotations-panel" aria-selected="false">
+                            Closed Rotations
+                        </button>
                     </li>
                 </ul>
             </div>
-        </div>
-        <ul class="nav nav-tabs">
-            <li class="active">
-                <a data-toggle="tab" href="#open">
-                    Open Rotations
-                    <span class="badge">{{ open_rots.count }}</span>
-                </a>
-            </li>
-            <li>
-                <a data-toggle="tab" href="#closed">
-                    Closed Rotations
-                </a>
-            </li>
-        </ul>
-
-        <div class="panel panel-default panel-tabs-aa">
-            <div class="panel-body">
+            <div class="card-body">
                 <div class="tab-content">
-                    <div id="open" class="tab-pane active">
+                    <div class="tab-pane fade show active" id="open-rotations-panel" role="tabpanel" aria-labelledby="open-rotations-tab" tabindex="0">
                         {% if open_rots.count > 0 %}
                             <div class="table-responsive">
                                 <table class="table table-aa" id="open_rotations">
@@ -101,11 +113,10 @@
                             <div class="alert alert-warning text-center">No open rotations</div>
                         {% endif %}
                         {% if perms.allianceauth_pve.manage_rotations or user.is_superuser %}
-                            <a href="{% url 'allianceauth_pve:new_rotation' %}" class="btn btn-info">New Rotation</a>
+                            <a href="{% url 'allianceauth_pve:new_rotation' %}" class="btn btn-info mt-2">New Rotation</a>
                         {% endif %}
                     </div>
-
-                    <div id="closed" class="tab-pane">
+                    <div class="tab-pane fade" id="closed-rotations-panel" role="tabpanel" aria-labelledby="closed-rotations-tab" tabindex="0">
                         {% if closed_rots.count > 0 %}
                             <div class="table-responsive">
                                 <table class="table table-aa" id="closed_rotations">
@@ -124,7 +135,7 @@
                                                 <td style="width: 25%;"><a href="{% url 'allianceauth_pve:rotation_view' rotation.pk %}">{{ rotation.pk }} - {{ rotation.name }}</a></td>
                                                 <td style="width: 25%;">{{ rotation.closed_at }}</td>
                                                 <td style="width: 25%;">{{ rotation.summary_count }}</td>
-                                                <td style="width: 25%;">{{ rotation.actual_total|floatformat|intcomma }}</td>
+                                                <td style="width: 25%;">{{ rotation.actual_total|floatformat:"g" }}</td>
                                             </tr>
                                         {% endfor %}
                                     </tbody>
@@ -137,26 +148,29 @@
                 </div>
             </div>
         </div>
-
-        <ul class="nav nav-tabs">
-            <li class="active">
-                <a data-toggle="tab" href="#active_projects">
-                    Active Projects
-                </a>
-            </li>
-
-            <li>
-                <a data-toggle="tab" href="#closed_projects">
-                    Finished Projects
-                </a>
-            </li>
-        </ul>
-        <div class="panel panel-default panel-tabs-aa">
-            <div class="panel-body">
+    </div>
+    <div class="col-12 my-3">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="open-projects-tab" data-bs-toggle="tab" data-bs-target="#open-projects-panel" type="button" role="tab" aria-controls="open-projects-panel" aria-selected="true">
+                            Active Projects
+                            <span class="badge text-bg-primary ms-1">{{ open_projects.count }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="closed-projects-tab" data-bs-toggle="tab" data-bs-target="#closed-projects-panel" type="button" role="tab" aria-controls="closed-projects-panel" aria-selected="false">
+                            Finished Projects
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
                 <div class="tab-content">
-                    <div id="active_projects" class="tab-pane active">
-                        <div class="table-responsive">
-                            {% if open_projects.count > 0 %}
+                    <div class="tab-pane fade show active" id="open-projects-panel" role="tabpanel" aria-labelledby="open-projects-tab" tabindex="0">
+                        {% if open_projects.count > 0 %}
+                            <div class="table-responsive">
                                 <table class="table table-aa" id="open_projects">
                                     <thead>
                                         <tr>
@@ -180,18 +194,17 @@
                                         {% endfor %}
                                     </tbody>
                                 </table>
-                            {% else %}
-                                <div class="alert alert-warning text-center">No active projects</div>
-                            {% endif %}
-                        </div>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning text-center">No active projects</div>
+                        {% endif %}
                         {% if perms.allianceauth_pve.manage_funding_projects or user.is_superuser %}
-                            <a href="{% url 'allianceauth_pve:new_project' %}" class="btn btn-info">New Funding Project</a>
+                            <a href="{% url 'allianceauth_pve:new_project' %}" class="btn btn-info mt-2">New Funding Project</a>
                         {% endif %}
                     </div>
-
-                    <div id="closed_projects" class="tab-pane">
-                        <div class="table-responsive">
-                            {% if closed_projects.count > 0 %}
+                    <div class="tab-pane fade" id="closed-projects-panel" role="tabpanel" aria-labelledby="closed-projects-tab" tabindex="0">
+                        {% if closed_projects.count > 0 %}
+                            <div class="table-responsive">
                                 <table class="table table-aa" id="closed_projects_table">
                                     <thead>
                                         <tr>
@@ -212,20 +225,20 @@
                                             </tr>
                                         {% endfor %}
                                     </tbody>
-                                </table>
-                            {% else %}
-                                <div class="alert alert-warning text-center">No closed projects</div>
-                            {% endif %}
-                        </div>
+                                </table>    
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning text-center">No closed projects</div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
-{% endblock content %}
+{% endblock pvecontent %}
 
 {% block extra_javascript %}
-    {% include 'bundles/datatables-js.html' %}
+    {% include "bundles/datatables-js-bs5.html" %}
 {% endblock extra_javascript %}
 
 {% block extra_script %}

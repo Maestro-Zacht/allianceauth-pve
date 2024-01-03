@@ -1,28 +1,11 @@
-.field {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.selected-user {
+    color: #259c21;
+    transform: scale(1.5, 1.5);
 }
 
-#pve-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    column-gap: 6ch;
-    row-gap: 1.5rem;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-input[type=text],
-input[type=number] {
-    font-size: 1em;
-    padding: .3em .7em;
-    border-radius: .2em;
-}
-
-input[type=text]:focus,
-input[type=number]:focus {
-    outline: 2px rgb(19, 104, 160) solid;
+.unselected-user {
+    transform: scaleX(-1);
+    color: #ff5e00;
 }
 
 #roles-div {
@@ -56,8 +39,4 @@ input[type=number]:focus {
 
 .all-cols {
     grid-column: 1/-1;
-}
-
-.head {
-    text-align: center;
 }

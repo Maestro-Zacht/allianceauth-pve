@@ -58,13 +58,13 @@ function addCharacter(initial) {
     if (formNum == 0) {
         usersContainer.textContent = '';
         usersContainer.append(
-            createSpan("Select", "head"),
-            createSpan("User's Main Char", "head"),
-            createSpan("Character", "head"),
-            createSpan("Role", "head"),
-            createSpan("Setup", "head"),
-            createSpan("Count", "head"),
-            createSpan("Delete", "head"),
+            createSpan("Select", "text-center"),
+            createSpan("User's Main Char", "text-center"),
+            createSpan("Character", "text-center"),
+            createSpan("Role", "text-center"),
+            createSpan("Setup", "text-center"),
+            createSpan("Count", "text-center"),
+            createSpan("Delete", "text-center"),
         );
     }
     // Selected row
@@ -90,52 +90,46 @@ function addCharacter(initial) {
 
     // User
     const name = document.createElement("input");
-    name.type = "number";
+    name.type = "text";
     name.setAttribute('value', data.userId);
     name.name = `form-${formNum}-user`;
     name.id = `id_form-${formNum}-user`;
-    name.readOnly = true;
-    name.style.display = 'none';
-    name.classList.add("user-pk-list");
+    name.classList.add("user-pk-list", "d-none");
 
     const profileDiv = document.createElement('div');
     profileDiv.id = `profile-div-${formNum}`;
+    profileDiv.classList.add('d-flex', 'justify-content-center', 'align-items-center');
 
     const profilePic = document.createElement('img');
     profilePic.src = data.profilePic;
     profilePic.id = `profile-pic-${formNum}`;
-    profilePic.classList.add('img-circle');
-    profilePic.style.marginRight = "1rem";
+    profilePic.classList.add('rounded', 'float-start', 'me-2');
 
     const userSpan = createSpan(data.username);
     userSpan.id = `username-span-${formNum}`;
-    userSpan.style.marginLeft = "5px";
 
     profileDiv.appendChild(profilePic);
     profileDiv.appendChild(userSpan);
 
     // Character
     const charname = document.createElement('input');
-    charname.type = 'number';
+    charname.type = 'text';
     charname.setAttribute('value', data.characterId);
     charname.name = `form-${formNum}-character`;
     charname.id = `id_form-${formNum}-character`;
-    charname.readOnly = true;
-    charname.style.display = 'none';
-    charname.classList.add('character-pk-list');
+    charname.classList.add('character-pk-list', 'd-none');
 
     const characterDiv = document.createElement('div');
     characterDiv.id = `character-div-${formNum}`;
+    characterDiv.classList.add('d-flex', 'justify-content-center', 'align-items-center');
 
     const characterPic = document.createElement('img');
     characterPic.src = data.characterPic;
     characterPic.id = `character-pic-${formNum}`;
-    characterPic.classList.add('img-circle');
-    characterPic.style.marginRight = "1rem";
+    characterPic.classList.add('rounded', 'float-start', 'me-2');
 
     const characterSpan = createSpan(data.characterName);
     characterSpan.id = `character_name-span-${formNum}`;
-    characterSpan.style.marginLeft = "5px";
 
     characterDiv.appendChild(characterPic);
     characterDiv.appendChild(characterSpan);
@@ -144,7 +138,6 @@ function addCharacter(initial) {
     const fleetRole = document.createElement('select');
     fleetRole.name = `form-${formNum}-role`;
     fleetRole.classList.add('form-control');
-    fleetRole.style.height = 'auto';
     fleetRole.id = `id_form-${formNum}-role`;
     for (let i = 0; i < rolesFormNum; i++) {
         const role = document.getElementById(`roles_form-${i}-name_span`);
@@ -168,7 +161,7 @@ function addCharacter(initial) {
     const checkLabel = document.createElement('label');
     checkLabel.htmlFor = check.id;
     checkLabel.id = `helped_setup-label-${formNum}`;
-    checkLabel.classList.add('custom-checkbox', 'red-heart');
+    checkLabel.classList.add('custom-checkbox', 'fa-heart-red');
 
     const uncheckedIcon = document.createElement('i');
     uncheckedIcon.classList.add('far', 'fa-heart', 'unchecked');
@@ -187,14 +180,15 @@ function addCharacter(initial) {
     count.min = "0";
     count.id = `id_form-${formNum}-site_count`;
     count.value = data.count;
-    count.style.width = "10ch";
+    count.style.width = "7ch";
+    count.classList.add("form-control");
 
     // Delete button
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
     deleteButton.classList.add('btn', 'btn-danger');
     deleteButton.id = `delete-row-${formNum}`;
-    deleteButton.style.transform = "scale(0.5, 0.5)";
+    deleteButton.style.transform = "scale(0.6, 0.6)";
     deleteButton.addEventListener('click', (el) => {
         removeCharacter(el.currentTarget.id.match(/[0-9]+/g)[0]);
     })
@@ -234,9 +228,9 @@ function removeCharacter(index) {
 
     formNum = 0;
     totalForms.setAttribute('value', `${formNum}`);
-    usersContainer.replaceChildren(createSpan("No character yet", "all-cols head"));
+    usersContainer.replaceChildren(createSpan("No character yet", "all-cols text-center"));
 
-    dataCopy.forEach((value, index, array) => {
+    dataCopy.forEach((value) => {
         addCharacter(value);
     })
 }
@@ -282,7 +276,7 @@ function addRole(initial) {
         nameInput.value = data.name;
         nameInput.id = `id_roles-${rolesFormNum}-name`;
 
-        const nameSpan = createSpan(data.name, 'head');
+        const nameSpan = createSpan(data.name, 'text-center');
         nameSpan.id = `roles_form-${rolesFormNum}-name_span`;
 
         const valueInput = document.createElement('input');
@@ -291,12 +285,13 @@ function addRole(initial) {
         valueInput.id = `id_roles-${rolesFormNum}-value`;
         valueInput.value = data.value;
         valueInput.min = 0;
+        valueInput.classList.add('form-control');
 
         const deleteButton = document.createElement('button');
         deleteButton.type = 'button';
         deleteButton.id = `delete-role-${rolesFormNum}`;
-        deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
-        deleteButton.style.transform = 'scale(0.5, 0.5)';
+        deleteButton.classList.add('btn', 'btn-danger');
+        deleteButton.style.transform = 'scale(0.6, 0.6)';
 
         const deleteImage = document.createElement('i');
         deleteImage.classList.add('fas', 'fa-times');
@@ -367,7 +362,7 @@ function removeRole(index, allowEmpty = false) {
     }
 }
 
-searchBtn.addEventListener("click", e => {
+function searchAction(e) {
     e.preventDefault()
 
     searchResults.replaceChildren();
@@ -395,13 +390,12 @@ searchBtn.addEventListener("click", e => {
             data.result.forEach((value) => {
                 const profile_image = document.createElement('img');
                 profile_image.src = value.profile_pic;
-                profile_image.classList.add('img-circle');
-                profile_image.style.marginRight = "1rem";
+                profile_image.classList.add('rounded');
 
                 let characterInfo = createSpan(`${value.character_name} (${value.char_status})`);
-                characterInfo.setAttribute('data-toggle', 'tooltip');
-                characterInfo.setAttribute('data-placement', 'top');
-                characterInfo.setAttribute('title', value.char_tooltip);
+                characterInfo.setAttribute('data-bs-toggle', 'tooltip');
+                characterInfo.setAttribute('data-bs-placement', 'top');
+                characterInfo.setAttribute('data-bs-original-title', value.char_tooltip);
 
                 let addButton = document.createElement('button');
                 addButton.textContent = "Add";
@@ -410,7 +404,7 @@ searchBtn.addEventListener("click", e => {
                 addButton.addEventListener('click', () => {
                     if (rolesFormNum > 0) {
                         addCharacter({ profilePic: value.user_pic, username: value.user_main_character_name, userId: value.user_id, characterPic: value.profile_pic, characterName: value.character_name, characterId: value.character_id });
-                        searchResults.replaceChildren(createSpan('No results', 'all-cols head'));
+                        searchResults.replaceChildren(createSpan('No results', 'all-cols text-center'));
                         searchBar.value = '';
                     } else {
                         alert('You have to add a role first!');
@@ -423,13 +417,23 @@ searchBtn.addEventListener("click", e => {
             if (results.length > 0) {
                 searchResults.replaceChildren(...results);
                 $(function () {
-                    $('[data-toggle="tooltip"]').tooltip()
+                    $('[data-bs-toggle="tooltip"]').tooltip()
                 })
             } else {
-                searchResults.replaceChildren(createSpan('No results', 'all-cols head'));
+                searchResults.replaceChildren(createSpan('No results', 'all-cols text-center'));
             }
         })
     })
+}
+
+searchBtn.addEventListener("click", e => {
+    searchAction(e);
+});
+
+$("#search-bar-id").on('keyup', function (e) {
+    if (e.key === 'Enter' || e.keyCode === 13) {
+        searchAction(e);
+    }
 });
 
 incrementAllButton.addEventListener('click', () => {

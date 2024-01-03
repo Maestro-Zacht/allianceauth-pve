@@ -88,7 +88,7 @@ class TestRotation(TestCase):
 
         self.assertEqual(summary.count(), 1)
 
-        row = summary.first()
+        row = summary[0]
 
         self.assertEqual(row['user'], self.testuser.pk)
         self.assertEqual(row['helped_setups'], 0)
@@ -105,7 +105,7 @@ class TestRotation(TestCase):
 
         self.assertEqual(summary.count(), 1)
 
-        row = summary.first()
+        row = summary[0]
 
         self.assertEqual(row['user'], self.testuser.pk)
         self.assertEqual(row['helped_setups'], 0)

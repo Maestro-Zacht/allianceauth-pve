@@ -8,7 +8,6 @@ from django.contrib.auth.models import Permission
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
-from django.core.paginator import Paginator
 from django.db.models import F, Q, Count, Exists, OuterRef
 from django.db import transaction
 from django.views.generic.detail import DetailView
@@ -102,7 +101,18 @@ def rotation_view(request, rotation_id):
 
             cache.delete(summary_cache_key)
             cache.delete_many(
-                (f"project_summary_{pk}" for pk in FundingProject.objects.affected_by(r).values_list('pk', flat=True))
+                (
+                    f"project_summary_{pk}"
+                    for pk in FundingProject.objects.affected_by(r)
+                    .values_list('pk', flat=True)
+                )
+            )
+            cache.delete_many(
+                (
+                    f"{RUNNING_AVERAGES_CACHE_PREFIX}_{user_id}"
+                    for user_id in EntryCharacter.objects.filter(entry__rotation=r)
+                    .values_list('user_id', flat=True)
+                )
             )
 
             closeform = None
@@ -412,6 +422,10 @@ def toggle_complete_project(request, pk: int):
 
     if funding_project.is_active and funding_project.has_open_contributions:
         messages.error(request, "You cannot complete a project with open contributions")
+        return redirect('allianceauth_pve:project_detail', pk)
+
+    if not funding_project.is_active and FundingProject.objects.filter(is_active=True, name=funding_project.name).exists():
+        messages.error(request, "You cannot reopen this project, another one with the same name is active.")
         return redirect('allianceauth_pve:project_detail', pk)
 
     funding_project.is_active = not funding_project.is_active

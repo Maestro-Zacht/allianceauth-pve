@@ -11,24 +11,31 @@ from django.contrib import messages
 
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "django.contrib.humanize",
-    "django_celery_beat",
-    "bootstrapform",
-    "sortedm2m",
-    "esi",
-    "allianceauth",
-    "allianceauth.authentication",
-    "allianceauth.services",
-    "allianceauth.eveonline",
-    "allianceauth.groupmanagement",
-    "allianceauth.notifications",
-    "allianceauth.thirdparty.navhelper",
+    'allianceauth',  # needs to be on top of this list to support favicons in Django admin (see https://gitlab.com/allianceauth/allianceauth/-/issues/1301)
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.humanize',
+    'django_celery_beat',
+    'bootstrapform',
+    'django_bootstrap5',  # https://github.com/zostera/django-bootstrap5
+    'sortedm2m',
+    'esi',
+    'allianceauth.authentication',
+    'allianceauth.services',
+    'allianceauth.eveonline',
+    'allianceauth.groupmanagement',
+    'allianceauth.notifications',
+    'allianceauth.thirdparty.navhelper',
+    'allianceauth.analytics',
+    'allianceauth.menu',
+    'allianceauth.theme',
+    'allianceauth.theme.darkly',
+    'allianceauth.theme.flatly',
+    'allianceauth.theme.materia',
 ]
 
 SECRET_KEY = "wow I'm a really bad default secret key"
@@ -60,14 +67,15 @@ PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
 
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.middleware.locale.LocaleMiddleware",
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'allianceauth.authentication.middleware.UserSettingsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = "allianceauth.urls"
@@ -101,6 +109,9 @@ TEMPLATES = [
         },
     },
 ]
+
+DEFAULT_THEME = "allianceauth.theme.flatly.auth_hooks.FlatlyThemeHook"
+DEFAULT_THEME_DARK = "allianceauth.theme.darkly.auth_hooks.DarklyThemeHook"  # Legacy AAv3 user.profile.night_mode=1
 
 WSGI_APPLICATION = "allianceauth.wsgi.application"
 
@@ -152,24 +163,36 @@ MESSAGE_TAGS = {messages.ERROR: "danger"}
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://localhost:6379/1",  # change the 1 here to change the database used
+        "LOCATION": f"redis://{os.environ.get('AA_REDIS', 'redis:6379')}/1",  # change the 1 here to change the database used
     }
 }
 
 
 DEBUG = True
 ALLOWED_HOSTS = ["*"]
-
-DATABASES = {
-    "default": {
-        "ENGINE": 'django.db.backends.mysql',
-        'NAME': 'mysql',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': 'localhost',
-        'PORT': '3306',
-    },
-}
+if os.environ.get('USE_MYSQL', True) is True:
+    DATABASES = {
+        "default": {
+            "ENGINE": 'django.db.backends.mysql',
+            'NAME': os.environ.get('AA_DB_NAME'),
+            'USER': os.environ.get('AA_DB_USER'),
+            'PASSWORD': os.environ.get('AA_DB_PASSWORD'),
+            'HOST': os.environ.get('AA_DB_HOST'),
+            'PORT': '3306',
+            "OPTIONS": {"charset": "utf8mb4"},
+            "TEST": {
+                "CHARSET": "utf8mb4",
+                "NAME": f"test_{os.environ.get('AA_DB_NAME')}",
+            },
+        },
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": str(os.path.join(BASE_DIR, "alliance_auth.sqlite3")),
+        },
+    }
 
 SITE_NAME = "Alliance Auth"
 
