@@ -12,9 +12,10 @@ class TestHooks(TestCase):
         cls.testcharacter = AuthUtils.add_main_character_2(cls.testuser, 'aauth_testchar', 2116790529)
 
         cls.html_menu = f"""
-            <li>
-                <a class="active" href="{reverse('allianceauth_pve:index')}">
-                    <i class="fas fa-wallet"></i> PvE Tool
+            <li class="d-flex flex-wrap m-2 p-2 pt-0 pb-0 mt-0 mb-0 me-0 pe-0">
+                <i class="nav-link fas fa-wallet fa-fw align-self-center me-3 active"></i>
+                <a class="nav-link flex-fill align-self-center" href="/pve/">
+                    PvE Tool
                 </a>
             </li>
         """
