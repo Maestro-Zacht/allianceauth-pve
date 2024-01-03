@@ -55,7 +55,7 @@ jobs:
           # https://endoflife.date/mariadb and https://mariadb.com/kb/en/mariadb-server-release-dates/
           - mariadb:10.6  # [LTS] Maintained until: July 2026
           - mariadb:10.11 # [LTS] Maintained until: February 2028
-          - mariadb:11.1  # Maintained until: August 2024
+          - mariadb:11.2  # Maintained until: November 2024
 
 
     steps:
