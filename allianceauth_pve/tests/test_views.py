@@ -187,32 +187,34 @@ class TestGetAvaiableRatters(TestCase):
         response = self.client.get(reverse('allianceauth_pve:all_ratters'))
 
         self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(
-            response.content,
-            {
-                'result': [
-                    {
-                        'character_id': self.testcharacter.pk,
-                        'character_name': self.testcharacter.character_name,
-                        'profile_pic': self.testcharacter.portrait_url_32,
-                        'user_id': self.testuser.pk,
-                        'user_main_character_name': self.testcharacter.character_name,
-                        'user_pic': self.testcharacter.portrait_url_32,
-                        'char_status': 'Main',
-                        'char_tooltip': '',
-                    },
-                    {
-                        'character_id': self.testcharacter2.pk,
-                        'character_name': self.testcharacter2.character_name,
-                        'profile_pic': self.testcharacter2.portrait_url_32,
-                        'user_id': self.testuser2.pk,
-                        'user_main_character_name': self.testcharacter2.character_name,
-                        'user_pic': self.testcharacter2.portrait_url_32,
-                        'char_status': 'Main',
-                        'char_tooltip': '',
-                    }
-                ]
-            }
+
+        res = response.json()
+
+        self.assertIn('result', res)
+        self.assertCountEqual(
+            res['result'],
+            [
+                {
+                    'character_id': self.testcharacter.pk,
+                    'character_name': self.testcharacter.character_name,
+                    'profile_pic': self.testcharacter.portrait_url_32,
+                    'user_id': self.testuser.pk,
+                    'user_main_character_name': self.testcharacter.character_name,
+                    'user_pic': self.testcharacter.portrait_url_32,
+                    'char_status': 'Main',
+                    'char_tooltip': '',
+                },
+                {
+                    'character_id': self.testcharacter2.pk,
+                    'character_name': self.testcharacter2.character_name,
+                    'profile_pic': self.testcharacter2.portrait_url_32,
+                    'user_id': self.testuser2.pk,
+                    'user_main_character_name': self.testcharacter2.character_name,
+                    'user_pic': self.testcharacter2.portrait_url_32,
+                    'char_status': 'Main',
+                    'char_tooltip': '',
+                }
+            ]
         )
 
     def test_no_name_exclude(self):
@@ -341,32 +343,34 @@ class TestGetAvaiableRatters(TestCase):
         response = self.client.get(reverse('allianceauth_pve:search_ratters', args=['bis']))
 
         self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(
-            response.content,
-            {
-                'result': [
-                    {
-                        'character_id': self.testcharacter2.pk,
-                        'character_name': self.testcharacter2.character_name,
-                        'profile_pic': self.testcharacter2.portrait_url_32,
-                        'user_id': self.testuser2.pk,
-                        'user_main_character_name': self.testcharacter2.character_name,
-                        'user_pic': self.testcharacter2.portrait_url_32,
-                        'char_status': 'Main',
-                        'char_tooltip': f'{testcharacter2bis.character_name}, {testcharacter2tris.character_name}',
-                    },
-                    {
-                        'character_id': testcharacter2bis.pk,
-                        'character_name': testcharacter2bis.character_name,
-                        'profile_pic': testcharacter2bis.portrait_url_32,
-                        'user_id': self.testuser2.pk,
-                        'user_main_character_name': self.testcharacter2.character_name,
-                        'user_pic': self.testcharacter2.portrait_url_32,
-                        'char_status': 'Alt',
-                        'char_tooltip': self.testcharacter2.character_name,
-                    }
-                ]
-            }
+
+        res = response.json()
+
+        self.assertIn('result', res)
+        self.assertCountEqual(
+            res['result'],
+            [
+                {
+                    'character_id': self.testcharacter2.pk,
+                    'character_name': self.testcharacter2.character_name,
+                    'profile_pic': self.testcharacter2.portrait_url_32,
+                    'user_id': self.testuser2.pk,
+                    'user_main_character_name': self.testcharacter2.character_name,
+                    'user_pic': self.testcharacter2.portrait_url_32,
+                    'char_status': 'Main',
+                    'char_tooltip': f'{testcharacter2bis.character_name}, {testcharacter2tris.character_name}',
+                },
+                {
+                    'character_id': testcharacter2bis.pk,
+                    'character_name': testcharacter2bis.character_name,
+                    'profile_pic': testcharacter2bis.portrait_url_32,
+                    'user_id': self.testuser2.pk,
+                    'user_main_character_name': self.testcharacter2.character_name,
+                    'user_pic': self.testcharacter2.portrait_url_32,
+                    'char_status': 'Alt',
+                    'char_tooltip': self.testcharacter2.character_name,
+                }
+            ]
         )
 
 

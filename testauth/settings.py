@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'django_bootstrap5',  # https://github.com/zostera/django-bootstrap5
     'sortedm2m',
     'esi',
+    'allianceauth.framework',
     'allianceauth.authentication',
     'allianceauth.services',
     'allianceauth.eveonline',
@@ -67,6 +68,7 @@ PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
 
 MIDDLEWARE = [
+    'allianceauth.menu.middleware.MenuSyncMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'allianceauth.authentication.middleware.UserSettingsMiddleware',
