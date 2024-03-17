@@ -51,11 +51,11 @@ jobs:
         database:
           # https://endoflife.date/mysql
           - mysql:8.0     # [LTS] Maintained until: 30 Apr 2026
-          - mysql:8.2     # Latest official release
+          - mysql:8.3     # Latest official release
           # https://endoflife.date/mariadb and https://mariadb.com/kb/en/mariadb-server-release-dates/
           - mariadb:10.6  # [LTS] Maintained until: July 2026
           - mariadb:10.11 # [LTS] Maintained until: February 2028
-          - mariadb:11.2  # Maintained until: November 2024
+          - mariadb:11.3  # Latest official release
 
 
     steps:
@@ -63,7 +63,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -91,7 +91,7 @@ jobs:
           echo "COVERAGE_REPORT_NAME=${COVERAGE_REPORT_NAME}"
 
       - name: Upload Coverage Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.COVERAGE_REPORT_NAME }}
           path: coverage.xml
@@ -107,12 +107,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
       - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos but fails for rate limits
           directory: artifacts
@@ -128,7 +128,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Python 3
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.x"
           check-latest: true
@@ -143,7 +143,7 @@ jobs:
         run: python -m build
 
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build
           path: dist
