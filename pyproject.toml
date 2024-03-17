@@ -37,7 +37,7 @@ keywords = [
 ]
 requires-python = "~=3.8"
 dependencies = [
-    "allianceauth==4.0.0a5",
+    "allianceauth~=4.0",
 ]
 
 [project.urls]
