@@ -10,6 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.db.models import F, Q, Count, Exists, OuterRef
 from django.db import transaction
+from django.db.models.functions import Coalesce
 from django.views.generic.detail import DetailView
 from django.conf import settings
 from django.core.cache import cache
@@ -128,8 +129,14 @@ def rotation_view(request, rotation_id):
             'helped_setups',
             'estimated_total',
             'actual_total',
-            character_name=F('user__profile__main_character__character_name'),
-            character_id=F('user__profile__main_character__character_id'),
+            character_name=Coalesce(
+                F('user__profile__main_character__character_name'),
+                F('user_character__character_name'),
+            ),
+            character_id=Coalesce(
+                F('user__profile__main_character__character_id'),
+                F('user_character__character_id'),
+            ),
         )
 
         cache.set(summary_cache_key, summary, ROTATION_SUMMARY_CACHE_TIMEOUT)
