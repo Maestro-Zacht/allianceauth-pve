@@ -217,8 +217,8 @@ class Rotation(models.Model):
 
 class EntryCharacter(models.Model):
     entry = models.ForeignKey('Entry', on_delete=models.CASCADE, related_name='ratting_shares')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='ratting_shares')
-    user_character = models.ForeignKey(EveCharacter, on_delete=models.CASCADE, related_name='ratting_shares')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, related_name='ratting_shares')
+    user_character = models.ForeignKey(EveCharacter, on_delete=models.RESTRICT, related_name='ratting_shares')
     role = models.ForeignKey('EntryRole', on_delete=models.RESTRICT, related_name='shares')
 
     site_count = models.PositiveIntegerField(default=1)
