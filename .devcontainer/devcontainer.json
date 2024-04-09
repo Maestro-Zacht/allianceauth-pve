@@ -1,0 +1,16 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/postgres
+{
+	"name": "AllianceAuth",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "allianceauth_gunicorn",
+	"workspaceFolder": "/workspace",
+	"shutdownAction": "stopCompose",
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// This can be used to network with other containers or the host.
+	"forwardPorts": [
+		8000
+	]
+}
