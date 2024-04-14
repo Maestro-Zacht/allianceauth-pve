@@ -89,12 +89,10 @@ services:
     # forwards happens in devcontainer.json
     # ports:
     #   - 8000:8000
-    container_name: allianceauth_gunicorn
     <<: [ *allianceauth-base ]
     entrypoint: [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
 
   allianceauth_beat:
-    container_name: allianceauth_worker_beat
     <<: [ *allianceauth-base ]
     entrypoint: [ "celery", "-A", "myauth", "beat" ]
 
