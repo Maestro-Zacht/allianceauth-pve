@@ -59,8 +59,8 @@ function addCharacter(initial) {
         usersContainer.textContent = '';
         usersContainer.append(
             createSpan("Select", "text-center"),
-            createSpan("User's Main Char", "text-center"),
-            createSpan("Character", "text-center"),
+            createSpan("User's Main Char"),
+            createSpan("Character"),
             createSpan("Role", "text-center"),
             createSpan("Setup", "text-center"),
             createSpan("Count", "text-center"),
