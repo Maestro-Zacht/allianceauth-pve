@@ -98,7 +98,7 @@ function addCharacter(initial) {
 
     const profileDiv = document.createElement('div');
     profileDiv.id = `profile-div-${formNum}`;
-    profileDiv.classList.add('d-flex', 'justify-content-center', 'align-items-center');
+    profileDiv.classList.add('d-flex', 'justify-content-start', 'align-items-center');
 
     const profilePic = document.createElement('img');
     profilePic.src = data.profilePic;
@@ -121,7 +121,7 @@ function addCharacter(initial) {
 
     const characterDiv = document.createElement('div');
     characterDiv.id = `character-div-${formNum}`;
-    characterDiv.classList.add('d-flex', 'justify-content-center', 'align-items-center');
+    characterDiv.classList.add('d-flex', 'justify-content-start', 'align-items-center');
 
     const characterPic = document.createElement('img');
     characterPic.src = data.characterPic;

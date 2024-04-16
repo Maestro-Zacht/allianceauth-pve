@@ -90,14 +90,14 @@
 
                             {% comment %} User {% endcomment %}
                             {{ sform.user }}
-                            <div class="d-flex justify-content-center align-items-center" id="profile-div-{{ forloop.counter0 }}">
+                            <div class="d-flex justify-content-start align-items-center" id="profile-div-{{ forloop.counter0 }}">
                                 <img src="{{ sform.user.value|get_main_character|character_portrait_url:32 }}" class="rounded float-start me-2" id="profile-pic-{{ forloop.counter0 }}">
                                 <span id="username-span-{{ forloop.counter0 }}">{{ sform.user.value|get_main_character|get_char_attr:"character_name" }}</span>
                             </div>
 
                             {% comment %} Character {% endcomment %}
                             {{ sform.character }}
-                            <div class="d-flex justify-content-center align-items-center" id="character-div-{{ forloop.counter0 }}">
+                            <div class="d-flex justify-content-start align-items-center" id="character-div-{{ forloop.counter0 }}">
                                 <img src="{{ sform.character.value|get_char_attr:"portrait_url_32" }}" class="rounded float-start me-2" id="character-pic-{{ forloop.counter0 }}">
                                 <span id="character_name-span-{{ forloop.counter0 }}">{{ sform.character.value|get_char_attr:"character_name" }}</span>
                             </div>
