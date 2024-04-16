@@ -16,7 +16,7 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"ms-python.black-formatter",
+				"ms-python.autopep8",
 				"batisteo.vscode-django",
 				"github.vscode-github-actions",
 				"ms-python.vscode-pylance"

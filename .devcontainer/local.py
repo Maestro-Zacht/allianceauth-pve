@@ -86,8 +86,13 @@ INSTALLED_APPS += [
     # 'allianceauth.services.modules.xenforo',
 
     'allianceauth_pve',
+
+    "debug_toolbar",
+    'taskmonitor',
 ]
 
 #######################################
 # Add any custom settings below here. #
 #######################################
+
+MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
