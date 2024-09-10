@@ -1,8 +1,9 @@
 {% extends 'allianceauth_pve/base.html' %}
 {% load humanize %}
 {% load evelinks %}
+{% load i18n %}
 
-{% block page_title %}Entry Details{% endblock page_title %}
+{% block page_title %}{% translate "Entry Details" %}{% endblock page_title %}
 
 {% block extra_css %}
     <style>
@@ -22,7 +23,7 @@
     <div class="col-12 my-3">
         <div class="card-group">
             <div class="card text-center">
-                <div class="card-header">Creadet At</div>
+                <div class="card-header">{% translate "Created At" %}</div>
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-center h-100">
                         <p class="card-text">{{ entry.created_at|date:"d/m/Y G:i e" }}</p>
@@ -30,7 +31,7 @@
                 </div>
             </div>
             <div class="card text-center">
-                <div class="card-header">Number of Users</div>
+                <div class="card-header">{% translate "Number of Users" %}</div>
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-center h-100">
                         <p class="card-text">{{ entry.total_user_count }}</p>
@@ -39,7 +40,7 @@
             </div>
             {% if entry.funding_project and entry.funding_percentage > 0 %}
                 <div class="card text-center">
-                    <div class="card-header">Funding Project</div>
+                    <div class="card-header">{% translate "Funding Project" %}</div>
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-center h-100">
                             <p class="card-text">{{ entry.funding_project }} ({{ entry.funding_percentage }}&percnt;)</p>
@@ -48,7 +49,7 @@
                 </div>
             {% endif %}
             <div class="card text-center">
-                <div class="card-header">Total After Tax</div>
+                <div class="card-header">{% translate "Total After Tax" %}</div>
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-center h-100">
                         <p class="card-text">{{ entry.estimated_total_after_tax|floatformat:"g" }}</p>
@@ -56,7 +57,7 @@
                 </div>
             </div>
             <div class="card text-center">
-                <div class="card-header">Total</div>
+                <div class="card-header">{% translate "Total" %}</div>
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-center h-100">
                         <p class="card-text">{{ entry.estimated_total|intcomma }}</p>
@@ -64,7 +65,7 @@
                 </div>
             </div>
             <div class="card text-center">
-                <div class="card-header">Created By</div>
+                <div class="card-header">{% translate "Created By" %}</div>
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-center h-100">
                         <img src="{{ entry.created_by.profile.main_character|character_portrait_url:32 }}" class="rounded me-2">
@@ -76,15 +77,15 @@
     </div>
     <div class="col-12 my-3">
         <div class="card text-center">
-            <div class="card-header">Fleet Roles</div>
+            <div class="card-header">{% translate "Fleet Roles" %}</div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-aa">
                         <thead>
                             <tr>
-                                <th scope="col">Role</th>
-                                <th scope="col">Value</th>
-                                <th scope="col">Approximate Percentage</th>
+                                <th scope="col">{% translate "Role" %}</th>
+                                <th scope="col">{% translate "Value" %}</th>
+                                <th scope="col">{% translate "Approximate Percentage" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -103,20 +104,20 @@
     </div>
     <div class="col-12 my-3">
         <div class="card">
-            <div class="card-header text-center">Shares</div>
+            <div class="card-header text-center">{% translate "Shares" %}</div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-aa">
                         <thead>
                             <tr>
-                                <th style="text-align: left;">User's Main Character</th>
-                                <th style="text-align: left;">Character</th>
-                                <th>Fleet Role</th>
-                                <th>Helped Setups</th>
-                                <th>Count</th>
-                                <th>Share Total</th>
+                                <th style="text-align: left;">{% translate "User's Main Character" %}</th>
+                                <th style="text-align: left;">{% translate "Character" %}</th>
+                                <th>{% translate "Fleet Role" %}</th>
+                                <th>{% translate "Helped Setups" %}</th>
+                                <th>{% translate "Count" %}</th>
+                                <th>{% translate "Share Total" %}</th>
                                 {% if entry.funding_project and entry.funding_percentage > 0 %}
-                                    <th>Estimated Project Contribution</th>
+                                    <th>{% translate "Estimated Project Contribution" %}</th>
                                 {% endif %}
                             </tr>
                         </thead>
@@ -156,10 +157,10 @@
     <div class="col-12">
         <div class="d-flex flex-row-reverse">
             {% if perms.allianceauth_pve.manage_entries and user == entry.created_by or user.is_superuser %}
-                <button id="deleteButton" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEntryModal">Delete</button>
-                <a href="{% url 'allianceauth_pve:edit_entry' entry.rotation_id entry.pk %}" class="btn btn-warning mx-2">Edit</a>
+                <button id="deleteButton" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEntryModal">{% translate "Delete" %}</button>
+                <a href="{% url 'allianceauth_pve:edit_entry' entry.rotation_id entry.pk %}" class="btn btn-warning mx-2">{% translate "Edit" %}</a>
             {% endif %}
-            <a href="{% url 'allianceauth_pve:rotation_view' entry.rotation_id %}" class="btn btn-primary">Back</a>
+            <a href="{% url 'allianceauth_pve:rotation_view' entry.rotation_id %}" class="btn btn-primary">{% translate "Back" %}</a>
         </div>
     </div>
 
@@ -169,15 +170,15 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Delete Entry</h5>
+                        <h5 class="modal-title">{% translate "Delete Entry" %}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <p><b>Are you sure you want to delete this entry?</b></p>
+                        <p><b>{% translate "Are you sure you want to delete this entry?" %}</b></p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
-                        <a href="{% url 'allianceauth_pve:delete_entry' entry.pk %}" class="btn btn-danger ms-2">Confirm</a>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
+                        <a href="{% url 'allianceauth_pve:delete_entry' entry.pk %}" class="btn btn-danger ms-2">{% translate "Confirm" %}</a>
                     </div>
                 </div>
             </div>
