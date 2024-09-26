@@ -249,9 +249,9 @@
 
     const rolesList = {
         {% for setup in rolessetups %}
-            {{ setup.name }}: {
+            '{{ setup.name }}': {
                 {% for role in setup.roles.all %}
-                    {{ role.name }}: {{ role.value }},
+                    '{{ role.name }}': {{ role.value }},
                 {% endfor %}
             },
         {% endfor %}
