@@ -9,6 +9,10 @@ from django.conf import settings  # noqa
 
 app = Celery('myauth')
 
+# Automatically try to establish the connection to the AMQP broker on
+# Celery startup if it is unavailable.
+app.conf.broker_connection_retry_on_startup = True
+
 # Using a string here means the worker don't have to serialize
 # the configuration object to child processes.
 app.config_from_object('django.conf:settings')

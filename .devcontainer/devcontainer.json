@@ -19,7 +19,14 @@
 				"ms-python.autopep8",
 				"batisteo.vscode-django",
 				"github.vscode-github-actions",
-				"ms-python.vscode-pylance"
+				"ms-python.vscode-pylance",
+				"ms-azuretools.vscode-docker",
+				"GitHub.copilot",
+				"VisualStudioExptTeam.vscodeintellicode",
+				"yzhang.markdown-all-in-one",
+				"DavidAnson.vscode-markdownlint",
+				"donjayamanne.githistory",
+				"eamodio.gitlens"
 			]
 		}
 	}
