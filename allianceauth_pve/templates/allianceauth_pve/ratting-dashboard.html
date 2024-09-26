@@ -19,7 +19,7 @@
                 <div class="card-body">
                     {% if averages.onemonth.actual_total %}
                         <p>{{ averages.onemonth.actual_total|floatformat:"g" }}</p>
-                        <p>{{ averages.onemonth.helped_setups }}{% blocktranslate with = trimmed %}setup{% plural %}setup(s){% endblocktranslate %}</p>
+                        <p>{% blocktranslate trimmed count setup=averages.onemonth.helped_setups %}{{ setup }} setup{% plural %}{{ setup }} setups{% endblocktranslate %}</p>
                     {% else %}
                         <p>{% translate "No activity in the last month" %}</p>
                     {% endif %}
@@ -32,7 +32,7 @@
                 <div class="card-body">
                     {% if averages.threemonth.actual_total %}
                         <p>{{ averages.threemonth.actual_total|floatformat:"g" }}</p>
-                        <p>{{ averages.threemonth.helped_setups }}{% blocktranslate with = trimmed %}setup{% plural %}setup(s){% endblocktranslate %}</p>
+                        <p>{% blocktranslate trimmed count setup=averages.threemonth.helped_setups %}{{ setup }} setup{% plural %}{{ setup }} setups{% endblocktranslate %}</p>
                     {% else %}
                         <p>{% translate "No activity in the last 3 months" %}</p>
                     {% endif %}
@@ -45,7 +45,7 @@
                 <div class="card-body">
                     {% if averages.sixmonth.actual_total %}
                         <p>{{ averages.sixmonth.actual_total|floatformat:"g" }}</p>
-                        <p>{{ averages.sixmonth.helped_setups }}{% blocktranslate with = trimmed %}setup{% plural %}setup(s){% endblocktranslate %}</p>
+                        <p>{% blocktranslate trimmed count setup=averages.sixmonth.helped_setups %}{{ setup }} setup{% plural %}{{ setup }} setups{% endblocktranslate %}</p>
                     {% else %}
                         <p>{% translate "No activity in the last 6 months" %}</p>
                     {% endif %}
@@ -58,7 +58,7 @@
                 <div class="card-body">
                     {% if averages.oneyear.actual_total %}
                         <p>{{ averages.oneyear.actual_total|floatformat:"g" }}</p>
-                        <p>{{ averages.oneyear.helped_setups }}{% blocktranslate with = trimmed %}setup{% plural %}setup(s){% endblocktranslate %}</p>
+                        <p>{% blocktranslate trimmed count setup=averages.oneyear.helped_setups %}{{ setup }} setup{% plural %}{{ setup }} setups{% endblocktranslate %}</p>
                     {% else %}
                         <p>{% translate "No activity in the last year" %}</p>
                     {% endif %}

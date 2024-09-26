@@ -1,6 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.eveonline.models import EveCharacter
@@ -35,7 +36,7 @@ class NewEntryForm(forms.Form):
         max_value=100,
         min_value=0,
         initial=0,
-        label="Percentage",
+        label=_("Percentage"),
         widget=forms.NumberInput(attrs={'class': 'form-control'})
     )
 
@@ -52,7 +53,7 @@ class NewRoleFormset(forms.BaseFormSet):
             for form in self.forms:
                 name = form.cleaned_data.get('name')
                 if name in names:
-                    raise ValidationError('Roles must have different names!')
+                    raise ValidationError(_('Roles must have different names!'))
                 names.add(name)
 
 
@@ -64,7 +65,7 @@ class UserPkField(forms.IntegerField):
         super().validate(value)
         if not User.objects.filter(pk=value).exists():
             logger.error(f"User with pk {value} not found!")
-            raise ValidationError('User not found')
+            raise ValidationError(_('User not found'))
 
 
 class CharacterPkField(forms.IntegerField):
@@ -72,7 +73,7 @@ class CharacterPkField(forms.IntegerField):
         super().validate(value)
         if not EveCharacter.objects.filter(pk=value).exists():
             logger.error(f"Character with pk {value} not found!")
-            raise ValidationError('Character not found')
+            raise ValidationError(_('Character not found'))
 
 
 class NewShareForm(forms.Form):
@@ -91,10 +92,10 @@ class NewShareFormset(forms.BaseFormSet):
                 char = form.cleaned_data.get('character')
                 user = form.cleaned_data.get('user')
                 if char in characters:
-                    raise ValidationError('Only 1 share per character!')
+                    raise ValidationError(_('Only 1 share per character!'))
 
                 if not CharacterOwnership.objects.filter(character_id=char, user_id=user).exists():
-                    raise ValidationError('Character ownership wrong!')
+                    raise ValidationError(_('Character ownership wrong!'))
 
                 characters.add(char)
 
@@ -124,7 +125,7 @@ class FundingProjectNameField(forms.CharField):
     def validate(self, value):
         super().validate(value)
         if FundingProject.objects.filter(name=value, is_active=True).exists():
-            raise ValidationError('Project name already exists!')
+            raise ValidationError(_('Project name already exists!'))
 
 
 class NewFundingProjectForm(forms.ModelForm):

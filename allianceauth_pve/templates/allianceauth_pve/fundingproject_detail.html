@@ -25,7 +25,7 @@
                     <div class="card-header">{% translate "Completed" %}</div>
                     <div class="card-body">
                         <p class="card-text">{{ funding_project.completed_at|date:"d/m/Y G:i e" }}</p>
-                        <p class="card-text">{% blocktranslate with = trimmed %}After {{ funding_project.completed_in_days }} days{% endblocktranslate %}</p>
+                        <p class="card-text">{% blocktranslate trimmed count days=funding_project.completed_in_days %}After {{ days }} day{% plural %}After {{ days }} days{% endblocktranslate %}</p>
                     </div>
                 </div>
             {% endif %}
@@ -67,11 +67,11 @@
     </div>
     <div class="col-12 mt-4">
         <div class="progress-stacked" style="height: 20px;">
-            <div class="progress" role="progressbar" aria-label="Actual progress" aria-valuenow="{{ funding_project.html_actual_percentage_width }}" aria-valuemin="0" aria-valuemax="100" style="height: 20px; width: {{ funding_project.html_actual_percentage_width }}%">
+            <div class="progress" role="progressbar" aria-label="{% translate "Actual progress" %}" aria-valuenow="{{ funding_project.html_actual_percentage_width }}" aria-valuemin="0" aria-valuemax="100" style="height: 20px; width: {{ funding_project.html_actual_percentage_width }}%">
                 <div class="progress-bar {% if funding_project.is_active %}progress-bar-striped progress-bar-animated {% endif %}{% if funding_project.actual_percentage >= 100 %}bg-success{% elif funding_project.actual_percentage <= 1 %}bg-danger{% elif funding_project.actual_percentage < 25 %}bg-warning{% else %}bg-info{% endif %}">{{ funding_project.actual_percentage|floatformat }} &percnt;</div>
             </div>
             {% if funding_project.is_active %}
-                <div class="progress{% if funding_project.actual_percentage >= 100 %} d-none{% endif %}" role="progressbar" aria-label="Estimated progress" aria-valuenow="{{ funding_project.html_estimated_percentage_width }}" aria-valuemin="0" aria-valuemax="100" style="height: 20px; width: {{ funding_project.html_estimated_percentage_width }}%">
+                <div class="progress{% if funding_project.actual_percentage >= 100 %} d-none{% endif %}" role="progressbar" aria-label="{% translate "Estimated progress" %}" aria-valuenow="{{ funding_project.html_estimated_percentage_width }}" aria-valuemin="0" aria-valuemax="100" style="height: 20px; width: {{ funding_project.html_estimated_percentage_width }}%">
                     <div class="progress-bar progress-bar-striped progress-bar-animated{% if funding_project.total_percentage >= 100 %} bg-success{% endif %}">{{ funding_project.estimated_missing_percentage|floatformat }} &percnt;</div>
                 </div>
             {% endif %}

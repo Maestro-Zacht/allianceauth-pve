@@ -1,6 +1,7 @@
 from django.db.models import Sum, Subquery
 from django.db.models.functions import Coalesce
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from .models import EntryCharacter, Rotation
 from .forms import NewEntryForm, NewShareFormSet, NewRoleFormSet
@@ -52,12 +53,12 @@ def check_forms_valid(role_form: NewRoleFormSet, entry_form: NewEntryForm, share
                     total_value += share['site_count'] * roles_values[share['role']]
 
                 if total_value == 0:
-                    errors.append('Form not valid, you need at least 1 person to receive loot')
+                    errors.append(_('Form not valid, you need at least 1 person to receive loot'))
             else:
-                errors.append('Not enough shares or roles')
+                errors.append(_('Not enough shares or roles'))
         else:
-            errors.append('Entry form or shares are not correct')
+            errors.append(_('Entry form or shares are not correct'))
     else:
-        errors.append('Error in roles')
+        errors.append(_('Error in roles'))
 
     return errors

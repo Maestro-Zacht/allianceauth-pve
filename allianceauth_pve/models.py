@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.translation import gettext_lazy as _
 from django.db.models.functions import Coalesce
 from django.core.validators import MinValueValidator, MaxValueValidator
 
@@ -142,7 +143,7 @@ class GeneralRole(models.Model):
     setup = models.ForeignKey(RoleSetup, on_delete=models.CASCADE, related_name='roles')
 
     name = models.CharField(max_length=64)
-    value = models.PositiveIntegerField('relative role value', help_text="Relative role value. Share values are computed using this field. If there are 2 roles with 10 and 15, they'll receive 10/25 and 15/25 of the share value.")
+    value = models.PositiveIntegerField(_('relative role value'), help_text=_("Relative role value. Share values are computed using this field. If there are 2 roles with 10 and 15, they'll receive 10/25 and 15/25 of the share value."))
 
     def __str__(self) -> str:
         return self.name
@@ -159,19 +160,19 @@ class Rotation(models.Model):
 
     actual_total = models.PositiveBigIntegerField(default=0)
 
-    max_daily_setups = models.PositiveSmallIntegerField(default=1, help_text='The maximum number of helped setup per day. If more are submitted, only this number is counted. 0 for deactivating helped setups.')
-    min_people_share_setup = models.PositiveSmallIntegerField(default=3, help_text='The minimum number of users in an entry to consider the helped setup valid.')
+    max_daily_setups = models.PositiveSmallIntegerField(default=1, help_text=_('The maximum number of helped setup per day. If more are submitted, only this number is counted. 0 for deactivating helped setups.'))
+    min_people_share_setup = models.PositiveSmallIntegerField(default=3, help_text=_('The minimum number of users in an entry to consider the helped setup valid.'))
 
-    tax_rate = models.FloatField(default=0, help_text='Tax rate in percentage')
+    tax_rate = models.FloatField(default=0, help_text=_('Tax rate in percentage'))
     is_closed = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     closed_at = models.DateTimeField(blank=True, null=True)
 
-    priority = models.IntegerField(default=100, help_text='Ordering priority. The higher priorities are in the first positions.')
+    priority = models.IntegerField(default=100, help_text=_('Ordering priority. The higher priorities are in the first positions.'))
 
-    entry_buttons = models.ManyToManyField(PveButton, related_name='+', help_text='Button to be shown in the Entry form.', blank=True)
-    roles_setups = models.ManyToManyField(RoleSetup, related_name='+', help_text='Setup avaiable for loading in the Entry form.', blank=True)
+    entry_buttons = models.ManyToManyField(PveButton, related_name='+', help_text=_('Button to be shown in the Entry form.'), blank=True)
+    roles_setups = models.ManyToManyField(RoleSetup, related_name='+', help_text=_('Setup avaiable for loading in the Entry form.'), blank=True)
 
     objects = RotationManager()
 
@@ -285,7 +286,7 @@ class EntryRole(models.Model):
     entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name='roles')
 
     name = models.CharField(max_length=64)
-    value = models.PositiveIntegerField('relative role value', help_text="Relative role value. Share values are computed using this field. If there are 2 roles with 10 and 15, they'll receive 10/25 and 15/25 of the share value.")
+    value = models.PositiveIntegerField(_('relative role value'), help_text=_("Relative role value. Share values are computed using this field. If there are 2 roles with 10 and 15, they'll receive 10/25 and 15/25 of the share value."))
 
     def __str__(self) -> str:
         return self.name

@@ -8,6 +8,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.db.models import F, Q, Count, Exists, OuterRef
 from django.db import transaction
 from django.db.models.functions import Coalesce
@@ -203,16 +204,16 @@ def add_entry(request, rotation_id, entry_id=None):
     rotation = get_object_or_404(Rotation, pk=rotation_id)
 
     if rotation.is_closed:
-        messages.error(request, 'The rotation is closed, you cannot add an entry')
+        messages.error(request, _('The rotation is closed, you cannot add an entry'))
         return redirect('allianceauth_pve:rotation_view', rotation_id)
 
     if entry_id:
         entry = get_object_or_404(Entry, pk=entry_id)
         if entry.rotation_id != rotation_id:
-            messages.error(request, "The selected entry doesn't belong to the selected rotation")
+            messages.error(request, _("The selected entry doesn't belong to the selected rotation"))
             return redirect('allianceauth_pve:rotation_view', rotation_id)
         if entry.created_by != request.user and not request.user.is_superuser:
-            messages.error(request, "You cannot edit this entry")
+            messages.error(request, _("You cannot edit this entry"))
             return redirect('allianceauth_pve:rotation_view', rotation_id)
 
     if request.method == 'POST':
@@ -270,7 +271,7 @@ def add_entry(request, rotation_id, entry_id=None):
 
                 EntryCharacter.objects.bulk_create(to_add)
 
-            messages.success(request, 'Entry added successfully')
+            messages.success(request, _('Entry added successfully'))
 
             cache.delete(f"ratting_summary_{rotation_id}")
             if entry.funding_project is not None and entry.funding_percentage > 0:
@@ -333,13 +334,13 @@ def add_entry(request, rotation_id, entry_id=None):
 def delete_entry(request, entry_id):
     entry = get_object_or_404(Entry, pk=entry_id)
     if (entry.created_by != request.user and not request.user.is_superuser) or entry.rotation.is_closed:
-        messages.error(request, "You cannot delete this entry")
+        messages.error(request, _("You cannot delete this entry"))
         return redirect('allianceauth_pve:rotation_view', entry.rotation_id)
 
     rotation_id = entry.rotation_id
 
     entry.delete()
-    messages.success(request, "Entry deleted successfully")
+    messages.success(request, _("Entry deleted successfully"))
 
     cache.delete(f"ratting_summary_{rotation_id}")
 
@@ -355,7 +356,7 @@ def create_rotation(request):
         if rotation_form.is_valid():
             rotation = rotation_form.save()
 
-            messages.success(request, "Rotation created successfully")
+            messages.success(request, _("Rotation created successfully"))
             return redirect('allianceauth_pve:rotation_view', rotation.pk)
     else:
         rotation_form = NewRotationForm()
@@ -381,7 +382,7 @@ def new_project_view(request):
         if project_form.is_valid():
             project_form.save()
 
-            messages.success(request, "Project created successfully")
+            messages.success(request, _("Project created successfully"))
             return redirect('allianceauth_pve:dashboard')
     else:
         project_form = NewFundingProjectForm()
@@ -428,11 +429,11 @@ def toggle_complete_project(request, pk: int):
     funding_project = get_object_or_404(FundingProject, pk=pk)
 
     if funding_project.is_active and funding_project.has_open_contributions:
-        messages.error(request, "You cannot complete a project with open contributions")
+        messages.error(request, _("You cannot complete a project with open contributions"))
         return redirect('allianceauth_pve:project_detail', pk)
 
     if not funding_project.is_active and FundingProject.objects.filter(is_active=True, name=funding_project.name).exists():
-        messages.error(request, "You cannot reopen this project, another one with the same name is active.")
+        messages.error(request, _("You cannot reopen this project, another one with the same name is active."))
         return redirect('allianceauth_pve:project_detail', pk)
 
     funding_project.is_active = not funding_project.is_active

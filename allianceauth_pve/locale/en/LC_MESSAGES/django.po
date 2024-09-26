@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-10 11:21+1000\n"
+"POT-Creation-Date: 2024-09-26 14:24+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,8 +18,91 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: allianceauth_pve/actions.py:56
+msgid "Form not valid, you need at least 1 person to receive loot"
+msgstr ""
+
+#: allianceauth_pve/actions.py:58
+msgid "Not enough shares or roles"
+msgstr ""
+
+#: allianceauth_pve/actions.py:60
+msgid "Entry form or shares are not correct"
+msgstr ""
+
+#: allianceauth_pve/actions.py:62
+msgid "Error in roles"
+msgstr ""
+
+#: allianceauth_pve/auth_hooks.py:14
 #: allianceauth_pve/templates/allianceauth_pve/base.html:5
 msgid "PvE Tool"
+msgstr ""
+
+#: allianceauth_pve/forms.py:39
+msgid "Percentage"
+msgstr ""
+
+#: allianceauth_pve/forms.py:56
+msgid "Roles must have different names!"
+msgstr ""
+
+#: allianceauth_pve/forms.py:68
+msgid "User not found"
+msgstr ""
+
+#: allianceauth_pve/forms.py:76
+msgid "Character not found"
+msgstr ""
+
+#: allianceauth_pve/forms.py:95
+msgid "Only 1 share per character!"
+msgstr ""
+
+#: allianceauth_pve/forms.py:98
+msgid "Character ownership wrong!"
+msgstr ""
+
+#: allianceauth_pve/forms.py:128
+msgid "Project name already exists!"
+msgstr ""
+
+#: allianceauth_pve/models.py:146 allianceauth_pve/models.py:289
+msgid "relative role value"
+msgstr ""
+
+#: allianceauth_pve/models.py:146 allianceauth_pve/models.py:289
+msgid ""
+"Relative role value. Share values are computed using this field. If there "
+"are 2 roles with 10 and 15, they'll receive 10/25 and 15/25 of the share "
+"value."
+msgstr ""
+
+#: allianceauth_pve/models.py:163
+msgid ""
+"The maximum number of helped setup per day. If more are submitted, only this "
+"number is counted. 0 for deactivating helped setups."
+msgstr ""
+
+#: allianceauth_pve/models.py:164
+msgid ""
+"The minimum number of users in an entry to consider the helped setup valid."
+msgstr ""
+
+#: allianceauth_pve/models.py:166
+msgid "Tax rate in percentage"
+msgstr ""
+
+#: allianceauth_pve/models.py:172
+msgid "Ordering priority. The higher priorities are in the first positions."
+msgstr ""
+
+#: allianceauth_pve/models.py:174
+msgid "Button to be shown in the Entry form."
+msgstr ""
+
+#: allianceauth_pve/models.py:175
+msgid "Setup avaiable for loading in the Entry form."
 msgstr ""
 
 #: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:6
@@ -133,6 +216,13 @@ msgstr ""
 msgid "Delete Entry"
 msgstr ""
 
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:174
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:194
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:227
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:174
+msgid "Close"
+msgstr ""
+
 #: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:177
 msgid "Are you sure you want to delete this entry?"
 msgstr ""
@@ -238,8 +328,10 @@ msgstr ""
 
 #: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:28
 #, python-format
-msgid "After %(funding_project.completed_in_days)s days"
-msgstr ""
+msgid "After %(days)s day"
+msgid_plural "After %(days)s days"
+msgstr[0] ""
+msgstr[1] ""
 
 #: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:33
 msgid "Users"
@@ -261,6 +353,14 @@ msgstr ""
 #: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:181
 #: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:214
 msgid "Goal"
+msgstr ""
+
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:70
+msgid "Actual progress"
+msgstr ""
+
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:74
+msgid "Estimated progress"
 msgstr ""
 
 #: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:82
@@ -294,8 +394,9 @@ msgstr ""
 #: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:35
 #: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:48
 #: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:61
-msgid "setup"
-msgid_plural "setup(s)"
+#, python-format
+msgid "%(setup)s setup"
+msgid_plural "%(setup)s setups"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -448,4 +549,45 @@ msgstr ""
 #: allianceauth_pve/templates/allianceauth_pve/rotation.html:163
 #: allianceauth_pve/templates/allianceauth_pve/rotation.html:173
 msgid "Close Rotation"
+msgstr ""
+
+#: allianceauth_pve/views.py:207
+msgid "The rotation is closed, you cannot add an entry"
+msgstr ""
+
+#: allianceauth_pve/views.py:213
+msgid "The selected entry doesn't belong to the selected rotation"
+msgstr ""
+
+#: allianceauth_pve/views.py:216
+msgid "You cannot edit this entry"
+msgstr ""
+
+#: allianceauth_pve/views.py:274
+msgid "Entry added successfully"
+msgstr ""
+
+#: allianceauth_pve/views.py:337
+msgid "You cannot delete this entry"
+msgstr ""
+
+#: allianceauth_pve/views.py:343
+msgid "Entry deleted successfully"
+msgstr ""
+
+#: allianceauth_pve/views.py:359
+msgid "Rotation created successfully"
+msgstr ""
+
+#: allianceauth_pve/views.py:385
+msgid "Project created successfully"
+msgstr ""
+
+#: allianceauth_pve/views.py:432
+msgid "You cannot complete a project with open contributions"
+msgstr ""
+
+#: allianceauth_pve/views.py:436
+msgid ""
+"You cannot reopen this project, another one with the same name is active."
 msgstr ""
