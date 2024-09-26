@@ -2,8 +2,9 @@
 {% load evelinks %}
 {% load humanize %}
 {% load django_bootstrap5 %}
+{% load i18n %}
 
-{% block page_title %}Rotation {{ rotation.name }}{% endblock page_title %}
+{% block page_title %}{% translate "Rotation" %} {{ rotation.name }}{% endblock page_title %}
 
 {% block extra_css %}
     {% include "bundles/datatables-css-bs5.html" %}
@@ -20,22 +21,22 @@
             <div class="card text-center">
                 <div class="card-header">
                     {% if rotation.is_closed %}
-                        Status
+                        {% translate "Status" %}
                     {% else %}
-                        Age
+                        {% translate "Age" %}
                     {% endif %}
                 </div>
                 <div class="card-body">
                     {% if rotation.is_closed %}
-                        Closed
+                        {% translate "Closed" %}
                     {% else %}
-                        {{ rotation.days_since }} days
+                        {{ rotation.days_since }} {% translate "days" %}
                     {% endif %}
                 </div>
             </div>
             <div class="card text-center">
                 <div class="card-header">
-                    Estimated Total
+                    {% translate "Estimated Total" %}
                 </div>
                 <div class="card-body">
                     {{ rotation.estimated_total|floatformat:"g" }}
@@ -44,7 +45,7 @@
             {% if rotation.is_closed %}
                 <div class="card text-center">
                     <div class="card-header">
-                        Actual Total
+                        {% translate "Actual Total" %}
                     </div>
                     <div class="card-body">
                         {{ rotation.actual_total|floatformat:"g" }}
@@ -53,7 +54,7 @@
             {% endif %}
             <div class="card text-center">
                 <div class="card-header">
-                    Tax Rate
+                    {% translate "Tax Rate" %}
                 </div>
                 <div class="card-body">
                     {{ rotation.tax_rate|floatformat }} &percnt;
@@ -71,14 +72,14 @@
                                 <table class="table table-aa">
                                     <thead>
                                         <tr>
-                                            <th>Character</th>
-                                            <th>Setups</th>
+                                            <th>{% translate "Character" %}</th>
+                                            <th>{% translate "Setups" %}</th>
                                             {% if rotation.is_closed %}
-                                                <th>Actual Total</th>
-                                                <th>Estimated Total</th>
+                                                <th>{% translate "Actual Total" %}</th>
+                                                <th>{% translate "Estimated Total" %}</th>
                                                 <th></th>
                                             {% else %}
-                                                <th>Total</th>
+                                                <th>{% translate "Total" %}</th>
                                             {% endif %}
                                         </tr>
                                     </thead>
@@ -114,18 +115,18 @@
     {% if not rotation.is_closed %}
         <div class="col-12 mt-4">
             <div class="card">
-                <div class="card-header text-center">Entries</div>
+                <div class="card-header text-center">{% translate "Entries" %}</div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-aa" id="entries_table">
                             <thead>
                                 <tr>
-                                    <th scope="col">Date</th>
-                                    <th scope="col">User Count</th>
-                                    <th scope="col">Share Count</th>
-                                    <th scope="col">Total After Tax</th>
-                                    <th scope="col">Total</th>
-                                    <th scope="col">Created By</th>
+                                    <th scope="col">{% translate "Date" %}</th>
+                                    <th scope="col">{% translate "User Count" %}</th>
+                                    <th scope="col">{% translate "Share Count" %}</th>
+                                    <th scope="col">{% translate "Total After Tax" %}</th>
+                                    <th scope="col">{% translate "Total" %}</th>
+                                    <th scope="col">{% translate "Created By" %}</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -149,7 +150,7 @@
                     </div>
                     {% if perms.allianceauth_pve.manage_entries and not rotation.is_closed %}
                         <div class="d-flex justify-content-center">
-                            <a href="{% url 'allianceauth_pve:new_entry' rotation.pk %}" class="btn btn-success">New Entry</a>
+                            <a href="{% url 'allianceauth_pve:new_entry' rotation.pk %}" class="btn btn-success">{% translate "New Entry" %}</a>
                         </div>
                     {% endif %}
                 </div>
@@ -159,9 +160,9 @@
     <div class="col-12 mt-3">
         <div class="d-flex flex-row-reverse">
             {% if perms.allianceauth_pve.manage_rotations and not rotation.is_closed %}
-                <button type="button" id="closeRotationButton" class="btn btn-success mx-2" data-bs-toggle="modal" data-bs-target="#closeRotationModal">Close Rotation</button>
+                <button type="button" id="closeRotationButton" class="btn btn-success mx-2" data-bs-toggle="modal" data-bs-target="#closeRotationModal">{% translate "Close Rotation" %}</button>
             {% endif %}
-            <a href="{% url 'allianceauth_pve:dashboard' %}" class="btn btn-danger">Back</a>
+            <a href="{% url 'allianceauth_pve:dashboard' %}" class="btn btn-danger">{% translate "Back" %}</a>
         </div>
     </div>
     {% if perms.allianceauth_pve.manage_rotations and not rotation.is_closed %}
@@ -169,7 +170,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Close Rotation</h5>
+                        <h5 class="modal-title">{% translate "Close Rotation" %}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <form method="post">
@@ -178,8 +179,8 @@
                             {% bootstrap_form closeform %}
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Dismiss</button>
-                            <button type="submit" class="btn btn-primary">Confirm</button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">{% translate "Dismiss" %}</button>
+                            <button type="submit" class="btn btn-primary">{% translate "Confirm" %}</button>
                         </div>
                      </form>
                 </div>

@@ -4,8 +4,9 @@
 {% load evelinks %}
 {% load pvefilters %}
 {% load humanize %}
+{% load i18n %}
 
-{% block page_title %}New Entry{% endblock page_title %}
+{% block page_title %}{% translate "New Entry" %}{% endblock page_title %}
 
 {% block extra_css %}
     <link rel="stylesheet" type="text/css" href="{% allianceauth_pve_static 'allianceauth_pve/css/new_entry_styles.css' %}">
@@ -20,9 +21,9 @@
                 <form method="POST" id="entry-form"> {% csrf_token %}
                     {{ roleforms.management_form }}
                     <div id="roles-div">
-                        <span class="text-center">Role</span>
-                        <span class="text-center">Value</span>
-                        <span class="text-center">Delete</span>
+                        <span class="text-center">{% translate "Role" %}</span>
+                        <span class="text-center">{% translate "Value" %}</span>
+                        <span class="text-center">{% translate "Delete" %}</span>
 
                         {% for rform in roleforms %}
                             {{ rform.name }}
@@ -32,9 +33,9 @@
                         {% endfor %}
                     </div>
                     <div class="d-flex justify-content-around align-items-center">
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newRoleModal" id="newRoleButton">New Role</button>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newRoleModal" id="newRoleButton">{% translate "New Role" %}</button>
                         {% if rolessetups.count > 0 %}
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#roleSetupsModal" id="roleSetupsButton">Load Roles Setup</button>
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#roleSetupsModal" id="roleSetupsButton">{% translate "Load Roles Setup" %}</button>
                         {% endif %}
                     </div>
                     <hr>
@@ -50,11 +51,11 @@
                     {{ entryform.non_field_errors }}
                     
                     <div class="d-flex justify-content-between align-items-center mt-3">
-                        <label for="custom_increment_inp" class="col-form-label">Custom Increment: </label>
+                        <label for="custom_increment_inp" class="col-form-label">{% translate "Custom Increment:" %} </label>
                         <input type="text" class="form-control localized-input w-50" minvalue="-1000000000000" maxvalue="1000000000000" id="custom_increment_inp">
                         <button type="button" class="btn btn-primary" id="custom_increment_button">Add</button>
                     </div>
-                    <p><small>Use this field to add a custom value to the total.</small></p>
+                    <p><small>{% translate "Use this field to add a custom value to the total." %}</small></p>
                     <hr>
                     <div class="d-flex justify-content-between align-items-center">
                         {{ entryform.estimated_total.label_tag }}
@@ -69,15 +70,15 @@
                     {{ shareforms.management_form }}
                     <div id="users">
                         {% if shareforms.total_form_count  > 0 %}
-                            <span class="text-center">Select</span>
-                            <span>User's Main Char</span>
-                            <span>Character</span>
-                            <span class="text-center">Role</span>
-                            <span class="text-center">Setup</span>
-                            <span class="text-center">Count</span>
-                            <span class="text-center">Delete</span>
+                            <span class="text-center">{% translate "Select" %}</span>
+                            <span>{% translate "User's Main Char" %}</span>
+                            <span>{% translate "Character" %}</span>
+                            <span class="text-center">{% translate "Role" %}</span>
+                            <span class="text-center">{% translate "Setup" %}</span>
+                            <span class="text-center">{% translate "Count" %}</span>
+                            <span class="text-center">{% translate "Delete" %}</span>
                         {% else %}
-                            <span class="all-cols text-center">No character yet</span>
+                            <span class="all-cols text-center">{% translate "No character yet" %}</span>
                         {% endif %}
 
                         {% for sform in shareforms %}
@@ -131,7 +132,7 @@
                     {% if show_funding_projects %}
                         <hr>
                         <div class="text-center">
-                            <span>Funding Project</span>
+                            <span>{% translate "Funding Project" %}</span>
                         </div>
                         <div class="row justify-content-around align-items-center my-3">
                             <div class="col-6">
@@ -168,11 +169,11 @@
             <div class="card-body">
                 <div class="input-group">
                     <input type="text" name="search-bar" id="search-bar-id" placeholder="Search" class="form-control w-75" aria-describedby="search-bar-btn">
-                    <button type="button" class="btn btn-outline-info" id="search-bar-btn">Search</button>
+                    <button type="button" class="btn btn-outline-info" id="search-bar-btn">{% translate "Search" %}</button>
                 </div>
                 <hr>
                 <div id="search-results">
-                    <span class="all-cols text-center">No results</span>
+                    <span class="all-cols text-center">{% translate "No results" %}</span>
                 </div>
             </div>
         </div>
@@ -182,20 +183,20 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">New Role</h5>
+                    <h5 class="modal-title">{% translate "New Role" %}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="roleForm">
                     <div class="modal-body">
                         <div class="container-fluid">
                             <div class="row mb-3">
-                                <label for="id_roleName" class="col-sm-3 col-form-label">Role Name:</label>
+                                <label for="id_roleName" class="col-sm-3 col-form-label">{% translate "Role Name:" %}</label>
                                 <div class="col-sm-9">
                                     <input type="text" name="roleName" id="id_roleName" class="form-control">
                                 </div>
                             </div>
                             <div class="row">
-                                <label for="id_roleValue" class="col-sm-3 col-form-label">Value:</label>
+                                <label for="id_roleValue" class="col-sm-3 col-form-label">{% translate "Value:" %}</label>
                                 <div class="col-sm-9">
                                     <input type="number" name="roleValue" id="id_roleValue" class="form-control">
                                 </div>
@@ -203,8 +204,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="submitNewRoleButton" data-bs-dismiss="modal">Confirm</button>
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Dismiss</button>
+                        <button type="button" class="btn btn-primary" id="submitNewRoleButton" data-bs-dismiss="modal">{% translate "Confirm" %}</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">{% translate "Dismiss" %}</button>
                     </div>
                 </form>
             </div>
@@ -215,7 +216,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Choose Setup</h5>
+                    <h5 class="modal-title">{% translate "Choose Setup" %}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -225,7 +226,7 @@
                             <small>{% for role in rolesetup.roles.all %}{{ role.name }} ({{ role.value }}), {% endfor %}</small>
                         </div>
                         <br>
-                        <button type="button" class="btn btn-success" onclick="loadRolesSetup('{{ rolesetup.name }}')" data-bs-dismiss="modal">Load</button>
+                        <button type="button" class="btn btn-success" onclick="loadRolesSetup('{{ rolesetup.name }}')" data-bs-dismiss="modal">{% translate "Load" %}</button>
                         {% if not forloop.last %}<hr>{% endif %}
                     {% endfor %}
                 </div>

@@ -1,65 +1,66 @@
 {% extends 'allianceauth_pve/base.html' %}
 {% load humanize %}
+{% load i18n %}
 
-{% block page_title %}PvE Dashboard{% endblock page_title %}
+{% block page_title %}{% translate "PvE Dashboard" %}{% endblock page_title %}
 
 {% block extra_css %}
     {% include "bundles/datatables-css-bs5.html" %}
 {% endblock extra_css %}
 
 {% block pvecontent %}
-    <h1 class="page-header text-center">PvE Dashboard</h1>
+    <h1 class="page-header text-center">{% translate "PvE Dashboard" %}</h1>
     <div class="col-12 my-3">
         <div class="card-group">
             <div class="card text-center">
                 <div class="card-header">
-                    1 month
+                    {% translate "1 month" %}
                 </div>
                 <div class="card-body">
                     {% if averages.onemonth.actual_total %}
                         <p>{{ averages.onemonth.actual_total|floatformat:"g" }}</p>
-                        <p>{{ averages.onemonth.helped_setups }} setup(s)</p>
+                        <p>{{ averages.onemonth.helped_setups }}{% blocktranslate with = trimmed %}setup{% plural %}setup(s){% endblocktranslate %}</p>
                     {% else %}
-                        <p>No activity in the last month</p>
+                        <p>{% translate "No activity in the last month" %}</p>
                     {% endif %}
                 </div>
             </div>
             <div class="card text-center">
                 <div class="card-header">
-                    3 months
+                    {% translate "3 months" %}
                 </div>
                 <div class="card-body">
                     {% if averages.threemonth.actual_total %}
                         <p>{{ averages.threemonth.actual_total|floatformat:"g" }}</p>
-                        <p>{{ averages.threemonth.helped_setups }} setup(s)</p>
+                        <p>{{ averages.threemonth.helped_setups }}{% blocktranslate with = trimmed %}setup{% plural %}setup(s){% endblocktranslate %}</p>
                     {% else %}
-                        <p>No activity in the last 3 months</p>
+                        <p>{% translate "No activity in the last 3 months" %}</p>
                     {% endif %}
                 </div>
             </div>
             <div class="card text-center">
                 <div class="card-header">
-                    6 months
+                    {% translate "6 months" %}
                 </div>
                 <div class="card-body">
                     {% if averages.sixmonth.actual_total %}
                         <p>{{ averages.sixmonth.actual_total|floatformat:"g" }}</p>
-                        <p>{{ averages.sixmonth.helped_setups }} setup(s)</p>
+                        <p>{{ averages.sixmonth.helped_setups }}{% blocktranslate with = trimmed %}setup{% plural %}setup(s){% endblocktranslate %}</p>
                     {% else %}
-                        <p>No activity in the last 6 months</p>
+                        <p>{% translate "No activity in the last 6 months" %}</p>
                     {% endif %}
                 </div>
             </div>
             <div class="card text-center">
                 <div class="card-header">
-                    12 months
+                    {% translate "12 months" %}
                 </div>
                 <div class="card-body">
                     {% if averages.oneyear.actual_total %}
                         <p>{{ averages.oneyear.actual_total|floatformat:"g" }}</p>
-                        <p>{{ averages.oneyear.helped_setups }} setup(s)</p>
+                        <p>{{ averages.oneyear.helped_setups }}{% blocktranslate with = trimmed %}setup{% plural %}setup(s){% endblocktranslate %}</p>
                     {% else %}
-                        <p>No activity in the last year</p>
+                        <p>{% translate "No activity in the last year" %}</p>
                     {% endif %}
                 </div>
             </div>
@@ -71,13 +72,13 @@
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
                         <button class="nav-link active" id="open-rotations-tab" data-bs-toggle="tab" data-bs-target="#open-rotations-panel" type="button" role="tab" aria-controls="open-rotations-panel" aria-selected="true">
-                            Open Rotations
+                            {% translate "Open Rotations" %}
                             <span class="badge text-bg-primary ms-1">{{ open_rots.count }}</span>
                         </button>
                     </li>
                     <li class="nav-item">
                         <button class="nav-link" id="closed-rotations-tab" data-bs-toggle="tab" data-bs-target="#closed-rotations-panel" type="button" role="tab" aria-controls="closed-rotations-panel" aria-selected="false">
-                            Closed Rotations
+                            {% translate "Closed Rotations" %}
                         </button>
                     </li>
                 </ul>
@@ -90,10 +91,10 @@
                                 <table class="table table-aa" id="open_rotations">
                                     <thead>
                                         <tr>
-                                            <th style="width: 25%;">Name</th>
-                                            <th style="width: 25%;">Age (days)</th>
-                                            <th style="width: 25%;">Participants</th>
-                                            <th style="width: 25%;">Current Total</th>
+                                            <th style="width: 25%;">{% translate "Name" %}</th>
+                                            <th style="width: 25%;">{% translate "Age (days)" %}</th>
+                                            <th style="width: 25%;">{% translate "Participants" %}</th>
+                                            <th style="width: 25%;">{% translate "Current Total" %}</th>
                                         </tr>
                                     </thead>
 
@@ -110,10 +111,10 @@
                                 </table>
                             </div>
                         {% else %}
-                            <div class="alert alert-warning text-center">No open rotations</div>
+                            <div class="alert alert-warning text-center">{% translate "No open rotations" %}</div>
                         {% endif %}
                         {% if perms.allianceauth_pve.manage_rotations or user.is_superuser %}
-                            <a href="{% url 'allianceauth_pve:new_rotation' %}" class="btn btn-info mt-2">New Rotation</a>
+                            <a href="{% url 'allianceauth_pve:new_rotation' %}" class="btn btn-info mt-2">{% translate "New Rotation" %}</a>
                         {% endif %}
                     </div>
                     <div class="tab-pane fade" id="closed-rotations-panel" role="tabpanel" aria-labelledby="closed-rotations-tab" tabindex="0">
@@ -122,10 +123,10 @@
                                 <table class="table table-aa" id="closed_rotations">
                                     <thead>
                                         <tr>
-                                            <th style="width: 25%;">Name</th>
-                                            <th style="width: 25%;">Closed On</th>
-                                            <th style="width: 25%;">Participants</th>
-                                            <th style="width: 25%;">Total</th>
+                                            <th style="width: 25%;">{% translate "Name" %}</th>
+                                            <th style="width: 25%;">{% translate "Closed On" %}</th>
+                                            <th style="width: 25%;">{% translate "Participants" %}</th>
+                                            <th style="width: 25%;">{% translate "Total" %}</th>
                                         </tr>
                                     </thead>
 
@@ -142,7 +143,7 @@
                                 </table>
                             </div>
                         {% else %}
-                            <div class="alert alert-warning text-center">No closed rotations</div>
+                            <div class="alert alert-warning text-center">{% translate "No closed rotations" %}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -155,13 +156,13 @@
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
                         <button class="nav-link active" id="open-projects-tab" data-bs-toggle="tab" data-bs-target="#open-projects-panel" type="button" role="tab" aria-controls="open-projects-panel" aria-selected="true">
-                            Active Projects
+                            {% translate "Active Projects" %}
                             <span class="badge text-bg-primary ms-1">{{ open_projects.count }}</span>
                         </button>
                     </li>
                     <li class="nav-item">
                         <button class="nav-link" id="closed-projects-tab" data-bs-toggle="tab" data-bs-target="#closed-projects-panel" type="button" role="tab" aria-controls="closed-projects-panel" aria-selected="false">
-                            Finished Projects
+                            {% translate "Finished Projects" %}
                         </button>
                     </li>
                 </ul>
@@ -174,11 +175,11 @@
                                 <table class="table table-aa" id="open_projects">
                                     <thead>
                                         <tr>
-                                            <th style="width: 20%;">Name</th>
-                                            <th style="width: 20%;">Age (days)</th>
-                                            <th style="width: 20%;">Estimated Total (Actual)</th>
-                                            <th style="width: 20%;">Goal</th>
-                                            <th style="width: 20%;">Completed (Actual)</th>
+                                            <th style="width: 20%;">{% translate "Name" %}</th>
+                                            <th style="width: 20%;">{% translate "Age (days)" %}</th>
+                                            <th style="width: 20%;">{% translate "Estimated Total (Actual)" %}</th>
+                                            <th style="width: 20%;">{% translate "Goal" %}</th>
+                                            <th style="width: 20%;">{% translate "Completed (Actual)" %}</th>
                                         </tr>
                                     </thead>
 
@@ -196,10 +197,10 @@
                                 </table>
                             </div>
                         {% else %}
-                            <div class="alert alert-warning text-center">No active projects</div>
+                            <div class="alert alert-warning text-center">{% translate "No active projects" %}</div>
                         {% endif %}
                         {% if perms.allianceauth_pve.manage_funding_projects or user.is_superuser %}
-                            <a href="{% url 'allianceauth_pve:new_project' %}" class="btn btn-info mt-2">New Funding Project</a>
+                            <a href="{% url 'allianceauth_pve:new_project' %}" class="btn btn-info mt-2">{% translate "New Funding Project" %}</a>
                         {% endif %}
                     </div>
                     <div class="tab-pane fade" id="closed-projects-panel" role="tabpanel" aria-labelledby="closed-projects-tab" tabindex="0">
@@ -208,10 +209,10 @@
                                 <table class="table table-aa" id="closed_projects_table">
                                     <thead>
                                         <tr>
-                                            <th style="width: 25%;">Name</th>
-                                            <th style="width: 25%;">Completed in (days)</th>
-                                            <th style="width: 25%;">Goal</th>
-                                            <th style="width: 25%;">Actual total</th>
+                                            <th style="width: 25%;">{% translate "Name" %}</th>
+                                            <th style="width: 25%;">{% translate "Completed in (days)" %}</th>
+                                            <th style="width: 25%;">{% translate "Goal" %}</th>
+                                            <th style="width: 25%;">{% translate "Actual total" %}</th>
                                         </tr>
                                     </thead>
 
@@ -228,7 +229,7 @@
                                 </table>    
                             </div>
                         {% else %}
-                            <div class="alert alert-warning text-center">No closed projects</div>
+                            <div class="alert alert-warning text-center">{% translate "No closed projects" %}</div>
                         {% endif %}
                     </div>
                 </div>
