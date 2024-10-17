@@ -8,7 +8,7 @@ from django.db.models import Sum
 from allianceauth.tests.auth_utils import AuthUtils
 from allianceauth.services.hooks import get_extension_logger
 
-from ..models import GeneralRole, Rotation, Entry, EntryCharacter, EntryRole, RoleSetup, PveButton, FundingProject
+from ..models import GeneralRole, Rotation, Entry, EntryCharacter, EntryRole, RoleSetup, PveButton, FundingProject, RotationPreset
 
 logger = get_extension_logger(__name__)
 
@@ -49,6 +49,18 @@ class TestGeneralRole(TestCase):
 
     def test_str(self):
         self.assertEqual(str(self.generalrole), self.generalrole.name)
+
+
+class TestRotationPreset(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.rotationpreset = RotationPreset.objects.create(
+            name='testpreset',
+        )
+
+    def test_str(self):
+        self.assertEqual(str(self.rotationpreset), f"{self.rotationpreset.name} rotation preset")
 
 
 class TestRotation(TestCase):

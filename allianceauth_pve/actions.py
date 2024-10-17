@@ -3,7 +3,7 @@ from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from .models import EntryCharacter, Rotation
+from .models import EntryCharacter, Rotation, RotationPreset
 from .forms import NewEntryForm, NewShareFormSet, NewRoleFormSet
 
 
@@ -62,3 +62,21 @@ def check_forms_valid(role_form: NewRoleFormSet, entry_form: NewEntryForm, share
         errors.append(_('Error in roles'))
 
     return errors
+
+
+def ensure_rotation_presets_applied():
+    missing_setups = RotationPreset.objects.exclude(
+        name__in=Rotation.objects.filter(is_closed=False).values('name')
+    )
+
+    for setup in missing_setups:
+        r = Rotation.objects.create(
+            name=setup.name,
+            max_daily_setups=setup.max_daily_setups,
+            min_people_share_setup=setup.min_people_share_setup,
+            tax_rate=setup.tax_rate,
+            priority=setup.priority,
+        )
+
+        r.entry_buttons.set(setup.entry_buttons.all())
+        r.roles_setups.set(setup.roles_setups.all())

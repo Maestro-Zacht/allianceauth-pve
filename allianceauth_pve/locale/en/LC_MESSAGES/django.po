@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-26 14:24+0000\n"
+"POT-Creation-Date: 2024-10-17 16:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -67,42 +67,47 @@ msgstr ""
 msgid "Project name already exists!"
 msgstr ""
 
-#: allianceauth_pve/models.py:146 allianceauth_pve/models.py:289
+#: allianceauth_pve/models.py:146 allianceauth_pve/models.py:308
 msgid "relative role value"
 msgstr ""
 
-#: allianceauth_pve/models.py:146 allianceauth_pve/models.py:289
+#: allianceauth_pve/models.py:146 allianceauth_pve/models.py:308
 msgid ""
 "Relative role value. Share values are computed using this field. If there "
 "are 2 roles with 10 and 15, they'll receive 10/25 and 15/25 of the share "
 "value."
 msgstr ""
 
-#: allianceauth_pve/models.py:163
+#: allianceauth_pve/models.py:161 allianceauth_pve/models.py:182
 msgid ""
 "The maximum number of helped setup per day. If more are submitted, only this "
 "number is counted. 0 for deactivating helped setups."
 msgstr ""
 
-#: allianceauth_pve/models.py:164
+#: allianceauth_pve/models.py:162 allianceauth_pve/models.py:183
 msgid ""
 "The minimum number of users in an entry to consider the helped setup valid."
 msgstr ""
 
-#: allianceauth_pve/models.py:166
+#: allianceauth_pve/models.py:164 allianceauth_pve/models.py:185
 msgid "Tax rate in percentage"
 msgstr ""
 
-#: allianceauth_pve/models.py:172
+#: allianceauth_pve/models.py:165 allianceauth_pve/models.py:191
 msgid "Ordering priority. The higher priorities are in the first positions."
 msgstr ""
 
-#: allianceauth_pve/models.py:174
+#: allianceauth_pve/models.py:167 allianceauth_pve/models.py:193
 msgid "Button to be shown in the Entry form."
 msgstr ""
 
-#: allianceauth_pve/models.py:175
+#: allianceauth_pve/models.py:168 allianceauth_pve/models.py:194
 msgid "Setup avaiable for loading in the Entry form."
+msgstr ""
+
+#: allianceauth_pve/models.py:174
+#, python-format
+msgid "%(name)s rotation preset"
 msgstr ""
 
 #: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:6
@@ -551,43 +556,43 @@ msgstr ""
 msgid "Close Rotation"
 msgstr ""
 
-#: allianceauth_pve/views.py:207
+#: allianceauth_pve/views.py:209
 msgid "The rotation is closed, you cannot add an entry"
 msgstr ""
 
-#: allianceauth_pve/views.py:213
+#: allianceauth_pve/views.py:215
 msgid "The selected entry doesn't belong to the selected rotation"
 msgstr ""
 
-#: allianceauth_pve/views.py:216
+#: allianceauth_pve/views.py:218
 msgid "You cannot edit this entry"
 msgstr ""
 
-#: allianceauth_pve/views.py:274
+#: allianceauth_pve/views.py:276
 msgid "Entry added successfully"
 msgstr ""
 
-#: allianceauth_pve/views.py:337
+#: allianceauth_pve/views.py:339
 msgid "You cannot delete this entry"
 msgstr ""
 
-#: allianceauth_pve/views.py:343
+#: allianceauth_pve/views.py:345
 msgid "Entry deleted successfully"
 msgstr ""
 
-#: allianceauth_pve/views.py:359
+#: allianceauth_pve/views.py:361
 msgid "Rotation created successfully"
 msgstr ""
 
-#: allianceauth_pve/views.py:385
+#: allianceauth_pve/views.py:387
 msgid "Project created successfully"
 msgstr ""
 
-#: allianceauth_pve/views.py:432
+#: allianceauth_pve/views.py:434
 msgid "You cannot complete a project with open contributions"
 msgstr ""
 
-#: allianceauth_pve/views.py:436
+#: allianceauth_pve/views.py:438
 msgid ""
 "You cannot reopen this project, another one with the same name is active."
 msgstr ""

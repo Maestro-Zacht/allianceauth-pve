@@ -21,7 +21,7 @@ from allianceauth.authentication.models import CharacterOwnership
 
 from .models import Entry, EntryCharacter, Rotation, EntryRole, General, FundingProject
 from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm, NewRoleFormSet, NewFundingProjectForm
-from .actions import running_averages, check_forms_valid
+from .actions import running_averages, check_forms_valid, ensure_rotation_presets_applied
 
 logger = get_extension_logger(__name__)
 
@@ -118,6 +118,8 @@ def rotation_view(request, rotation_id):
             )
 
             closeform = None
+
+            ensure_rotation_presets_applied()
     elif not r.is_closed:
         closeform = CloseRotationForm()
     else:

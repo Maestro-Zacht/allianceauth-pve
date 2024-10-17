@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.utils.functional import cached_property
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, gettext
 from django.db.models.functions import Coalesce
 from django.core.validators import MinValueValidator, MaxValueValidator
 
@@ -153,6 +153,25 @@ class GeneralRole(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['setup', 'name'], name='unique_role_name_per_setup'),
         ]
+
+
+class RotationPreset(models.Model):
+    name = models.CharField(max_length=128, unique=True)
+
+    max_daily_setups = models.PositiveSmallIntegerField(default=1, help_text=_('The maximum number of helped setup per day. If more are submitted, only this number is counted. 0 for deactivating helped setups.'))
+    min_people_share_setup = models.PositiveSmallIntegerField(default=3, help_text=_('The minimum number of users in an entry to consider the helped setup valid.'))
+
+    tax_rate = models.FloatField(default=0, help_text=_('Tax rate in percentage'))
+    priority = models.IntegerField(default=100, help_text=_('Ordering priority. The higher priorities are in the first positions.'))
+
+    entry_buttons = models.ManyToManyField(PveButton, related_name='+', help_text=_('Button to be shown in the Entry form.'), blank=True)
+    roles_setups = models.ManyToManyField(RoleSetup, related_name='+', help_text=_('Setup avaiable for loading in the Entry form.'), blank=True)
+
+    class Meta:
+        default_permissions = ()
+
+    def __str__(self) -> str:
+        return gettext("%(name)s rotation preset") % {'name': self.name}
 
 
 class Rotation(models.Model):

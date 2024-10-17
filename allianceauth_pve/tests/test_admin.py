@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.contrib.admin.sites import AdminSite
 from django.test import TestCase, RequestFactory
 from django.utils import timezone
@@ -5,7 +7,48 @@ from django.utils import timezone
 from allianceauth.tests.auth_utils import AuthUtils
 
 from ..models import Rotation, Entry, EntryCharacter, EntryRole
-from ..admin import EntryCharacterInline, RotationAdmin
+from ..admin import EntryCharacterInline, RotationAdmin, RotationPresetAdmin
+
+
+class TestRotationAdmin(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.modeladmin = RotationAdmin(Rotation, AdminSite())
+
+    @patch('allianceauth_pve.admin.ensure_rotation_presets_applied')
+    @patch('allianceauth_pve.admin.admin.ModelAdmin.save_model')
+    def test_save_model(self, mock_save_model, mock_ensure_rotation_presets_applied, ):
+        mock_ensure_rotation_presets_applied.return_value = None
+        mock_save_model.return_value = None
+
+        self.modeladmin.save_model(None, None, None, None)
+
+        mock_ensure_rotation_presets_applied.assert_called_once()
+        mock_save_model.assert_called_once()
+
+    @patch('allianceauth_pve.admin.ensure_rotation_presets_applied')
+    @patch('allianceauth_pve.admin.admin.ModelAdmin.delete_queryset')
+    def test_delete_queryset(self, mock_delete_queryset, mock_ensure_rotation_presets_applied, ):
+        mock_ensure_rotation_presets_applied.return_value = None
+        mock_delete_queryset.return_value = None
+
+        self.modeladmin.delete_queryset(None, None)
+
+        mock_ensure_rotation_presets_applied.assert_called_once()
+        mock_delete_queryset.assert_called_once()
+
+    @patch('allianceauth_pve.admin.ensure_rotation_presets_applied')
+    @patch('allianceauth_pve.admin.admin.ModelAdmin.delete_model')
+    def test_delete_model(self, mock_delete_model, mock_ensure_rotation_presets_applied):
+        mock_ensure_rotation_presets_applied.return_value = None
+        mock_delete_model.return_value = None
+
+        self.modeladmin.delete_model(None, None)
+
+        mock_ensure_rotation_presets_applied.assert_called_once()
+        mock_delete_model.assert_called_once()
 
 
 class TestEntryCharacterAdmin(TestCase):
@@ -83,3 +126,22 @@ class TestEntryCharacterAdmin(TestCase):
         row = qs[0]
 
         self.assertAlmostEqual(self.modeladmin.actual_share_total(row), 900_000_000.0, places=2)
+
+
+class TestRotationPresetAdmin(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.modeladmin = RotationPresetAdmin(Rotation, AdminSite())
+
+    @patch('allianceauth_pve.admin.ensure_rotation_presets_applied')
+    @patch('allianceauth_pve.admin.admin.ModelAdmin.save_model')
+    def test_save_model(self, mock_save_model, mock_ensure_rotation_presets_applied, ):
+        mock_ensure_rotation_presets_applied.return_value = None
+        mock_save_model.return_value = None
+
+        self.modeladmin.save_model(None, None, None, None)
+
+        mock_ensure_rotation_presets_applied.assert_called_once()
+        mock_save_model.assert_called_once()

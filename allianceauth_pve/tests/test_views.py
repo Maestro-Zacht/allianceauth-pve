@@ -11,6 +11,7 @@ from allianceauth.eveonline.models import EveCharacter
 
 from ..models import Rotation, Entry, EntryCharacter, EntryRole, FundingProject
 from ..views import RUNNING_AVERAGES_CACHE_PREFIX
+from ..actions import ensure_rotation_presets_applied
 
 
 class TestIndexView(TestCase):
@@ -87,14 +88,18 @@ class TestRotationView(TestCase):
             helped_setup=False
         )
 
-    def test_rotation_open(self):
+    @patch('allianceauth_pve.views.ensure_rotation_presets_applied')
+    def test_rotation_open(self, mock_ensure_rotation_presets_applied):
         self.client.force_login(self.testuser)
 
         response = self.client.get(reverse('allianceauth_pve:rotation_view', args=[self.rotation.pk]))
 
         self.assertTemplateUsed(response, 'allianceauth_pve/rotation.html')
 
-    def test_rotation_closed(self):
+        mock_ensure_rotation_presets_applied.assert_not_called()
+
+    @patch('allianceauth_pve.views.ensure_rotation_presets_applied')
+    def test_rotation_closed(self, mock_ensure_rotation_presets_applied):
         self.rotation.is_closed = True
         self.rotation.save()
 
@@ -104,7 +109,12 @@ class TestRotationView(TestCase):
 
         self.assertTemplateUsed(response, 'allianceauth_pve/rotation.html')
 
-    def test_close_rotation_valid(self):
+        mock_ensure_rotation_presets_applied.assert_not_called()
+
+    @patch('allianceauth_pve.views.ensure_rotation_presets_applied')
+    def test_close_rotation_valid(self, mock_ensure_rotation_presets_applied):
+        mock_ensure_rotation_presets_applied.return_value = None
+
         self.testuser = AuthUtils.add_permissions_to_user_by_name(['allianceauth_pve.manage_rotations'], self.testuser)
 
         self.client.force_login(self.testuser)
@@ -123,7 +133,10 @@ class TestRotationView(TestCase):
 
         self.assertTemplateUsed(response, 'allianceauth_pve/rotation.html')
 
-    def test_close_rotation_invalid(self):
+        mock_ensure_rotation_presets_applied.assert_called_once()
+
+    @patch('allianceauth_pve.views.ensure_rotation_presets_applied')
+    def test_close_rotation_invalid(self, mock_ensure_rotation_presets_applied):
         self.testuser = AuthUtils.add_permissions_to_user_by_name(['allianceauth_pve.manage_rotations'], self.testuser)
 
         self.client.force_login(self.testuser)
@@ -142,7 +155,10 @@ class TestRotationView(TestCase):
 
         self.assertTemplateUsed(response, 'allianceauth_pve/rotation.html')
 
-    def test_close_rotation_invalid_perms(self):
+        mock_ensure_rotation_presets_applied.assert_not_called()
+
+    @patch('allianceauth_pve.views.ensure_rotation_presets_applied')
+    def test_close_rotation_invalid_perms(self, mock_ensure_rotation_presets_applied):
         self.client.force_login(self.testuser)
 
         form_data = {
@@ -158,6 +174,8 @@ class TestRotationView(TestCase):
         self.assertEqual(self.rotation.actual_total, 0)
 
         self.assertTemplateUsed(response, 'allianceauth_pve/rotation.html')
+
+        mock_ensure_rotation_presets_applied.assert_not_called()
 
 
 class TestGetAvaiableRatters(TestCase):
