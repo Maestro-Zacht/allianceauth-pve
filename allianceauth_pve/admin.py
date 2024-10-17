@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from .models import Rotation, Entry, EntryCharacter, PveButton, RoleSetup, GeneralRole, FundingProject
+from .models import Rotation, Entry, EntryCharacter, PveButton, RoleSetup, GeneralRole, FundingProject, RotationPreset
+from .actions import ensure_rotation_presets_applied
 
 
 @admin.register(Rotation)
@@ -9,6 +10,18 @@ class RotationAdmin(admin.ModelAdmin):
     list_filter = ('is_closed', )
     search_fields = ('name', )
     readonly_fields = ('closed_at',)
+
+    def save_model(self, *args, **kwargs):
+        super().save_model(*args, **kwargs)
+        ensure_rotation_presets_applied()
+
+    def delete_queryset(self, *args, **kwargs):
+        super().delete_queryset(*args, **kwargs)
+        ensure_rotation_presets_applied()
+
+    def delete_model(self, *args, **kwargs):
+        super().delete_model(*args, **kwargs)
+        ensure_rotation_presets_applied()
 
 
 class EntryCharacterInline(admin.TabularInline):
@@ -65,3 +78,13 @@ class FundingProjectAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_filter = ('is_active',)
     readonly_fields = ('completed_at',)
+
+
+@admin.register(RotationPreset)
+class RotationPresetAdmin(admin.ModelAdmin):
+    list_display = ('name', )
+    search_fields = ('name', )
+
+    def save_model(self, *args, **kwargs):
+        super().save_model(*args, **kwargs)
+        ensure_rotation_presets_applied()
