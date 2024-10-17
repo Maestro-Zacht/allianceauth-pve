@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.utils.functional import cached_property
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, gettext
 from django.db.models.functions import Coalesce
 from django.core.validators import MinValueValidator, MaxValueValidator
 
@@ -171,7 +171,7 @@ class RotationPreset(models.Model):
         default_permissions = ()
 
     def __str__(self) -> str:
-        return f"{self.name} rotation setup"
+        return gettext("%(name)s rotation preset") % {'name': self.name}
 
 
 class Rotation(models.Model):
