@@ -86,6 +86,11 @@ Buttons and Roles Setups
 
 Buttons and roles setups can be created in the admin page by people who have access.
 
+Rotation Presets
+----------------
+
+Rotation presets can be created in the admin page by people who have access. They can be used to ensure a rotation with a certain name is always open with the specified settings.
+
 Settings
 --------
 
