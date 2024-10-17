@@ -26,7 +26,8 @@
 				"yzhang.markdown-all-in-one",
 				"DavidAnson.vscode-markdownlint",
 				"donjayamanne.githistory",
-				"eamodio.gitlens"
+				"eamodio.gitlens",
+				"mrorz.language-gettext"
 			]
 		}
 	}
