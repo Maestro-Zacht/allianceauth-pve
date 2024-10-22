@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-17 16:56+0000\n"
+"POT-Creation-Date: 2024-10-22 07:32+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -278,6 +278,11 @@ msgstr ""
 
 #: allianceauth_pve/templates/allianceauth_pve/entry_form.html:81
 msgid "No character yet"
+msgstr ""
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:153
+#, python-format
+msgid "Percentage in 2 digits ( xx%% )"
 msgstr ""
 
 #: allianceauth_pve/templates/allianceauth_pve/entry_form.html:179

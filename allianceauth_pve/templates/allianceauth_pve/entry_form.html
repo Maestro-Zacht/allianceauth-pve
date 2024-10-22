@@ -143,7 +143,7 @@
                                     <div class="col-auto">
                                         <label class="col-form-label" for="{{ entryform.funding_amount.id_for_label }}">{{ entryform.funding_amount.label }}</label>
                                     </div>
-                                    <div class="col-auto">
+                                    <div class="col-auto" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="{% translate "Percentage in 2 digits ( xx% )" %}">
                                         {{ entryform.funding_amount }}
                                     </div>
                                 </div>
