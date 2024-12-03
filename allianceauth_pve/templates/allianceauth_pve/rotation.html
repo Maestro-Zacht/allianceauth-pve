@@ -98,7 +98,7 @@
                                                 <td>{{ row.estimated_total|floatformat:0|intcomma }}</td>
                                                 {% if rotation.is_closed %}
                                                     <td>
-                                                        <i class="fas fa-times-circle undo-copy" style="transform: scale(1.5, 1.5);" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Remove Copy Color"></i>
+                                                        <i class="fas fa-times-circle undo-copy" style="transform: scale(1.5, 1.5);" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="{% translate "Remove Copy Color" %}"></i>
                                                     </td>
                                                 {% endif %}
                                             </tr>
@@ -141,7 +141,7 @@
                                         <img src="{{ entry.created_by.profile.main_character|character_portrait_url:32 }}" class="rounded me-2">
                                         {{ entry.created_by.profile.main_character.character_name }}
                                     </td>
-                                    <td><a data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Show Details" href="{% url 'allianceauth_pve:entry_detail' entry.pk %}"><i class="fas fa-chevron-circle-right"></i></a></td>
+                                    <td><a data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="{% translate "Show Details" %}" href="{% url 'allianceauth_pve:entry_detail' entry.pk %}"><i class="fas fa-chevron-circle-right"></i></a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>

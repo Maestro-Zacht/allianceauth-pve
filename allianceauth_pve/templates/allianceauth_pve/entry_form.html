@@ -60,10 +60,10 @@
                     <div class="d-flex justify-content-between align-items-center">
                         {{ entryform.estimated_total.label_tag }}
                         {{ entryform.estimated_total }}
-                        <button type="button" id="incrementAllButton" class="btn btn-success btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Increment All Shares"><i class="fas fa-user-plus"></i></button>
-                        <button type="button" id="incrementSelectedButton" class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Increment Selected Shares"><i class="fas fa-user-cog"></i></button>
-                        <button type="button" id="decrementSelectedButton" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Decrement Selected Shares"><i class="fas fa-user-cog"></i></button>
-                        <button type="button" id="decrementAllButton" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Decrement All Shares"><i class="fas fa-user-minus"></i></button>
+                        <button type="button" id="incrementAllButton" class="btn btn-success btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="{% translate "Increment All Shares" %}"><i class="fas fa-user-plus"></i></button>
+                        <button type="button" id="incrementSelectedButton" class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="{% translate "Increment Selected Shares" %}"><i class="fas fa-user-cog"></i></button>
+                        <button type="button" id="decrementSelectedButton" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="{% translate "Decrement Selected Shares" %}"><i class="fas fa-user-cog"></i></button>
+                        <button type="button" id="decrementAllButton" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="{% translate "Decrement All Shares" %}"><i class="fas fa-user-minus"></i></button>
                     </div>
                     {{ entryform.estimated_total.errors }}
                     <hr>

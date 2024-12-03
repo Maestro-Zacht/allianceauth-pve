@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-22 07:32+0000\n"
+"POT-Creation-Date: 2024-12-03 13:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -128,19 +128,19 @@ msgid "Funding Project"
 msgstr ""
 
 #: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:52
-#: allianceauth_pve/templates/allianceauth_pve/rotation.html:127
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:126
 msgid "Total After Tax"
 msgstr ""
 
 #: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:60
 #: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:129
 #: allianceauth_pve/templates/allianceauth_pve/rotation.html:82
-#: allianceauth_pve/templates/allianceauth_pve/rotation.html:128
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:127
 msgid "Total"
 msgstr ""
 
 #: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:68
-#: allianceauth_pve/templates/allianceauth_pve/rotation.html:129
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:128
 msgid "Created By"
 msgstr ""
 
@@ -199,51 +199,51 @@ msgstr ""
 msgid "Estimated Project Contribution"
 msgstr ""
 
-#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:160
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:161
 #: allianceauth_pve/templates/allianceauth_pve/entry_form.html:26
 #: allianceauth_pve/templates/allianceauth_pve/entry_form.html:79
 msgid "Delete"
 msgstr ""
 
-#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:161
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:162
 msgid "Edit"
 msgstr ""
 
-#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:163
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:165
 #: allianceauth_pve/templates/allianceauth_pve/funding_project_create.html:16
 #: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:132
-#: allianceauth_pve/templates/allianceauth_pve/rotation.html:165
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:163
 #: allianceauth_pve/templates/allianceauth_pve/rotation_create.html:16
 msgid "Back"
 msgstr ""
 
-#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:173
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:175
 msgid "Delete Entry"
 msgstr ""
 
-#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:174
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:176
 #: allianceauth_pve/templates/allianceauth_pve/entry_form.html:194
 #: allianceauth_pve/templates/allianceauth_pve/entry_form.html:227
-#: allianceauth_pve/templates/allianceauth_pve/rotation.html:174
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:172
 msgid "Close"
 msgstr ""
 
-#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:177
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:179
 msgid "Are you sure you want to delete this entry?"
 msgstr ""
 
-#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:180
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:182
 msgid "Cancel"
 msgstr ""
 
-#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:181
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:183
 #: allianceauth_pve/templates/allianceauth_pve/entry_form.html:214
-#: allianceauth_pve/templates/allianceauth_pve/rotation.html:183
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:181
 msgid "Confirm"
 msgstr ""
 
 #: allianceauth_pve/templates/allianceauth_pve/entry_form.html:9
-#: allianceauth_pve/templates/allianceauth_pve/rotation.html:153
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:152
 msgid "New Entry"
 msgstr ""
 
@@ -262,6 +262,22 @@ msgstr ""
 
 #: allianceauth_pve/templates/allianceauth_pve/entry_form.html:58
 msgid "Use this field to add a custom value to the total."
+msgstr ""
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:63
+msgid "Increment All Shares"
+msgstr ""
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:64
+msgid "Increment Selected Shares"
+msgstr ""
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:65
+msgid "Decrement Selected Shares"
+msgstr ""
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:66
+msgid "Decrement All Shares"
 msgstr ""
 
 #: allianceauth_pve/templates/allianceauth_pve/entry_form.html:73
@@ -302,7 +318,7 @@ msgid "Value:"
 msgstr ""
 
 #: allianceauth_pve/templates/allianceauth_pve/entry_form.html:215
-#: allianceauth_pve/templates/allianceauth_pve/rotation.html:182
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:180
 msgid "Dismiss"
 msgstr ""
 
@@ -540,64 +556,72 @@ msgstr ""
 msgid "Setups"
 msgstr ""
 
-#: allianceauth_pve/templates/allianceauth_pve/rotation.html:118
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:101
+msgid "Remove Copy Color"
+msgstr ""
+
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:117
 msgid "Entries"
 msgstr ""
 
-#: allianceauth_pve/templates/allianceauth_pve/rotation.html:124
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:123
 msgid "Date"
 msgstr ""
 
-#: allianceauth_pve/templates/allianceauth_pve/rotation.html:125
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:124
 msgid "User Count"
 msgstr ""
 
-#: allianceauth_pve/templates/allianceauth_pve/rotation.html:126
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:125
 msgid "Share Count"
 msgstr ""
 
-#: allianceauth_pve/templates/allianceauth_pve/rotation.html:163
-#: allianceauth_pve/templates/allianceauth_pve/rotation.html:173
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:144
+msgid "Show Details"
+msgstr ""
+
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:161
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:171
 msgid "Close Rotation"
 msgstr ""
 
-#: allianceauth_pve/views.py:209
+#: allianceauth_pve/views.py:213
 msgid "The rotation is closed, you cannot add an entry"
 msgstr ""
 
-#: allianceauth_pve/views.py:215
+#: allianceauth_pve/views.py:219
 msgid "The selected entry doesn't belong to the selected rotation"
 msgstr ""
 
-#: allianceauth_pve/views.py:218
+#: allianceauth_pve/views.py:222
 msgid "You cannot edit this entry"
 msgstr ""
 
-#: allianceauth_pve/views.py:276
+#: allianceauth_pve/views.py:280
 msgid "Entry added successfully"
 msgstr ""
 
-#: allianceauth_pve/views.py:339
+#: allianceauth_pve/views.py:343
 msgid "You cannot delete this entry"
 msgstr ""
 
-#: allianceauth_pve/views.py:345
+#: allianceauth_pve/views.py:349
 msgid "Entry deleted successfully"
 msgstr ""
 
-#: allianceauth_pve/views.py:361
+#: allianceauth_pve/views.py:365
 msgid "Rotation created successfully"
 msgstr ""
 
-#: allianceauth_pve/views.py:387
+#: allianceauth_pve/views.py:391
 msgid "Project created successfully"
 msgstr ""
 
-#: allianceauth_pve/views.py:434
+#: allianceauth_pve/views.py:438
 msgid "You cannot complete a project with open contributions"
 msgstr ""
 
-#: allianceauth_pve/views.py:438
+#: allianceauth_pve/views.py:442
 msgid ""
 "You cannot reopen this project, another one with the same name is active."
 msgstr ""
