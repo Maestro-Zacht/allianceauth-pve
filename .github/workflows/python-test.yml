@@ -58,7 +58,7 @@ jobs:
           - mariadb:10.6  # [LTS] Maintained until: July 2026
           - mariadb:10.11 # [LTS] Maintained until: February 2028
           - mariadb:11.4  # [LTS] Maintained until: May 2029
-          - mariadb:11.5  # Latest official release
+          - mariadb:11.6  # Latest official release
 
 
     steps:
@@ -115,7 +115,7 @@ jobs:
           path: artifacts
 
       - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos but fails for rate limits
           directory: artifacts
