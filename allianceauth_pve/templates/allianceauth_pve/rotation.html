@@ -64,49 +64,68 @@
     </div>
     <div class="col-12 mt-4">
         <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary-panel" type="button" role="tab" aria-controls="summary-panel" aria-selected="true">
+                            {% translate "Summary" %}
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="project-tab" data-bs-toggle="tab" data-bs-target="#project-panel" type="button" role="tab" aria-controls="project-panel" aria-selected="false">
+                            {% translate "Projects Contributions" %}
+                        </button>
+                    </li>
+                </ul>
+            </div>
             <div class="card-body">
-                <div class="container-fluid">
-                    <div class="row">
-                        {% for summary in summaries %}
-                            <div class="col-12 col-md-6">
-                                <table class="table table-aa">
-                                    <thead>
-                                        <tr>
-                                            <th>{% translate "Character" %}</th>
-                                            <th>{% translate "Setups" %}</th>
-                                            {% if rotation.is_closed %}
-                                                <th>{% translate "Actual Total" %}</th>
-                                                <th>{% translate "Estimated Total" %}</th>
-                                                <th></th>
-                                            {% else %}
-                                                <th>{% translate "Total" %}</th>
-                                            {% endif %}
-                                        </tr>
-                                    </thead>
-
-                                    <tbody>
-                                        {% for row in summary %}
-                                            <tr class="{% if row.user == user.pk and not rotation.is_closed %}bg-info bg-opacity-25 {% endif %}copy-row">
-                                                <td>
-                                                    <img src="{{ row.character_id|character_portrait_url:32 }}" class="rounded me-2">
-                                                        <span{% if rotation.is_closed %} class="copy-text"{% endif %}>{{ row.character_name }}</span>
-                                                </td>
-                                                <td>{{ row.helped_setups }}</td>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="summary-panel" role="tabpanel" aria-labelledby="summary-tab" tabindex="0">
+                        <div class="row">
+                            {% for summary in summaries %}
+                                <div class="col-12 col-md-6">
+                                    <table class="table table-aa">
+                                        <thead>
+                                            <tr>
+                                                <th>{% translate "Character" %}</th>
+                                                <th>{% translate "Setups" %}</th>
                                                 {% if rotation.is_closed %}
-                                                    <td class="copy-text">{{ row.actual_total|floatformat:0|intcomma }}</td>
-                                                {% endif %}
-                                                <td>{{ row.estimated_total|floatformat:0|intcomma }}</td>
-                                                {% if rotation.is_closed %}
-                                                    <td>
-                                                        <i class="fas fa-times-circle undo-copy" style="transform: scale(1.5, 1.5);" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="{% translate "Remove Copy Color" %}"></i>
-                                                    </td>
+                                                    <th>{% translate "Actual Total" %}</th>
+                                                    <th>{% translate "Estimated Total" %}</th>
+                                                    <th></th>
+                                                {% else %}
+                                                    <th>{% translate "Total" %}</th>
                                                 {% endif %}
                                             </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        {% endfor %}
+                                        </thead>
+
+                                        <tbody>
+                                            {% for row in summary %}
+                                                <tr class="{% if row.user == user.pk and not rotation.is_closed %}bg-info bg-opacity-25 {% endif %}copy-row">
+                                                    <td>
+                                                        <img src="{{ row.character_id|character_portrait_url:32 }}" class="rounded me-2">
+                                                            <span{% if rotation.is_closed %} class="copy-text"{% endif %}>{{ row.character_name }}</span>
+                                                    </td>
+                                                    <td>{{ row.helped_setups }}</td>
+                                                    {% if rotation.is_closed %}
+                                                        <td class="copy-text">{{ row.actual_total|floatformat:0|intcomma }}</td>
+                                                    {% endif %}
+                                                    <td>{{ row.estimated_total|floatformat:0|intcomma }}</td>
+                                                    {% if rotation.is_closed %}
+                                                        <td>
+                                                            <i class="fas fa-times-circle undo-copy" style="transform: scale(1.5, 1.5);" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="{% translate "Remove Copy Color" %}"></i>
+                                                        </td>
+                                                    {% endif %}
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="project-panel" role="tabpanel" aria-labelledby="project-tab" tabindex="0">
+                        TODO
                     </div>
                 </div>
             </div>
