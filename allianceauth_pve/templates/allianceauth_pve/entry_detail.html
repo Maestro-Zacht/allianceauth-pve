@@ -156,9 +156,11 @@
     </div>
     <div class="col-12">
         <div class="d-flex flex-row-reverse">
-            {% if perms.allianceauth_pve.manage_entries and user == entry.created_by or user.is_superuser %}
-                <button id="deleteButton" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEntryModal">{% translate "Delete" %}</button>
-                <a href="{% url 'allianceauth_pve:edit_entry' entry.rotation_id entry.pk %}" class="btn btn-warning mx-2">{% translate "Edit" %}</a>
+            {% if not entry.rotation.is_closed %}
+                {% if perms.allianceauth_pve.manage_entries and user == entry.created_by or user.is_superuser %}
+                    <button id="deleteButton" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEntryModal">{% translate "Delete" %}</button>
+                    <a href="{% url 'allianceauth_pve:edit_entry' entry.rotation_id entry.pk %}" class="btn btn-warning mx-2">{% translate "Edit" %}</a>
+                {% endif %}
             {% endif %}
             <a href="{% url 'allianceauth_pve:rotation_view' entry.rotation_id %}" class="btn btn-primary">{% translate "Back" %}</a>
         </div>

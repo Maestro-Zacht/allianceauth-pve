@@ -149,7 +149,11 @@ def rotation_view(request, rotation_id):
     context = {
         'rotation': r,
         'summaries': [summary[:summary_count_half], summary[summary_count_half:]],
-        'entries': r.entries.order_by('-created_at'),
+        'entries': (
+            r.entries
+            .select_related('created_by__profile__main_character')
+            .order_by('-created_at')
+        ),
         'closeform': closeform,
     }
 
