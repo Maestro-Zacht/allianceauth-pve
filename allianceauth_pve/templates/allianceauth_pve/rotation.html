@@ -71,11 +71,13 @@
                             {% translate "Summary" %}
                         </button>
                     </li>
-                    <li class="nav-item">
-                        <button class="nav-link" id="project-tab" data-bs-toggle="tab" data-bs-target="#project-panel" type="button" role="tab" aria-controls="project-panel" aria-selected="false">
-                            {% translate "Projects Contributions" %}
-                        </button>
-                    </li>
+                    {% for prj in projects_summaries %}
+                        <li class="nav-item">
+                            <button class="nav-link" id="project-tab-{{ prj.pk }}" data-bs-toggle="tab" data-bs-target="#project-panel-{{ prj.pk }}" type="button" role="tab" aria-controls="project-panel-{{ prj.pk }}" aria-selected="false">
+                                {{ prj.name }}
+                            </button>
+                        </li>
+                    {% endfor %}
                 </ul>
             </div>
             <div class="card-body">
@@ -124,9 +126,44 @@
                             {% endfor %}
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="project-panel" role="tabpanel" aria-labelledby="project-tab" tabindex="0">
-                        TODO
-                    </div>
+                    {% for prj, summary in projects_summaries.items %}
+                        <div class="tab-pane fade" id="project-panel-{{ prj.pk }}" role="tabpanel" aria-labelledby="project-tab-{{ prj.pk }}" tabindex="0">
+                            <div class="text-center">
+                                <h4 class="ms-auto me-auto mb-3">
+                                    {% blocktranslate with name=prj.name %}
+                                        Contributions to {{ name }}
+                                    {% endblocktranslate %}
+                                </h4>
+                            </div>
+                            <table class="table table-aa">
+                                <thead>
+                                    <tr>
+                                        <th>{% translate "Character" %}</th>
+                                        {% if rotation.is_closed %}
+                                            <th>{% translate "Actual Total" %}</th>
+                                            <th>{% translate "Estimated Total" %}</th>
+                                        {% else %}
+                                            <th>{% translate "Total" %}</th>
+                                        {% endif %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in summary %}
+                                        <tr{% if row.user == user.pk %} class="bg-info bg-opacity-25"{% endif %}>
+                                            <td>
+                                                <img src="{{ row.character_id|character_portrait_url:32 }}" class="rounded me-2">
+                                                <span>{{ row.character_name }}</span>
+                                            </td>
+                                            {% if rotation.is_closed %}
+                                                <td>{{ row.actual_total|floatformat:"g" }}</td>
+                                            {% endif %}
+                                            <td>{{ row.estimated_total|floatformat:"g" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
