@@ -1,0 +1,661 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+# Translators:
+# Matteo Ghia, 2024
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-04 17:46+0000\n"
+"PO-Revision-Date: 2024-09-26 14:27+0000\n"
+"Last-Translator: Matteo Ghia, 2024\n"
+"Language-Team: Italian (Italy) (https://app.transifex.com/alliance-auth/teams/107430/it_IT/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: it_IT\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
+
+#: allianceauth_pve/actions.py:56
+msgid "Form not valid, you need at least 1 person to receive loot"
+msgstr "Form non valido, deve esserci almeno 1 persona a ricevere il loot"
+
+#: allianceauth_pve/actions.py:58
+msgid "Not enough shares or roles"
+msgstr "Non ci sono abbastanza quote o ruoli"
+
+#: allianceauth_pve/actions.py:60
+msgid "Entry form or shares are not correct"
+msgstr "Il form dell'entrata o le quote non sono corretti"
+
+#: allianceauth_pve/actions.py:62
+msgid "Error in roles"
+msgstr "Errore nei ruoli"
+
+#: allianceauth_pve/auth_hooks.py:14
+#: allianceauth_pve/templates/allianceauth_pve/base.html:5
+msgid "PvE Tool"
+msgstr "Strumenti PvE"
+
+#: allianceauth_pve/forms.py:39
+msgid "Percentage"
+msgstr "Percentuale"
+
+#: allianceauth_pve/forms.py:56
+msgid "Roles must have different names!"
+msgstr "I ruoli devo avere nomi diversi!"
+
+#: allianceauth_pve/forms.py:68
+msgid "User not found"
+msgstr "Utente non trovato"
+
+#: allianceauth_pve/forms.py:76
+msgid "Character not found"
+msgstr "Personaggio non trovato"
+
+#: allianceauth_pve/forms.py:95
+msgid "Only 1 share per character!"
+msgstr "Solo 1 quota per personaggio!"
+
+#: allianceauth_pve/forms.py:98
+msgid "Character ownership wrong!"
+msgstr "Possesso del personaggio sbagliato!"
+
+#: allianceauth_pve/forms.py:128
+msgid "Project name already exists!"
+msgstr "Un progetto con lo stesso nome esiste già!"
+
+#: allianceauth_pve/models.py:146 allianceauth_pve/models.py:353
+msgid "relative role value"
+msgstr "valore relativo del ruolo"
+
+#: allianceauth_pve/models.py:146 allianceauth_pve/models.py:353
+msgid ""
+"Relative role value. Share values are computed using this field. If there "
+"are 2 roles with 10 and 15, they'll receive 10/25 and 15/25 of the share "
+"value."
+msgstr ""
+"Valore relativo del ruolo. I valori delle quote sono calcolati usando questo"
+" campo. Se ci sono due ruoli con 10 e 15, riceveranno 10/25 e 15/25 "
+"rispettivamente del valore della quota."
+
+#: allianceauth_pve/models.py:161 allianceauth_pve/models.py:182
+msgid ""
+"The maximum number of helped setup per day. If more are submitted, only this"
+" number is counted. 0 for deactivating helped setups."
+msgstr ""
+"Il massimo numero giornaliero di aiuti a sistemare. Se ne vengono aggiunti "
+"di più, solo fino a questo numero è contato. Inserisci 0 per disattivare gli"
+" aiuti a sistemare."
+
+#: allianceauth_pve/models.py:162 allianceauth_pve/models.py:183
+msgid ""
+"The minimum number of users in an entry to consider the helped setup valid."
+msgstr ""
+"Il minimo numero di utenti in un'entrata per considerare gli aiuti a "
+"sistemare validi."
+
+#: allianceauth_pve/models.py:164 allianceauth_pve/models.py:185
+msgid "Tax rate in percentage"
+msgstr "Percentuale di tasse"
+
+#: allianceauth_pve/models.py:165 allianceauth_pve/models.py:191
+msgid "Ordering priority. The higher priorities are in the first positions."
+msgstr ""
+"Priorità di ordinamento. I valori più grandi saranno nelle prime posizioni."
+
+#: allianceauth_pve/models.py:167 allianceauth_pve/models.py:193
+msgid "Button to be shown in the Entry form."
+msgstr "Pulsante da mostrare nel form dell'Entrata."
+
+#: allianceauth_pve/models.py:168 allianceauth_pve/models.py:194
+msgid "Setup avaiable for loading in the Entry form."
+msgstr "Gli elenchi predefiniti da caricare nel form dell'Entrata."
+
+#: allianceauth_pve/models.py:174
+#, python-format
+msgid "%(name)s rotation preset"
+msgstr "Preset della rotazione %(name)s"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:6
+msgid "Entry Details"
+msgstr "Dettagli dell'Entrata"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:26
+msgid "Created At"
+msgstr "Creata il"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:34
+msgid "Number of Users"
+msgstr "Numero di Utenti"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:43
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:142
+msgid "Funding Project"
+msgstr "Progetto di Finanziamento"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:52
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:182
+msgid "Total After Tax"
+msgstr "Totale dopo le Tasse"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:60
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:129
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:99
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:146
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:183
+msgid "Total"
+msgstr "Totale"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:68
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:184
+msgid "Created By"
+msgstr "Creata da"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:80
+msgid "Fleet Roles"
+msgstr "Ruoli nella Flotta"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:86
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:24
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:76
+msgid "Role"
+msgstr "Ruolo"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:87
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:25
+msgid "Value"
+msgstr "Valore"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:88
+msgid "Approximate Percentage"
+msgstr "Percentuale approssimata"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:107
+msgid "Shares"
+msgstr "Quote"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:113
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:91
+msgid "User's Main Character"
+msgstr "Personaggio Principale dell'Utente"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:114
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:75
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:92
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:141
+msgid "Character"
+msgstr "Personaggio"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:115
+msgid "Fleet Role"
+msgstr "Ruolo nella Flotta"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:116
+msgid "Helped Setups"
+msgstr "Aiuti a Sistemare"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:117
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:78
+msgid "Count"
+msgstr "Quantità"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:118
+msgid "Share Total"
+msgstr "Totale della Quota"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:120
+msgid "Estimated Project Contribution"
+msgstr "Stima della Contribuzione al Progetto"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:161
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:26
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:79
+msgid "Delete"
+msgstr "Elimina"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:162
+msgid "Edit"
+msgstr "Modifica"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:165
+#: allianceauth_pve/templates/allianceauth_pve/funding_project_create.html:16
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:132
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:219
+#: allianceauth_pve/templates/allianceauth_pve/rotation_create.html:16
+msgid "Back"
+msgstr "Indietro"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:175
+msgid "Delete Entry"
+msgstr "Elimina Entrata"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:176
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:194
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:227
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:228
+msgid "Close"
+msgstr "Chiudi"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:179
+msgid "Are you sure you want to delete this entry?"
+msgstr "Sei sicuro di voler eliminare questa entrata?"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:182
+msgid "Cancel"
+msgstr "Annulla"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_detail.html:183
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:214
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:237
+msgid "Confirm"
+msgstr "Conferma"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:9
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:208
+msgid "New Entry"
+msgstr "Nuova Entrata"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:36
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:193
+msgid "New Role"
+msgstr "Nuovo Ruolo"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:38
+msgid "Load Roles Setup"
+msgstr "Carica Preset Ruoli"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:54
+msgid "Custom Increment:"
+msgstr "Incremento Personalizzato:"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:58
+msgid "Use this field to add a custom value to the total."
+msgstr "Usa questo campo per aggiungere un valore personalizzato al totale."
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:63
+msgid "Increment All Shares"
+msgstr "Incrementa tutte le quote"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:64
+msgid "Increment Selected Shares"
+msgstr "Incrementa le quote selezionate"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:65
+msgid "Decrement Selected Shares"
+msgstr "Decrementa le quote selezionate"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:66
+msgid "Decrement All Shares"
+msgstr "Decrementa tutte le quote"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:73
+msgid "Select"
+msgstr "Seleziona"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:74
+msgid "User's Main Char"
+msgstr "Personaggio Principale dell'Utente"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:77
+msgid "Setup"
+msgstr "Sistemato"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:81
+msgid "No character yet"
+msgstr "Ancora nessun personaggio"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:153
+#, python-format
+msgid "Percentage in 2 digits ( xx%% )"
+msgstr "Percentuale in 2 cifre (xx%%)"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:179
+msgid "Search"
+msgstr "Cerca"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:183
+msgid "No results"
+msgstr "Nessun risultato"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:200
+msgid "Role Name:"
+msgstr "Nome del Ruolo:"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:206
+msgid "Value:"
+msgstr "Valore:"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:215
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:236
+msgid "Dismiss"
+msgstr "Chiudi"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:226
+msgid "Choose Setup"
+msgstr "Seleziona Preset"
+
+#: allianceauth_pve/templates/allianceauth_pve/entry_form.html:236
+msgid "Load"
+msgstr "Carica"
+
+#: allianceauth_pve/templates/allianceauth_pve/funding_project_create.html:7
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:203
+msgid "New Funding Project"
+msgstr "Nuovo Progetto di Finanziamento"
+
+#: allianceauth_pve/templates/allianceauth_pve/funding_project_create.html:15
+#: allianceauth_pve/templates/allianceauth_pve/rotation_create.html:15
+msgid "Submit"
+msgstr "Invia"
+
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:8
+msgid "Funding Project Details"
+msgstr "Dettagli del Progetto di Finanziamento"
+
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:16
+msgid "Started"
+msgstr "Data d'inizio"
+
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:25
+msgid "Completed"
+msgstr "Completato"
+
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:28
+#, python-format
+msgid "After %(days)s day"
+msgid_plural "After %(days)s days"
+msgstr[0] "Dopo %(days)s giorno"
+msgstr[1] "Dopo %(days)s giorni"
+msgstr[2] "Dopo %(days)s giorni"
+
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:33
+msgid "Users"
+msgstr "Utenti"
+
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:42
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:93
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:39
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:96
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:144
+msgid "Estimated Total"
+msgstr "Totale Stimato"
+
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:51
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:97
+msgid "Current Total"
+msgstr "Totale Corrente"
+
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:59
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:181
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:214
+msgid "Goal"
+msgstr "Obiettivo"
+
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:70
+msgid "Actual progress"
+msgstr "Progresso corrente"
+
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:74
+msgid "Estimated progress"
+msgstr "Progresso stimato"
+
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:82
+msgid "Contributors"
+msgstr "Contributori"
+
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:95
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:48
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:95
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:143
+msgid "Actual Total"
+msgstr "Totale Attuale"
+
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:126
+msgid "Mark As Completed"
+msgstr "Segna Completato"
+
+#: allianceauth_pve/templates/allianceauth_pve/fundingproject_detail.html:128
+msgid "Reopen"
+msgstr "Riapri"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:5
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:12
+msgid "PvE Dashboard"
+msgstr "PvE Dashboard"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:17
+msgid "1 month"
+msgstr "1 mese"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:22
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:35
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:48
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:61
+#, python-format
+msgid "%(setup)s setup"
+msgid_plural "%(setup)s setups"
+msgstr[0] "%(setup)s sistemazioni"
+msgstr[1] "%(setup)s sistemazioni"
+msgstr[2] "%(setup)s sistemazioni"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:24
+msgid "No activity in the last month"
+msgstr "Nessuna attività nell'ultimo mese"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:30
+msgid "3 months"
+msgstr "3 mesi"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:37
+msgid "No activity in the last 3 months"
+msgstr "Nessuna attività negli ultimi 3 mesi"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:43
+msgid "6 months"
+msgstr "6 mesi"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:50
+msgid "No activity in the last 6 months"
+msgstr "Nessuna attività negli ultimi 6 mesi"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:56
+msgid "12 months"
+msgstr "12 mesi"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:63
+msgid "No activity in the last year"
+msgstr "Nessuna attività nell'ultimo anno"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:75
+msgid "Open Rotations"
+msgstr "Rotazioni Aperte"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:81
+msgid "Closed Rotations"
+msgstr "Rotazioni Chiuse"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:94
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:126
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:178
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:212
+msgid "Name"
+msgstr "Nome"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:95
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:179
+msgid "Age (days)"
+msgstr "Età (giorni)"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:96
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:128
+msgid "Participants"
+msgstr "Partecipanti"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:114
+msgid "No open rotations"
+msgstr "Nessuna rotazione aperta"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:117
+#: allianceauth_pve/templates/allianceauth_pve/rotation_create.html:7
+msgid "New Rotation"
+msgstr "Nuova Rotazione"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:127
+msgid "Closed On"
+msgstr "Chiusa il"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:146
+msgid "No closed rotations"
+msgstr "Nessuna rotazione chiusa"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:159
+msgid "Active Projects"
+msgstr "Progetti Attivi"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:165
+msgid "Finished Projects"
+msgstr "Progetti Finiti"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:180
+msgid "Estimated Total (Actual)"
+msgstr "Totale Stimato (Corrente)"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:182
+msgid "Completed (Actual)"
+msgstr "Completato (Attuale)"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:200
+msgid "No active projects"
+msgstr "Nessun progetto attivo"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:213
+msgid "Completed in (days)"
+msgstr "Completato in (giorni)"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:215
+msgid "Actual total"
+msgstr "Totale corrente"
+
+#: allianceauth_pve/templates/allianceauth_pve/ratting-dashboard.html:232
+msgid "No closed projects"
+msgstr "Nessun progetto chiuso"
+
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:7
+msgid "Rotation"
+msgstr "Rotazione"
+
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:24
+msgid "Status"
+msgstr "Stato"
+
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:26
+msgid "Age"
+msgstr "Età"
+
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:31
+msgid "Closed"
+msgstr "Chiusa"
+
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:33
+msgid "days"
+msgstr "giorni"
+
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:57
+msgid "Tax Rate"
+msgstr "Frazione di Tasse"
+
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:71
+msgid "Summary"
+msgstr "Riepilogo"
+
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:93
+msgid "Setups"
+msgstr "Sistemazioni"
+
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:118
+msgid "Remove Copy Color"
+msgstr "Rimuovi il colore di copia"
+
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:133
+#, python-format
+msgid ""
+"\n"
+"                                        Contributions to %(name)s\n"
+"                                    "
+msgstr ""
+"\n"
+"Contributi a %(name)s"
+
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:173
+msgid "Entries"
+msgstr "Entrate"
+
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:179
+msgid "Date"
+msgstr "Data"
+
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:180
+msgid "User Count"
+msgstr "Numero di Utenti"
+
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:181
+msgid "Share Count"
+msgstr "Numero di Quote"
+
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:200
+msgid "Show Details"
+msgstr "Mostra Dettagli"
+
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:217
+#: allianceauth_pve/templates/allianceauth_pve/rotation.html:227
+msgid "Close Rotation"
+msgstr "Chiudi la Rotazione"
+
+#: allianceauth_pve/views.py:222
+msgid "The rotation is closed, you cannot add an entry"
+msgstr "La rotazione è chiusa, non puoi aggiungere un'entrata"
+
+#: allianceauth_pve/views.py:228
+msgid "The selected entry doesn't belong to the selected rotation"
+msgstr "L'entrata selezionata non appartiene alla rotazione selezionata"
+
+#: allianceauth_pve/views.py:231
+msgid "You cannot edit this entry"
+msgstr "Non puoi modificare quest'entrata"
+
+#: allianceauth_pve/views.py:289
+msgid "Entry added successfully"
+msgstr "Entrata aggiunta con successo"
+
+#: allianceauth_pve/views.py:353
+msgid "You cannot delete this entry"
+msgstr "Non puoi eliminare quest'entrata"
+
+#: allianceauth_pve/views.py:359
+msgid "Entry deleted successfully"
+msgstr "Entrata eliminata con successo"
+
+#: allianceauth_pve/views.py:376
+msgid "Rotation created successfully"
+msgstr "Rotazione creata con successo"
+
+#: allianceauth_pve/views.py:402
+msgid "Project created successfully"
+msgstr "Progetto creato con successo"
+
+#: allianceauth_pve/views.py:449
+msgid "You cannot complete a project with open contributions"
+msgstr "Non puoi completare un progetto con delle contribuzioni ancora aperte"
+
+#: allianceauth_pve/views.py:453
+msgid ""
+"You cannot reopen this project, another one with the same name is active."
+msgstr ""
+"Non puoi riaprire questo progetto, ce n'è già un altro aperto con lo stesso "
+"nome"
