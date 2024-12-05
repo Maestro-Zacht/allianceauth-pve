@@ -124,6 +124,84 @@ class TestRotation(TestCase):
         self.assertEqual(row['estimated_total'], 1_000_000_000)
         self.assertEqual(row['actual_total'], 900_000_000)
 
+    def test_funding_projects_summary(self):
+        project1 = FundingProject.objects.create(
+            name='testproject1',
+            goal=1_000_000_000
+        )
+
+        project2 = FundingProject.objects.create(
+            name='testproject2',
+            goal=1_000_000_000
+        )
+
+        rotation2 = Rotation.objects.create(
+            name='test2rot'
+        )
+
+        entry1 = Entry.objects.create(
+            rotation=self.rotation,
+            created_by=self.testuser,
+            estimated_total=1_000_000_000,
+            funding_project=project1,
+            funding_percentage=50,
+        )
+
+        role1 = EntryRole.objects.create(
+            entry=entry1,
+            name='testrole1',
+            value=1
+        )
+
+        EntryCharacter.objects.create(
+            entry=entry1,
+            user=self.testuser,
+            user_character=self.testcharacter,
+            role=role1,
+            site_count=1,
+            helped_setup=False
+        )
+
+        entry2 = Entry.objects.create(
+            rotation=rotation2,
+            created_by=self.testuser,
+            estimated_total=1_000_000_000,
+            funding_project=project2,
+            funding_percentage=50,
+        )
+
+        role2 = EntryRole.objects.create(
+            entry=entry2,
+            name='testrole2',
+            value=1
+        )
+
+        EntryCharacter.objects.create(
+            entry=entry2,
+            user=self.testuser,
+            user_character=self.testcharacter,
+            role=role2,
+            site_count=1,
+            helped_setup=False
+        )
+
+        summary = self.rotation.funding_projects_summary
+
+        self.assertEqual(len(summary), 1)
+        self.assertIn(project1, summary)
+
+        project_summary = summary[project1]
+
+        self.assertEqual(len(project_summary), 1)
+
+        row = project_summary[0]
+
+        self.assertEqual(row['user'], self.testuser.pk)
+        self.assertEqual(row['actual_total'], 0)
+        self.assertEqual(row['estimated_total'], 500_000_000)
+        self.assertEqual(row['character_name'], self.testcharacter.character_name)
+        self.assertEqual(row['character_id'], self.testcharacter.character_id)
+
     def test_days_since(self):
         self.assertEqual(self.rotation.days_since, 0)
 

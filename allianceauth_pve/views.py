@@ -89,6 +89,7 @@ def rotation_view(request, rotation_id):
     r = get_object_or_404(Rotation, pk=rotation_id)
 
     summary_cache_key = f"ratting_summary_{rotation_id}"
+    project_summary_cache_key = f"ratting_summary_{rotation_id}_projects"
 
     if request.method == 'POST' and not r.is_closed and request.user.has_perm('allianceauth_pve.manage_rotations'):
         copied_data = request.POST.copy()
@@ -102,6 +103,7 @@ def rotation_view(request, rotation_id):
             r.save()
 
             cache.delete(summary_cache_key)
+            cache.delete(project_summary_cache_key)
             cache.delete_many(
                 (
                     f"project_summary_{pk}"
@@ -146,10 +148,25 @@ def rotation_view(request, rotation_id):
 
     summary_count_half = r.num_participants // 2 + r.num_participants % 2
 
+    projects_summaries = cache.get(project_summary_cache_key)
+    if projects_summaries is None:
+        projects_summaries = r.funding_projects_summary
+
+        for project, data in projects_summaries.items():
+            count_half = len(data) // 2 + len(data) % 2
+            projects_summaries[project] = [data[:count_half], data[count_half:]]
+
+        cache.set(project_summary_cache_key, projects_summaries, ROTATION_SUMMARY_CACHE_TIMEOUT)
+
     context = {
         'rotation': r,
         'summaries': [summary[:summary_count_half], summary[summary_count_half:]],
-        'entries': r.entries.order_by('-created_at'),
+        'projects_summaries': projects_summaries,
+        'entries': (
+            r.entries
+            .select_related('created_by__profile__main_character')
+            .order_by('-created_at')
+        ),
         'closeform': closeform,
     }
 
@@ -276,6 +293,7 @@ def add_entry(request, rotation_id, entry_id=None):
             messages.success(request, _('Entry added successfully'))
 
             cache.delete(f"ratting_summary_{rotation_id}")
+            cache.delete(f"ratting_summary_{rotation_id}_projects")
             if entry.funding_project is not None and entry.funding_percentage > 0:
                 cache.delete(f"project_summary_{entry.funding_project.pk}")
 
@@ -345,6 +363,7 @@ def delete_entry(request, entry_id):
     messages.success(request, _("Entry deleted successfully"))
 
     cache.delete(f"ratting_summary_{rotation_id}")
+    cache.delete(f"ratting_summary_{rotation_id}_projects")
 
     return redirect('allianceauth_pve:rotation_view', rotation_id)
 

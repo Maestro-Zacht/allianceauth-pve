@@ -195,12 +195,57 @@ class Rotation(models.Model):
 
     objects = RotationManager()
 
+    @cached_property
+    def funding_projects_summary(self):
+        res = {}
+
+        projects = FundingProject.objects.filter(
+            models.Exists(
+                Entry.objects.filter(
+                    rotation=self,
+                    funding_project=models.OuterRef('pk'),
+                    funding_percentage__gt=0
+                )
+            )
+        )
+
+        for project in projects:
+            res[project] = (
+                EntryCharacter.objects
+                .filter(entry__rotation=self)
+                .with_contributions_to(project)
+                .with_totals()
+                .order_by()
+                .values('user')
+                .annotate(estimated_total=models.Sum('estimated_funding_amount'))
+                .annotate(actual_total=models.Sum('actual_funding_amount'))
+                .order_by('-estimated_total')
+                .values(
+                    'user',
+                    'estimated_total',
+                    'actual_total',
+                    character_name=models.F('user__profile__main_character__character_name'),
+                    character_id=models.F('user__profile__main_character__character_id'),
+                )
+            )
+
+        return res
+
     @property
     def summary(self):
-        setup_summary = Rotation.objects.filter(pk=self.pk).get_setup_summary().filter(user_id=models.OuterRef('user_id')).values('total_setups')
+        setup_summary = (
+            Rotation.objects
+            .filter(pk=self.pk)
+            .get_setup_summary()
+            .filter(user_id=models.OuterRef('user_id'))
+            .values('total_setups')
+        )
+
         return (
-            EntryCharacter.objects.filter(entry__rotation=self)
-            .with_totals().order_by()
+            EntryCharacter.objects
+            .filter(entry__rotation=self)
+            .with_totals()
+            .order_by()
             .values('user')
             .annotate(helped_setups=Coalesce(models.Subquery(setup_summary[:1]), 0))
             .annotate(estimated_total=models.Sum('estimated_share_total'))
