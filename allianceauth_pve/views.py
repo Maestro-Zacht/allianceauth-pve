@@ -152,6 +152,10 @@ def rotation_view(request, rotation_id):
     if projects_summaries is None:
         projects_summaries = r.funding_projects_summary
 
+        for project, data in projects_summaries.items():
+            count_half = len(data) // 2 + len(data) % 2
+            projects_summaries[project] = [data[:count_half], data[count_half:]]
+
         cache.set(project_summary_cache_key, projects_summaries, ROTATION_SUMMARY_CACHE_TIMEOUT)
 
     context = {

@@ -126,7 +126,7 @@
                             {% endfor %}
                         </div>
                     </div>
-                    {% for prj, summary in projects_summaries.items %}
+                    {% for prj, summaries in projects_summaries.items %}
                         <div class="tab-pane fade" id="project-panel-{{ prj.pk }}" role="tabpanel" aria-labelledby="project-tab-{{ prj.pk }}" tabindex="0">
                             <div class="text-center">
                                 <h4 class="ms-auto me-auto mb-3">
@@ -135,33 +135,40 @@
                                     {% endblocktranslate %}
                                 </h4>
                             </div>
-                            <table class="table table-aa">
-                                <thead>
-                                    <tr>
-                                        <th>{% translate "Character" %}</th>
-                                        {% if rotation.is_closed %}
-                                            <th>{% translate "Actual Total" %}</th>
-                                            <th>{% translate "Estimated Total" %}</th>
-                                        {% else %}
-                                            <th>{% translate "Total" %}</th>
-                                        {% endif %}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for row in summary %}
-                                        <tr{% if row.user == user.pk %} class="bg-info bg-opacity-25"{% endif %}>
-                                            <td>
-                                                <img src="{{ row.character_id|character_portrait_url:32 }}" class="rounded me-2">
-                                                <span>{{ row.character_name }}</span>
-                                            </td>
-                                            {% if rotation.is_closed %}
-                                                <td>{{ row.actual_total|floatformat:"g" }}</td>
-                                            {% endif %}
-                                            <td>{{ row.estimated_total|floatformat:"g" }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            <div class="row">
+                                {% for summary in summaries %}
+                                    <div class="col-12 col-md-6">
+                                        <table class="table table-aa">
+                                            <thead>
+                                                <tr>
+                                                    <th>{% translate "Character" %}</th>
+                                                    {% if rotation.is_closed %}
+                                                        <th>{% translate "Actual Total" %}</th>
+                                                        <th>{% translate "Estimated Total" %}</th>
+                                                    {% else %}
+                                                        <th>{% translate "Total" %}</th>
+                                                    {% endif %}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for row in summary %}
+                                                    <tr{% if row.user == user.pk %} class="bg-info bg-opacity-25"{% endif %}>
+                                                        <td>
+                                                            <img src="{{ row.character_id|character_portrait_url:32 }}" class="rounded me-2">
+                                                            <span>{{ row.character_name }}</span>
+                                                        </td>
+                                                        {% if rotation.is_closed %}
+                                                            <td>{{ row.actual_total|floatformat:"g" }}</td>
+                                                        {% endif %}
+                                                        <td>{{ row.estimated_total|floatformat:"g" }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            
                         </div>
                     {% endfor %}
                 </div>
