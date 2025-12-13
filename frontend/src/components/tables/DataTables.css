@@ -1,0 +1,14 @@
+@import url('datatables.net-bs5');
+@import url('datatables.net-columncontrol-bs5');
+
+[data-theme="darkly"] table.dataTable span.dtcc button.dtcc-button:hover {
+    background: var(--dtcc-button_background);
+}
+
+[data-theme="darkly"] div.dtcc-dropdown button.dtcc-button {
+    background: rgb(30, 30, 30);
+
+    &:hover {
+        background: rgba(110, 110, 110, 0.344);
+    }
+}

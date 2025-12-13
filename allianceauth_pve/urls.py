@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 
 from . import views
 
@@ -7,6 +7,7 @@ app_name = 'allianceauth_pve'
 
 urlpatterns = [
     path('', views.index, name='index'),
+    re_path('^r/', views.react_view, name='react_view'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('rotation/new/', views.create_rotation, name='new_rotation'),
     path('rotation/<int:rotation_id>/', views.rotation_view, name='rotation_view'),

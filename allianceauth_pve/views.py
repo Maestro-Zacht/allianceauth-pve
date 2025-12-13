@@ -22,6 +22,7 @@ from allianceauth.authentication.models import CharacterOwnership
 from .models import Entry, EntryCharacter, Rotation, EntryRole, General, FundingProject
 from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm, NewRoleFormSet, NewFundingProjectForm
 from .actions import running_averages, check_forms_valid, ensure_rotation_presets_applied
+from . import __version__
 
 logger = get_extension_logger(__name__)
 
@@ -36,7 +37,17 @@ FUNDING_PROJECT_CACHE_TIMEOUT = ROTATION_SUMMARY_CACHE_TIMEOUT * 7
 @login_required
 @permission_required('allianceauth_pve.access_pve')
 def index(request):
-    return redirect('allianceauth_pve:dashboard')
+    return redirect('allianceauth_pve:react_view')
+
+
+@login_required
+@permission_required('allianceauth_pve.access_pve')
+def react_view(request):
+    context = {
+        'version': __version__,
+    }
+
+    return render(request, 'allianceauth_pve/react_base.html', context=context)
 
 
 @login_required
