@@ -51,7 +51,7 @@ WSGI_APPLICATION = "myauth.wsgi.application"
 
 # remove static root so files are served without collectstatic
 # STATIC_ROOT = "/var/www/myauth/static/"
-del STATIC_ROOT
+# del STATIC_ROOT
 
 BROKER_URL = f"redis://{os.environ.get('AA_REDIS', 'redis:6379')}/0"
 CACHES = {
