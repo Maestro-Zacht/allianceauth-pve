@@ -5,6 +5,9 @@
     {% translate "PvE Tool" %}
 {% endblock header_nav_brand %}
 
+{% block header_nav_collapse_left %}
+    {% include "allianceauth_pve/switch_frontend_version.html" %}
+{% endblock header_nav_collapse_left %}
 
 {% block content %}
     <div class="row">

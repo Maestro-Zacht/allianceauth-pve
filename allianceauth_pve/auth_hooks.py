@@ -11,7 +11,7 @@ logger = get_extension_logger(__name__)
 
 class PveMenuItemHook(MenuItemHook):
     def __init__(self):
-        super().__init__(_("PvE Tool"), "fas fa-wallet", "allianceauth_pve:index", navactive=['allianceauth_pve:'])
+        super().__init__(_("PvE Tool"), "fas fa-wallet", "allianceauth_pve:dashboard", navactive=['allianceauth_pve:'])
 
     def render(self, request):
         if request.user.has_perm('allianceauth_pve.access_pve'):

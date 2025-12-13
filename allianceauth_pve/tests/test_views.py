@@ -27,7 +27,7 @@ class TestIndexView(TestCase):
         self.client.force_login(self.testuser)
 
         response = self.client.get(reverse('allianceauth_pve:index'))
-        self.assertRedirects(response, reverse('allianceauth_pve:dashboard'))
+        self.assertRedirects(response, reverse('allianceauth_pve:react_view'))
 
 
 class TestDashboardView(TestCase):
