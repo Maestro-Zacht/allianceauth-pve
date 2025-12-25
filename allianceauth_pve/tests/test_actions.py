@@ -7,7 +7,7 @@ from allianceauth.tests.auth_utils import AuthUtils
 from allianceauth.authentication.models import CharacterOwnership
 
 from ..models import Rotation, Entry, EntryCharacter, EntryRole, RotationPreset
-from ..actions import running_averages, check_forms_valid, ensure_rotation_presets_applied
+from ..utils import running_averages, check_forms_valid, ensure_rotation_presets_applied
 from ..forms import NewRoleFormSet, NewEntryForm, NewShareFormSet
 
 

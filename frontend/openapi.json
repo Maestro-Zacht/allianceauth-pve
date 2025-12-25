@@ -1,0 +1,292 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "AA PvE API",
+        "version": "0.0.1",
+        "description": ""
+    },
+    "paths": {
+        "/pve/api/rotations/rotations": {
+            "get": {
+                "operationId": "allianceauth_pve_api_rotations_list_rotations",
+                "summary": "List Rotations",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/RotationSchema"
+                                    },
+                                    "title": "Response",
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "rotations"
+                ],
+                "security": [
+                    {
+                        "CanAccessPVE": []
+                    }
+                ]
+            }
+        },
+        "/pve/api/activity/months/{months}": {
+            "get": {
+                "operationId": "allianceauth_pve_api_activity_get_activity",
+                "summary": "Get Activity",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "months",
+                        "schema": {
+                            "title": "Months",
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ActivitySchema"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "activity"
+                ],
+                "security": [
+                    {
+                        "CanAccessPVE": []
+                    }
+                ]
+            }
+        },
+        "/pve/api/projects/projects": {
+            "get": {
+                "operationId": "allianceauth_pve_api_projects_list_projects",
+                "summary": "List Projects",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/FundingProjectSchema"
+                                    },
+                                    "title": "Response",
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "projects"
+                ],
+                "security": [
+                    {
+                        "CanAccessPVE": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "RotationSchema": {
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "title": "Name",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "format": "date-time",
+                        "title": "Created At",
+                        "type": "string"
+                    },
+                    "is_closed": {
+                        "title": "Is Closed",
+                        "type": "boolean"
+                    },
+                    "closed_at": {
+                        "anyOf": [
+                            {
+                                "format": "date-time",
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Closed At"
+                    },
+                    "number_of_members": {
+                        "title": "Number Of Members",
+                        "type": "integer"
+                    },
+                    "estimated_total": {
+                        "title": "Estimated Total",
+                        "type": "number"
+                    },
+                    "actual_total": {
+                        "title": "Actual Total",
+                        "type": "number"
+                    },
+                    "priority": {
+                        "title": "Priority",
+                        "type": "integer"
+                    },
+                    "tax_rate": {
+                        "title": "Tax Rate",
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "created_at",
+                    "is_closed",
+                    "number_of_members",
+                    "estimated_total",
+                    "actual_total",
+                    "priority",
+                    "tax_rate"
+                ],
+                "title": "RotationSchema",
+                "type": "object"
+            },
+            "ActivitySchema": {
+                "properties": {
+                    "helped_setups": {
+                        "title": "Helped Setups",
+                        "type": "integer"
+                    },
+                    "estimated_total": {
+                        "title": "Estimated Total",
+                        "type": "number"
+                    },
+                    "actual_total": {
+                        "title": "Actual Total",
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "helped_setups",
+                    "estimated_total",
+                    "actual_total"
+                ],
+                "title": "ActivitySchema",
+                "type": "object"
+            },
+            "FundingProjectSchema": {
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "title": "Name",
+                        "type": "string"
+                    },
+                    "goal": {
+                        "title": "Goal",
+                        "type": "integer"
+                    },
+                    "is_active": {
+                        "title": "Is Active",
+                        "type": "boolean"
+                    },
+                    "created_at": {
+                        "format": "date-time",
+                        "title": "Created At",
+                        "type": "string"
+                    },
+                    "completed_at": {
+                        "anyOf": [
+                            {
+                                "format": "date-time",
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Completed At"
+                    },
+                    "current_total": {
+                        "title": "Current Total",
+                        "type": "number"
+                    },
+                    "estimated_total": {
+                        "title": "Estimated Total",
+                        "type": "number"
+                    },
+                    "actual_percentage": {
+                        "title": "Actual Percentage",
+                        "type": "number"
+                    },
+                    "estimated_missing_percentage": {
+                        "title": "Estimated Missing Percentage",
+                        "type": "number"
+                    },
+                    "number_of_participants": {
+                        "title": "Number Of Participants",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "goal",
+                    "is_active",
+                    "created_at",
+                    "current_total",
+                    "estimated_total",
+                    "actual_percentage",
+                    "estimated_missing_percentage",
+                    "number_of_participants"
+                ],
+                "title": "FundingProjectSchema",
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "CanAccessPVE": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "sessionid"
+            }
+        }
+    },
+    "servers": []
+}

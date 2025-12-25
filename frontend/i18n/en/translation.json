@@ -1,3 +1,31 @@
 {
-  "error": "Error {{code}}"
+  "actual_total": "Actual Total",
+  "age": "Age",
+  "closed_on": "Closed On",
+  "completed_in_days": "Completed In (Days)",
+  "current_total": "Current Total",
+  "dashboard": {
+    "title": "PvE Dashboard"
+  },
+  "error": "Error {{code}}",
+  "goal": "Goal",
+  "isk": "{{isk, number}} ISK",
+  "loading": "Loading...",
+  "monthNumber_one": "{{count}} month",
+  "monthNumber_other": "{{count}} months",
+  "name": "Name",
+  "participants": "Participants",
+  "projects": {
+    "activeTab": "Active Projects",
+    "completed_percentage_heading": "Completed (Actual)",
+    "estimated_total_heading": "Estimated Total (Actual)",
+    "finishedTab": "Finished Projects"
+  },
+  "rotations": {
+    "closedTab": "Closed Rotations",
+    "openTab": "Open Rotations"
+  },
+  "setupNumber_one": "{{count}} setup",
+  "setupNumber_other": "{{count}} setups",
+  "total": "Total"
 }

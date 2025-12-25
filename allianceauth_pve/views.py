@@ -21,7 +21,7 @@ from allianceauth.authentication.models import CharacterOwnership
 
 from .models import Entry, EntryCharacter, Rotation, EntryRole, General, FundingProject
 from .forms import NewEntryForm, NewShareFormSet, NewRotationForm, CloseRotationForm, NewRoleFormSet, NewFundingProjectForm
-from .actions import running_averages, check_forms_valid, ensure_rotation_presets_applied
+from .utils import running_averages, check_forms_valid, ensure_rotation_presets_applied
 from . import __version__
 
 logger = get_extension_logger(__name__)
@@ -185,6 +185,7 @@ def rotation_view(request, rotation_id):
 
 
 @login_required
+@permission_required('allianceauth_pve.access_pve')
 @permission_required('allianceauth_pve.manage_entries')
 def get_avaiable_ratters(request, name=None):
     content_type = ContentType.objects.get_for_model(General)
@@ -229,6 +230,7 @@ def get_avaiable_ratters(request, name=None):
 
 
 @login_required
+@permission_required('allianceauth_pve.access_pve')
 @permission_required('allianceauth_pve.manage_entries')
 def add_entry(request, rotation_id, entry_id=None):
     rotation = get_object_or_404(Rotation, pk=rotation_id)
@@ -361,6 +363,7 @@ def add_entry(request, rotation_id, entry_id=None):
 
 
 @login_required
+@permission_required('allianceauth_pve.access_pve')
 @permission_required('allianceauth_pve.manage_entries')
 def delete_entry(request, entry_id):
     entry = get_object_or_404(Entry, pk=entry_id)
@@ -380,6 +383,7 @@ def delete_entry(request, entry_id):
 
 
 @login_required
+@permission_required('allianceauth_pve.access_pve')
 @permission_required('allianceauth_pve.manage_rotations')
 def create_rotation(request):
     if request.method == 'POST':
@@ -405,6 +409,9 @@ class EntryDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     permission_required = 'allianceauth_pve.access_pve'
 
 
+@login_required
+@permission_required('allianceauth_pve.access_pve')
+@permission_required('allianceauth_pve.manage_funding_projects')
 def new_project_view(request):
     if request.method == 'POST':
         copied_data = request.POST.copy()
@@ -456,6 +463,7 @@ class FundingProjectDetailView(LoginRequiredMixin, PermissionRequiredMixin, Deta
 
 
 @login_required
+@permission_required('allianceauth_pve.access_pve')
 @permission_required('allianceauth_pve.manage_funding_projects')
 def toggle_complete_project(request, pk: int):
     funding_project = get_object_or_404(FundingProject, pk=pk)

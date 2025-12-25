@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import Rotation, Entry, EntryCharacter, PveButton, RoleSetup, GeneralRole, FundingProject, RotationPreset
-from .actions import ensure_rotation_presets_applied
+from .utils import ensure_rotation_presets_applied
 
 
 @admin.register(Rotation)

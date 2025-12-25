@@ -1,3 +1,31 @@
 {
-  "error": ""
+  "actual_total": "",
+  "age": "",
+  "closed_on": "",
+  "completed_in_days": "",
+  "current_total": "",
+  "dashboard": {
+    "title": ""
+  },
+  "error": "",
+  "goal": "",
+  "isk": "",
+  "loading": "",
+  "monthNumber_one": "",
+  "monthNumber_other": "",
+  "name": "",
+  "participants": "",
+  "projects": {
+    "activeTab": "",
+    "completed_percentage_heading": "",
+    "estimated_total_heading": "",
+    "finishedTab": ""
+  },
+  "rotations": {
+    "closedTab": "",
+    "openTab": ""
+  },
+  "setupNumber_one": "",
+  "setupNumber_other": "",
+  "total": ""
 }

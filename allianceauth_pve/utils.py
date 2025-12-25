@@ -30,7 +30,7 @@ def running_averages(user, start_date, end_date=None):
     if result:
         return result[0]
     else:
-        return {}
+        return {'helped_setups': 0, 'estimated_total': 0.0, 'actual_total': 0.0}
 
 
 def check_forms_valid(role_form: NewRoleFormSet, entry_form: NewEntryForm, share_form: NewShareFormSet) -> list:

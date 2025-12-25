@@ -11,7 +11,7 @@ from allianceauth.eveonline.models import EveCharacter
 
 from ..models import Rotation, Entry, EntryCharacter, EntryRole, FundingProject
 from ..views import RUNNING_AVERAGES_CACHE_PREFIX
-from ..actions import ensure_rotation_presets_applied
+from ..utils import ensure_rotation_presets_applied
 
 
 class TestIndexView(TestCase):

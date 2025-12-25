@@ -17,7 +17,7 @@
                     {% translate "1 month" %}
                 </div>
                 <div class="card-body">
-                    {% if averages.onemonth.actual_total %}
+                    {% if averages.onemonth.actual_total > 0 %}
                         <p>{{ averages.onemonth.actual_total|floatformat:"g" }}</p>
                         <p>{% blocktranslate trimmed count setup=averages.onemonth.helped_setups %}{{ setup }} setup{% plural %}{{ setup }} setups{% endblocktranslate %}</p>
                     {% else %}
@@ -30,7 +30,7 @@
                     {% translate "3 months" %}
                 </div>
                 <div class="card-body">
-                    {% if averages.threemonth.actual_total %}
+                    {% if averages.threemonth.actual_total > 0 %}
                         <p>{{ averages.threemonth.actual_total|floatformat:"g" }}</p>
                         <p>{% blocktranslate trimmed count setup=averages.threemonth.helped_setups %}{{ setup }} setup{% plural %}{{ setup }} setups{% endblocktranslate %}</p>
                     {% else %}
@@ -43,7 +43,7 @@
                     {% translate "6 months" %}
                 </div>
                 <div class="card-body">
-                    {% if averages.sixmonth.actual_total %}
+                    {% if averages.sixmonth.actual_total > 0 %}
                         <p>{{ averages.sixmonth.actual_total|floatformat:"g" }}</p>
                         <p>{% blocktranslate trimmed count setup=averages.sixmonth.helped_setups %}{{ setup }} setup{% plural %}{{ setup }} setups{% endblocktranslate %}</p>
                     {% else %}
@@ -56,7 +56,7 @@
                     {% translate "12 months" %}
                 </div>
                 <div class="card-body">
-                    {% if averages.oneyear.actual_total %}
+                    {% if averages.oneyear.actual_total > 0 %}
                         <p>{{ averages.oneyear.actual_total|floatformat:"g" }}</p>
                         <p>{% blocktranslate trimmed count setup=averages.oneyear.helped_setups %}{{ setup }} setup{% plural %}{{ setup }} setups{% endblocktranslate %}</p>
                     {% else %}
