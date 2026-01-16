@@ -1,13 +1,17 @@
 {
   "actual_total": "Actual Total",
   "age": "Age",
+  "character": "Character",
   "closed_on": "Closed On",
   "completed_in_days": "Completed In (Days)",
+  "created_by": "Created By",
   "current_total": "Current Total",
   "dashboard": {
     "title": "PvE Dashboard"
   },
+  "date": "Date",
   "error": "Error {{code}}",
+  "estimated_total": "Estimated Total",
   "goal": "Goal",
   "isk": "{{isk, number}} ISK",
   "loading": "Loading...",
@@ -27,5 +31,11 @@
   },
   "setupNumber_one": "{{count}} setup",
   "setupNumber_other": "{{count}} setups",
-  "total": "Total"
+  "setups": "Setups",
+  "share_count": "Share Count",
+  "summary": "Summary",
+  "tax_rate": "Tax Rate",
+  "total": "Total",
+  "total_after_tax": "Total After Tax",
+  "user_count": "User Count"
 }

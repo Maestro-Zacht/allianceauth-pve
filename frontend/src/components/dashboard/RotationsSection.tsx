@@ -6,6 +6,7 @@ import type { components } from "../../api/Schema";
 import Loading from "../Loading";
 import DataTable from "../tables/DataTablesBase";
 import TimeAgo from "react-timeago";
+import { useNavigate } from "react-router";
 
 
 type rotationType = components["schemas"]["RotationSchema"];
@@ -23,6 +24,24 @@ const columnsOpen = [
 
 function OpenRotationPane({ rotations }: RotationPaneProps) {
     const { t, i18n } = useTranslation();
+    const navigate = useNavigate();
+
+    const renderRotationName = (data: string, type: string, row: rotationType) => {
+        switch (type) {
+            case 'display':
+                return <a
+                    href={`/pve/r/rotations/${row.id}/`}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        navigate(`/pve/r/rotations/${row.id}/`);
+                    }}
+                >
+                    {data}
+                </a>
+            default:
+                return data;
+        }
+    }
 
     const renderAge = (data: string, type: string, _: any) => {
         switch (type) {
@@ -42,6 +61,7 @@ function OpenRotationPane({ rotations }: RotationPaneProps) {
             columns={columnsOpen} data={rotations}
             className="table table-aa"
             slots={{
+                0: renderRotationName,
                 1: renderAge,
                 3: renderNumber,
             }}
@@ -76,6 +96,24 @@ const columnsClosed = [
 
 function ClosedRotationPane({ rotations }: RotationPaneProps) {
     const { t, i18n } = useTranslation();
+    const navigate = useNavigate();
+
+    const renderRotationName = (data: string, type: string, row: rotationType) => {
+        switch (type) {
+            case 'display':
+                return <a
+                    href={`/pve/r/rotations/${row.id}/`}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        navigate(`/pve/r/rotations/${row.id}/`);
+                    }}
+                >
+                    {data}
+                </a>
+            default:
+                return data;
+        }
+    }
 
     const renderClosedOn = (data: string, type: string, _: any) => {
         switch (type) {
@@ -95,6 +133,7 @@ function ClosedRotationPane({ rotations }: RotationPaneProps) {
             columns={columnsClosed} data={rotations}
             className="table table-aa"
             slots={{
+                0: renderRotationName,
                 1: renderClosedOn,
                 3: renderNumber,
             }}

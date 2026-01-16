@@ -8,7 +8,7 @@ from ..models import FundingProject, EntryCharacter
 router = Router(tags=["projects"])
 
 
-@router.get("/projects", response=list[FundingProjectSchema])
+@router.get("/", response=list[FundingProjectSchema])
 def list_projects(request):
     shares_qs = (
         EntryCharacter.objects.filter(

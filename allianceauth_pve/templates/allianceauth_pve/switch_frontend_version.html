@@ -1,7 +1,7 @@
 {% load i18n %}
 
 <li class="nav-item">
-    {% if request.path|slice:":6" == "/pve/r" %}
+    {% if request.path|slice:":7" == "/pve/r/" %}
         <a class="nav-link" href="{% url "allianceauth_pve:dashboard" %}">{% translate "Legacy UI" %}</a>
     {% else %}
         <a class="nav-link" href="{% url "allianceauth_pve:react_view" %}">{% translate "New UI" %}</a>

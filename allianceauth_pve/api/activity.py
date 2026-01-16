@@ -10,7 +10,7 @@ from .schema import ActivitySchema
 router = Router(tags=["activity"])
 
 
-@router.get("/months/{int:months}", response={200: ActivitySchema, 400: str})
+@router.get("/months/{int:months}/", response={200: ActivitySchema, 400: str})
 def get_activity(request, months: int):
     if months < 1:
         return 400, "Invalid number of months"

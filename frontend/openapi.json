@@ -6,7 +6,7 @@
         "description": ""
     },
     "paths": {
-        "/pve/api/rotations/rotations": {
+        "/pve/api/rotations/": {
             "get": {
                 "operationId": "allianceauth_pve_api_rotations_list_rotations",
                 "summary": "List Rotations",
@@ -37,7 +37,211 @@
                 ]
             }
         },
-        "/pve/api/activity/months/{months}": {
+        "/pve/api/rotations/{rotation_id}/": {
+            "get": {
+                "operationId": "allianceauth_pve_api_rotations_get_rotation",
+                "summary": "Get Rotation",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "rotation_id",
+                        "schema": {
+                            "title": "Rotation Id",
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RotationSchema"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "rotations"
+                ],
+                "security": [
+                    {
+                        "CanAccessPVE": []
+                    }
+                ]
+            }
+        },
+        "/pve/api/rotations/{rotation_id}/summary/": {
+            "get": {
+                "operationId": "allianceauth_pve_api_rotations_get_rotation_summary",
+                "summary": "Get Rotation Summary",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "rotation_id",
+                        "schema": {
+                            "title": "Rotation Id",
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/RotationSummarySchema"
+                                    },
+                                    "title": "Response",
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "rotations"
+                ],
+                "security": [
+                    {
+                        "CanAccessPVE": []
+                    }
+                ]
+            }
+        },
+        "/pve/api/rotations/{rotation_id}/project_summaries/": {
+            "get": {
+                "operationId": "allianceauth_pve_api_rotations_get_rotation_project_summaries",
+                "summary": "Get Rotation Project Summaries",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "rotation_id",
+                        "schema": {
+                            "title": "Rotation Id",
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/ProjectSummarySchema"
+                                    },
+                                    "title": "Response",
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "rotations"
+                ],
+                "security": [
+                    {
+                        "CanAccessPVE": []
+                    }
+                ]
+            }
+        },
+        "/pve/api/rotations/{rotation_id}/entries/": {
+            "get": {
+                "operationId": "allianceauth_pve_api_rotations_get_rotation_entries",
+                "summary": "Get Rotation Entries",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "rotation_id",
+                        "schema": {
+                            "title": "Rotation Id",
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/EntrySchema"
+                                    },
+                                    "title": "Response",
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "rotations"
+                ],
+                "security": [
+                    {
+                        "CanAccessPVE": []
+                    }
+                ]
+            }
+        },
+        "/pve/api/activity/months/{months}/": {
             "get": {
                 "operationId": "allianceauth_pve_api_activity_get_activity",
                 "summary": "Get Activity",
@@ -85,7 +289,7 @@
                 ]
             }
         },
-        "/pve/api/projects/projects": {
+        "/pve/api/projects/": {
             "get": {
                 "operationId": "allianceauth_pve_api_projects_list_projects",
                 "summary": "List Projects",
@@ -183,6 +387,176 @@
                     "tax_rate"
                 ],
                 "title": "RotationSchema",
+                "type": "object"
+            },
+            "RotationSummarySchema": {
+                "properties": {
+                    "portrait_url": {
+                        "title": "Portrait Url",
+                        "type": "string"
+                    },
+                    "character_name": {
+                        "title": "Character Name",
+                        "type": "string"
+                    },
+                    "estimated_total": {
+                        "title": "Estimated Total",
+                        "type": "number"
+                    },
+                    "actual_total": {
+                        "title": "Actual Total",
+                        "type": "number"
+                    },
+                    "helped_setups": {
+                        "title": "Helped Setups",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "portrait_url",
+                    "character_name",
+                    "estimated_total",
+                    "actual_total",
+                    "helped_setups"
+                ],
+                "title": "RotationSummarySchema",
+                "type": "object"
+            },
+            "FundingProjectBasicSchema": {
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "title": "Name",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "title": "FundingProjectBasicSchema",
+                "type": "object"
+            },
+            "ProjectSummarySchema": {
+                "properties": {
+                    "project": {
+                        "$ref": "#/components/schemas/FundingProjectBasicSchema"
+                    },
+                    "summary": {
+                        "items": {
+                            "$ref": "#/components/schemas/SummarySchema"
+                        },
+                        "title": "Summary",
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "project",
+                    "summary"
+                ],
+                "title": "ProjectSummarySchema",
+                "type": "object"
+            },
+            "SummarySchema": {
+                "properties": {
+                    "portrait_url": {
+                        "title": "Portrait Url",
+                        "type": "string"
+                    },
+                    "character_name": {
+                        "title": "Character Name",
+                        "type": "string"
+                    },
+                    "estimated_total": {
+                        "title": "Estimated Total",
+                        "type": "number"
+                    },
+                    "actual_total": {
+                        "title": "Actual Total",
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "portrait_url",
+                    "character_name",
+                    "estimated_total",
+                    "actual_total"
+                ],
+                "title": "SummarySchema",
+                "type": "object"
+            },
+            "EntrySchema": {
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "format": "date-time",
+                        "title": "Created At",
+                        "type": "string"
+                    },
+                    "created_by_character": {
+                        "$ref": "#/components/schemas/EveCharacterSchema"
+                    },
+                    "total_user_count": {
+                        "title": "Total User Count",
+                        "type": "integer"
+                    },
+                    "total_site_count": {
+                        "title": "Total Site Count",
+                        "type": "integer"
+                    },
+                    "estimated_total": {
+                        "title": "Estimated Total",
+                        "type": "integer"
+                    },
+                    "estimated_total_after_tax": {
+                        "title": "Estimated Total After Tax",
+                        "type": "number"
+                    },
+                    "actual_total_after_tax": {
+                        "title": "Actual Total After Tax",
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "id",
+                    "created_at",
+                    "created_by_character",
+                    "total_user_count",
+                    "total_site_count",
+                    "estimated_total",
+                    "estimated_total_after_tax",
+                    "actual_total_after_tax"
+                ],
+                "title": "EntrySchema",
+                "type": "object"
+            },
+            "EveCharacterSchema": {
+                "properties": {
+                    "character_id": {
+                        "title": "Character Id",
+                        "type": "integer"
+                    },
+                    "character_name": {
+                        "title": "Character Name",
+                        "type": "string"
+                    },
+                    "portrait_url": {
+                        "title": "Portrait Url",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "character_id",
+                    "character_name",
+                    "portrait_url"
+                ],
+                "title": "EveCharacterSchema",
                 "type": "object"
             },
             "ActivitySchema": {

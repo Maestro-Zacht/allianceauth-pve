@@ -1,13 +1,17 @@
 {
   "actual_total": "",
   "age": "",
+  "character": "",
   "closed_on": "",
   "completed_in_days": "",
+  "created_by": "",
   "current_total": "",
   "dashboard": {
     "title": ""
   },
+  "date": "",
   "error": "",
+  "estimated_total": "",
   "goal": "",
   "isk": "",
   "loading": "",
@@ -27,5 +31,11 @@
   },
   "setupNumber_one": "",
   "setupNumber_other": "",
-  "total": ""
+  "setups": "",
+  "share_count": "",
+  "summary": "",
+  "tax_rate": "",
+  "total": "",
+  "total_after_tax": "",
+  "user_count": ""
 }
