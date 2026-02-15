@@ -3,6 +3,7 @@
   "age": "Age",
   "character": "Character",
   "clear_copy": "Remove Copy Color",
+  "closed": "Closed",
   "closed_on": "Closed On",
   "completed_in_days": "Completed In (Days)",
   "copied_to_clipboard": "Copied: {{text}}",
@@ -21,6 +22,7 @@
   "monthNumber_other": "{{count}} months",
   "name": "Name",
   "participants": "Participants",
+  "project_summary_for": "Contributions to {{projectName}}",
   "projects": {
     "activeTab": "Active Projects",
     "completed_percentage_heading": "Completed (Actual)",
@@ -35,6 +37,7 @@
   "setupNumber_other": "{{count}} setups",
   "setups": "Setups",
   "share_count": "Share Count",
+  "status": "Status",
   "summary": "Summary",
   "tax_rate": "Tax Rate",
   "toast": {

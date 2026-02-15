@@ -2,21 +2,24 @@ import { useQuery } from "@tanstack/react-query";
 import { Button, Card, Col, Image, Nav, Row, Tab, Table } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import type { components } from "../../api/Schema";
-import { getRotationSummary } from "../../api/api";
+import { getRotationProjectsSummaries, getRotationSummary } from "../../api/api";
 import Loading from "../Loading";
 import { useState } from "react";
 import "./RotationSummaryStyles.css";
 import TooltipComponent from "../TooltipComponent";
 import { useToast } from "../../providers/ToastProvider";
 
-type rotationSummaryRowType = components["schemas"]["RotationSummarySchema"];
+type summaryRowType = components["schemas"]["SummarySchema"] & {
+    helped_setups?: number;
+};
 
 interface RotationSummaryRowProps {
-    row: rotationSummaryRowType;
+    row: summaryRowType;
     isClosed: boolean;
+    isProjectSummary: boolean;
 }
 
-function RotationSummaryRow({ row, isClosed }: RotationSummaryRowProps) {
+function RotationSummaryRow({ row, isClosed, isProjectSummary }: RotationSummaryRowProps) {
     const { i18n, t } = useTranslation();
     const [copied, setCopied] = useState(false);
     const addToast = useToast();
@@ -44,7 +47,7 @@ function RotationSummaryRow({ row, isClosed }: RotationSummaryRowProps) {
             />
             <span className="copy-text" onClick={handleCopy}>{row.character_name}</span>
         </td>
-        <td>{row.helped_setups}</td>
+        {!isProjectSummary && <td>{row.helped_setups}</td>}
         {
             isClosed ?
                 <>
@@ -64,11 +67,12 @@ function RotationSummaryRow({ row, isClosed }: RotationSummaryRowProps) {
 }
 
 interface RotationSummaryTableProps {
-    rotationSummary: rotationSummaryRowType[];
+    rotationSummary: summaryRowType[];
     isClosed: boolean;
+    isProjectSummary: boolean;
 }
 
-function RotationSummaryTable({ rotationSummary, isClosed }: RotationSummaryTableProps) {
+function RotationSummaryTable({ rotationSummary, isClosed, isProjectSummary }: RotationSummaryTableProps) {
     const { t } = useTranslation();
 
     return <>
@@ -77,7 +81,7 @@ function RotationSummaryTable({ rotationSummary, isClosed }: RotationSummaryTabl
                 <thead>
                     <tr>
                         <th>{t('character')}</th>
-                        <th>{t('setups')}</th>
+                        {!isProjectSummary && <th>{t('setups')}</th>}
                         {
                             isClosed ?
                                 <>
@@ -91,7 +95,7 @@ function RotationSummaryTable({ rotationSummary, isClosed }: RotationSummaryTabl
                 </thead>
                 <tbody>
                     {rotationSummary.map((row, index) => (
-                        <RotationSummaryRow key={index} row={row} isClosed={isClosed} />
+                        <RotationSummaryRow key={index} row={row} isClosed={isClosed} isProjectSummary={isProjectSummary} />
                     ))}
                 </tbody>
             </Table>
@@ -116,13 +120,23 @@ export default function RotationSummarySection({ rotationId, isClosed }: Rotatio
         queryKey: ["rotation", rotationId, "summary"],
         queryFn: () => getRotationSummary(rotationId),
     });
+    const {
+        data: projectSummariesData,
+        isLoading: projectSummariesLoading,
+        error: projectSummariesError
+    } = useQuery({
+        queryKey: ["rotation", rotationId, "project_summaries"],
+        queryFn: () => getRotationProjectsSummaries(rotationId),
+    });
 
-    if (summaryError) {
-        console.error("Error loading rotation summary:", summaryError);
-        return <p>Error loading rotation summary.</p>
+    const error = summaryError || projectSummariesError;
+    if (error) {
+        console.error("Error loading rotation summaries:", error);
+        return <p>Error loading rotation summaries.</p>
     }
 
     const rotationSummary = summaryData || [];
+    const projectSummaries = projectSummariesData || [];
 
     const splitIndex = Math.ceil(rotationSummary.length / 2);
     const firstHalf = rotationSummary.slice(0, splitIndex);
@@ -135,23 +149,56 @@ export default function RotationSummarySection({ rotationId, isClosed }: Rotatio
                     <Card.Header>
                         <Nav variant="tabs">
                             <Nav.Item>
-                                <Nav.Link eventKey="summary">
+                                <Nav.Link eventKey="summary" disabled={summaryLoading}>
                                     {summaryLoading ?
                                         <Loading /> :
                                         t("summary")
                                     }
                                 </Nav.Link>
                             </Nav.Item>
+                            {projectSummariesLoading ? (
+                                <Nav.Item>
+                                    <Nav.Link disabled>
+                                        <Loading />
+                                    </Nav.Link>
+                                </Nav.Item>
+                            ) : (
+                                projectSummaries.map((projectData) => (
+                                    <Nav.Item key={projectData.project.id}>
+                                        <Nav.Link eventKey={`project-${projectData.project.id}`}>
+                                            {projectData.project.name}
+                                        </Nav.Link>
+                                    </Nav.Item>
+                                ))
+                            )}
                         </Nav>
                     </Card.Header>
                     <Card.Body>
                         <Tab.Content>
                             <Tab.Pane eventKey="summary">
                                 <Row>
-                                    <RotationSummaryTable rotationSummary={firstHalf} isClosed={isClosed} />
-                                    <RotationSummaryTable rotationSummary={secondHalf} isClosed={isClosed} />
+                                    <RotationSummaryTable rotationSummary={firstHalf} isClosed={isClosed} isProjectSummary={false} />
+                                    <RotationSummaryTable rotationSummary={secondHalf} isClosed={isClosed} isProjectSummary={false} />
                                 </Row>
                             </Tab.Pane>
+                            {projectSummaries.map((projectData) => {
+                                const splitIndex = Math.ceil(projectData.summary.length / 2);
+                                const firstHalf = projectData.summary.slice(0, splitIndex);
+                                const secondHalf = projectData.summary.slice(splitIndex);
+                                return (
+                                    <Tab.Pane key={projectData.project.id} eventKey={`project-${projectData.project.id}`}>
+                                        <div className="text-center">
+                                            <h4 className="mb-3">
+                                                {t("project_summary_for", { projectName: projectData.project.name })}
+                                            </h4>
+                                        </div>
+                                        <Row>
+                                            <RotationSummaryTable rotationSummary={firstHalf} isClosed={isClosed} isProjectSummary={true} />
+                                            <RotationSummaryTable rotationSummary={secondHalf} isClosed={isClosed} isProjectSummary={true} />
+                                        </Row>
+                                    </Tab.Pane>
+                                );
+                            })}
                         </Tab.Content>
                     </Card.Body>
                 </Tab.Container>

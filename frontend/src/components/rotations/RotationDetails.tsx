@@ -44,15 +44,28 @@ function RotationHeader({ rotation }: RotationHeaderProps) {
     return <>
         <h1 className="page-header text-center">{rotation.name}</h1>
         <Col xs={12} className="my-3">
-            <Row xs={1} md={3} className="g-5">
-                <SimpleStatCard
-                    title={t("age")}
-                    value={<TimeAgo date={rotation.created_at} />}
-                />
+            <Row xs={1} md={rotation.is_closed ? 4 : 3} className="g-5">
+                {rotation.is_closed ?
+                    <SimpleStatCard
+                        title={t("status")}
+                        value={t("closed")}
+                    />
+                    :
+                    <SimpleStatCard
+                        title={t("age")}
+                        value={<TimeAgo date={rotation.created_at} />}
+                    />
+                }
                 <SimpleStatCard
                     title={t("estimated_total")}
                     value={rotation.estimated_total.toLocaleString(i18n.language)}
                 />
+                {rotation.is_closed && (
+                    <SimpleStatCard
+                        title={t("actual_total")}
+                        value={rotation.actual_total.toLocaleString(i18n.language)}
+                    />
+                )}
                 <SimpleStatCard
                     title={t("tax_rate")}
                     value={localizedTaxRate}
