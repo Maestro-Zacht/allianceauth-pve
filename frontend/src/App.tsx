@@ -9,6 +9,7 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import ErrorPage from "./components/ErrorPage";
 import Dashboard from "./components/dashboard/Dashboard";
 import RotationDetails from "./components/rotations/RotationDetails";
+import { ToastProvider } from "./providers/ToastProvider";
 
 
 const queryClient = new QueryClient({
@@ -63,18 +64,20 @@ if (import.meta.env.MODE === 'development') {
 function App() {
     return (
         <QueryClientProvider client={queryClient}>
-            <Router>
-                <Routes>
-                    <Route path="/pve/r/">
-                        <Route index element={<Dashboard />} />
-                        <Route path="rotations/:rotationId">
-                            <Route index element={<RotationDetails />} />
+            <ToastProvider>
+                <Router>
+                    <Routes>
+                        <Route path="/pve/r/">
+                            <Route index element={<Dashboard />} />
+                            <Route path="rotations/:rotationId">
+                                <Route index element={<RotationDetails />} />
+                            </Route>
+                            <Route path="*" element={<ErrorPage errorCode={404} message="Page Not Found" />} />
                         </Route>
-                        <Route path="*" element={<ErrorPage errorCode={404} message="Page Not Found" />} />
-                    </Route>
-                    <Route path="*" element={<Navigate to="/pve/r/" replace />} />
-                </Routes>
-            </Router>
+                        <Route path="*" element={<Navigate to="/pve/r/" replace />} />
+                    </Routes>
+                </Router>
+            </ToastProvider>
         </QueryClientProvider>
     )
 }

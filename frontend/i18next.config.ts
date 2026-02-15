@@ -24,5 +24,6 @@ export default defineConfig({
             'src/**/*.spec.{js,jsx,ts,tsx}',
             'src/App.tsx'  // Ignore App.tsx as it contains routes
         ],
+        primaryLanguage: "en",
     }
 });

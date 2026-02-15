@@ -2,8 +2,10 @@
   "actual_total": "Actual Total",
   "age": "Age",
   "character": "Character",
+  "clear_copy": "Remove Copy Color",
   "closed_on": "Closed On",
   "completed_in_days": "Completed In (Days)",
+  "copied_to_clipboard": "Copied: {{text}}",
   "created_by": "Created By",
   "current_total": "Current Total",
   "dashboard": {
@@ -35,6 +37,9 @@
   "share_count": "Share Count",
   "summary": "Summary",
   "tax_rate": "Tax Rate",
+  "toast": {
+    "title": "Notification"
+  },
   "total": "Total",
   "total_after_tax": "Total After Tax",
   "user_count": "User Count"
