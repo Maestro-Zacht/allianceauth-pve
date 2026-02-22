@@ -3,11 +3,12 @@ import { useParams } from "react-router";
 import { getRotation } from "../../api/api";
 import Loading from "../Loading";
 import type { components } from "../../api/Schema";
-import { Card, Col, Container, Row } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import TimeAgo from "react-timeago";
 import RotationSummarySection from "./RotationSummarySection";
 import RotationEntriesSection from "./RotationEntriesSection";
+import { SimpleStatCard } from "../StatCards";
 
 type rotationType = components["schemas"]["RotationSchema"];
 
@@ -15,23 +16,6 @@ interface RotationHeaderProps {
     rotation: rotationType;
 }
 
-interface SimpleStatCardProps {
-    title: string;
-    value: any;
-}
-
-function SimpleStatCard({ title, value }: SimpleStatCardProps) {
-    return <>
-        <Col>
-            <Card className="text-center">
-                <Card.Body>
-                    <Card.Title>{title}</Card.Title>
-                    <Card.Text>{value}</Card.Text>
-                </Card.Body>
-            </Card>
-        </Col>
-    </>
-}
 
 function RotationHeader({ rotation }: RotationHeaderProps) {
     const { t, i18n } = useTranslation();

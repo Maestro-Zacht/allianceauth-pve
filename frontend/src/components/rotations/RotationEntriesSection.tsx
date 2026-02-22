@@ -6,6 +6,7 @@ import { getRotationEntries } from "../../api/api";
 import type { components } from "../../api/Schema";
 import { useEffect, useRef, useState } from "react";
 import type { DataTableRef } from "datatables.net-react";
+import { useNavigate } from "react-router";
 
 interface RotationEntriesSectionProps {
     rotationId: number;
@@ -21,6 +22,7 @@ export default function RotationEntriesSection({ rotationId }: RotationEntriesSe
         queryFn: () => getRotationEntries(rotationId)
     });
     const tableRef = useRef<DataTableRef>(null);
+    const navigate = useNavigate();
 
     if (error) {
         console.error('Error loading entries:', error);
@@ -88,10 +90,10 @@ export default function RotationEntriesSection({ rotationId }: RotationEntriesSe
                     <Button
                         size="sm"
                         variant="outline-info"
-                        href="#"
+                        href={`/pve/r/rotations/${rotationId}/entries/${row.id}/`}
                         onClick={(e) => {
                             e.preventDefault();
-                            alert(`entry details for entry ID ${row.id} would be shown here.`);
+                            navigate(`/pve/r/rotations/${rotationId}/entries/${row.id}/`);
                         }}
                     >
                         <i className="fa-solid fa-magnifying-glass-dollar"></i>

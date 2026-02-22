@@ -73,6 +73,7 @@ function OpenRotationPane({ rotations }: RotationPaneProps) {
                         className: 'dt-left',
                     }
                 ],
+                ordering: false,
             }}
         >
             <thead>
@@ -108,7 +109,7 @@ function ClosedRotationPane({ rotations }: RotationPaneProps) {
                         navigate(`/pve/r/rotations/${row.id}/`);
                     }}
                 >
-                    {data}
+                    {`${row.id} - ${data}`}
                 </a>
             default:
                 return data;
@@ -145,6 +146,8 @@ function ClosedRotationPane({ rotations }: RotationPaneProps) {
                         className: 'dt-left',
                     }
                 ],
+                order: [[1, 'desc']],
+                ordering: false,
             }}
         >
             <thead>

@@ -10,6 +10,7 @@ import ErrorPage from "./components/ErrorPage";
 import Dashboard from "./components/dashboard/Dashboard";
 import RotationDetails from "./components/rotations/RotationDetails";
 import { ToastProvider } from "./providers/ToastProvider";
+import EntryDetails from "./components/entries/EntryDetails";
 
 
 const queryClient = new QueryClient({
@@ -69,8 +70,9 @@ function App() {
                     <Routes>
                         <Route path="/pve/r/">
                             <Route index element={<Dashboard />} />
-                            <Route path="rotations/:rotationId">
+                            <Route path="rotations/:rotationId/">
                                 <Route index element={<RotationDetails />} />
+                                <Route path="entries/:entryId/" element={<EntryDetails />} />
                             </Route>
                             <Route path="*" element={<ErrorPage errorCode={404} message="Page Not Found" />} />
                         </Route>

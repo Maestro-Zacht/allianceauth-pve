@@ -60,3 +60,34 @@ export async function getRotationProjectsSummaries(rotationId: number) {
         { params: { path: { rotation_id: rotationId } } }
     );
 }
+
+export async function getEntry(rotationId: number, entryId: number) {
+    return await genericGet(
+        "/pve/api/rotations/{rotation_id}/entries/{entry_id}/",
+        { params: { path: { rotation_id: rotationId, entry_id: entryId } } }
+    );
+}
+
+export async function getEntryRoles(rotationId: number, entryId: number) {
+    return await genericGet(
+        "/pve/api/rotations/{rotation_id}/entries/{entry_id}/roles/",
+        { params: { path: { rotation_id: rotationId, entry_id: entryId } } }
+    );
+}
+
+export async function getEntryShares(rotationId: number, entryId: number) {
+    return await genericGet(
+        "/pve/api/rotations/{rotation_id}/entries/{entry_id}/shares/",
+        { params: { path: { rotation_id: rotationId, entry_id: entryId } } }
+    );
+}
+
+export async function deleteEntry(rotationId: number, entryId: number) {
+    const { error } = await apiClient.DELETE(
+        "/pve/api/rotations/{rotation_id}/entries/{entry_id}/",
+        { params: { path: { rotation_id: rotationId, entry_id: entryId } } }
+    );
+    if (error) {
+        throw error;
+    }
+}

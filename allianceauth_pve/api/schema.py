@@ -1,9 +1,11 @@
 from datetime import datetime
 from ninja import Schema
 
+from django.contrib.auth.models import User
+
 from allianceauth.eveonline.models import EveCharacter
 
-from ..models import Entry
+from ..models import Entry, EntryCharacter
 
 
 class ActivitySchema(Schema):
@@ -89,3 +91,49 @@ class EntrySchema(Schema):
     @staticmethod
     def resolve_created_by_character(obj: Entry) -> EveCharacter:
         return obj.created_by.profile.main_character
+
+
+class EntryRoleSchema(Schema):
+    name: str
+    value: int
+    role_approximate_percentage: float
+
+
+class EntryCharacterSchema(Schema):
+    user_main_character: EveCharacterSchema
+    user_character: EveCharacterSchema
+    role_name: str
+    site_count: int
+    helped_setup: bool
+    estimated_share_total: int
+    estimated_funding_amount: int
+    actual_share_total: int
+    actual_funding_amount: int
+
+    @staticmethod
+    def resolve_user_main_character(obj: EntryCharacter) -> EveCharacter:
+        return obj.user.profile.main_character
+
+    @staticmethod
+    def resolve_role_name(obj: EntryCharacter) -> str:
+        return obj.role.name
+
+
+class EntryDetailsSchema(EntrySchema):
+    funding_project: FundingProjectBasicSchema | None
+    funding_percentage: int
+
+    rotation_is_closed: bool
+
+    user_can_edit: bool
+
+    @staticmethod
+    def resolve_rotation_is_closed(obj: Entry) -> bool:
+        return obj.rotation.is_closed
+
+    @staticmethod
+    def resolve_user_can_edit(obj: Entry, context) -> bool:
+        user: User = context['request'].user
+        return user.is_superuser or (
+            obj.created_by == user and user.has_perm('allianceauth_pve.manage_entries')
+        )

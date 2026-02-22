@@ -1,26 +1,40 @@
 {
   "actual_total": "Actual Total",
   "age": "Age",
+  "approximate_percentage": "Approximate Percentage",
+  "cancel": "Cancel",
   "character": "Character",
   "clear_copy": "Remove Copy Color",
   "closed": "Closed",
   "closed_on": "Closed On",
   "completed_in_days": "Completed In (Days)",
+  "confirm": "Confirm",
   "copied_to_clipboard": "Copied: {{text}}",
+  "count": "Count",
+  "created": "Created",
   "created_by": "Created By",
   "current_total": "Current Total",
   "dashboard": {
     "title": "PvE Dashboard"
   },
   "date": "Date",
+  "delete_entry": "Delete Entry",
+  "delete_entry_confirmation": "Are you sure you want to delete this entry?",
+  "edit": "Edit",
   "error": "Error {{code}}",
+  "estimated_project_contribution": "Estimated Project Contribution",
   "estimated_total": "Estimated Total",
+  "fleet_role_one": "Fleet Role",
+  "fleet_role_other": "Fleet Roles",
+  "funding_project": "Funding Project",
   "goal": "Goal",
+  "helped_setup": "Helped Setup",
   "isk": "{{isk, number}} ISK",
   "loading": "Loading...",
   "monthNumber_one": "{{count}} month",
   "monthNumber_other": "{{count}} months",
   "name": "Name",
+  "number_of_users": "Number of Users",
   "participants": "Participants",
   "project_summary_for": "Contributions to {{projectName}}",
   "projects": {
@@ -29,6 +43,7 @@
     "estimated_total_heading": "Estimated Total (Actual)",
     "finishedTab": "Finished Projects"
   },
+  "role": "Role",
   "rotations": {
     "closedTab": "Closed Rotations",
     "openTab": "Open Rotations"
@@ -37,6 +52,8 @@
   "setupNumber_other": "{{count}} setups",
   "setups": "Setups",
   "share_count": "Share Count",
+  "share_total": "Share Total",
+  "shares": "Shares",
   "status": "Status",
   "summary": "Summary",
   "tax_rate": "Tax Rate",
@@ -45,5 +62,7 @@
   },
   "total": "Total",
   "total_after_tax": "Total After Tax",
-  "user_count": "User Count"
+  "user_count": "User Count",
+  "users_main_character": "User's Main Character",
+  "value": "Value"
 }
