@@ -2,14 +2,21 @@ import apiClient from "./ApiClient";
 import type { paths } from "./Schema";
 import type { FetchOptions } from "openapi-fetch";
 
+type GetPaths = {
+    [K in keyof paths]: 'get' extends keyof paths[K]
+    ? [NonNullable<paths[K]["get"]>] extends [never]
+    ? never
+    : K
+    : never;
+}[keyof paths];
 
-async function genericGet<Path extends keyof paths>(
+type ConditionallyOptional<T> = {} extends T ? [options?: T] : [options: T];
+
+async function genericGet<Path extends GetPaths>(
     url: Path,
-    ...options: paths[Path] extends { get: any }
-        ? [FetchOptions<paths[Path]["get"]>]
-        : [never]
+    ...options: ConditionallyOptional<FetchOptions<paths[Path]["get"]>>
 ) {
-    const [fetchOptions] = options;
+    const fetchOptions = options[0] as FetchOptions<paths[Path]["get"]>;
     const { data, error } = await apiClient.GET(url, fetchOptions);
     if (error) {
         console.error(`Error fetching ${String(url)}:`, error);
@@ -86,6 +93,30 @@ export async function deleteEntry(rotationId: number, entryId: number) {
     const { error } = await apiClient.DELETE(
         "/pve/api/rotations/{rotation_id}/entries/{entry_id}/",
         { params: { path: { rotation_id: rotationId, entry_id: entryId } } }
+    );
+    if (error) {
+        throw error;
+    }
+}
+
+export async function getProjectDetails(projectId: number) {
+    return await genericGet(
+        "/pve/api/projects/{project_id}/",
+        { params: { path: { project_id: projectId } } }
+    );
+}
+
+export async function getProjectSummary(projectId: number) {
+    return await genericGet(
+        "/pve/api/projects/{project_id}/summary/",
+        { params: { path: { project_id: projectId } } }
+    );
+}
+
+export async function toggleProjectComplete(projectId: number) {
+    const { error } = await apiClient.POST(
+        "/pve/api/projects/{project_id}/complete/",
+        { params: { path: { project_id: projectId } } }
     );
     if (error) {
         throw error;

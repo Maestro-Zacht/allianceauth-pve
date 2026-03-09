@@ -159,7 +159,7 @@
                             "application/json": {
                                 "schema": {
                                     "items": {
-                                        "$ref": "#/components/schemas/ProjectSummarySchema"
+                                        "$ref": "#/components/schemas/RotationProjectSummarySchema"
                                     },
                                     "title": "Response",
                                     "type": "array"
@@ -557,6 +557,126 @@
                     }
                 ]
             }
+        },
+        "/pve/api/projects/{project_id}/": {
+            "get": {
+                "operationId": "allianceauth_pve_api_projects_get_project",
+                "summary": "Get Project",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "project_id",
+                        "schema": {
+                            "title": "Project Id",
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FundingProjectSchema"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "tags": [
+                    "projects"
+                ],
+                "security": [
+                    {
+                        "CanAccessPVE": []
+                    }
+                ]
+            }
+        },
+        "/pve/api/projects/{project_id}/summary/": {
+            "get": {
+                "operationId": "allianceauth_pve_api_projects_get_project_summary",
+                "summary": "Get Project Summary",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "project_id",
+                        "schema": {
+                            "title": "Project Id",
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/SummarySchema"
+                                    },
+                                    "title": "Response",
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "tags": [
+                    "projects"
+                ],
+                "security": [
+                    {
+                        "CanAccessPVE": []
+                    }
+                ]
+            }
+        },
+        "/pve/api/projects/{project_id}/complete/": {
+            "post": {
+                "operationId": "allianceauth_pve_api_projects_toggle_complete_project",
+                "summary": "Toggle Complete Project",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "project_id",
+                        "schema": {
+                            "title": "Project Id",
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "tags": [
+                    "projects"
+                ],
+                "security": [
+                    {
+                        "NeedsPermission": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -678,7 +798,7 @@
                 "title": "FundingProjectBasicSchema",
                 "type": "object"
             },
-            "ProjectSummarySchema": {
+            "RotationProjectSummarySchema": {
                 "properties": {
                     "project": {
                         "$ref": "#/components/schemas/FundingProjectBasicSchema"
@@ -695,7 +815,7 @@
                     "project",
                     "summary"
                 ],
-                "title": "ProjectSummarySchema",
+                "title": "RotationProjectSummarySchema",
                 "type": "object"
             },
             "SummarySchema": {
@@ -1022,6 +1142,10 @@
                     "number_of_participants": {
                         "title": "Number Of Participants",
                         "type": "integer"
+                    },
+                    "user_can_manage": {
+                        "title": "User Can Manage",
+                        "type": "boolean"
                     }
                 },
                 "required": [
@@ -1034,7 +1158,8 @@
                     "estimated_total",
                     "actual_percentage",
                     "estimated_missing_percentage",
-                    "number_of_participants"
+                    "number_of_participants",
+                    "user_can_manage"
                 ],
                 "title": "FundingProjectSchema",
                 "type": "object"

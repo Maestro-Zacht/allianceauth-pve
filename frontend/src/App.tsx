@@ -11,6 +11,7 @@ import Dashboard from "./components/dashboard/Dashboard";
 import RotationDetails from "./components/rotations/RotationDetails";
 import { ToastProvider } from "./providers/ToastProvider";
 import EntryDetails from "./components/entries/EntryDetails";
+import ProjectDetails from "./components/projects/ProjectDetails";
 
 
 const queryClient = new QueryClient({
@@ -74,6 +75,7 @@ function App() {
                                 <Route index element={<RotationDetails />} />
                                 <Route path="entries/:entryId/" element={<EntryDetails />} />
                             </Route>
+                            <Route path="projects/:projectId/" element={<ProjectDetails />} />
                             <Route path="*" element={<ErrorPage errorCode={404} message="Page Not Found" />} />
                         </Route>
                         <Route path="*" element={<Navigate to="/pve/r/" replace />} />

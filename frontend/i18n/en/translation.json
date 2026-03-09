@@ -1,4 +1,5 @@
 {
+  "actual_progress": "Actual Progress",
   "actual_total": "Actual Total",
   "age": "Age",
   "approximate_percentage": "Approximate Percentage",
@@ -7,8 +8,11 @@
   "clear_copy": "Remove Copy Color",
   "closed": "Closed",
   "closed_on": "Closed On",
+  "completed": "Completed",
+  "completed_after_days": "After {{days}} Days",
   "completed_in_days": "Completed In (Days)",
   "confirm": "Confirm",
+  "contributors": "Contributors",
   "copied_to_clipboard": "Copied: {{text}}",
   "count": "Count",
   "created": "Created",
@@ -22,6 +26,7 @@
   "delete_entry_confirmation": "Are you sure you want to delete this entry?",
   "edit": "Edit",
   "error": "Error {{code}}",
+  "estimated_progress": "Estimated Progress",
   "estimated_project_contribution": "Estimated Project Contribution",
   "estimated_total": "Estimated Total",
   "fleet_role_one": "Fleet Role",
@@ -31,6 +36,7 @@
   "helped_setup": "Helped Setup",
   "isk": "{{isk, number}} ISK",
   "loading": "Loading...",
+  "mark_as_completed": "Mark as Completed",
   "monthNumber_one": "{{count}} month",
   "monthNumber_other": "{{count}} months",
   "name": "Name",
@@ -43,6 +49,7 @@
     "estimated_total_heading": "Estimated Total (Actual)",
     "finishedTab": "Finished Projects"
   },
+  "reopen": "Reopen",
   "role": "Role",
   "rotations": {
     "closedTab": "Closed Rotations",
@@ -54,6 +61,7 @@
   "share_count": "Share Count",
   "share_total": "Share Total",
   "shares": "Shares",
+  "started": "Started",
   "status": "Status",
   "summary": "Summary",
   "tax_rate": "Tax Rate",
@@ -63,6 +71,7 @@
   "total": "Total",
   "total_after_tax": "Total After Tax",
   "user_count": "User Count",
+  "users": "Users",
   "users_main_character": "User's Main Character",
   "value": "Value"
 }

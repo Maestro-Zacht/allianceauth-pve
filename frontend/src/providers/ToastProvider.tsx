@@ -1,13 +1,15 @@
 import { createContext, useState, useContext, type ReactNode } from 'react';
 import { Toast, ToastContainer } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
+import type { ToastProps } from 'react-bootstrap';
 
 interface ToastMessage {
     id: number;
     message: string;
+    variant?: ToastProps['bg'];
 }
 
-type ShowToastFn = (message: string) => void;
+type ShowToastFn = (message: string, variant?: ToastProps['bg']) => void;
 
 const ToastContext = createContext<ShowToastFn | undefined>(undefined);
 
@@ -15,9 +17,9 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     const [toasts, setToasts] = useState<ToastMessage[]>([]);
     const { t } = useTranslation();
 
-    const addToast: ShowToastFn = (message) => {
+    const addToast: ShowToastFn = (message, variant) => {
         const id = Date.now();
-        setToasts((prev) => [...prev, { id, message }]);
+        setToasts((prev) => [...prev, { id, message, variant }]);
     };
 
     const removeToast = (id: number) => {
@@ -36,6 +38,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
                             onClose={() => removeToast(toast.id)}
                             delay={5000}
                             animation={false}
+                            bg={toast.variant}
                             autohide
                         >
                             <Toast.Header>

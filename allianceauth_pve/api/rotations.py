@@ -4,7 +4,7 @@ from django.db.models import Count, F, Subquery, Sum
 from django.db.models.functions import Coalesce
 
 from ..models import EntryRole, Rotation, Entry
-from .schema import RotationSchema, RotationSummarySchema, ProjectSummarySchema, EntrySchema, EntryRoleSchema, EntryCharacterSchema, EntryDetailsSchema
+from .schema import RotationSchema, RotationSummarySchema, RotationProjectSummarySchema, EntrySchema, EntryRoleSchema, EntryCharacterSchema, EntryDetailsSchema
 from .authenticators import NeedsPermission
 
 router = Router(tags=["rotations"])
@@ -56,7 +56,7 @@ def get_rotation_summary(request, rotation_id: int):
     )
 
 
-@router.get("/{int:rotation_id}/project_summaries/", response={200: list[ProjectSummarySchema], 404: str})
+@router.get("/{int:rotation_id}/project_summaries/", response={200: list[RotationProjectSummarySchema], 404: str})
 def get_rotation_project_summaries(request, rotation_id: int):
     try:
         rotation = Rotation.objects.get(pk=rotation_id)

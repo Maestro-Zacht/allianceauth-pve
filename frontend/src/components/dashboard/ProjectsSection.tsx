@@ -6,6 +6,7 @@ import { Badge, Card, Col, Nav, Row, Tab } from "react-bootstrap";
 import TimeAgo from "react-timeago";
 import DataTable from "../tables/DataTablesBase";
 import Loading from "../Loading";
+import { useNavigate } from "react-router";
 
 type projectType = components["schemas"]["FundingProjectSchema"];
 
@@ -23,6 +24,24 @@ const columnsActive = [
 
 function ActiveProjectsPane({ projects }: ProjectPaneProps) {
     const { t, i18n } = useTranslation();
+    const navigate = useNavigate();
+
+    const renderName = (data: string, type: string, row: projectType) => {
+        switch (type) {
+            case 'display':
+                return <a
+                    href={`/pve/r/projects/${row.id}/`}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        navigate(`/pve/r/projects/${row.id}/`);
+                    }}
+                >
+                    {data}
+                </a>
+            default:
+                return data;
+        }
+    }
 
     const renderCreatedAt = (data: string, type: string, _: any) => {
         switch (type) {
@@ -68,6 +87,7 @@ function ActiveProjectsPane({ projects }: ProjectPaneProps) {
             columns={columnsActive} data={projects}
             className="table table-aa"
             slots={{
+                0: renderName,
                 1: renderCreatedAt,
                 2: renderTotals,
                 3: renderNumber,
@@ -106,6 +126,24 @@ const columnsFinished = [
 
 function FinishedProjectsPane({ projects }: ProjectPaneProps) {
     const { t, i18n } = useTranslation();
+    const navigate = useNavigate();
+
+    const renderName = (data: string, type: string, row: projectType) => {
+        switch (type) {
+            case 'display':
+                return <a
+                    href={`/pve/r/projects/${row.id}/`}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        navigate(`/pve/r/projects/${row.id}/`);
+                    }}
+                >
+                    {data}
+                </a>
+            default:
+                return data;
+        }
+    }
 
     const renderNumber = (data: number) => {
         return data.toLocaleString(i18n.language, { maximumFractionDigits: 0 });
@@ -126,6 +164,7 @@ function FinishedProjectsPane({ projects }: ProjectPaneProps) {
             columns={columnsFinished} data={projects}
             className="table table-aa"
             slots={{
+                0: renderName,
                 1: renderCompletedIn,
                 3: renderNumber,
                 4: renderNumber,

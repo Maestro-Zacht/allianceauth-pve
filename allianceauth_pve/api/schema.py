@@ -43,6 +43,13 @@ class FundingProjectSchema(FundingProjectBasicSchema):
     estimated_missing_percentage: float
     number_of_participants: int
 
+    user_can_manage: bool
+
+    @staticmethod
+    def resolve_user_can_manage(obj, context) -> bool:
+        user: User = context['request'].user
+        return user.has_perm('allianceauth_pve.manage_funding_projects')
+
 
 class SummarySchema(Schema):
     portrait_url: str
@@ -63,7 +70,7 @@ class RotationSummarySchema(SummarySchema):
     helped_setups: int
 
 
-class ProjectSummarySchema(Schema):
+class RotationProjectSummarySchema(Schema):
     project: FundingProjectBasicSchema
     summary: list[SummarySchema]
 
