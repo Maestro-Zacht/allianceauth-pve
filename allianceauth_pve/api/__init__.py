@@ -5,6 +5,7 @@ from django.conf import settings
 from .rotations import router as rotations_router
 from .activity import router as activity_router
 from .projects import router as projects_router
+from .permissions import router as permissions_router
 
 from .authenticators import CanAccessPVE
 
@@ -20,3 +21,4 @@ api = NinjaAPI(
 api.add_router("/rotations", rotations_router)
 api.add_router("/activity", activity_router)
 api.add_router("/projects", projects_router)
+api.add_router("/permissions", permissions_router)

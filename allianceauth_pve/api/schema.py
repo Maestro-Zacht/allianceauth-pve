@@ -1,11 +1,21 @@
+from collections import defaultdict
 from datetime import datetime
 from ninja import Schema
 
 from django.contrib.auth.models import User
+from django.utils.translation import gettext as _
 
 from allianceauth.eveonline.models import EveCharacter
 
 from ..models import Entry, EntryCharacter
+
+
+class PermissionsSchema(Schema):
+    access_pve: bool
+    manage_entries: bool
+    manage_rotations: bool
+    manage_funding_projects: bool
+    is_superuser: bool
 
 
 class ActivitySchema(Schema):
@@ -42,13 +52,6 @@ class FundingProjectSchema(FundingProjectBasicSchema):
     actual_percentage: float
     estimated_missing_percentage: float
     number_of_participants: int
-
-    user_can_manage: bool
-
-    @staticmethod
-    def resolve_user_can_manage(obj, context) -> bool:
-        user: User = context['request'].user
-        return user.has_perm('allianceauth_pve.manage_funding_projects')
 
 
 class SummarySchema(Schema):
@@ -144,3 +147,30 @@ class EntryDetailsSchema(EntrySchema):
         return user.is_superuser or (
             obj.created_by == user and user.has_perm('allianceauth_pve.manage_entries')
         )
+
+
+class NewRotationSchema(Schema):
+    name: str
+    priority: int
+    tax_rate: float
+    max_daily_setups: int
+    min_people_share_setup: int
+    entry_buttons: list[int]
+    roles_setups: list[int]
+
+    def validate(self) -> dict[str, list[str]]:
+        errors = defaultdict(list)
+
+        if len(self.name) == 0 or len(self.name) > 128:
+            errors['name'].append(_('Name must be between 1 and 128 characters long.'))
+
+        if self.tax_rate < 0.0 or self.tax_rate > 100.0:
+            errors['tax_rate'].append(_('Tax rate must be between 0 and 100.'))
+
+        if self.max_daily_setups < 0:
+            errors['max_daily_setups'].append(_('The number of maximum daily setups must be non-negative.'))
+
+        if self.min_people_share_setup < 0:
+            errors['min_people_share_setup'].append(_('The minimum number of people required to count a setup valid must be non-negative.'))
+
+        return dict(errors)

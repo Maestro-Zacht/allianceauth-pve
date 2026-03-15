@@ -25,6 +25,10 @@ async function genericGet<Path extends GetPaths>(
     return data as NonNullable<typeof data>;
 }
 
+export async function getUserPermissions() {
+    return await genericGet("/pve/api/permissions/");
+}
+
 export async function getUserPastActivity(months: number) {
     return await genericGet(
         "/pve/api/activity/months/{months}/",
@@ -33,7 +37,7 @@ export async function getUserPastActivity(months: number) {
 }
 
 export async function getRotationList() {
-    return await genericGet("/pve/api/rotations/", {});
+    return await genericGet("/pve/api/rotations/");
 }
 
 export async function getRotation(rotationId: number) {
@@ -44,7 +48,7 @@ export async function getRotation(rotationId: number) {
 }
 
 export async function getProjectList() {
-    return await genericGet("/pve/api/projects/", {});
+    return await genericGet("/pve/api/projects/");
 }
 
 export async function getRotationSummary(rotationId: number) {

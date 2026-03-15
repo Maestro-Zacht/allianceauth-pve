@@ -4,7 +4,15 @@ from django.db.models import Count, F, Subquery, Sum
 from django.db.models.functions import Coalesce
 
 from ..models import EntryRole, Rotation, Entry
-from .schema import RotationSchema, RotationSummarySchema, RotationProjectSummarySchema, EntrySchema, EntryRoleSchema, EntryCharacterSchema, EntryDetailsSchema
+from .schema import (
+    RotationSchema,
+    RotationSummarySchema,
+    RotationProjectSummarySchema,
+    EntrySchema, EntryRoleSchema,
+    EntryCharacterSchema,
+    EntryDetailsSchema,
+    NewRotationSchema
+)
 from .authenticators import NeedsPermission
 
 router = Router(tags=["rotations"])
@@ -20,7 +28,18 @@ def list_rotations(request):
     )
 
 
-@router.get("/{int:rotation_id}/", response={200: RotationSchema, 404: str})
+@router.post("/", response={200: int, 400: dict[str, list[str]]}, auth=NeedsPermission('allianceauth_pve.manage_rotations'))
+def create_rotation(request, data: NewRotationSchema):
+    errors = data.validate()
+    if errors:
+        return 400, errors
+
+    rotation = Rotation.objects.create(**data.dict())
+
+    return 200, rotation.pk
+
+
+@router.get("/{int:rotation_id}/", response={200: RotationSchema, 404: None})
 def get_rotation(request, rotation_id: int):
     try:
         return 200, Rotation.objects.annotate(
@@ -30,15 +49,15 @@ def get_rotation(request, rotation_id: int):
             )
         ).get(pk=rotation_id)
     except Rotation.DoesNotExist:
-        return 404, "Rotation not found"
+        return 404, None
 
 
-@router.get("/{int:rotation_id}/summary/", response={200: list[RotationSummarySchema], 404: str})
+@router.get("/{int:rotation_id}/summary/", response={200: list[RotationSummarySchema], 404: None})
 def get_rotation_summary(request, rotation_id: int):
     try:
         rotation = Rotation.objects.get(pk=rotation_id)
     except Rotation.DoesNotExist:
-        return 404, "Rotation not found"
+        return 404, None
 
     return 200, rotation.summary.order_by('-estimated_total').values(
         'user',
@@ -56,12 +75,12 @@ def get_rotation_summary(request, rotation_id: int):
     )
 
 
-@router.get("/{int:rotation_id}/project_summaries/", response={200: list[RotationProjectSummarySchema], 404: str})
+@router.get("/{int:rotation_id}/project_summaries/", response={200: list[RotationProjectSummarySchema], 404: None})
 def get_rotation_project_summaries(request, rotation_id: int):
     try:
         rotation = Rotation.objects.get(pk=rotation_id)
     except Rotation.DoesNotExist:
-        return 404, "Rotation not found"
+        return 404, None
 
     return 200, [
         {'project': project, 'summary': summary}
@@ -69,12 +88,12 @@ def get_rotation_project_summaries(request, rotation_id: int):
     ]
 
 
-@router.get("/{int:rotation_id}/entries/", response={200: list[EntrySchema], 404: str})
+@router.get("/{int:rotation_id}/entries/", response={200: list[EntrySchema], 404: None})
 def get_rotation_entries(request, rotation_id: int):
     try:
         rotation = Rotation.objects.get(pk=rotation_id)
     except Rotation.DoesNotExist:
-        return 404, "Rotation not found"
+        return 404, None
 
     return 200, (
         rotation.entries
@@ -83,7 +102,7 @@ def get_rotation_entries(request, rotation_id: int):
     )
 
 
-@router.get("/{int:rotation_id}/entries/{int:entry_id}/", response={200: EntryDetailsSchema, 404: str})
+@router.get("/{int:rotation_id}/entries/{int:entry_id}/", response={200: EntryDetailsSchema, 404: None})
 def get_rotation_entry(request, rotation_id: int, entry_id: int):
     try:
         entry = (
@@ -97,12 +116,12 @@ def get_rotation_entry(request, rotation_id: int, entry_id: int):
         )
         return 200, entry
     except Entry.DoesNotExist:
-        return 404, "Entry not found"
+        return 404, None
 
 
 @router.delete(
     "/{int:rotation_id}/entries/{int:entry_id}/",
-    response={200: None, 403: str, 404: str},
+    response={200: None, 403: str, 404: None},
     auth=NeedsPermission('allianceauth_pve.manage_entries')
 )
 def delete_rotation_entry(request, rotation_id: int, entry_id: int):
@@ -113,7 +132,7 @@ def delete_rotation_entry(request, rotation_id: int, entry_id: int):
             .get(pk=entry_id, rotation_id=rotation_id)
         )
     except Entry.DoesNotExist:
-        return 404, "Entry not found"
+        return 404, None
 
     if (entry.created_by != request.user and not request.user.is_superuser) or entry.rotation.is_closed:
         return 403, "You cannot delete this entry"
@@ -123,12 +142,12 @@ def delete_rotation_entry(request, rotation_id: int, entry_id: int):
     return 200, None
 
 
-@router.get("/{int:rotation_id}/entries/{int:entry_id}/roles/", response={200: list[EntryRoleSchema], 404: str})
+@router.get("/{int:rotation_id}/entries/{int:entry_id}/roles/", response={200: list[EntryRoleSchema], 404: None})
 def get_rotation_entry_roles(request, rotation_id: int, entry_id: int):
     try:
         entry = Entry.objects.get(pk=entry_id, rotation_id=rotation_id)
     except Entry.DoesNotExist:
-        return 404, "Entry not found"
+        return 404, None
 
     total_value_qs = (
         EntryRole.objects
@@ -143,12 +162,12 @@ def get_rotation_entry_roles(request, rotation_id: int, entry_id: int):
     )
 
 
-@router.get("/{int:rotation_id}/entries/{int:entry_id}/shares/", response={200: list[EntryCharacterSchema], 404: str})
+@router.get("/{int:rotation_id}/entries/{int:entry_id}/shares/", response={200: list[EntryCharacterSchema], 404: None})
 def get_rotation_entry_shares(request, rotation_id: int, entry_id: int):
     try:
         entry = Entry.objects.get(pk=entry_id, rotation_id=rotation_id)
     except Entry.DoesNotExist:
-        return 404, "Entry not found"
+        return 404, None
 
     return 200, (
         entry.ratting_shares

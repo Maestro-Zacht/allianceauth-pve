@@ -14,7 +14,8 @@ export interface paths {
         /** List Rotations */
         get: operations["allianceauth_pve_api_rotations_list_rotations"];
         put?: never;
-        post?: never;
+        /** Create Rotation */
+        post: operations["allianceauth_pve_api_rotations_create_rotation"];
         delete?: never;
         options?: never;
         head?: never;
@@ -226,6 +227,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/pve/api/permissions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Permissions */
+        get: operations["allianceauth_pve_api_permissions_list_permissions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -255,6 +273,23 @@ export interface components {
             priority: number;
             /** Tax Rate */
             tax_rate: number;
+        };
+        /** NewRotationSchema */
+        NewRotationSchema: {
+            /** Name */
+            name: string;
+            /** Priority */
+            priority: number;
+            /** Tax Rate */
+            tax_rate: number;
+            /** Max Daily Setups */
+            max_daily_setups: number;
+            /** Min People Share Setup */
+            min_people_share_setup: number;
+            /** Entry Buttons */
+            entry_buttons: number[];
+            /** Roles Setups */
+            roles_setups: number[];
         };
         /** RotationSummarySchema */
         RotationSummarySchema: {
@@ -415,8 +450,19 @@ export interface components {
             estimated_missing_percentage: number;
             /** Number Of Participants */
             number_of_participants: number;
-            /** User Can Manage */
-            user_can_manage: boolean;
+        };
+        /** PermissionsSchema */
+        PermissionsSchema: {
+            /** Access Pve */
+            access_pve: boolean;
+            /** Manage Entries */
+            manage_entries: boolean;
+            /** Manage Rotations */
+            manage_rotations: boolean;
+            /** Manage Funding Projects */
+            manage_funding_projects: boolean;
+            /** Is Superuser */
+            is_superuser: boolean;
         };
     };
     responses: never;
@@ -447,6 +493,41 @@ export interface operations {
             };
         };
     };
+    allianceauth_pve_api_rotations_create_rotation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewRotationSchema"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": number;
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string[];
+                    };
+                };
+            };
+        };
+    };
     allianceauth_pve_api_rotations_get_rotation: {
         parameters: {
             query?: never;
@@ -472,9 +553,7 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": string;
-                };
+                content?: never;
             };
         };
     };
@@ -503,9 +582,7 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": string;
-                };
+                content?: never;
             };
         };
     };
@@ -534,9 +611,7 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": string;
-                };
+                content?: never;
             };
         };
     };
@@ -565,9 +640,7 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": string;
-                };
+                content?: never;
             };
         };
     };
@@ -597,9 +670,7 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": string;
-                };
+                content?: never;
             };
         };
     };
@@ -636,9 +707,7 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": string;
-                };
+                content?: never;
             };
         };
     };
@@ -668,9 +737,7 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": string;
-                };
+                content?: never;
             };
         };
     };
@@ -700,9 +767,7 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": string;
-                };
+                content?: never;
             };
         };
     };
@@ -833,12 +898,23 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
             /** @description Forbidden */
             403: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": string;
+                };
             };
             /** @description Not Found */
             404: {
@@ -846,6 +922,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    allianceauth_pve_api_permissions_list_permissions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PermissionsSchema"];
+                };
             };
         };
     };

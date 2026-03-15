@@ -1,7 +1,6 @@
 from ninja import Router
 
 from django.db.models import Count, OuterRef, Subquery, F
-from django.contrib import messages
 from django.utils.translation import gettext as _
 from django.utils import timezone
 
@@ -66,7 +65,7 @@ def get_project_summary(request, project_id: int):
 
 @router.post(
     "/{int:project_id}/complete/",
-    response={200: None, 403: str, 404: None},
+    response={200: None, 400: str, 403: str, 404: None},
     auth=NeedsPermission('allianceauth_pve.manage_funding_projects')
 )
 def toggle_complete_project(request, project_id: int):
@@ -79,7 +78,7 @@ def toggle_complete_project(request, project_id: int):
         return 403, _("You cannot complete a project with open contributions")
 
     if not funding_project.is_active and FundingProject.objects.filter(is_active=True, name=funding_project.name).exists():
-        return 403, _("You cannot reopen this project, another one with the same name is active.")
+        return 400, _("You cannot reopen this project, another one with the same name is active.")
 
     funding_project.is_active = not funding_project.is_active
     if funding_project.is_active:
@@ -88,7 +87,5 @@ def toggle_complete_project(request, project_id: int):
         funding_project.completed_at = timezone.now()
 
     funding_project.save()
-
-    messages.success(request, f"Project {'reopened' if funding_project.is_active else 'completed'}!")
 
     return 200, None

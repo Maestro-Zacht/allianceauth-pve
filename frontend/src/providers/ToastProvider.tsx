@@ -13,7 +13,7 @@ type ShowToastFn = (message: string, variant?: ToastProps['bg']) => void;
 
 const ToastContext = createContext<ShowToastFn | undefined>(undefined);
 
-export const ToastProvider = ({ children }: { children: ReactNode }) => {
+export function ToastProvider({ children }: { children: ReactNode }) {
     const [toasts, setToasts] = useState<ToastMessage[]>([]);
     const { t } = useTranslation();
 

@@ -8,12 +8,14 @@ import { useQuery } from "@tanstack/react-query";
 import Loading from "../Loading";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
+import { useToast } from "../../providers/ToastProvider";
 
 export default function EntryDetails() {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const addToast = useToast();
     const { entryId, rotationId } = useParams();
     const entryIdNum = Number(entryId);
     const rotationIdNum = Number(rotationId);
@@ -35,7 +37,7 @@ export default function EntryDetails() {
             await deleteEntry(rotationIdNum, entryIdNum);
             navigate(`/pve/r/rotations/${rotationIdNum}/`);
         } catch (error) {
-            alert("Error deleting entry: " + error);
+            addToast(error as string, "danger");
         }
         finally {
             setDeleting(false);
@@ -54,28 +56,26 @@ export default function EntryDetails() {
                 <EntryRoles rotationId={rotationIdNum} entryId={entryIdNum} />
                 <EntryShares rotationId={rotationIdNum} entryId={entryIdNum} />
 
-                {!isLoading && data!.user_can_edit &&
-                    <>
-                        <Col xs={12}>
-                            <div className="d-flex flex-row-reverse">
-                                <Button variant="danger" onClick={() => setShowDeleteConfirm(true)}>
-                                    Delete
-                                </Button>
-                                <Button
-                                    variant="warning"
-                                    className="me-2"
-                                    href="#"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        alert("Edit TODO");
-                                    }}
-                                >
-                                    {t("edit")}
-                                </Button>
-                            </div>
-                        </Col>
-                    </>
-                }
+                {!isLoading && data!.user_can_edit && <>
+                    <Col xs={12}>
+                        <div className="d-flex flex-row-reverse">
+                            <Button variant="danger" onClick={() => setShowDeleteConfirm(true)}>
+                                Delete
+                            </Button>
+                            <Button
+                                variant="warning"
+                                className="me-2"
+                                href="#"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    alert("Edit TODO");
+                                }}
+                            >
+                                {t("edit")}
+                            </Button>
+                        </div>
+                    </Col>
+                </>}
             </Row>
         </Container>
         <Modal

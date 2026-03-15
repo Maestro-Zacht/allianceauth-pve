@@ -8,6 +8,7 @@ import ProjectContributions from "./ProjectContributions";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useToast } from "../../providers/ToastProvider";
+import { usePermissions } from "../../providers/PermissionsProvider";
 
 
 interface ToggleCompleteButtonProps {
@@ -26,6 +27,7 @@ function ToggleCompleteButton({ projectId, isActive }: ToggleCompleteButtonProps
         try {
             await toggleProjectComplete(projectId);
             await queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+            addToast(isActive ? t("project.marked_completed") : t("project.reopened"));
         } catch (error) {
             addToast(error as string, "danger");
         } finally {
@@ -51,6 +53,7 @@ export default function ProjectDetails() {
         queryKey: ["project", projectIdNum],
         queryFn: () => getProjectDetails(projectIdNum),
     });
+    const permissions = usePermissions();
 
     if (error) {
         console.error("Error fetching project details:", error);
@@ -66,7 +69,7 @@ export default function ProjectDetails() {
                         <h1 className="page-header text-center">{data!.name}</h1>
                         <ProjectInfo project={data!} />
                         <ProjectContributions projectId={projectIdNum} />
-                        {data!.user_can_manage && <ToggleCompleteButton projectId={projectIdNum} isActive={data!.is_active} />}
+                        {permissions && permissions.manage_funding_projects && <ToggleCompleteButton projectId={projectIdNum} isActive={data!.is_active} />}
                     </>}
             </Row>
         </Container>

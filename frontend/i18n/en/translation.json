@@ -42,6 +42,10 @@
   "name": "Name",
   "number_of_users": "Number of Users",
   "participants": "Participants",
+  "project": {
+    "marked_completed": "Project is marked as completed",
+    "reopened": "Project is reopened"
+  },
   "project_summary_for": "Contributions to {{projectName}}",
   "projects": {
     "activeTab": "Active Projects",

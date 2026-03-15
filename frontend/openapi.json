@@ -35,6 +35,59 @@
                         "CanAccessPVE": []
                     }
                 ]
+            },
+            "post": {
+                "operationId": "allianceauth_pve_api_rotations_create_rotation",
+                "summary": "Create Rotation",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response",
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": {
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "type": "array"
+                                    },
+                                    "title": "Response",
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "rotations"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NewRotationSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "NeedsPermission": []
+                    }
+                ]
             }
         },
         "/pve/api/rotations/{rotation_id}/": {
@@ -64,15 +117,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "title": "Response",
-                                    "type": "string"
-                                }
-                            }
-                        }
+                        "description": "Not Found"
                     }
                 },
                 "tags": [
@@ -116,15 +161,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "title": "Response",
-                                    "type": "string"
-                                }
-                            }
-                        }
+                        "description": "Not Found"
                     }
                 },
                 "tags": [
@@ -168,15 +205,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "title": "Response",
-                                    "type": "string"
-                                }
-                            }
-                        }
+                        "description": "Not Found"
                     }
                 },
                 "tags": [
@@ -220,15 +249,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "title": "Response",
-                                    "type": "string"
-                                }
-                            }
-                        }
+                        "description": "Not Found"
                     }
                 },
                 "tags": [
@@ -277,15 +298,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "title": "Response",
-                                    "type": "string"
-                                }
-                            }
-                        }
+                        "description": "Not Found"
                     }
                 },
                 "tags": [
@@ -336,15 +349,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "title": "Response",
-                                    "type": "string"
-                                }
-                            }
-                        }
+                        "description": "Not Found"
                     }
                 },
                 "tags": [
@@ -397,15 +402,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "title": "Response",
-                                    "type": "string"
-                                }
-                            }
-                        }
+                        "description": "Not Found"
                     }
                 },
                 "tags": [
@@ -458,15 +455,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "title": "Response",
-                                    "type": "string"
-                                }
-                            }
-                        }
+                        "description": "Not Found"
                     }
                 },
                 "tags": [
@@ -661,8 +650,27 @@
                     "200": {
                         "description": "OK"
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
                     "403": {
-                        "description": "Forbidden"
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response",
+                                    "type": "string"
+                                }
+                            }
+                        }
                     },
                     "404": {
                         "description": "Not Found"
@@ -674,6 +682,33 @@
                 "security": [
                     {
                         "NeedsPermission": []
+                    }
+                ]
+            }
+        },
+        "/pve/api/permissions/": {
+            "get": {
+                "operationId": "allianceauth_pve_api_permissions_list_permissions",
+                "summary": "List Permissions",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PermissionsSchema"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "permissions"
+                ],
+                "security": [
+                    {
+                        "CanAccessPVE": []
                     }
                 ]
             }
@@ -745,6 +780,55 @@
                     "tax_rate"
                 ],
                 "title": "RotationSchema",
+                "type": "object"
+            },
+            "NewRotationSchema": {
+                "properties": {
+                    "name": {
+                        "title": "Name",
+                        "type": "string"
+                    },
+                    "priority": {
+                        "title": "Priority",
+                        "type": "integer"
+                    },
+                    "tax_rate": {
+                        "title": "Tax Rate",
+                        "type": "number"
+                    },
+                    "max_daily_setups": {
+                        "title": "Max Daily Setups",
+                        "type": "integer"
+                    },
+                    "min_people_share_setup": {
+                        "title": "Min People Share Setup",
+                        "type": "integer"
+                    },
+                    "entry_buttons": {
+                        "items": {
+                            "type": "integer"
+                        },
+                        "title": "Entry Buttons",
+                        "type": "array"
+                    },
+                    "roles_setups": {
+                        "items": {
+                            "type": "integer"
+                        },
+                        "title": "Roles Setups",
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "name",
+                    "priority",
+                    "tax_rate",
+                    "max_daily_setups",
+                    "min_people_share_setup",
+                    "entry_buttons",
+                    "roles_setups"
+                ],
+                "title": "NewRotationSchema",
                 "type": "object"
             },
             "RotationSummarySchema": {
@@ -1142,10 +1226,6 @@
                     "number_of_participants": {
                         "title": "Number Of Participants",
                         "type": "integer"
-                    },
-                    "user_can_manage": {
-                        "title": "User Can Manage",
-                        "type": "boolean"
                     }
                 },
                 "required": [
@@ -1158,10 +1238,42 @@
                     "estimated_total",
                     "actual_percentage",
                     "estimated_missing_percentage",
-                    "number_of_participants",
-                    "user_can_manage"
+                    "number_of_participants"
                 ],
                 "title": "FundingProjectSchema",
+                "type": "object"
+            },
+            "PermissionsSchema": {
+                "properties": {
+                    "access_pve": {
+                        "title": "Access Pve",
+                        "type": "boolean"
+                    },
+                    "manage_entries": {
+                        "title": "Manage Entries",
+                        "type": "boolean"
+                    },
+                    "manage_rotations": {
+                        "title": "Manage Rotations",
+                        "type": "boolean"
+                    },
+                    "manage_funding_projects": {
+                        "title": "Manage Funding Projects",
+                        "type": "boolean"
+                    },
+                    "is_superuser": {
+                        "title": "Is Superuser",
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "access_pve",
+                    "manage_entries",
+                    "manage_rotations",
+                    "manage_funding_projects",
+                    "is_superuser"
+                ],
+                "title": "PermissionsSchema",
                 "type": "object"
             }
         },

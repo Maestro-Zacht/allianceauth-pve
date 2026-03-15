@@ -12,6 +12,8 @@ import RotationDetails from "./components/rotations/RotationDetails";
 import { ToastProvider } from "./providers/ToastProvider";
 import EntryDetails from "./components/entries/EntryDetails";
 import ProjectDetails from "./components/projects/ProjectDetails";
+import NewRotationForm from "./components/rotations/NewRotationForm";
+import { PermissionsProvider } from "./providers/PermissionsProvider";
 
 
 const queryClient = new QueryClient({
@@ -67,20 +69,25 @@ function App() {
     return (
         <QueryClientProvider client={queryClient}>
             <ToastProvider>
-                <Router>
-                    <Routes>
-                        <Route path="/pve/r/">
-                            <Route index element={<Dashboard />} />
-                            <Route path="rotations/:rotationId/">
-                                <Route index element={<RotationDetails />} />
-                                <Route path="entries/:entryId/" element={<EntryDetails />} />
+                <PermissionsProvider>
+                    <Router>
+                        <Routes>
+                            <Route path="/pve/r/">
+                                <Route index element={<Dashboard />} />
+                                <Route path="rotations/">
+                                    <Route path="new/" element={<NewRotationForm />} />
+                                    <Route path=":rotationId/">
+                                        <Route index element={<RotationDetails />} />
+                                        <Route path="entries/:entryId/" element={<EntryDetails />} />
+                                    </Route>
+                                </Route>
+                                <Route path="projects/:projectId/" element={<ProjectDetails />} />
+                                <Route path="*" element={<ErrorPage errorCode={404} message="Page Not Found" />} />
                             </Route>
-                            <Route path="projects/:projectId/" element={<ProjectDetails />} />
-                            <Route path="*" element={<ErrorPage errorCode={404} message="Page Not Found" />} />
-                        </Route>
-                        <Route path="*" element={<Navigate to="/pve/r/" replace />} />
-                    </Routes>
-                </Router>
+                            <Route path="*" element={<Navigate to="/pve/r/" replace />} />
+                        </Routes>
+                    </Router>
+                </PermissionsProvider>
             </ToastProvider>
         </QueryClientProvider>
     )
