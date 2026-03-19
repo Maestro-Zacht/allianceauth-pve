@@ -6,6 +6,62 @@
         "description": ""
     },
     "paths": {
+        "/pve/api/buttons/": {
+            "get": {
+                "operationId": "allianceauth_pve_api_list_buttons",
+                "summary": "List Buttons",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/PveButtonSchema"
+                                    },
+                                    "title": "Response",
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "CanAccessPVE": []
+                    }
+                ]
+            }
+        },
+        "/pve/api/rolesetups/": {
+            "get": {
+                "operationId": "allianceauth_pve_api_list_role_setups",
+                "summary": "List Role Setups",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/BaseRoleSetupSchema"
+                                    },
+                                    "title": "Response",
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "CanAccessPVE": []
+                    }
+                ]
+            }
+        },
         "/pve/api/rotations/": {
             "get": {
                 "operationId": "allianceauth_pve_api_rotations_list_rotations",
@@ -716,6 +772,49 @@
     },
     "components": {
         "schemas": {
+            "PveButtonSchema": {
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
+                    },
+                    "text": {
+                        "maxLength": 16,
+                        "title": "Text",
+                        "type": "string"
+                    },
+                    "amount": {
+                        "title": "Amount",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "id",
+                    "text",
+                    "amount"
+                ],
+                "title": "PveButtonSchema",
+                "type": "object"
+            },
+            "BaseRoleSetupSchema": {
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "maxLength": 64,
+                        "title": "Name",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "title": "BaseRoleSetupSchema",
+                "type": "object"
+            },
             "RotationSchema": {
                 "properties": {
                     "id": {

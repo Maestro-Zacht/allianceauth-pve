@@ -42,7 +42,10 @@ export default defineConfig({
             id.includes('react-slider') ||
             id.includes('react-data-table-component') ||
             id.includes('react-awesome-styled-grid') ||
-            id.includes('react-markdown')
+            id.includes('react-markdown') ||
+            id.includes('react-timeago') ||
+            id.includes('react-hook-form') ||
+            id.includes('@hookform/resolvers')
           ) {
             return '@react-libs';
           }
@@ -59,7 +62,8 @@ export default defineConfig({
             id.includes('lodash') ||
             id.includes('remark-gfm') ||
             id.includes('styled-components') ||
-            id.includes('varint')
+            id.includes('varint') ||
+            id.includes('zod')
           ) {
             return '@app-libs';
           }

@@ -34,7 +34,15 @@ def create_rotation(request, data: NewRotationSchema):
     if errors:
         return 400, errors
 
-    rotation = Rotation.objects.create(**data.dict())
+    rotation = Rotation.objects.create(
+        name=data.name,
+        priority=data.priority,
+        tax_rate=data.tax_rate,
+        max_daily_setups=data.max_daily_setups,
+        min_people_share_setup=data.min_people_share_setup
+    )
+    rotation.entry_buttons.set(data.entry_buttons)
+    rotation.roles_setups.set(data.roles_setups)
 
     return 200, rotation.pk
 

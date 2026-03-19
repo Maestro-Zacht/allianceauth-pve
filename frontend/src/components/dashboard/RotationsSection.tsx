@@ -6,7 +6,8 @@ import type { components } from "../../api/Schema";
 import Loading from "../Loading";
 import DataTable from "../tables/DataTablesBase";
 import TimeAgo from "react-timeago";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { usePermissions } from "../../providers/PermissionsProvider";
 
 
 type rotationType = components["schemas"]["RotationSchema"];
@@ -25,6 +26,7 @@ const columnsOpen = [
 function OpenRotationPane({ rotations }: RotationPaneProps) {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
+    const permissions = usePermissions();
 
     const renderRotationName = (data: string, type: string, row: rotationType) => {
         switch (type) {
@@ -85,6 +87,11 @@ function OpenRotationPane({ rotations }: RotationPaneProps) {
                 </tr>
             </thead>
         </DataTable>
+        {permissions && permissions.manage_rotations && (
+            <Link to="/pve/r/rotations/new" className="btn btn-primary mt-3">
+                {t("new_rotation")}
+            </Link>
+        )}
     </>
 }
 

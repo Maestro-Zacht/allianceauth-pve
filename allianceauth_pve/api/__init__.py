@@ -2,6 +2,9 @@ from ninja import NinjaAPI
 
 from django.conf import settings
 
+from ..models import PveButton, RoleSetup
+from .schema import PveButtonSchema, BaseRoleSetupSchema
+
 from .rotations import router as rotations_router
 from .activity import router as activity_router
 from .projects import router as projects_router
@@ -22,3 +25,13 @@ api.add_router("/rotations", rotations_router)
 api.add_router("/activity", activity_router)
 api.add_router("/projects", projects_router)
 api.add_router("/permissions", permissions_router)
+
+
+@api.get("/buttons/", response=list[PveButtonSchema])
+def list_buttons(request):
+    return PveButton.objects.all()
+
+
+@api.get("/rolesetups/", response=list[BaseRoleSetupSchema])
+def list_role_setups(request):
+    return RoleSetup.objects.all()

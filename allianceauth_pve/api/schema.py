@@ -1,13 +1,13 @@
 from collections import defaultdict
 from datetime import datetime
-from ninja import Schema
+from ninja import Schema, ModelSchema
 
 from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 
 from allianceauth.eveonline.models import EveCharacter
 
-from ..models import Entry, EntryCharacter
+from ..models import Entry, EntryCharacter, PveButton, RoleSetup
 
 
 class PermissionsSchema(Schema):
@@ -173,4 +173,28 @@ class NewRotationSchema(Schema):
         if self.min_people_share_setup < 0:
             errors['min_people_share_setup'].append(_('The minimum number of people required to count a setup valid must be non-negative.'))
 
+        buttons = set(PveButton.objects.values_list('pk', flat=True))
+        if any(button_id not in buttons for button_id in self.entry_buttons):
+            errors['entry_buttons'].append(_('One or more entry buttons are invalid.'))
+
+        setups = set(RoleSetup.objects.values_list('pk', flat=True))
+        if any(role_id not in setups for role_id in self.roles_setups):
+            errors['roles_setups'].append(_('One or more roles setups are invalid.'))
+
         return dict(errors)
+
+
+class PveButtonSchema(ModelSchema):
+    id: int
+
+    class Meta:
+        model = PveButton
+        fields = ['id', 'text', 'amount']
+
+
+class BaseRoleSetupSchema(ModelSchema):
+    id: int
+
+    class Meta:
+        model = RoleSetup
+        fields = ['id', 'name']

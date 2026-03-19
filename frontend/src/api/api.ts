@@ -1,5 +1,5 @@
 import apiClient from "./ApiClient";
-import type { paths } from "./Schema";
+import type { paths, components } from "./Schema";
 import type { FetchOptions } from "openapi-fetch";
 
 type GetPaths = {
@@ -125,4 +125,23 @@ export async function toggleProjectComplete(projectId: number) {
     if (error) {
         throw error;
     }
+}
+
+export async function getPveButtons() {
+    return await genericGet("/pve/api/buttons/");
+}
+
+export async function getRoleSetups() {
+    return await genericGet("/pve/api/rolesetups/");
+}
+
+export async function createRotation(rotationData: components["schemas"]["NewRotationSchema"]) {
+    const { data, error } = await apiClient.POST(
+        "/pve/api/rotations/",
+        { body: rotationData }
+    );
+    if (error) {
+        throw error;
+    }
+    return data;
 }
