@@ -1,9 +1,18 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
+import { defineConfig, type PluginOption } from 'vite'
+import react from '@vitejs/plugin-react'
+import { visualizer } from 'rollup-plugin-visualizer';
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    visualizer({
+      template: "treemap",
+      gzipSize: true,
+      brotliSize: true,
+      filename: "analyse.html",
+    }) as PluginOption,
+  ],
   server: {
     port: 3000,
     host: true,
@@ -23,10 +32,11 @@ export default defineConfig({
   build: {
     sourcemap: true,
     manifest: true,
-    rollupOptions: {
+    rolldownOptions: {
       output: {
+        // strictExecutionOrder: true,
         // this is to make sure our static files are in the write place when we build
-        assetFileNames: (assetInfo) => {
+        assetFileNames: (assetInfo: { names: string[] }) => {
           let extType = assetInfo.names[0].split('.').pop() || '';
           if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
             extType = 'img';
@@ -34,59 +44,40 @@ export default defineConfig({
           // fake the path, we copy them over properly later
           return `static/allianceauth_pve/react/static/${extType}/[name]-[hash][extname]`;
         },
-        manualChunks(id) {
-          // creating a chunk to react routes deps. Reducing the vendor chunk size
-          if (
-            id.includes('react-router') ||
-            id.includes('react-select') ||
-            id.includes('react-slider') ||
-            id.includes('react-data-table-component') ||
-            id.includes('react-awesome-styled-grid') ||
-            id.includes('react-markdown') ||
-            id.includes('react-timeago') ||
-            id.includes('react-hook-form') ||
-            id.includes('@hookform/resolvers')
-          ) {
-            return '@react-libs';
-          }
-          if (
-            id.includes('datatables')
-          ) {
-            return '@datatables-libs';
-          }
-          if (
-            id.includes('buffer') ||
-            id.includes('chart.js') ||
-            id.includes('react-chartjs-2') ||
-            id.includes('@nivo/core') ||
-            id.includes('lodash') ||
-            id.includes('remark-gfm') ||
-            id.includes('styled-components') ||
-            id.includes('varint') ||
-            id.includes('zod')
-          ) {
-            return '@app-libs';
-          }
-          if (id.includes('react-bootstrap') || id.includes('bootstrap')) {
-            return '@bootstrap-libs'; // Not Yet Used, want to
-          }
-          if (
-            id.includes('i18next') ||
-            id.includes('i18next-http-backend') ||
-            id.includes('i18next-browser-languagedetector') ||
-            id.includes('react-i18next')
-          ) {
-            return '@lang-libs'; // Translations
-          }
-          if (
-            id.includes('fontawesome-svg-core') ||
-            id.includes('free-brands-svg-icons') ||
-            id.includes('free-solid-svg-icons') ||
-            id.includes('react-fontawesome')
-          ) {
-            return '@fontawesome-libs'; // Graphics
-          }
-        },
+        codeSplitting: {
+          groups: [
+            {
+              name: '@react-libs',
+              test: /[\\/]node_modules[\\/](react|react-dom|react-router-dom|react-router)[\\/]/,
+              priority: 10,
+            },
+            {
+              name: '@datatables-libs',
+              test: /[\\/]node_modules[\\/]datatables/,
+              priority: 9,
+            },
+            {
+              name: '@app-libs',
+              test: /[\\/]node_modules[\\/](react-timeago|react-hook-form|@hookform\/resolvers|zod|openapi-fetch|js-cookie|@tanstack)[\\/]/,
+              priority: 8,
+            },
+            {
+              name: '@bootstrap-libs',
+              test: /[\\/]node_modules[\\/](bootstrap|react-bootstrap)[\\/]/,
+              priority: 7,
+            },
+            {
+              name: '@lang-libs',
+              test: /[\\/]node_modules[\\/](i18next|react-i18next|i18next-http-backend|i18next-browser-languagedetector)[\\/]/,
+              priority: 6,
+            },
+            {
+              name: '@misc-libs',
+              test: /node_modules/,
+              priority: 1,
+            }
+          ]
+        }
       },
     },
   }

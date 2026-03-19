@@ -67,7 +67,7 @@ function RotationForm({ pveButtons, roleSetups }: RotationFormProps) {
         mutationFn: createRotation,
         onSuccess: (rotationId) => {
             addToast(t("rotation_created"));
-            navigate(`/pve/r/rotations/${rotationId}/`)
+            navigate(`/pve/r/rotations/${rotationId}/`);
         },
         onError: (errors: NewRotationErrorType) => Object.entries(errors).forEach(([field, messages]) => {
             setError(field as keyof NewRotationType, { type: "server", message: messages.join(" - ") });
