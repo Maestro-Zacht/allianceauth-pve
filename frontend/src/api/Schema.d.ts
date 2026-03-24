@@ -70,7 +70,8 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /** Close Rotation */
+        patch: operations["allianceauth_pve_api_rotations_close_rotation"];
         trace?: never;
     };
     "/pve/api/rotations/{rotation_id}/summary/": {
@@ -341,6 +342,11 @@ export interface components {
             entry_buttons: number[];
             /** Roles Setups */
             roles_setups: number[];
+        };
+        /** CloseRotationSchema */
+        CloseRotationSchema: {
+            /** Sales Value */
+            sales_value: number;
         };
         /** RotationSummarySchema */
         RotationSummarySchema: {
@@ -645,6 +651,55 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["RotationSchema"];
                 };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    allianceauth_pve_api_rotations_close_rotation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rotation_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CloseRotationSchema"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string[];
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Not Found */
             404: {

@@ -217,3 +217,15 @@ class NewProjectSchema(Schema):
             errors['goal'].append(_('Goal must be at least 1 ISK.'))
 
         return dict(errors)
+
+
+class CloseRotationSchema(Schema):
+    sales_value: int
+
+    def validate(self) -> dict[str, list[str]]:
+        errors = defaultdict(list)
+
+        if self.sales_value < 1:
+            errors['sales_value'].append(_('Sales value must be at least 1 ISK.'))
+
+        return dict(errors)

@@ -2,6 +2,8 @@ from ninja import Router
 
 from django.db.models import Count, F, Subquery, Sum
 from django.db.models.functions import Coalesce
+from django.contrib.auth.models import User
+from django.utils import timezone
 
 from ..models import EntryRole, Rotation, Entry
 from .schema import (
@@ -11,9 +13,11 @@ from .schema import (
     EntrySchema, EntryRoleSchema,
     EntryCharacterSchema,
     EntryDetailsSchema,
-    NewRotationSchema
+    NewRotationSchema,
+    CloseRotationSchema
 )
 from .authenticators import NeedsPermission
+from ..utils import ensure_rotation_presets_applied
 
 router = Router(tags=["rotations"])
 
@@ -58,6 +62,38 @@ def get_rotation(request, rotation_id: int):
         ).get(pk=rotation_id)
     except Rotation.DoesNotExist:
         return 404, None
+
+
+@router.patch(
+    "/{int:rotation_id}/",
+    response={200: None, 400: dict[str, list[str]], 403: None, 404: None},
+    auth=NeedsPermission('allianceauth_pve.manage_rotations')
+)
+def close_rotation(request, rotation_id: int, data: CloseRotationSchema):
+    user: User = request.user
+
+    errors = data.validate()
+    if errors:
+        return 400, errors
+
+    try:
+        rotation = Rotation.objects.get(pk=rotation_id)
+    except Rotation.DoesNotExist:
+        return 404, None
+
+    if rotation.is_closed or not user.has_perm('allianceauth_pve.manage_rotations'):
+        return 403, None
+
+    rotation.actual_total = data.sales_value
+    rotation.is_closed = True
+    rotation.closed_at = timezone.now()
+    rotation.save(update_fields=['actual_total', 'is_closed', 'closed_at'])
+
+    # TODO: cache invalidation
+
+    ensure_rotation_presets_applied()
+
+    return 200, None
 
 
 @router.get("/{int:rotation_id}/summary/", response={200: list[RotationSummarySchema], 404: None})

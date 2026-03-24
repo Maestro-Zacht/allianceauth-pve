@@ -156,3 +156,19 @@ export async function createProject(projectData: components["schemas"]["NewProje
     }
     return data;
 }
+
+export async function closeRotation(rotationId: number, closeData: components["schemas"]["CloseRotationSchema"]) {
+    const { error, response } = await apiClient.PATCH(
+        "/pve/api/rotations/{rotation_id}/",
+        {
+            params: { path: { rotation_id: rotationId } },
+            body: closeData
+        }
+    );
+    if (error) {
+        throw error;
+    }
+    if (!response.ok) {
+        throw response.status;
+    }
+}

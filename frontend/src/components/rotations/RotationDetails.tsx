@@ -9,6 +9,7 @@ import TimeAgo from "react-timeago";
 import RotationSummarySection from "./RotationSummarySection";
 import RotationEntriesSection from "./RotationEntriesSection";
 import { SimpleStatCard } from "../StatCards";
+import CloseRotationSection from "./CloseRotationSection";
 
 type rotationType = components["schemas"]["RotationSchema"];
 
@@ -61,9 +62,10 @@ function RotationHeader({ rotation }: RotationHeaderProps) {
 
 export default function RotationDetails() {
     const { rotationId } = useParams();
+    const rotationIdNum = Number(rotationId);
     const { data, isLoading, error } = useQuery({
-        queryKey: ['rotation', rotationId],
-        queryFn: () => getRotation(parseInt(rotationId!)),
+        queryKey: ['rotation', rotationIdNum],
+        queryFn: () => getRotation(rotationIdNum),
     });
 
     if (error) {
@@ -83,6 +85,7 @@ export default function RotationDetails() {
                     <RotationHeader rotation={data!} />
                     <RotationSummarySection rotationId={data!.id} isClosed={data!.is_closed} />
                     <RotationEntriesSection rotationId={data!.id} />
+                    <CloseRotationSection rotationId={data!.id} isClosed={data!.is_closed} />
                 </Row>
             }
         </Container>

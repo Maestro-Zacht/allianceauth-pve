@@ -184,6 +184,67 @@
                         "CanAccessPVE": []
                     }
                 ]
+            },
+            "patch": {
+                "operationId": "allianceauth_pve_api_rotations_close_rotation",
+                "summary": "Close Rotation",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "rotation_id",
+                        "schema": {
+                            "title": "Rotation Id",
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": {
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "type": "array"
+                                    },
+                                    "title": "Response",
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "tags": [
+                    "rotations"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CloseRotationSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "NeedsPermission": []
+                    }
+                ]
             }
         },
         "/pve/api/rotations/{rotation_id}/summary/": {
@@ -981,6 +1042,19 @@
                     "roles_setups"
                 ],
                 "title": "NewRotationSchema",
+                "type": "object"
+            },
+            "CloseRotationSchema": {
+                "properties": {
+                    "sales_value": {
+                        "title": "Sales Value",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "sales_value"
+                ],
+                "title": "CloseRotationSchema",
                 "type": "object"
             },
             "RotationSummarySchema": {

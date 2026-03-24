@@ -42,9 +42,6 @@ export default function NewProjectForm() {
         setError,
         formState: { errors },
     } = useForm({
-        defaultValues: {
-            goal: 1,
-        },
         resolver: zodResolver(newProjectSchema),
     });
     const navigate = useNavigate();

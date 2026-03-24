@@ -31,15 +31,13 @@ function ActivityCard({ months }: { months: number }) {
                 {t('monthNumber', { count: months })}
             </Card.Header>
             <Card.Body>
-                <Card.Text>
-                    {isLoading ?
-                        <Loading /> :
-                        <>
-                            <p>{t('isk', { isk: activityData.actual_total, style: 'decimal', maximumFractionDigits: 0 })}</p>
-                            <p>{t('setupNumber', { count: activityData.helped_setups })}</p>
-                        </>
-                    }
-                </Card.Text>
+                {isLoading ?
+                    <Loading /> :
+                    <>
+                        <Card.Text>{t('isk', { isk: activityData.actual_total, style: 'decimal', maximumFractionDigits: 0 })}</Card.Text>
+                        <Card.Text>{t('setupNumber', { count: activityData.helped_setups })}</Card.Text>
+                    </>
+                }
             </Card.Body>
         </Card>
     )
