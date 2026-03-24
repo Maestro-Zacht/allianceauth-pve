@@ -1,10 +1,11 @@
 from ninja import Router
 
 from django.db.models import Count, OuterRef, Subquery, F
+from django.db.models.functions import Coalesce
 from django.utils.translation import gettext as _
 from django.utils import timezone
 
-from .schema import FundingProjectSchema, SummarySchema
+from .schema import FundingProjectSchema, SummarySchema, NewProjectSchema
 from ..models import FundingProject, EntryCharacter
 from .authenticators import NeedsPermission
 
@@ -24,8 +25,18 @@ def list_projects(request):
     )
 
     return FundingProject.objects.annotate(
-        number_of_participants=Subquery(shares_qs)
+        number_of_participants=Coalesce(Subquery(shares_qs), 0)
     )
+
+
+@router.post("/", response={200: int, 400: dict[str, list[str]]}, auth=NeedsPermission('allianceauth_pve.manage_funding_projects'))
+def create_project(request, data: NewProjectSchema):
+    errors = data.validate()
+    if errors:
+        return 400, errors
+
+    project = FundingProject.objects.create(**data.dict())
+    return 200, project.pk
 
 
 @router.get("/{int:project_id}/", response={200: FundingProjectSchema, 404: None})
@@ -41,8 +52,8 @@ def get_project(request, project_id: int):
     )
 
     try:
-        return FundingProject.objects.annotate(
-            number_of_participants=Subquery(shares_qs)
+        return 200, FundingProject.objects.annotate(
+            number_of_participants=Coalesce(Subquery(shares_qs), 0)
         ).get(pk=project_id)
     except FundingProject.DoesNotExist:
         return 404, None

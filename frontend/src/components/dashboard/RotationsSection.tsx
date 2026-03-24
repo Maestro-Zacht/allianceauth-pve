@@ -88,7 +88,7 @@ function OpenRotationPane({ rotations }: RotationPaneProps) {
             </thead>
         </DataTable>
         {permissions && permissions.manage_rotations && (
-            <Link to="/pve/r/rotations/new" className="btn btn-primary mt-3">
+            <Link to="/pve/r/rotations/new" className="btn btn-info mt-3">
                 {t("new_rotation")}
             </Link>
         )}

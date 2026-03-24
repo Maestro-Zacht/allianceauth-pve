@@ -203,7 +203,8 @@ export interface paths {
         /** List Projects */
         get: operations["allianceauth_pve_api_projects_list_projects"];
         put?: never;
-        post?: never;
+        /** Create Project */
+        post: operations["allianceauth_pve_api_projects_create_project"];
         delete?: never;
         options?: never;
         head?: never;
@@ -500,6 +501,13 @@ export interface components {
             estimated_missing_percentage: number;
             /** Number Of Participants */
             number_of_participants: number;
+        };
+        /** NewProjectSchema */
+        NewProjectSchema: {
+            /** Name */
+            name: string;
+            /** Goal */
+            goal: number;
         };
         /** PermissionsSchema */
         PermissionsSchema: {
@@ -908,6 +916,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FundingProjectSchema"][];
+                };
+            };
+        };
+    };
+    allianceauth_pve_api_projects_create_project: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewProjectSchema"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": number;
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string[];
+                    };
                 };
             };
         };

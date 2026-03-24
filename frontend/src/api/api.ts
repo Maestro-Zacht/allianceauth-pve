@@ -145,3 +145,14 @@ export async function createRotation(rotationData: components["schemas"]["NewRot
     }
     return data;
 }
+
+export async function createProject(projectData: components["schemas"]["NewProjectSchema"]) {
+    const { data, error } = await apiClient.POST(
+        "/pve/api/projects/",
+        { body: projectData }
+    );
+    if (error) {
+        throw error;
+    }
+    return data;
+}

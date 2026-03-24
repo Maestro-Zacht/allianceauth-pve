@@ -14,6 +14,7 @@ import EntryDetails from "./components/entries/EntryDetails";
 import ProjectDetails from "./components/projects/ProjectDetails";
 import NewRotationForm from "./components/rotations/NewRotationForm";
 import { PermissionsProvider } from "./providers/PermissionsProvider";
+import NewProjectForm from "./components/projects/NewProjectForm";
 
 
 const queryClient = new QueryClient({
@@ -81,7 +82,10 @@ function App() {
                                         <Route path="entries/:entryId/" element={<EntryDetails />} />
                                     </Route>
                                 </Route>
-                                <Route path="projects/:projectId/" element={<ProjectDetails />} />
+                                <Route path="projects/">
+                                    <Route path="new/" element={<NewProjectForm />} />
+                                    <Route path=":projectId/" element={<ProjectDetails />} />
+                                </Route>
                                 <Route path="*" element={<ErrorPage errorCode={404} message="Page Not Found" />} />
                             </Route>
                             <Route path="*" element={<Navigate to="/pve/r/" replace />} />

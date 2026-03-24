@@ -58,6 +58,8 @@
   "monthNumber_one": "{{count}} month",
   "monthNumber_other": "{{count}} months",
   "name": "Name",
+  "new_funding_project": "New Funding Project",
+  "new_project": "New Project",
   "new_rotation": "New Rotation",
   "number_of_users": "Number of Users",
   "participants": "Participants",
@@ -66,6 +68,7 @@
     "marked_completed": "Project is marked as completed",
     "reopened": "Project is reopened"
   },
+  "project_created": "Project created successfully",
   "project_summary_for": "Contributions to {{projectName}}",
   "projects": {
     "activeTab": "Active Projects",

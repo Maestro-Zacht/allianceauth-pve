@@ -601,6 +601,59 @@
                         "CanAccessPVE": []
                     }
                 ]
+            },
+            "post": {
+                "operationId": "allianceauth_pve_api_projects_create_project",
+                "summary": "Create Project",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response",
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": {
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "type": "array"
+                                    },
+                                    "title": "Response",
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "projects"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NewProjectSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "NeedsPermission": []
+                    }
+                ]
             }
         },
         "/pve/api/projects/{project_id}/": {
@@ -1340,6 +1393,24 @@
                     "number_of_participants"
                 ],
                 "title": "FundingProjectSchema",
+                "type": "object"
+            },
+            "NewProjectSchema": {
+                "properties": {
+                    "name": {
+                        "title": "Name",
+                        "type": "string"
+                    },
+                    "goal": {
+                        "title": "Goal",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "name",
+                    "goal"
+                ],
+                "title": "NewProjectSchema",
                 "type": "object"
             },
             "PermissionsSchema": {

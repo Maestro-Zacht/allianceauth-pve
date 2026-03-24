@@ -6,7 +6,8 @@ import { Badge, Card, Col, Nav, Row, Tab } from "react-bootstrap";
 import TimeAgo from "react-timeago";
 import DataTable from "../tables/DataTablesBase";
 import Loading from "../Loading";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { usePermissions } from "../../providers/PermissionsProvider";
 
 type projectType = components["schemas"]["FundingProjectSchema"];
 
@@ -25,6 +26,7 @@ const columnsActive = [
 function ActiveProjectsPane({ projects }: ProjectPaneProps) {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
+    const permissions = usePermissions();
 
     const renderName = (data: string, type: string, row: projectType) => {
         switch (type) {
@@ -113,6 +115,11 @@ function ActiveProjectsPane({ projects }: ProjectPaneProps) {
                 </tr>
             </thead>
         </DataTable>
+        {permissions && permissions.manage_funding_projects && (
+            <Link to="/pve/r/projects/new" className="btn btn-info mt-3">
+                {t("new_project")}
+            </Link>
+        )}
     </>
 }
 

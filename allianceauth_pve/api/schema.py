@@ -7,7 +7,7 @@ from django.utils.translation import gettext as _
 
 from allianceauth.eveonline.models import EveCharacter
 
-from ..models import Entry, EntryCharacter, PveButton, RoleSetup
+from ..models import Entry, EntryCharacter, PveButton, RoleSetup, FundingProject
 
 
 class PermissionsSchema(Schema):
@@ -198,3 +198,22 @@ class BaseRoleSetupSchema(ModelSchema):
     class Meta:
         model = RoleSetup
         fields = ['id', 'name']
+
+
+class NewProjectSchema(Schema):
+    name: str
+    goal: int
+
+    def validate(self) -> dict[str, list[str]]:
+        errors = defaultdict(list)
+
+        if len(self.name) == 0 or len(self.name) > 128:
+            errors['name'].append(_('Name must be between 1 and 128 characters long.'))
+
+        if FundingProject.objects.filter(name=self.name, is_active=True).exists():
+            errors['name'].append(_('An active project with this name already exists.'))
+
+        if self.goal < 1:
+            errors['goal'].append(_('Goal must be at least 1 ISK.'))
+
+        return dict(errors)
