@@ -11,6 +11,7 @@ from ..models import Entry, EntryCharacter, PveButton, RoleSetup, FundingProject
 
 
 class PermissionsSchema(Schema):
+    main_character_id: int
     access_pve: bool
     manage_entries: bool
     manage_rotations: bool
@@ -56,6 +57,8 @@ class FundingProjectSchema(FundingProjectBasicSchema):
 
 class SummarySchema(Schema):
     portrait_url: str
+    character_id: int
+    main_character_id: int | None
     character_name: str
     estimated_total: float
     actual_total: float

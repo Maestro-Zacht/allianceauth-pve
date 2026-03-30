@@ -5,6 +5,7 @@ import { useState } from "react";
 import "./SummaryStyles.css";
 import TooltipComponent from "../TooltipComponent";
 import { useToast } from "../../providers/ToastProvider";
+import { usePermissions } from "../../providers/PermissionsProvider";
 
 
 // TODO: highlight main character
@@ -23,6 +24,7 @@ function SummaryRow({ row, isClosed, isProjectSummary }: SummaryRowProps) {
     const { i18n, t } = useTranslation();
     const [copied, setCopied] = useState(false);
     const addToast = useToast();
+    const permissions = usePermissions();
 
     const localizeNumber = (num: number) => {
         return num.toLocaleString(i18n.language, {
@@ -38,7 +40,13 @@ function SummaryRow({ row, isClosed, isProjectSummary }: SummaryRowProps) {
     }
 
     return <>
-        <tr className={copied ? "copied" : undefined}>
+        <tr className={
+            (copied ? "copied" : "")
+            +
+            (((!isClosed || isProjectSummary) &&
+                permissions && row.main_character_id === permissions.main_character_id) ?
+                " bg-info bg-opacity-25" : "")
+        }>
             <td>
                 <Image
                     src={`${row.portrait_url}?size=32`}

@@ -226,6 +226,7 @@ class Rotation(models.Model):
                     'actual_total',
                     character_name=models.F('user__profile__main_character__character_name'),
                     character_id=models.F('user__profile__main_character__character_id'),
+                    main_character_id=models.F('user__profile__main_character__character_id'),
                 )
             )
 

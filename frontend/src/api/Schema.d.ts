@@ -352,6 +352,10 @@ export interface components {
         RotationSummarySchema: {
             /** Portrait Url */
             portrait_url: string;
+            /** Character Id */
+            character_id: number;
+            /** Main Character Id */
+            main_character_id: number | null;
             /** Character Name */
             character_name: string;
             /** Estimated Total */
@@ -378,6 +382,10 @@ export interface components {
         SummarySchema: {
             /** Portrait Url */
             portrait_url: string;
+            /** Character Id */
+            character_id: number;
+            /** Main Character Id */
+            main_character_id: number | null;
             /** Character Name */
             character_name: string;
             /** Estimated Total */
@@ -517,6 +525,8 @@ export interface components {
         };
         /** PermissionsSchema */
         PermissionsSchema: {
+            /** Main Character Id */
+            main_character_id: number;
             /** Access Pve */
             access_pve: boolean;
             /** Manage Entries */

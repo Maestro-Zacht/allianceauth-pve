@@ -10,7 +10,8 @@ from .schema import (
     RotationSchema,
     RotationSummarySchema,
     RotationProjectSummarySchema,
-    EntrySchema, EntryRoleSchema,
+    EntrySchema,
+    EntryRoleSchema,
     EntryCharacterSchema,
     EntryDetailsSchema,
     NewRotationSchema,
@@ -104,7 +105,6 @@ def get_rotation_summary(request, rotation_id: int):
         return 404, None
 
     return 200, rotation.summary.order_by('-estimated_total').values(
-        'user',
         'helped_setups',
         'estimated_total',
         'actual_total',
@@ -116,6 +116,7 @@ def get_rotation_summary(request, rotation_id: int):
             F('user__profile__main_character__character_id'),
             F('user_character__character_id'),
         ),
+        main_character_id=F('user__profile__main_character__character_id'),
     )
 
 

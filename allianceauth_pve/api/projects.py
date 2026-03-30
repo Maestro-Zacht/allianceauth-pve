@@ -71,6 +71,7 @@ def get_project_summary(request, project_id: int):
         'estimated_total',
         character_name=F('user__profile__main_character__character_name'),
         character_id=F('user__profile__main_character__character_id'),
+        main_character_id=F('user__profile__main_character__character_id'),
     )
 
 

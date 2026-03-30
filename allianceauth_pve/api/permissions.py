@@ -12,6 +12,7 @@ router = Router(tags=["permissions"])
 def list_permissions(request):
     user: User = request.user
     return {
+        "main_character_id": user.profile.main_character.character_id,
         "access_pve": user.has_perm('allianceauth_pve.access_pve'),
         "manage_entries": user.has_perm('allianceauth_pve.manage_entries'),
         "manage_rotations": user.has_perm('allianceauth_pve.manage_rotations'),
