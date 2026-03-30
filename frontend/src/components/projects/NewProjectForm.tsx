@@ -6,7 +6,7 @@ import type { components, operations } from "../../api/Schema";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Loading from "../Loading";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useToast } from "../../providers/ToastProvider";
 import { useMutation } from "@tanstack/react-query";
 import { createProject } from "../../api/api";
@@ -118,6 +118,7 @@ export default function NewProjectForm() {
                                     <Button variant="primary" type="submit" disabled={mutation.isPending}>
                                         {mutation.isPending ? <Loading size="sm" /> : t("submit")}
                                     </Button>
+                                    <Link to="/pve/r/" className="btn btn-danger me-2">{t("cancel")}</Link>
                                 </div>
                             </Form>
                         </Card.Body>

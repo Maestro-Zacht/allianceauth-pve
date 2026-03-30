@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createRotation, getPveButtons, getRoleSetups } from "../../api/api";
 import Loading from "../Loading";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useToast } from "../../providers/ToastProvider";
 
 type NewRotationType = components["schemas"]["NewRotationSchema"];
@@ -173,6 +173,7 @@ function RotationForm({ pveButtons, roleSetups }: RotationFormProps) {
                 <Button variant="primary" type="submit" disabled={mutation.isPending}>
                     {mutation.isPending ? <Loading size="sm" /> : t("submit")}
                 </Button>
+                <Link to="/pve/r/" className="btn btn-danger me-2">{t("cancel")}</Link>
             </div>
         </Form>
     </>

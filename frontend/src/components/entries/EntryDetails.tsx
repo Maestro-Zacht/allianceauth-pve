@@ -9,6 +9,7 @@ import Loading from "../Loading";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useToast } from "../../providers/ToastProvider";
+import NavBackButton from "../NavBackButton";
 
 export default function EntryDetails() {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -46,6 +47,7 @@ export default function EntryDetails() {
     }
 
     return <>
+        <NavBackButton url={`/pve/r/rotations/${rotationIdNum}/`} />
         <Container fluid>
             <Row>
                 {isLoading ? (

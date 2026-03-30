@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useToast } from "../../providers/ToastProvider";
 import { usePermissions } from "../../providers/PermissionsProvider";
+import NavBackButton from "../NavBackButton";
 
 
 interface ToggleCompleteButtonProps {
@@ -61,6 +62,7 @@ export default function ProjectDetails() {
     }
 
     return <>
+        <NavBackButton url={`/pve/r/`} />
         <Container fluid>
             <Row>
                 {isLoading ?

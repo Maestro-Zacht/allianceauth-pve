@@ -10,6 +10,7 @@ import RotationSummarySection from "./RotationSummarySection";
 import RotationEntriesSection from "./RotationEntriesSection";
 import { SimpleStatCard } from "../StatCards";
 import CloseRotationSection from "./CloseRotationSection";
+import NavBackButton from "../NavBackButton";
 
 type rotationType = components["schemas"]["RotationSchema"];
 
@@ -74,6 +75,7 @@ export default function RotationDetails() {
     }
 
     return <>
+        <NavBackButton url={`/pve/r/`} />
         <Container fluid>
             {isLoading ?
                 <Row>
