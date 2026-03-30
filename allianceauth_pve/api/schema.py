@@ -120,8 +120,8 @@ class EntryCharacterSchema(Schema):
     helped_setup: bool
     estimated_share_total: int
     estimated_funding_amount: int
-    actual_share_total: int
-    actual_funding_amount: int
+    actual_share_total: float
+    actual_funding_amount: float
 
     @staticmethod
     def resolve_user_main_character(obj: EntryCharacter) -> EveCharacter:
