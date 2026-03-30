@@ -1,4 +1,5 @@
 {
+  "actions": "Actions",
   "actual_progress": "Actual Progress",
   "actual_total": "Actual Total",
   "age": "Age",
@@ -24,6 +25,7 @@
     "title": "PvE Dashboard"
   },
   "date": "Date",
+  "delete": "Delete",
   "delete_entry": "Delete Entry",
   "delete_entry_confirmation": "Are you sure you want to delete this entry?",
   "edit": "Edit",

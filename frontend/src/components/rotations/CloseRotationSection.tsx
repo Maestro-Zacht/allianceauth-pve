@@ -1,5 +1,4 @@
-import { Button, Col, Form, Modal } from "react-bootstrap";
-import { usePermissions } from "../../providers/PermissionsProvider";
+import { Button, Form, Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import { useState, type SetStateAction, type Dispatch } from "react";
 import type { components, operations } from "../../api/Schema";
@@ -13,7 +12,7 @@ import { useToast } from "../../providers/ToastProvider";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { closeRotation } from "../../api/api";
 import { useNavigate } from "react-router";
-
+import TooltipComponent from "../TooltipComponent";
 
 
 type CloseRotationData = components["schemas"]["CloseRotationSchema"];
@@ -140,28 +139,22 @@ function CloseRotationForm({ rotationId, showForm, setShowForm }: CloseRotationF
 
 interface CloseRotationSectionProps {
     rotationId: number;
-    isClosed: boolean;
 }
 
-export default function CloseRotationSection({ rotationId, isClosed }: CloseRotationSectionProps) {
-    const permissions = usePermissions();
+export default function CloseRotationSection({ rotationId }: CloseRotationSectionProps) {
     const { t } = useTranslation();
     const [showCloseForm, setShowCloseForm] = useState(false);
 
     return <>
-        {permissions && permissions.manage_rotations && !isClosed && <>
-            <Col xs={12} className="mt-3">
-                <div className="d-flex flex-row-reverse">
-                    <Button variant="success" onClick={() => setShowCloseForm(true)}>
-                        {t("close_rotation")}
-                    </Button>
-                </div>
-            </Col>
-            <CloseRotationForm
-                rotationId={rotationId}
-                showForm={showCloseForm}
-                setShowForm={setShowCloseForm}
-            />
-        </>}
+        <TooltipComponent id="close-rotation-tooltip" text={t("close_rotation")}>
+            <Button variant="danger" onClick={() => setShowCloseForm(true)}>
+                <i className="fa-solid fa-hand-holding-dollar"></i>
+            </Button>
+        </TooltipComponent>
+        <CloseRotationForm
+            rotationId={rotationId}
+            showForm={showCloseForm}
+            setShowForm={setShowCloseForm}
+        />
     </>
 }

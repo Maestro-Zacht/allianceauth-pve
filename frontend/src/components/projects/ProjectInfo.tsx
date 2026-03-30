@@ -1,10 +1,50 @@
-import { Card, CardGroup, Col, ProgressBar } from "react-bootstrap";
+import { Button, Card, CardGroup, Col, ProgressBar } from "react-bootstrap";
 import type { components } from "../../api/Schema";
 import { GroupCard } from "../StatCards";
 import { useTranslation } from "react-i18next";
 import TimeAgo from "react-timeago";
+import { usePermissions } from "../../providers/PermissionsProvider";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "../../providers/ToastProvider";
+import { toggleProjectComplete } from "../../api/api";
+import Loading from "../Loading";
+import TooltipComponent from "../TooltipComponent";
 
 type ProjectType = components["schemas"]["FundingProjectSchema"];
+
+interface ToggleCompleteButtonProps {
+    projectId: number;
+    isActive: boolean;
+}
+
+function ToggleCompleteButton({ projectId, isActive }: ToggleCompleteButtonProps) {
+    const { t } = useTranslation();
+    const [loading, setLoading] = useState(false);
+    const queryClient = useQueryClient();
+    const addToast = useToast();
+
+    const handleToggleComplete = async () => {
+        setLoading(true);
+        try {
+            await toggleProjectComplete(projectId);
+            await queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+            addToast(isActive ? t("project.marked_completed") : t("project.reopened"));
+        } catch (error) {
+            addToast(error as string, "danger");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    return <>
+        <TooltipComponent id={`toggle-project-${projectId}-tooltip`} text={isActive ? t("mark_as_completed") : t("reopen")}>
+            <Button onClick={handleToggleComplete} variant="danger" disabled={loading}>
+                {loading ? <Loading size="sm" /> : isActive ? <i className="fa-solid fa-lock"></i> : <i className="fa-solid fa-unlock"></i>}
+            </Button>
+        </TooltipComponent>
+    </>
+}
 
 interface ProjectInfoProps {
     project: ProjectType;
@@ -12,6 +52,7 @@ interface ProjectInfoProps {
 
 export default function ProjectInfo({ project }: ProjectInfoProps) {
     const { t, i18n } = useTranslation();
+    const permissions = usePermissions();
 
     const startDate = new Date(project.created_at);
     const completedDate = project.completed_at && new Date(project.completed_at);
@@ -72,6 +113,13 @@ export default function ProjectInfo({ project }: ProjectInfoProps) {
                     value={localizeNumber(project.goal)}
                     align={true}
                 />
+                {permissions && permissions.manage_funding_projects && (
+                    <GroupCard
+                        title={t("actions")}
+                        value={<ToggleCompleteButton projectId={project.id} isActive={project.is_active} />}
+                        align={true}
+                    />
+                )}
             </CardGroup>
         </Col>
         <Col xs={12} className="mt-4">
