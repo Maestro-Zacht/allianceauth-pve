@@ -337,7 +337,7 @@
         },
         "/pve/api/rotations/{rotation_id}/entries/": {
             "get": {
-                "operationId": "allianceauth_pve_api_rotations_get_rotation_entries",
+                "operationId": "allianceauth_pve_api_entries_get_rotation_entries",
                 "summary": "Get Rotation Entries",
                 "parameters": [
                     {
@@ -370,7 +370,7 @@
                     }
                 },
                 "tags": [
-                    "rotations"
+                    "entries"
                 ],
                 "security": [
                     {
@@ -381,23 +381,23 @@
         },
         "/pve/api/rotations/{rotation_id}/entries/{entry_id}/": {
             "get": {
-                "operationId": "allianceauth_pve_api_rotations_get_rotation_entry",
+                "operationId": "allianceauth_pve_api_entries_get_rotation_entry",
                 "summary": "Get Rotation Entry",
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "rotation_id",
+                        "name": "entry_id",
                         "schema": {
-                            "title": "Rotation Id",
+                            "title": "Entry Id",
                             "type": "integer"
                         },
                         "required": true
                     },
                     {
                         "in": "path",
-                        "name": "entry_id",
+                        "name": "rotation_id",
                         "schema": {
-                            "title": "Entry Id",
+                            "title": "Rotation Id",
                             "type": "integer"
                         },
                         "required": true
@@ -419,7 +419,7 @@
                     }
                 },
                 "tags": [
-                    "rotations"
+                    "entries"
                 ],
                 "security": [
                     {
@@ -428,23 +428,23 @@
                 ]
             },
             "delete": {
-                "operationId": "allianceauth_pve_api_rotations_delete_rotation_entry",
+                "operationId": "allianceauth_pve_api_entries_delete_rotation_entry",
                 "summary": "Delete Rotation Entry",
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "rotation_id",
+                        "name": "entry_id",
                         "schema": {
-                            "title": "Rotation Id",
+                            "title": "Entry Id",
                             "type": "integer"
                         },
                         "required": true
                     },
                     {
                         "in": "path",
-                        "name": "entry_id",
+                        "name": "rotation_id",
                         "schema": {
-                            "title": "Entry Id",
+                            "title": "Rotation Id",
                             "type": "integer"
                         },
                         "required": true
@@ -470,7 +470,7 @@
                     }
                 },
                 "tags": [
-                    "rotations"
+                    "entries"
                 ],
                 "security": [
                     {
@@ -481,23 +481,23 @@
         },
         "/pve/api/rotations/{rotation_id}/entries/{entry_id}/roles/": {
             "get": {
-                "operationId": "allianceauth_pve_api_rotations_get_rotation_entry_roles",
+                "operationId": "allianceauth_pve_api_entries_get_rotation_entry_roles",
                 "summary": "Get Rotation Entry Roles",
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "rotation_id",
+                        "name": "entry_id",
                         "schema": {
-                            "title": "Rotation Id",
+                            "title": "Entry Id",
                             "type": "integer"
                         },
                         "required": true
                     },
                     {
                         "in": "path",
-                        "name": "entry_id",
+                        "name": "rotation_id",
                         "schema": {
-                            "title": "Entry Id",
+                            "title": "Rotation Id",
                             "type": "integer"
                         },
                         "required": true
@@ -523,7 +523,7 @@
                     }
                 },
                 "tags": [
-                    "rotations"
+                    "entries"
                 ],
                 "security": [
                     {
@@ -534,23 +534,23 @@
         },
         "/pve/api/rotations/{rotation_id}/entries/{entry_id}/shares/": {
             "get": {
-                "operationId": "allianceauth_pve_api_rotations_get_rotation_entry_shares",
+                "operationId": "allianceauth_pve_api_entries_get_rotation_entry_shares",
                 "summary": "Get Rotation Entry Shares",
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "rotation_id",
+                        "name": "entry_id",
                         "schema": {
-                            "title": "Rotation Id",
+                            "title": "Entry Id",
                             "type": "integer"
                         },
                         "required": true
                     },
                     {
                         "in": "path",
-                        "name": "entry_id",
+                        "name": "rotation_id",
                         "schema": {
-                            "title": "Entry Id",
+                            "title": "Rotation Id",
                             "type": "integer"
                         },
                         "required": true
@@ -576,7 +576,7 @@
                     }
                 },
                 "tags": [
-                    "rotations"
+                    "entries"
                 ],
                 "security": [
                     {
@@ -1388,11 +1388,11 @@
                     },
                     "actual_share_total": {
                         "title": "Actual Share Total",
-                        "type": "integer"
+                        "type": "number"
                     },
                     "actual_funding_amount": {
                         "title": "Actual Funding Amount",
-                        "type": "integer"
+                        "type": "number"
                     }
                 },
                 "required": [

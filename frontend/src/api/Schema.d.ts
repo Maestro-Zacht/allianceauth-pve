@@ -116,7 +116,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get Rotation Entries */
-        get: operations["allianceauth_pve_api_rotations_get_rotation_entries"];
+        get: operations["allianceauth_pve_api_entries_get_rotation_entries"];
         put?: never;
         post?: never;
         delete?: never;
@@ -133,11 +133,11 @@ export interface paths {
             cookie?: never;
         };
         /** Get Rotation Entry */
-        get: operations["allianceauth_pve_api_rotations_get_rotation_entry"];
+        get: operations["allianceauth_pve_api_entries_get_rotation_entry"];
         put?: never;
         post?: never;
         /** Delete Rotation Entry */
-        delete: operations["allianceauth_pve_api_rotations_delete_rotation_entry"];
+        delete: operations["allianceauth_pve_api_entries_delete_rotation_entry"];
         options?: never;
         head?: never;
         patch?: never;
@@ -151,7 +151,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get Rotation Entry Roles */
-        get: operations["allianceauth_pve_api_rotations_get_rotation_entry_roles"];
+        get: operations["allianceauth_pve_api_entries_get_rotation_entry_roles"];
         put?: never;
         post?: never;
         delete?: never;
@@ -168,7 +168,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get Rotation Entry Shares */
-        get: operations["allianceauth_pve_api_rotations_get_rotation_entry_shares"];
+        get: operations["allianceauth_pve_api_entries_get_rotation_entry_shares"];
         put?: never;
         post?: never;
         delete?: never;
@@ -778,7 +778,7 @@ export interface operations {
             };
         };
     };
-    allianceauth_pve_api_rotations_get_rotation_entries: {
+    allianceauth_pve_api_entries_get_rotation_entries: {
         parameters: {
             query?: never;
             header?: never;
@@ -807,13 +807,13 @@ export interface operations {
             };
         };
     };
-    allianceauth_pve_api_rotations_get_rotation_entry: {
+    allianceauth_pve_api_entries_get_rotation_entry: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                rotation_id: number;
                 entry_id: number;
+                rotation_id: number;
             };
             cookie?: never;
         };
@@ -837,13 +837,13 @@ export interface operations {
             };
         };
     };
-    allianceauth_pve_api_rotations_delete_rotation_entry: {
+    allianceauth_pve_api_entries_delete_rotation_entry: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                rotation_id: number;
                 entry_id: number;
+                rotation_id: number;
             };
             cookie?: never;
         };
@@ -874,13 +874,13 @@ export interface operations {
             };
         };
     };
-    allianceauth_pve_api_rotations_get_rotation_entry_roles: {
+    allianceauth_pve_api_entries_get_rotation_entry_roles: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                rotation_id: number;
                 entry_id: number;
+                rotation_id: number;
             };
             cookie?: never;
         };
@@ -904,13 +904,13 @@ export interface operations {
             };
         };
     };
-    allianceauth_pve_api_rotations_get_rotation_entry_shares: {
+    allianceauth_pve_api_entries_get_rotation_entry_shares: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                rotation_id: number;
                 entry_id: number;
+                rotation_id: number;
             };
             cookie?: never;
         };
