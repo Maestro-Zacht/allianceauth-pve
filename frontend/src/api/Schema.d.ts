@@ -21,7 +21,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/pve/api/rolesetups/": {
+    "/pve/api/role_setups/": {
         parameters: {
             query?: never;
             header?: never;
@@ -108,6 +108,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/pve/api/rotations/{rotation_id}/role_setups/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Rotation Role Setups */
+        get: operations["allianceauth_pve_api_rotations_get_rotation_role_setups"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/pve/api/rotations/{rotation_id}/entries/": {
         parameters: {
             query?: never;
@@ -118,7 +135,8 @@ export interface paths {
         /** Get Rotation Entries */
         get: operations["allianceauth_pve_api_entries_get_rotation_entries"];
         put?: never;
-        post?: never;
+        /** New Entry */
+        post: operations["allianceauth_pve_api_entries_new_entry"];
         delete?: never;
         options?: never;
         head?: never;
@@ -393,6 +411,22 @@ export interface components {
             /** Actual Total */
             actual_total: number;
         };
+        /** BaseRoleSchema */
+        BaseRoleSchema: {
+            /** Name */
+            name: string;
+            /** Value */
+            value: number;
+        };
+        /** RoleSetupSchema */
+        RoleSetupSchema: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Roles */
+            roles: components["schemas"]["BaseRoleSchema"][];
+        };
         /** EntrySchema */
         EntrySchema: {
             /** Id */
@@ -422,6 +456,37 @@ export interface components {
             character_name: string;
             /** Portrait Url */
             portrait_url: string;
+        };
+        /** EntryFormSchema */
+        EntryFormSchema: {
+            /** Estimated Total */
+            estimated_total: number;
+            /** Funding Project Id */
+            funding_project_id: number | null;
+            /** Funding Percentage */
+            funding_percentage: number | null;
+            /** Roles */
+            roles: components["schemas"]["RoleFormSchema"][];
+            /** Shares */
+            shares: components["schemas"]["ShareFormSchema"][];
+        };
+        /** RoleFormSchema */
+        RoleFormSchema: {
+            /** Name */
+            name: string;
+            /** Value */
+            value: number;
+        };
+        /** ShareFormSchema */
+        ShareFormSchema: {
+            /** Character Id */
+            character_id: number;
+            /** Helped Setup */
+            helped_setup: boolean;
+            /** Site Count */
+            site_count: number;
+            /** Role Name */
+            role_name: string;
         };
         /** EntryDetailsSchema */
         EntryDetailsSchema: {
@@ -778,6 +843,35 @@ export interface operations {
             };
         };
     };
+    allianceauth_pve_api_rotations_get_rotation_role_setups: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rotation_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleSetupSchema"][];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     allianceauth_pve_api_entries_get_rotation_entries: {
         parameters: {
             query?: never;
@@ -796,6 +890,61 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EntrySchema"][];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    allianceauth_pve_api_entries_new_entry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rotation_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntryFormSchema"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string[] | {
+                            [key: string]: {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
                 };
             };
             /** @description Not Found */

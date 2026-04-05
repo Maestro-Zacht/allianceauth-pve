@@ -1,13 +1,16 @@
 from collections import defaultdict
 from datetime import datetime
+
 from ninja import Schema, ModelSchema
 
 from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 
 from allianceauth.eveonline.models import EveCharacter
+from allianceauth.authentication.models import CharacterOwnership
 
-from ..models import Entry, EntryCharacter, PveButton, RoleSetup, FundingProject
+from ..models import Entry, EntryCharacter, PveButton, RoleSetup, FundingProject, Rotation, EntryRole
+from ..app_settings import PVE_ONLY_MAINS
 
 
 class PermissionsSchema(Schema):
@@ -106,9 +109,12 @@ class EntrySchema(Schema):
         return obj.created_by.profile.main_character
 
 
-class EntryRoleSchema(Schema):
+class BaseRoleSchema(Schema):
     name: str
     value: int
+
+
+class EntryRoleSchema(BaseRoleSchema):
     role_approximate_percentage: float
 
 
@@ -203,6 +209,10 @@ class BaseRoleSetupSchema(ModelSchema):
         fields = ['id', 'name']
 
 
+class RoleSetupSchema(BaseRoleSetupSchema):
+    roles: list[BaseRoleSchema]
+
+
 class NewProjectSchema(Schema):
     name: str
     goal: int
@@ -232,3 +242,148 @@ class CloseRotationSchema(Schema):
             errors['sales_value'].append(_('Sales value must be at least 1 ISK.'))
 
         return dict(errors)
+
+
+class RoleFormSchema(BaseRoleSchema):
+
+    def validate(self, names: dict[str, int]) -> dict[str, list[str]]:
+        errors = defaultdict(list)
+
+        if len(self.name) == 0 or len(self.name) > 64:
+            errors['name'].append(_('Name must be between 1 and 64 characters long.'))
+        elif self.name in names:
+            errors['name'].append(_('Role names must be unique within the entry.'))
+        else:
+            names[self.name] = self.value
+
+        if self.value < 0:
+            errors['value'].append(_('Value must be non-negative.'))
+
+        return dict(errors)
+
+
+class ShareFormSchema(Schema):
+    character_id: int
+    helped_setup: bool
+    site_count: int
+    role_name: str
+
+    def validate(self, character_ids: set[int], roles: dict[str, int], users: set[int]) -> dict[str, list[str]]:
+        errors = defaultdict(list)
+
+        if self.site_count < 0:
+            errors['site_count'].append(_('Site count must be non-negative.'))
+
+        if not EveCharacter.objects.filter(character_id=self.character_id).exists():
+            errors['character_id'].append(_('Character does not exist.'))
+        elif self.character_id in character_ids:
+            errors['character_id'].append(_('Character can only have one share in the entry.'))
+        else:
+            try:
+                user: User = CharacterOwnership.objects.get(character_id=self.character_id).user
+            except CharacterOwnership.DoesNotExist:
+                errors['character_id'].append(_('Character is not owned by any user.'))
+            else:
+                character_ids.add(self.character_id)
+                if PVE_ONLY_MAINS and user.pk in users:
+                    errors['character_id'].append(_('A user can only have one share in the entry.'))
+                else:
+                    users.add(user.pk)
+
+        if self.role_name not in roles:
+            errors['role_name'].append(_('Role name must match one of the roles defined in the entry.'))
+
+        return dict(errors)
+
+
+class EntryFormSchema(Schema):
+    estimated_total: int
+    funding_project_id: int | None
+    funding_percentage: int | None
+
+    roles: list[RoleFormSchema]
+    shares: list[ShareFormSchema]
+
+    def validate(self) -> dict[str, list[str] | dict[int, dict[str, list[str]]]]:
+        errors = defaultdict(list)
+        roles = {}
+
+        if not self.roles:
+            errors['roles'].append(_('At least one role is required.'))
+        else:
+            roles_errors = {}
+
+            for i, role in enumerate(self.roles):
+                role_errors = role.validate(roles)
+                if role_errors:
+                    roles_errors[i] = role_errors
+            if roles_errors:
+                errors['roles'] = roles_errors
+
+        if not self.shares:
+            errors['shares'].append(_('At least one share is required.'))
+        else:
+            shares_errors = {}
+            character_ids = set()
+            users = set()
+            total_value = 0
+            for i, share in enumerate(self.shares):
+                share_errors = share.validate(character_ids, roles, users)
+                if share_errors:
+                    shares_errors[i] = share_errors
+                total_value += share.site_count * roles.get(share.role_name, 0)
+
+            if shares_errors:
+                errors['shares'] = shares_errors
+            elif total_value == 0:
+                errors['shares'].append(_('Form not valid, you need at least 1 person to receive loot'))
+
+        if self.estimated_total < 1:
+            errors['estimated_total'].append(_('Estimated total must be at least 1 ISK.'))
+
+        if self.funding_project_id is not None and not FundingProject.objects.filter(pk=self.funding_project_id, is_active=True).exists():
+            errors['funding_project_id'].append(_('Funding project does not exist or is not active.'))
+        elif self.funding_project_id is not None and self.funding_percentage is None:
+            errors['funding_percentage'].append(_('Funding percentage is required when a funding project is specified.'))
+        elif self.funding_percentage is not None and (self.funding_percentage < 1 or self.funding_percentage > 100):
+            errors['funding_percentage'].append(_('Funding percentage must be between 1 and 100.'))
+
+        return dict(errors)
+
+    def save(self, created_by: User, rotation: Rotation) -> Entry:
+        entry = Entry.objects.create(
+            rotation=rotation,
+            created_by=created_by,
+            estimated_total=self.estimated_total,
+            funding_project_id=self.funding_project_id,
+            funding_percentage=self.funding_percentage,
+        )
+
+        roles_to_add = [EntryRole(entry=entry, name=role.name, value=role.value) for role in self.roles]
+        EntryRole.objects.bulk_create(roles_to_add)
+
+        shares_to_add = []
+        setups = set()
+
+        for share in self.shares:
+            role: EntryRole = entry.roles.get(name=share.role_name)
+            user: User = CharacterOwnership.objects.get(character_id=share.character_id).user
+
+            setup = share.helped_setup and user.pk not in setups
+            if setup:
+                setups.add(user.pk)
+
+            shares_to_add.append(
+                EntryCharacter(
+                    entry=entry,
+                    role=role,
+                    user_character_id=share.character_id,
+                    user=user,
+                    site_count=share.site_count,
+                    helped_setup=setup
+                )
+            )
+
+        EntryCharacter.objects.bulk_create(shares_to_add)
+
+        return entry

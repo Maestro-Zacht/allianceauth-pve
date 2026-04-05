@@ -6,23 +6,26 @@ import { getRotationEntries } from "../../api/api";
 import type { components } from "../../api/Schema";
 import { useEffect, useRef, useState } from "react";
 import type { DataTableRef } from "datatables.net-react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { usePermissions } from "../../providers/PermissionsProvider";
 
 interface RotationEntriesSectionProps {
     rotationId: number;
+    isClosed: boolean;
 }
 
 type characterType = components["schemas"]["EveCharacterSchema"];
 
-export default function RotationEntriesSection({ rotationId }: RotationEntriesSectionProps) {
+export default function RotationEntriesSection({ rotationId, isClosed }: RotationEntriesSectionProps) {
     const [imagesLoaded, setImagesLoaded] = useState(0);
     const { t, i18n } = useTranslation();
     const { data, isLoading, error } = useQuery({
-        queryKey: ['rotations', rotationId, 'entries'],
+        queryKey: ['rotation', rotationId, 'entries'],
         queryFn: () => getRotationEntries(rotationId)
     });
     const tableRef = useRef<DataTableRef>(null);
     const navigate = useNavigate();
+    const permissions = usePermissions();
 
     if (error) {
         console.error('Error loading entries:', error);
@@ -119,7 +122,7 @@ export default function RotationEntriesSection({ rotationId }: RotationEntriesSe
         <Col xs={12} className="my-3">
             <Card>
                 <Card.Body>
-                    {!isLoading &&
+                    {!isLoading && <>
                         <DataTable
                             columns={columns} data={entries}
                             className="table table-aa"
@@ -158,7 +161,14 @@ export default function RotationEntriesSection({ rotationId }: RotationEntriesSe
                                 </tr>
                             </thead>
                         </DataTable>
-                    }
+                        {!isClosed && permissions && permissions.manage_entries &&
+                            <div className="d-flex justify-content-center">
+                                <Link to={`/pve/r/rotations/${rotationId}/entries/new/`} className="btn btn-success">
+                                    {t('new_entry')}
+                                </Link>
+                            </div>
+                        }
+                    </>}
                 </Card.Body>
             </Card>
         </Col>

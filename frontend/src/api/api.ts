@@ -132,7 +132,7 @@ export async function getPveButtons() {
 }
 
 export async function getRoleSetups() {
-    return await genericGet("/pve/api/rolesetups/");
+    return await genericGet("/pve/api/role_setups/");
 }
 
 export async function createRotation(rotationData: components["schemas"]["NewRotationSchema"]) {
@@ -171,4 +171,27 @@ export async function closeRotation(rotationId: number, closeData: components["s
     if (!response.ok) {
         throw response.status;
     }
+}
+
+export async function createEntry(rotationId: number, entryData: components["schemas"]["EntryFormSchema"]) {
+    const { error, response } = await apiClient.POST(
+        "/pve/api/rotations/{rotation_id}/entries/",
+        {
+            params: { path: { rotation_id: rotationId } },
+            body: entryData
+        }
+    );
+    if (error) {
+        throw error;
+    }
+    if (!response.ok) {
+        throw response.status;
+    }
+}
+
+export async function getRotationRoleSetups(rotationId: number) {
+    return await genericGet(
+        "/pve/api/rotations/{rotation_id}/role_setups/",
+        { params: { path: { rotation_id: rotationId } } }
+    );
 }

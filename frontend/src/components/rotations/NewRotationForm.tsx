@@ -17,7 +17,7 @@ type RoleSetupType = components["schemas"]["BaseRoleSetupSchema"];
 type NewRotationErrorType = operations["allianceauth_pve_api_rotations_create_rotation"]["responses"][400]["content"]["application/json"];
 
 const getNewRotationSchema = (t: TFunction<"translation", undefined>, entryIds: number[], roleSetupIds: number[]) => {
-    const entriIdsSet = new Set(entryIds);
+    const entryIdsSet = new Set(entryIds);
     const roleSetupIdsSet = new Set(roleSetupIds);
 
     return z.object({
@@ -30,7 +30,7 @@ const getNewRotationSchema = (t: TFunction<"translation", undefined>, entryIds: 
         min_people_share_setup: z.number({ message: t("forms.number") }).int({ message: t("forms.integer") }).min(0, { message: t("forms.min_value", { min: 0 }) }),
         entry_buttons: z.array(
             z.coerce.number({ message: t("forms.number") }).int({ message: t("forms.integer") })
-                .refine(id => entriIdsSet.has(id), { message: t("forms.invalid_choice") })
+                .refine(id => entryIdsSet.has(id), { message: t("forms.invalid_choice") })
         ),
         roles_setups: z.array(
             z.coerce.number({ message: t("forms.number") }).int({ message: t("forms.integer") })

@@ -15,6 +15,7 @@ import ProjectDetails from "./components/projects/ProjectDetails";
 import NewRotationForm from "./components/rotations/NewRotationForm";
 import { PermissionsProvider } from "./providers/PermissionsProvider";
 import NewProjectForm from "./components/projects/NewProjectForm";
+import NewEntryForm from "./components/entries/NewEntryForm";
 
 
 const queryClient = new QueryClient({
@@ -79,7 +80,10 @@ function App() {
                                     <Route path="new/" element={<NewRotationForm />} />
                                     <Route path=":rotationId/">
                                         <Route index element={<RotationDetails />} />
-                                        <Route path="entries/:entryId/" element={<EntryDetails />} />
+                                        <Route path="entries/">
+                                            <Route path="new/" element={<NewEntryForm />} />
+                                            <Route path=":entryId/" element={<EntryDetails />} />
+                                        </Route>
                                     </Route>
                                 </Route>
                                 <Route path="projects/">

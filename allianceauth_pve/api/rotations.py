@@ -11,7 +11,8 @@ from .schema import (
     RotationSummarySchema,
     RotationProjectSummarySchema,
     NewRotationSchema,
-    CloseRotationSchema
+    CloseRotationSchema,
+    RoleSetupSchema
 )
 from .authenticators import NeedsPermission
 from ..utils import ensure_rotation_presets_applied
@@ -130,3 +131,13 @@ def get_rotation_project_summaries(request, rotation_id: int):
         {'project': project, 'summary': summary}
         for project, summary in rotation.funding_projects_summary.items()
     ]
+
+
+@router.get("/{int:rotation_id}/role_setups/", response={200: list[RoleSetupSchema], 404: None})
+def get_rotation_role_setups(request, rotation_id: int):
+    try:
+        rotation = Rotation.objects.get(pk=rotation_id)
+    except Rotation.DoesNotExist:
+        return 404, None
+
+    return 200, rotation.roles_setups.prefetch_related('roles')

@@ -34,7 +34,7 @@
                 ]
             }
         },
-        "/pve/api/rolesetups/": {
+        "/pve/api/role_setups/": {
             "get": {
                 "operationId": "allianceauth_pve_api_list_role_setups",
                 "summary": "List Role Setups",
@@ -335,6 +335,50 @@
                 ]
             }
         },
+        "/pve/api/rotations/{rotation_id}/role_setups/": {
+            "get": {
+                "operationId": "allianceauth_pve_api_rotations_get_rotation_role_setups",
+                "summary": "Get Rotation Role Setups",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "rotation_id",
+                        "schema": {
+                            "title": "Rotation Id",
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/RoleSetupSchema"
+                                    },
+                                    "title": "Response",
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "tags": [
+                    "rotations"
+                ],
+                "security": [
+                    {
+                        "CanAccessPVE": []
+                    }
+                ]
+            }
+        },
         "/pve/api/rotations/{rotation_id}/entries/": {
             "get": {
                 "operationId": "allianceauth_pve_api_entries_get_rotation_entries",
@@ -375,6 +419,91 @@
                 "security": [
                     {
                         "CanAccessPVE": []
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "allianceauth_pve_api_entries_new_entry",
+                "summary": "New Entry",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "rotation_id",
+                        "schema": {
+                            "title": "Rotation Id",
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": {
+                                        "anyOf": [
+                                            {
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "type": "array"
+                                            },
+                                            {
+                                                "additionalProperties": {
+                                                    "additionalProperties": {
+                                                        "items": {
+                                                            "type": "string"
+                                                        },
+                                                        "type": "array"
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "type": "object"
+                                            }
+                                        ]
+                                    },
+                                    "title": "Response",
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "entries"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EntryFormSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "NeedsPermission": []
                     }
                 ]
             }
@@ -1190,6 +1319,51 @@
                 "title": "SummarySchema",
                 "type": "object"
             },
+            "BaseRoleSchema": {
+                "properties": {
+                    "name": {
+                        "title": "Name",
+                        "type": "string"
+                    },
+                    "value": {
+                        "title": "Value",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "name",
+                    "value"
+                ],
+                "title": "BaseRoleSchema",
+                "type": "object"
+            },
+            "RoleSetupSchema": {
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "maxLength": 64,
+                        "title": "Name",
+                        "type": "string"
+                    },
+                    "roles": {
+                        "items": {
+                            "$ref": "#/components/schemas/BaseRoleSchema"
+                        },
+                        "title": "Roles",
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "roles"
+                ],
+                "title": "RoleSetupSchema",
+                "type": "object"
+            },
             "EntrySchema": {
                 "properties": {
                     "id": {
@@ -1259,6 +1433,105 @@
                     "portrait_url"
                 ],
                 "title": "EveCharacterSchema",
+                "type": "object"
+            },
+            "EntryFormSchema": {
+                "properties": {
+                    "estimated_total": {
+                        "title": "Estimated Total",
+                        "type": "integer"
+                    },
+                    "funding_project_id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Funding Project Id"
+                    },
+                    "funding_percentage": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Funding Percentage"
+                    },
+                    "roles": {
+                        "items": {
+                            "$ref": "#/components/schemas/RoleFormSchema"
+                        },
+                        "title": "Roles",
+                        "type": "array"
+                    },
+                    "shares": {
+                        "items": {
+                            "$ref": "#/components/schemas/ShareFormSchema"
+                        },
+                        "title": "Shares",
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "estimated_total",
+                    "funding_project_id",
+                    "funding_percentage",
+                    "roles",
+                    "shares"
+                ],
+                "title": "EntryFormSchema",
+                "type": "object"
+            },
+            "RoleFormSchema": {
+                "properties": {
+                    "name": {
+                        "title": "Name",
+                        "type": "string"
+                    },
+                    "value": {
+                        "title": "Value",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "name",
+                    "value"
+                ],
+                "title": "RoleFormSchema",
+                "type": "object"
+            },
+            "ShareFormSchema": {
+                "properties": {
+                    "character_id": {
+                        "title": "Character Id",
+                        "type": "integer"
+                    },
+                    "helped_setup": {
+                        "title": "Helped Setup",
+                        "type": "boolean"
+                    },
+                    "site_count": {
+                        "title": "Site Count",
+                        "type": "integer"
+                    },
+                    "role_name": {
+                        "title": "Role Name",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "character_id",
+                    "helped_setup",
+                    "site_count",
+                    "role_name"
+                ],
+                "title": "ShareFormSchema",
                 "type": "object"
             },
             "EntryDetailsSchema": {

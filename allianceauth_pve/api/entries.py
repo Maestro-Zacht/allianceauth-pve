@@ -1,6 +1,8 @@
 from ninja import Path, Router
 
 from django.db.models import F, Subquery, Sum
+from django.utils.translation import gettext as _
+from django.db import transaction
 
 from ..models import EntryRole, Rotation, Entry
 from .schema import (
@@ -8,6 +10,7 @@ from .schema import (
     EntryRoleSchema,
     EntryCharacterSchema,
     EntryDetailsSchema,
+    EntryFormSchema
 )
 from .authenticators import NeedsPermission
 
@@ -104,3 +107,29 @@ def get_rotation_entry_shares(request, entry_id: int, rotation_id: int = Path(..
         )
         .with_totals()
     )
+
+
+@router.post(
+    "/",
+    response={200: None, 400: dict[str, list[str] | dict[int, dict[str, list[str]]]], 404: None, 403: str},
+    auth=NeedsPermission('allianceauth_pve.manage_entries')
+)
+@transaction.atomic
+def new_entry(request, data: EntryFormSchema, rotation_id: int = Path(...)):
+    try:
+        rotation = Rotation.objects.get(pk=rotation_id)
+    except Rotation.DoesNotExist:
+        return 404, None
+
+    if rotation.is_closed:
+        return 403, _("The rotation is closed, you cannot add an entry")
+
+    errors = data.validate()
+    if errors:
+        return 400, errors
+
+    data.save(created_by=request.user, rotation=rotation)
+
+    # TODO: cache keys
+
+    return 200, None

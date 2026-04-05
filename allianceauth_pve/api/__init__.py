@@ -32,6 +32,6 @@ def list_buttons(request):
     return PveButton.objects.all()
 
 
-@api.get("/rolesetups/", response=list[BaseRoleSetupSchema])
+@api.get("/role_setups/", response=list[BaseRoleSetupSchema])
 def list_role_setups(request):
     return RoleSetup.objects.all()
