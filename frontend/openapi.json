@@ -379,6 +379,50 @@
                 ]
             }
         },
+        "/pve/api/rotations/{rotation_id}/buttons/": {
+            "get": {
+                "operationId": "allianceauth_pve_api_rotations_get_rotation_buttons",
+                "summary": "Get Rotation Buttons",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "rotation_id",
+                        "schema": {
+                            "title": "Rotation Id",
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/PveButtonSchema"
+                                    },
+                                    "title": "Response",
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "tags": [
+                    "rotations"
+                ],
+                "security": [
+                    {
+                        "CanAccessPVE": []
+                    }
+                ]
+            }
+        },
         "/pve/api/rotations/{rotation_id}/entries/": {
             "get": {
                 "operationId": "allianceauth_pve_api_entries_get_rotation_entries",

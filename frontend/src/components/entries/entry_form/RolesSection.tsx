@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import type { ExtendedEntryFormSchema } from "../EntryTypes";
-import "./EntryFormStyles.css"
+import "./RolesSectionStyles.css";
 import { Button, Form } from "react-bootstrap";
 import TooltipComponent from "../../TooltipComponent";
 import { useEntryProcessor } from "../../../providers/EntryFormProvider";

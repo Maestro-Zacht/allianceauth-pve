@@ -195,3 +195,10 @@ export async function getRotationRoleSetups(rotationId: number) {
         { params: { path: { rotation_id: rotationId } } }
     );
 }
+
+export async function getRotationButtons(rotationId: number) {
+    return await genericGet(
+        "/pve/api/rotations/{rotation_id}/buttons/",
+        { params: { path: { rotation_id: rotationId } } }
+    );
+}

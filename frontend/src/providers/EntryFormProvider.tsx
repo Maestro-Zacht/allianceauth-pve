@@ -8,15 +8,19 @@ const EntryFormDataContext = createContext<ExtendedEntryFormSchema | undefined>(
 
 type EntryReducerAction =
     | { type: 'update_estimated_total'; estimated_total: number }
+    | { type: 'increment_estimated_total'; increment: number }
     | { type: 'add_role'; role: RoleType }
     | { type: 'load_role_setup'; roles: RoleType[] }
     | { type: 'update_role_value'; roleName: string; value: number }
-    | { type: 'delete_role'; roleName: string };
+    | { type: 'delete_role'; roleName: string }
+    | { type: 'update_shares'; onlyPresent: boolean; increment: number };
 
 function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReducerAction): ExtendedEntryFormSchema {
     switch (action.type) {
         case 'update_estimated_total':
             return { ...state, estimated_total: action.estimated_total };
+        case 'increment_estimated_total':
+            return { ...state, estimated_total: state.estimated_total + action.increment };
         case 'add_role':
             if (state.roles.some(role => role.name === action.role.name)) {
                 return state;
@@ -54,6 +58,21 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                         share
                 )
             };
+        case 'update_shares':
+            return {
+                ...state,
+                shares: state.shares.map(share => {
+                    if (share.isPresent || !action.onlyPresent) {
+                        const newSiteCount = share.site_count + action.increment;
+                        return {
+                            ...share,
+                            site_count: newSiteCount < 0 ? 0 : newSiteCount
+                        }
+                    } else {
+                        return share;
+                    }
+                })
+            }
         default:
             return state;
     }

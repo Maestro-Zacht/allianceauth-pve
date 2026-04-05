@@ -12,7 +12,8 @@ from .schema import (
     RotationProjectSummarySchema,
     NewRotationSchema,
     CloseRotationSchema,
-    RoleSetupSchema
+    RoleSetupSchema,
+    PveButtonSchema
 )
 from .authenticators import NeedsPermission
 from ..utils import ensure_rotation_presets_applied
@@ -141,3 +142,13 @@ def get_rotation_role_setups(request, rotation_id: int):
         return 404, None
 
     return 200, rotation.roles_setups.prefetch_related('roles')
+
+
+@router.get("/{int:rotation_id}/buttons/", response={200: list[PveButtonSchema], 404: None})
+def get_rotation_buttons(request, rotation_id: int):
+    try:
+        rotation = Rotation.objects.get(pk=rotation_id)
+    except Rotation.DoesNotExist:
+        return 404, None
+
+    return 200, rotation.entry_buttons.all()
