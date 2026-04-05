@@ -202,3 +202,10 @@ export async function getRotationButtons(rotationId: number) {
         { params: { path: { rotation_id: rotationId } } }
     );
 }
+
+export async function getActiveProjects() {
+    return await genericGet(
+        "/pve/api/projects/",
+        { params: { query: { active: true } } }
+    );
+}

@@ -13,7 +13,9 @@ type EntryReducerAction =
     | { type: 'load_role_setup'; roles: RoleType[] }
     | { type: 'update_role_value'; roleName: string; value: number }
     | { type: 'delete_role'; roleName: string }
-    | { type: 'update_shares'; onlyPresent: boolean; increment: number };
+    | { type: 'update_shares'; onlyPresent: boolean; increment: number }
+    | { type: 'select_funding_project'; projectId: number | null }
+    | { type: 'update_funding_percentage'; percentage: number };
 
 function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReducerAction): ExtendedEntryFormSchema {
     switch (action.type) {
@@ -72,7 +74,33 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                         return share;
                     }
                 })
+            };
+        case "select_funding_project":
+            return {
+                ...state,
+                funding_project_id: action.projectId,
+                funding_percentage: action.projectId === null ?
+                    null :
+                    state.funding_percentage === null ?
+                        1 :
+                        state.funding_percentage
+            };
+        case "update_funding_percentage":
+            if (state.funding_project_id === null) {
+                return state;
             }
+
+            let newPercentage = action.percentage;
+            if (newPercentage < 1) {
+                newPercentage = 1;
+            } else if (newPercentage > 100) {
+                newPercentage = 100;
+            }
+
+            return {
+                ...state,
+                funding_percentage: newPercentage
+            };
         default:
             return state;
     }

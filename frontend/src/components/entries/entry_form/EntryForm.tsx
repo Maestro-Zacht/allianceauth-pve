@@ -28,7 +28,10 @@ export default function EntryForm({ rotationId }: EntryFormProps) {
                     <TotalSection estimatedTotal={entryData.estimated_total} />
                     <hr />
                     <SharesSection shares={entryData.shares} />
-                    <FundingProjectSection />
+                    <FundingProjectSection
+                        fundingProjectId={entryData.funding_project_id}
+                        fundingPercentage={entryData.funding_percentage}
+                    />
                     <div className="d-flex flex-row-reverse">
                         <Button onClick={submitEntry}>{t("submit")}</Button>
                     </div>

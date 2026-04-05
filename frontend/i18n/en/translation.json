@@ -23,6 +23,7 @@
   "created_by": "Created By",
   "current_total": "Current Total",
   "custom_increment": "Custom Increment",
+  "custom_increment_description": "Use this field to add a custom value to the total.",
   "dashboard": {
     "title": "PvE Dashboard"
   },
@@ -61,6 +62,7 @@
     "roles_setups_help": "Setups available for loading in the Entry form.",
     "tax_rate_help": "Tax rate as a percentage. For example, enter 10 for a 10% tax rate."
   },
+  "funding_percentage_tooltip": "Percentage in integer form (1-100)",
   "funding_project": "Funding Project",
   "goal": "Goal",
   "helped_setup": "Helped Setup",
@@ -84,6 +86,7 @@
   "no_permission": "You do not have permission to perform this action",
   "number_of_users": "Number of Users",
   "participants": "Participants",
+  "percentage": "Percentage",
   "priority": "Priority",
   "project": {
     "marked_completed": "Project is marked as completed",

@@ -13,7 +13,7 @@ router = Router(tags=["projects"])
 
 
 @router.get("/", response=list[FundingProjectSchema])
-def list_projects(request):
+def list_projects(request, active: bool | None = None):
     shares_qs = (
         EntryCharacter.objects.filter(
             entry__funding_project_id=OuterRef('pk'),
@@ -24,7 +24,15 @@ def list_projects(request):
         .values('num_users')
     )
 
-    return FundingProject.objects.annotate(
+    match active:
+        case True:
+            base_qs = FundingProject.objects.filter(is_active=True)
+        case False:
+            base_qs = FundingProject.objects.filter(is_active=False)
+        case None:
+            base_qs = FundingProject.objects.all()
+
+    return base_qs.annotate(
         number_of_participants=Coalesce(Subquery(shares_qs), 0)
     )
 

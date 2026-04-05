@@ -1162,7 +1162,9 @@ export interface operations {
     };
     allianceauth_pve_api_projects_list_projects: {
         parameters: {
-            query?: never;
+            query?: {
+                active?: boolean | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;

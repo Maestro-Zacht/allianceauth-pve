@@ -810,7 +810,24 @@
             "get": {
                 "operationId": "allianceauth_pve_api_projects_list_projects",
                 "summary": "List Projects",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "active",
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Active"
+                        },
+                        "required": false
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

@@ -78,5 +78,6 @@ export default function IncrementTotalSection({ rotationId }: IncrementTotalSect
                 {t("add")}
             </Button>
         </Form.Group>
+        <Form.Text className="mt-0" muted>{t("custom_increment_description")}</Form.Text>
     </>
 }
