@@ -30,7 +30,7 @@ export default function TotalSection({ estimatedTotal }: TotalSectionProps) {
                         if (e.target.value === '') {
                             updateEntryData({ type: 'update_estimated_total', estimated_total: 0 });
                         }
-                        else if (!isNaN(newTotal)) {
+                        else if (!isNaN(newTotal) && newTotal >= 0) {
                             updateEntryData({ type: 'update_estimated_total', estimated_total: newTotal });
                         }
                     }}

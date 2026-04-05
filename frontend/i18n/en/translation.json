@@ -2,6 +2,7 @@
   "actions": "Actions",
   "actual_progress": "Actual Progress",
   "actual_total": "Actual Total",
+  "add": "Add",
   "age": "Age",
   "approximate_percentage": "Approximate Percentage",
   "back": "Back",
@@ -21,6 +22,7 @@
   "created": "Created",
   "created_by": "Created By",
   "current_total": "Current Total",
+  "custom_increment": "Custom Increment",
   "dashboard": {
     "title": "PvE Dashboard"
   },
