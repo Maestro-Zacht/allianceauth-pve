@@ -209,3 +209,17 @@ export async function getActiveProjects() {
         { params: { query: { active: true } } }
     );
 }
+
+export async function searchRatters(name?: string | undefined, excludeIds?: number[] | undefined) {
+    const { data, error } = await apiClient.POST(
+        "/pve/api/search/",
+        {
+            params: { query: { name } },
+            body: excludeIds,
+        }
+    );
+    if (error) {
+        throw error;
+    }
+    return data;
+}

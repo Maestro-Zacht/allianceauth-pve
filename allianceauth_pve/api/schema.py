@@ -387,3 +387,19 @@ class EntryFormSchema(Schema):
         EntryCharacter.objects.bulk_create(shares_to_add)
 
         return entry
+
+
+class RatterSchema(Schema):
+    character: EveCharacterSchema
+    main_character: EveCharacterSchema
+    extra_chars: list[str]
+
+    @staticmethod
+    def resolve_main_character(obj: CharacterOwnership) -> EveCharacter:
+        return obj.user.profile.main_character
+
+    @staticmethod
+    def resolve_extra_chars(obj: CharacterOwnership) -> list[str]:
+        if obj.character != obj.user.profile.main_character:
+            return []
+        return list(map(lambda alt: alt.character.character_name, obj.user.alts))

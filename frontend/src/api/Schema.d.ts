@@ -38,6 +38,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/pve/api/search/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Search Ratters */
+        post: operations["allianceauth_pve_api_search_ratters"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/pve/api/rotations/": {
         parameters: {
             query?: never;
@@ -335,6 +352,22 @@ export interface components {
             /** Name */
             name: string;
         };
+        /** EveCharacterSchema */
+        EveCharacterSchema: {
+            /** Character Id */
+            character_id: number;
+            /** Character Name */
+            character_name: string;
+            /** Portrait Url */
+            portrait_url: string;
+        };
+        /** RatterSchema */
+        RatterSchema: {
+            character: components["schemas"]["EveCharacterSchema"];
+            main_character: components["schemas"]["EveCharacterSchema"];
+            /** Extra Chars */
+            extra_chars: string[];
+        };
         /** RotationSchema */
         RotationSchema: {
             /** Id */
@@ -464,15 +497,6 @@ export interface components {
             estimated_total_after_tax: number;
             /** Actual Total After Tax */
             actual_total_after_tax: number;
-        };
-        /** EveCharacterSchema */
-        EveCharacterSchema: {
-            /** Character Id */
-            character_id: number;
-            /** Character Name */
-            character_name: string;
-            /** Portrait Url */
-            portrait_url: string;
         };
         /** EntryFormSchema */
         EntryFormSchema: {
@@ -665,6 +689,32 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BaseRoleSetupSchema"][];
+                };
+            };
+        };
+    };
+    allianceauth_pve_api_search_ratters: {
+        parameters: {
+            query?: {
+                name?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": number[];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RatterSchema"][];
                 };
             };
         };

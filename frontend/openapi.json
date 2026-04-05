@@ -62,6 +62,60 @@
                 ]
             }
         },
+        "/pve/api/search/": {
+            "post": {
+                "operationId": "allianceauth_pve_api_search_ratters",
+                "summary": "Search Ratters",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "name",
+                        "schema": {
+                            "default": "",
+                            "title": "Name",
+                            "type": "string"
+                        },
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/RatterSchema"
+                                    },
+                                    "title": "Response",
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    }
+                },
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "default": [],
+                                "items": {
+                                    "type": "integer"
+                                },
+                                "title": "Exclude Ids",
+                                "type": "array"
+                            }
+                        }
+                    },
+                    "required": false
+                },
+                "security": [
+                    {
+                        "CanAccessPVE": []
+                    }
+                ]
+            }
+        },
         "/pve/api/rotations/": {
             "get": {
                 "operationId": "allianceauth_pve_api_rotations_list_rotations",
@@ -1119,6 +1173,53 @@
                 "title": "BaseRoleSetupSchema",
                 "type": "object"
             },
+            "EveCharacterSchema": {
+                "properties": {
+                    "character_id": {
+                        "title": "Character Id",
+                        "type": "integer"
+                    },
+                    "character_name": {
+                        "title": "Character Name",
+                        "type": "string"
+                    },
+                    "portrait_url": {
+                        "title": "Portrait Url",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "character_id",
+                    "character_name",
+                    "portrait_url"
+                ],
+                "title": "EveCharacterSchema",
+                "type": "object"
+            },
+            "RatterSchema": {
+                "properties": {
+                    "character": {
+                        "$ref": "#/components/schemas/EveCharacterSchema"
+                    },
+                    "main_character": {
+                        "$ref": "#/components/schemas/EveCharacterSchema"
+                    },
+                    "extra_chars": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Extra Chars",
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "character",
+                    "main_character",
+                    "extra_chars"
+                ],
+                "title": "RatterSchema",
+                "type": "object"
+            },
             "RotationSchema": {
                 "properties": {
                     "id": {
@@ -1471,29 +1572,6 @@
                     "actual_total_after_tax"
                 ],
                 "title": "EntrySchema",
-                "type": "object"
-            },
-            "EveCharacterSchema": {
-                "properties": {
-                    "character_id": {
-                        "title": "Character Id",
-                        "type": "integer"
-                    },
-                    "character_name": {
-                        "title": "Character Name",
-                        "type": "string"
-                    },
-                    "portrait_url": {
-                        "title": "Portrait Url",
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "character_id",
-                    "character_name",
-                    "portrait_url"
-                ],
-                "title": "EveCharacterSchema",
                 "type": "object"
             },
             "EntryFormSchema": {

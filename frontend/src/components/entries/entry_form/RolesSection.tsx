@@ -6,6 +6,7 @@ import TooltipComponent from "../../TooltipComponent";
 import { useEntryProcessor } from "../../../providers/EntryFormProvider";
 import NewRoleForm from "./NewRoleForm";
 import LoadRoleSetupsModal from "./LoadRoleSetupsModal";
+import { Fragment } from "react";
 
 
 interface RolesSectionProps {
@@ -23,10 +24,9 @@ export default function RolesSection({ rotationId, roles }: RolesSectionProps) {
             <span>{t("value")}</span>
             <span>{t("delete")}</span>
 
-            {roles.map((role, index) => <>
-                <span key={`role-name-${index}`}>{role.name}</span>
+            {roles.map((role, index) => <Fragment key={`role-${index}`}>
+                <span>{role.name}</span>
                 <Form.Control
-                    key={`role-value-${index}`}
                     value={role.value}
                     type="number"
                     onChange={(e) => {
@@ -34,9 +34,8 @@ export default function RolesSection({ rotationId, roles }: RolesSectionProps) {
                         updateEntryData({ type: 'update_role_value', roleName: role.name, value: newValue });
                     }}
                 />
-                <TooltipComponent key={`delete-role-tooltip-${index}`} id={`delete-role-tooltip-${index}`} text={t("delete_role")}>
+                <TooltipComponent id={`delete-role-tooltip-${index}`} text={t("delete_role")}>
                     <Button
-                        key={`role-delete-${index}`}
                         variant="danger"
                         style={{ transform: 'scale(0.75)' }}
                         onClick={() => updateEntryData({ type: 'delete_role', roleName: role.name })}
@@ -45,7 +44,7 @@ export default function RolesSection({ rotationId, roles }: RolesSectionProps) {
                         <i className="fa-solid fa-trash-can"></i>
                     </Button>
                 </TooltipComponent>
-            </>)}
+            </Fragment>)}
         </div>
         <div className="d-flex justify-content-evenly align-items-center">
             <NewRoleForm existingRoleNames={roles.map(r => r.name)} />

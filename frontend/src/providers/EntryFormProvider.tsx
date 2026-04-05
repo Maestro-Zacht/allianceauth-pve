@@ -15,7 +15,8 @@ type EntryReducerAction =
     | { type: 'delete_role'; roleName: string }
     | { type: 'update_shares'; onlyPresent: boolean; increment: number }
     | { type: 'select_funding_project'; projectId: number | null }
-    | { type: 'update_funding_percentage'; percentage: number };
+    | { type: 'update_funding_percentage'; percentage: number }
+    | { type: 'add_character'; characterId: number, characterName: string, portraitUrl: string, mainCharacterName: string, mainCharacterPortraitUrl: string };
 
 function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReducerAction): ExtendedEntryFormSchema {
     switch (action.type) {
@@ -101,6 +102,27 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                 ...state,
                 funding_percentage: newPercentage
             };
+        case "add_character":
+            if (state.shares.some(share => share.character_id === action.characterId)) {
+                return state;
+            }
+            return {
+                ...state,
+                shares: [
+                    ...state.shares,
+                    {
+                        character_id: action.characterId,
+                        characterName: action.characterName,
+                        portraitUrl: action.portraitUrl,
+                        mainCharacterName: action.mainCharacterName,
+                        mainCharacterPortraitUrl: action.mainCharacterPortraitUrl,
+                        role_name: state.roles[0].name,
+                        site_count: 0,
+                        helped_setup: false,
+                        isPresent: true,
+                    }
+                ]
+            };
         default:
             return state;
     }
@@ -118,6 +140,10 @@ interface EntryFormProviderProps {
 
 export function EntryFormProvider({ initialData, submitEntry, children }: PropsWithChildren<EntryFormProviderProps>) {
     const [entryData, dispatchEntryData] = useReducer(entryFormDataReducer, initialData);
+
+    if (initialData.roles.length === 0) {
+        dispatchEntryData({ type: 'add_role', role: { name: "Krab", value: 1 } });
+    }
 
     const submitAction = () => {
         submitEntry(entryData);

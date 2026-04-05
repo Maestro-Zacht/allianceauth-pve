@@ -7,6 +7,7 @@ import IncrementTotalSection from "./IncrementTotalSection";
 import TotalSection from "./TotalSection";
 import AddCharactersSection from "./AddCharactersSection";
 import FundingProjectSection from "./FundingProjectSection";
+import "./EntryFormStyles.css"
 
 interface EntryFormProps {
     rotationId: number;
@@ -41,7 +42,7 @@ export default function EntryForm({ rotationId }: EntryFormProps) {
         <Col xs={12} sm={4}>
             <Card>
                 <Card.Body>
-                    <AddCharactersSection />
+                    <AddCharactersSection addedCharacterIds={entryData.shares.map((share) => share.character_id)} />
                 </Card.Body>
             </Card>
         </Col>

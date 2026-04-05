@@ -2,7 +2,11 @@ import type { components } from "../../api/Schema";
 
 type EntryFormSchema = components["schemas"]["EntryFormSchema"];
 
-type ExtendedShareItem = EntryFormSchema['shares'][number] & {
+export type ExtendedShareItem = EntryFormSchema['shares'][number] & {
+    portraitUrl: string;
+    characterName: string;
+    mainCharacterName: string;
+    mainCharacterPortraitUrl: string;
     isPresent: boolean;
 };
 

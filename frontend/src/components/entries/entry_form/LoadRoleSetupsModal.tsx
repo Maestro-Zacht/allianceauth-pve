@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import { getRotationRoleSetups } from "../../../api/api";
@@ -41,7 +41,7 @@ export default function LoadRoleSetupsModal({ rotationId }: LoadRoleSetupsModalP
                         <Modal.Title>{t("load_role_setups")}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        {roleSetups.map((setup, idx, array) => <>
+                        {roleSetups.map((setup, idx, array) => <Fragment key={`role-setup-${setup.id}`}>
                             <div className="mb-4">
                                 <h5>{setup.name}</h5>
                                 <small>
@@ -61,7 +61,7 @@ export default function LoadRoleSetupsModal({ rotationId }: LoadRoleSetupsModalP
                                 {t("load")}
                             </Button>
                             {idx < array.length - 1 && <hr />}
-                        </>)}
+                        </Fragment>)}
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="danger" onClick={() => setShow(false)}>
