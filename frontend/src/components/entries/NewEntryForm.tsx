@@ -1,16 +1,18 @@
-import { Container, Row } from "react-bootstrap";
+import { Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
-import type { ExtendedEntryFormSchema } from "./EntryTypes";
+import type { ExtendedEntryFormSchema, EntryFormSchema, EntryFormErrors } from "./EntryTypes";
 import { useNavigate, useParams } from "react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createEntry } from "../../api/api";
 import { useToast } from "../../providers/ToastProvider";
 import { EntryFormProvider } from "../../providers/EntryFormProvider";
 import EntryForm from "./entry_form/EntryForm";
+import { useState } from "react";
 
 
 
 export default function NewEntryForm() {
+    const [formErrors, setFormErrors] = useState<EntryFormErrors | null>(null);
     const { rotationId } = useParams();
     const rotationIdNum = Number(rotationId);
     const { t } = useTranslation();
@@ -18,18 +20,39 @@ export default function NewEntryForm() {
     const addToast = useToast();
     const navigate = useNavigate();
     const mutation = useMutation({
-        mutationFn: (data: ExtendedEntryFormSchema) => createEntry(rotationIdNum, data),
+        mutationFn: (data: EntryFormSchema) => createEntry(rotationIdNum, data),
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: ['rotation', rotationIdNum] });
             addToast(t('entry_created'));
             navigate(`/pve/r/rotations/${rotationIdNum}/`);
+        },
+        onError: (error: number | string | EntryFormErrors) => {
+            if (typeof error === "number") {
+                addToast(t('entry_failed_code', { error }), 'danger');
+            } else if (typeof error === "string") {
+                addToast(t('entry_failed', { error }), 'danger');
+            } else {
+                setFormErrors(error);
+                addToast(t('entry_creation_failed'), 'danger');
+            }
         }
     });
 
     const submitEntry = (entryFormData: ExtendedEntryFormSchema) => {
-        // mutation.mutate(entryFormData);
-        alert(JSON.stringify(entryFormData, null, 2));
-        mutation;
+        const sendData: EntryFormSchema = {
+            estimated_total: entryFormData.estimated_total,
+            funding_percentage: entryFormData.funding_percentage,
+            funding_project_id: entryFormData.funding_project_id,
+            shares: entryFormData.shares.map(share => ({
+                character_id: share.character_id,
+                helped_setup: share.helped_setup,
+                role_name: share.role_name,
+                site_count: share.site_count,
+            })),
+            roles: entryFormData.roles,
+        };
+        mutation.mutate(sendData);
+        setFormErrors(null);
     }
 
     const initialEntryData: ExtendedEntryFormSchema = {
@@ -41,12 +64,10 @@ export default function NewEntryForm() {
     };
 
     return <>
-        <Container fluid>
-            <Row>
-                <EntryFormProvider initialData={initialEntryData} submitEntry={submitEntry}>
-                    <EntryForm rotationId={rotationIdNum} />
-                </EntryFormProvider>
-            </Row>
-        </Container>
+        <Row>
+            <EntryFormProvider initialData={initialEntryData} submitEntry={submitEntry}>
+                <EntryForm rotationId={rotationIdNum} isLoading={mutation.isPending} errors={formErrors} />
+            </EntryFormProvider>
+        </Row>
     </>
 }

@@ -244,9 +244,14 @@ class CloseRotationSchema(Schema):
         return dict(errors)
 
 
+class RoleFormErrorsSchema(Schema):
+    name: list[str] = []
+    value: list[str] = []
+
+
 class RoleFormSchema(BaseRoleSchema):
 
-    def validate(self, names: dict[str, int]) -> dict[str, list[str]]:
+    def validate(self, names: dict[str, int]) -> RoleFormErrorsSchema | None:
         errors = defaultdict(list)
 
         if len(self.name) == 0 or len(self.name) > 64:
@@ -259,7 +264,16 @@ class RoleFormSchema(BaseRoleSchema):
         if self.value < 0:
             errors['value'].append(_('Value must be non-negative.'))
 
-        return dict(errors)
+        if errors:
+            return RoleFormErrorsSchema(**dict(errors))
+        return None
+
+
+class ShareFormErrorsSchema(Schema):
+    character_id: list[str] = []
+    helped_setup: list[str] = []
+    site_count: list[str] = []
+    role_name: list[str] = []
 
 
 class ShareFormSchema(Schema):
@@ -268,7 +282,7 @@ class ShareFormSchema(Schema):
     site_count: int
     role_name: str
 
-    def validate(self, character_ids: set[int], roles: dict[str, int], users: set[int]) -> dict[str, list[str]]:
+    def validate(self, character_ids: set[int], roles: dict[str, int], users: set[int]) -> ShareFormErrorsSchema | None:
         errors = defaultdict(list)
 
         if self.site_count < 0:
@@ -280,7 +294,7 @@ class ShareFormSchema(Schema):
             errors['character_id'].append(_('Character can only have one share in the entry.'))
         else:
             try:
-                user: User = CharacterOwnership.objects.get(character_id=self.character_id).user
+                user: User = CharacterOwnership.objects.get(character__character_id=self.character_id).user
             except CharacterOwnership.DoesNotExist:
                 errors['character_id'].append(_('Character is not owned by any user.'))
             else:
@@ -293,7 +307,19 @@ class ShareFormSchema(Schema):
         if self.role_name not in roles:
             errors['role_name'].append(_('Role name must match one of the roles defined in the entry.'))
 
-        return dict(errors)
+        if errors:
+            return ShareFormErrorsSchema(**dict(errors))
+        return None
+
+
+class EntryFormErrorsSchema(Schema):
+    estimated_total: list[str] = []
+    funding_project_id: list[str] = []
+    funding_percentage: list[str] = []
+    roles_root: list[str] = []
+    roles: dict[int, RoleFormErrorsSchema] = {}
+    shares_root: list[str] = []
+    shares: dict[int, ShareFormErrorsSchema] = {}
 
 
 class EntryFormSchema(Schema):
@@ -304,24 +330,24 @@ class EntryFormSchema(Schema):
     roles: list[RoleFormSchema]
     shares: list[ShareFormSchema]
 
-    def validate(self) -> dict[str, list[str] | dict[int, dict[str, list[str]]]]:
+    def validate(self) -> EntryFormErrorsSchema | None:
         errors = defaultdict(list)
         roles = {}
 
         if not self.roles:
-            errors['roles'].append(_('At least one role is required.'))
+            errors['roles_root'].append(_('At least one role is required.'))
         else:
             roles_errors = {}
 
             for i, role in enumerate(self.roles):
                 role_errors = role.validate(roles)
-                if role_errors:
+                if role_errors is not None:
                     roles_errors[i] = role_errors
             if roles_errors:
                 errors['roles'] = roles_errors
 
         if not self.shares:
-            errors['shares'].append(_('At least one share is required.'))
+            errors['shares_root'].append(_('At least one share is required.'))
         else:
             shares_errors = {}
             character_ids = set()
@@ -329,14 +355,14 @@ class EntryFormSchema(Schema):
             total_value = 0
             for i, share in enumerate(self.shares):
                 share_errors = share.validate(character_ids, roles, users)
-                if share_errors:
+                if share_errors is not None:
                     shares_errors[i] = share_errors
                 total_value += share.site_count * roles.get(share.role_name, 0)
 
             if shares_errors:
                 errors['shares'] = shares_errors
             elif total_value == 0:
-                errors['shares'].append(_('Form not valid, you need at least 1 person to receive loot'))
+                errors['shares_root'].append(_('Form not valid, you need at least 1 person to receive loot'))
 
         if self.estimated_total < 1:
             errors['estimated_total'].append(_('Estimated total must be at least 1 ISK.'))
@@ -348,7 +374,9 @@ class EntryFormSchema(Schema):
         elif self.funding_percentage is not None and (self.funding_percentage < 1 or self.funding_percentage > 100):
             errors['funding_percentage'].append(_('Funding percentage must be between 1 and 100.'))
 
-        return dict(errors)
+        if errors:
+            return EntryFormErrorsSchema(**dict(errors))
+        return None
 
     def save(self, created_by: User, rotation: Rotation) -> Entry:
         entry = Entry.objects.create(
@@ -356,34 +384,34 @@ class EntryFormSchema(Schema):
             created_by=created_by,
             estimated_total=self.estimated_total,
             funding_project_id=self.funding_project_id,
-            funding_percentage=self.funding_percentage,
+            funding_percentage=self.funding_percentage or 0,
         )
 
         roles_to_add = [EntryRole(entry=entry, name=role.name, value=role.value) for role in self.roles]
-        EntryRole.objects.bulk_create(roles_to_add)
 
         shares_to_add = []
         setups = set()
 
         for share in self.shares:
             role: EntryRole = entry.roles.get(name=share.role_name)
-            user: User = CharacterOwnership.objects.get(character_id=share.character_id).user
+            ownership: CharacterOwnership = CharacterOwnership.objects.get(character__character_id=share.character_id)
 
-            setup = share.helped_setup and user.pk not in setups
+            setup = share.helped_setup and ownership.user_id not in setups
             if setup:
-                setups.add(user.pk)
+                setups.add(ownership.user_id)
 
             shares_to_add.append(
                 EntryCharacter(
                     entry=entry,
                     role=role,
-                    user_character_id=share.character_id,
-                    user=user,
+                    user_character_id=ownership.character_id,
+                    user_id=ownership.user_id,
                     site_count=share.site_count,
                     helped_setup=setup
                 )
             )
 
+        EntryRole.objects.bulk_create(roles_to_add)
         EntryCharacter.objects.bulk_create(shares_to_add)
 
         return entry

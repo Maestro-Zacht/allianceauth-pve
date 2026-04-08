@@ -498,6 +498,84 @@ export interface components {
             /** Actual Total After Tax */
             actual_total_after_tax: number;
         };
+        /** EntryFormErrorsSchema */
+        EntryFormErrorsSchema: {
+            /**
+             * Estimated Total
+             * @default []
+             */
+            estimated_total: string[];
+            /**
+             * Funding Project Id
+             * @default []
+             */
+            funding_project_id: string[];
+            /**
+             * Funding Percentage
+             * @default []
+             */
+            funding_percentage: string[];
+            /**
+             * Roles Root
+             * @default []
+             */
+            roles_root: string[];
+            /**
+             * Roles
+             * @default {}
+             */
+            roles: {
+                [key: string]: components["schemas"]["RoleFormErrorsSchema"];
+            };
+            /**
+             * Shares Root
+             * @default []
+             */
+            shares_root: string[];
+            /**
+             * Shares
+             * @default {}
+             */
+            shares: {
+                [key: string]: components["schemas"]["ShareFormErrorsSchema"];
+            };
+        };
+        /** RoleFormErrorsSchema */
+        RoleFormErrorsSchema: {
+            /**
+             * Name
+             * @default []
+             */
+            name: string[];
+            /**
+             * Value
+             * @default []
+             */
+            value: string[];
+        };
+        /** ShareFormErrorsSchema */
+        ShareFormErrorsSchema: {
+            /**
+             * Character Id
+             * @default []
+             */
+            character_id: string[];
+            /**
+             * Helped Setup
+             * @default []
+             */
+            helped_setup: string[];
+            /**
+             * Site Count
+             * @default []
+             */
+            site_count: string[];
+            /**
+             * Role Name
+             * @default []
+             */
+            role_name: string[];
+        };
         /** EntryFormSchema */
         EntryFormSchema: {
             /** Estimated Total */
@@ -1025,13 +1103,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: string[] | {
-                            [key: string]: {
-                                [key: string]: string[];
-                            };
-                        };
-                    };
+                    "application/json": components["schemas"]["EntryFormErrorsSchema"];
                 };
             };
             /** @description Forbidden */

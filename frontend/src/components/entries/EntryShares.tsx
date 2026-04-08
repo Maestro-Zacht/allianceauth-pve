@@ -47,11 +47,10 @@ function ShareRow({ share, hasProjectContribution }: ShareRowProps) {
         </td>
         <td>{share.role_name}</td>
         <td>
-            {share.helped_setup ? (
-                <i className="fas fa-heart fa-heart-red"></i>
-            ) : (
+            {share.helped_setup ?
+                <i className="fas fa-heart fa-heart-red"></i> :
                 <i className="far fa-heart fa-heart-red"></i>
-            )}
+            }
         </td>
         <td>{share.site_count}</td>
         <td>{localizeNumber(share.estimated_share_total)}</td>

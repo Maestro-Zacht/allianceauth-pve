@@ -3,7 +3,7 @@ import { useParams } from "react-router";
 import { getRotation } from "../../api/api";
 import Loading from "../Loading";
 import type { components } from "../../api/Schema";
-import { CardGroup, Col, Container, Row } from "react-bootstrap";
+import { CardGroup, Col, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import TimeAgo from "react-timeago";
 import RotationSummarySection from "./RotationSummarySection";
@@ -86,19 +86,17 @@ export default function RotationDetails() {
 
     return <>
         <NavBackButton url={`/pve/r/`} />
-        <Container fluid>
-            {isLoading ?
-                <Row>
-                    <Col xs={12} className="text-center">
-                        <Loading />
-                    </Col>
-                </Row> :
-                <Row>
-                    <RotationHeader rotation={data!} />
-                    <RotationSummarySection rotationId={data!.id} isClosed={data!.is_closed} />
-                    <RotationEntriesSection rotationId={data!.id} isClosed={data!.is_closed} />
-                </Row>
-            }
-        </Container>
+        {isLoading ?
+            <Row>
+                <Col xs={12} className="text-center">
+                    <Loading />
+                </Col>
+            </Row> :
+            <Row>
+                <RotationHeader rotation={data!} />
+                <RotationSummarySection rotationId={data!.id} isClosed={data!.is_closed} />
+                <RotationEntriesSection rotationId={data!.id} isClosed={data!.is_closed} />
+            </Row>
+        }
     </>
 }

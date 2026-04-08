@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Col, Container, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import { useParams } from "react-router";
 import { getProjectDetails } from "../../api/api";
 import Loading from "../Loading";
@@ -25,17 +25,15 @@ export default function ProjectDetails() {
 
     return <>
         <NavBackButton url={`/pve/r/`} />
-        <Container fluid>
-            <Row>
-                {isLoading ?
-                    <Col xs={12} className="text-center"><Loading /></Col>
-                    : <>
-                        <h1 className="page-header text-center">{data!.name}</h1>
-                        <ProjectInfo project={data!} />
-                        <ProjectContributions projectId={projectIdNum} />
+        <Row>
+            {isLoading ?
+                <Col xs={12} className="text-center"><Loading /></Col>
+                : <>
+                    <h1 className="page-header text-center">{data!.name}</h1>
+                    <ProjectInfo project={data!} />
+                    <ProjectContributions projectId={projectIdNum} />
 
-                    </>}
-            </Row>
-        </Container>
+                </>}
+        </Row>
     </>
 }

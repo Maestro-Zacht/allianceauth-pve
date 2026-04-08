@@ -3,12 +3,14 @@ import { useTranslation } from "react-i18next";
 import { parseLocalizedNumber } from "../../../utils";
 import { useEntryProcessor } from "../../../providers/EntryFormProvider";
 import TooltipComponent from "../../TooltipComponent";
+import type { EntryFormErrors } from "../EntryTypes";
 
 interface TotalSectionProps {
     estimatedTotal: number;
+    errors: EntryFormErrors["estimated_total"] | null | undefined;
 }
 
-export default function TotalSection({ estimatedTotal }: TotalSectionProps) {
+export default function TotalSection({ estimatedTotal, errors }: TotalSectionProps) {
     const { t, i18n } = useTranslation();
     const { updateEntryData } = useEntryProcessor();
 
@@ -21,10 +23,11 @@ export default function TotalSection({ estimatedTotal }: TotalSectionProps) {
             <Form.Label column sm={2}>
                 {t("total")}
             </Form.Label>
-            <Col sm={6}>
+            <Col sm={6} className="position-relative">
                 <Form.Control
                     type="text" placeholder={t("total")}
                     value={localizeNumber(estimatedTotal)}
+                    isInvalid={!!errors}
                     onChange={(e) => {
                         const newTotal = parseLocalizedNumber(e.target.value, i18n.language);
                         if (e.target.value === '') {
@@ -35,6 +38,9 @@ export default function TotalSection({ estimatedTotal }: TotalSectionProps) {
                         }
                     }}
                 />
+                {errors && <Form.Control.Feedback type="invalid" tooltip>
+                    {errors.map((error, index) => <div key={`error-${index}`}>{error}</div>)}
+                </Form.Control.Feedback>}
             </Col>
             <Col sm={4} className="d-flex justify-content-between align-items-center">
                 <TooltipComponent id="increment-all-tooltip" text={t("increment_all_shares")}>

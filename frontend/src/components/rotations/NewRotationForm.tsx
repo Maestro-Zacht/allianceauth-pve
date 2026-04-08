@@ -1,4 +1,4 @@
-import { Card, Col, Container, Row, Form, Button } from "react-bootstrap";
+import { Card, Col, Row, Form, Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import type { components, operations } from "../../api/Schema";
 import { z } from "zod";
@@ -196,20 +196,18 @@ export default function NewRotationForm() {
     }
 
     return <>
-        <Container fluid>
-            <Row>
-                <h1 className="page-header text-center">{t("new_rotation")}</h1>
-                <Col xs={12} className="mt-4">
-                    <Card>
-                        <Card.Body>
-                            {pveButtonsLoading || roleSetupsLoading ?
-                                <div className="text-center"><Loading /></div> :
-                                <RotationForm pveButtons={pveButtonsData!} roleSetups={roleSetupsData!} />
-                            }
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
-        </Container>
+        <Row>
+            <h1 className="page-header text-center">{t("new_rotation")}</h1>
+            <Col xs={12} className="mt-4">
+                <Card>
+                    <Card.Body>
+                        {pveButtonsLoading || roleSetupsLoading ?
+                            <div className="text-center"><Loading /></div> :
+                            <RotationForm pveButtons={pveButtonsData!} roleSetups={roleSetupsData!} />
+                        }
+                    </Card.Body>
+                </Card>
+            </Col>
+        </Row>
     </>
 }

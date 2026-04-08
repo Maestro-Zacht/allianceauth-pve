@@ -10,7 +10,8 @@ from .schema import (
     EntryRoleSchema,
     EntryCharacterSchema,
     EntryDetailsSchema,
-    EntryFormSchema
+    EntryFormSchema,
+    EntryFormErrorsSchema,
 )
 from .authenticators import NeedsPermission
 
@@ -111,7 +112,7 @@ def get_rotation_entry_shares(request, entry_id: int, rotation_id: int = Path(..
 
 @router.post(
     "/",
-    response={200: None, 400: dict[str, list[str] | dict[int, dict[str, list[str]]]], 404: None, 403: str},
+    response={200: None, 400: EntryFormErrorsSchema, 404: None, 403: str},
     auth=NeedsPermission('allianceauth_pve.manage_entries')
 )
 @transaction.atomic
@@ -125,7 +126,7 @@ def new_entry(request, data: EntryFormSchema, rotation_id: int = Path(...)):
         return 403, _("The rotation is closed, you cannot add an entry")
 
     errors = data.validate()
-    if errors:
+    if errors is not None:
         return 400, errors
 
     data.save(created_by=request.user, rotation=rotation)

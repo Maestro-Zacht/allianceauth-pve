@@ -1,4 +1,4 @@
-import { Button, Card, Col, Container, Form, Row } from "react-bootstrap";
+import { Button, Card, Col, Form, Row } from "react-bootstrap";
 import type { i18n, TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
@@ -62,69 +62,67 @@ export default function NewProjectForm() {
     };
 
     return <>
-        <Container fluid>
-            <Row>
-                <h1 className="page-header text-center">{t("new_funding_project")}</h1>
-                <Col xs={12} className="mt-4">
-                    <Card>
-                        <Card.Body>
-                            <Form onSubmit={handleSubmit(onSubmit)}>
+        <Row>
+            <h1 className="page-header text-center">{t("new_funding_project")}</h1>
+            <Col xs={12} className="mt-4">
+                <Card>
+                    <Card.Body>
+                        <Form onSubmit={handleSubmit(onSubmit)}>
 
-                                <Form.Group className="mb-3" controlId="name">
-                                    <Form.Label>{t("name")}</Form.Label>
-                                    <Form.Control
-                                        type="text" placeholder={t("name")}
-                                        {...register("name")}
-                                        isInvalid={!!errors.name}
-                                    />
-                                    <Form.Control.Feedback type="invalid">
-                                        {errors.name?.message}
-                                    </Form.Control.Feedback>
-                                </Form.Group>
+                            <Form.Group className="mb-3" controlId="name">
+                                <Form.Label>{t("name")}</Form.Label>
+                                <Form.Control
+                                    type="text" placeholder={t("name")}
+                                    {...register("name")}
+                                    isInvalid={!!errors.name}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.name?.message}
+                                </Form.Control.Feedback>
+                            </Form.Group>
 
-                                <Form.Group className="mb-3" controlId="goal">
-                                    <Form.Label>{t("goal")}</Form.Label>
-                                    <Controller
-                                        control={control}
-                                        name="goal"
-                                        render={({ field: { onChange, value, ref, ...field } }) => (
-                                            <Form.Control
-                                                ref={ref}
-                                                type="text"
-                                                placeholder={t("goal")}
-                                                value={value !== undefined ? value as string : ''}
-                                                onChange={(e) => {
-                                                    const rawTypedValue = e.target.value;
-                                                    const rawNumber = parseLocalizedNumber(rawTypedValue, i18n.language);
-                                                    if (isNaN(rawNumber)) {
-                                                        onChange(rawTypedValue);
-                                                    }
-                                                    else {
-                                                        const formattedValue = rawNumber.toLocaleString(i18n.language);
-                                                        onChange(formattedValue);
-                                                    }
-                                                }}
-                                                isInvalid={!!errors.goal}
-                                                {...field}
-                                            />
-                                        )}
-                                    />
-                                    <Form.Control.Feedback type="invalid">
-                                        {errors.goal?.message}
-                                    </Form.Control.Feedback>
-                                </Form.Group>
+                            <Form.Group className="mb-3" controlId="goal">
+                                <Form.Label>{t("goal")}</Form.Label>
+                                <Controller
+                                    control={control}
+                                    name="goal"
+                                    render={({ field: { onChange, value, ref, ...field } }) => (
+                                        <Form.Control
+                                            ref={ref}
+                                            type="text"
+                                            placeholder={t("goal")}
+                                            value={value !== undefined ? value as string : ''}
+                                            onChange={(e) => {
+                                                const rawTypedValue = e.target.value;
+                                                const rawNumber = parseLocalizedNumber(rawTypedValue, i18n.language);
+                                                if (isNaN(rawNumber)) {
+                                                    onChange(rawTypedValue);
+                                                }
+                                                else {
+                                                    const formattedValue = rawNumber.toLocaleString(i18n.language);
+                                                    onChange(formattedValue);
+                                                }
+                                            }}
+                                            isInvalid={!!errors.goal}
+                                            {...field}
+                                        />
+                                    )}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.goal?.message}
+                                </Form.Control.Feedback>
+                            </Form.Group>
 
-                                <div className="d-flex flex-row-reverse">
-                                    <Button variant="primary" type="submit" disabled={mutation.isPending}>
-                                        {mutation.isPending ? <Loading size="sm" /> : t("submit")}
-                                    </Button>
-                                    <Link to="/pve/r/" className="btn btn-danger me-2">{t("cancel")}</Link>
-                                </div>
-                            </Form>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
-        </Container>
+                            <div className="d-flex flex-row-reverse">
+                                <Button variant="primary" type="submit" disabled={mutation.isPending}>
+                                    {mutation.isPending ? <Loading size="sm" /> : t("submit")}
+                                </Button>
+                                <Link to="/pve/r/" className="btn btn-danger me-2">{t("cancel")}</Link>
+                            </div>
+                        </Form>
+                    </Card.Body>
+                </Card>
+            </Col>
+        </Row>
     </>
 }

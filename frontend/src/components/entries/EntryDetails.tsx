@@ -1,6 +1,6 @@
 import { useParams } from "react-router"
 import EntryInfo from "./EntryInfo";
-import { Container, Row } from "react-bootstrap";
+import { Row } from "react-bootstrap";
 import EntryShares from "./EntryShares";
 import EntryRoles from "./EntryRoles";
 import { getEntry } from "../../api/api";
@@ -25,15 +25,13 @@ export default function EntryDetails() {
 
     return <>
         <NavBackButton url={`/pve/r/rotations/${rotationIdNum}/`} />
-        <Container fluid>
-            <Row>
-                {isLoading ?
-                    <div className="text-center my-3"><Loading /></div> :
-                    <EntryInfo entry={data!} rotationId={rotationIdNum} />
-                }
-                <EntryRoles rotationId={rotationIdNum} entryId={entryIdNum} />
-                <EntryShares rotationId={rotationIdNum} entryId={entryIdNum} />
-            </Row>
-        </Container>
+        <Row>
+            {isLoading ?
+                <div className="text-center my-3"><Loading /></div> :
+                <EntryInfo entry={data!} rotationId={rotationIdNum} />
+            }
+            <EntryRoles rotationId={rotationIdNum} entryId={entryIdNum} />
+            <EntryShares rotationId={rotationIdNum} entryId={entryIdNum} />
+        </Row>
     </>
 }

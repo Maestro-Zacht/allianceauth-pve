@@ -1,6 +1,6 @@
 import type { components } from "../../api/Schema";
 
-type EntryFormSchema = components["schemas"]["EntryFormSchema"];
+export type EntryFormSchema = components["schemas"]["EntryFormSchema"];
 
 export type ExtendedShareItem = EntryFormSchema['shares'][number] & {
     portraitUrl: string;
@@ -13,3 +13,5 @@ export type ExtendedShareItem = EntryFormSchema['shares'][number] & {
 export type ExtendedEntryFormSchema = Omit<EntryFormSchema, 'shares'> & {
     shares: ExtendedShareItem[];
 };
+
+export type EntryFormErrors = components["schemas"]["EntryFormErrorsSchema"];

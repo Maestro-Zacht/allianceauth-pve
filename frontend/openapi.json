@@ -543,30 +543,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "additionalProperties": {
-                                        "anyOf": [
-                                            {
-                                                "items": {
-                                                    "type": "string"
-                                                },
-                                                "type": "array"
-                                            },
-                                            {
-                                                "additionalProperties": {
-                                                    "additionalProperties": {
-                                                        "items": {
-                                                            "type": "string"
-                                                        },
-                                                        "type": "array"
-                                                    },
-                                                    "type": "object"
-                                                },
-                                                "type": "object"
-                                            }
-                                        ]
-                                    },
-                                    "title": "Response",
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/EntryFormErrorsSchema"
                                 }
                             }
                         }
@@ -1572,6 +1549,128 @@
                     "actual_total_after_tax"
                 ],
                 "title": "EntrySchema",
+                "type": "object"
+            },
+            "EntryFormErrorsSchema": {
+                "properties": {
+                    "estimated_total": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Estimated Total",
+                        "type": "array"
+                    },
+                    "funding_project_id": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Funding Project Id",
+                        "type": "array"
+                    },
+                    "funding_percentage": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Funding Percentage",
+                        "type": "array"
+                    },
+                    "roles_root": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Roles Root",
+                        "type": "array"
+                    },
+                    "roles": {
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/RoleFormErrorsSchema"
+                        },
+                        "default": {},
+                        "title": "Roles",
+                        "type": "object"
+                    },
+                    "shares_root": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Shares Root",
+                        "type": "array"
+                    },
+                    "shares": {
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/ShareFormErrorsSchema"
+                        },
+                        "default": {},
+                        "title": "Shares",
+                        "type": "object"
+                    }
+                },
+                "title": "EntryFormErrorsSchema",
+                "type": "object"
+            },
+            "RoleFormErrorsSchema": {
+                "properties": {
+                    "name": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Name",
+                        "type": "array"
+                    },
+                    "value": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Value",
+                        "type": "array"
+                    }
+                },
+                "title": "RoleFormErrorsSchema",
+                "type": "object"
+            },
+            "ShareFormErrorsSchema": {
+                "properties": {
+                    "character_id": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Character Id",
+                        "type": "array"
+                    },
+                    "helped_setup": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Helped Setup",
+                        "type": "array"
+                    },
+                    "site_count": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Site Count",
+                        "type": "array"
+                    },
+                    "role_name": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Role Name",
+                        "type": "array"
+                    }
+                },
+                "title": "ShareFormErrorsSchema",
                 "type": "object"
             },
             "EntryFormSchema": {

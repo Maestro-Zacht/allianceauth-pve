@@ -8,6 +8,7 @@ import type { ExtendedShareItem } from "../EntryTypes";
 import CharacterWithPortrait from "../../CharacterWithPortrait";
 import { useEntryProcessor } from "../../../providers/EntryFormProvider";
 import useDebounce from "../../../hooks/debounceHook";
+import Loading from "../../Loading";
 
 type RatterType = Omit<ExtendedShareItem,
     'helped_setup' | 'site_count' | 'role_name' | 'isPresent'
@@ -61,33 +62,35 @@ export default function AddCharactersSection({ addedCharacterIds }: AddCharacter
         <div id="search-results">
             {searchResults.length === 0 ?
                 <span className="all-cols text-center">{t("no_results")}</span> :
-                searchResults.map(result => <Fragment key={`search-result-${result.character_id}`}>
-                    <CharacterWithPortrait
-                        character_name={t(
-                            result.isMain ? "main_character_name" : "alt_character_name",
-                            { character_name: result.characterName }
-                        )}
-                        portrait_url={result.portraitUrl}
-                        skip_margin
-                        tooltip={result.tooltip}
-                    />
-                    <Button
-                        variant="success"
-                        onClick={() => {
-                            updateEntryData({
-                                type: 'add_character',
-                                characterId: result.character_id,
-                                characterName: result.characterName,
-                                portraitUrl: result.portraitUrl,
-                                mainCharacterName: result.mainCharacterName,
-                                mainCharacterPortraitUrl: result.mainCharacterPortraitUrl,
-                            });
-                            setSearchResults(prev => prev.filter(r => r.character_id !== result.character_id));
-                        }}
-                    >
-                        {t("add")}
-                    </Button>
-                </Fragment>)}
+                mutation.isPending ?
+                    <span className="all-cols text-center"><Loading /></span> :
+                    searchResults.map(result => <Fragment key={`search-result-${result.character_id}`}>
+                        <CharacterWithPortrait
+                            character_name={t(
+                                result.isMain ? "main_character_name" : "alt_character_name",
+                                { character_name: result.characterName }
+                            )}
+                            portrait_url={result.portraitUrl}
+                            skip_margin
+                            tooltip={result.tooltip}
+                        />
+                        <Button
+                            variant="success"
+                            onClick={() => {
+                                updateEntryData({
+                                    type: 'add_character',
+                                    characterId: result.character_id,
+                                    characterName: result.characterName,
+                                    portraitUrl: result.portraitUrl,
+                                    mainCharacterName: result.mainCharacterName,
+                                    mainCharacterPortraitUrl: result.mainCharacterPortraitUrl,
+                                });
+                                setSearchResults(prev => prev.filter(r => r.character_id !== result.character_id));
+                            }}
+                        >
+                            {t("add")}
+                        </Button>
+                    </Fragment>)}
         </div>
     </>
 }

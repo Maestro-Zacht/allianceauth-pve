@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, type Dispatch, type PropsWithChildren } from "react";
+import { createContext, useContext, useEffect, useReducer, type Dispatch, type PropsWithChildren } from "react";
 import type { ExtendedEntryFormSchema } from "../components/entries/EntryTypes";
 
 type RoleType = ExtendedEntryFormSchema["roles"][number];
@@ -16,7 +16,11 @@ type EntryReducerAction =
     | { type: 'update_shares'; onlyPresent: boolean; increment: number }
     | { type: 'select_funding_project'; projectId: number | null }
     | { type: 'update_funding_percentage'; percentage: number }
-    | { type: 'add_character'; characterId: number, characterName: string, portraitUrl: string, mainCharacterName: string, mainCharacterPortraitUrl: string };
+    | { type: 'add_character'; characterId: number, characterName: string, portraitUrl: string, mainCharacterName: string, mainCharacterPortraitUrl: string }
+    | { type: 'toggle_share_value'; characterId: number, field: 'helped_setup' | 'isPresent' }
+    | { type: 'change_share_role'; characterId: number; newRoleName: string }
+    | { type: 'update_share_count'; characterId: number; value: number }
+    | { type: 'delete_share'; characterId: number };
 
 function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReducerAction): ExtendedEntryFormSchema {
     switch (action.type) {
@@ -117,11 +121,53 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                         mainCharacterName: action.mainCharacterName,
                         mainCharacterPortraitUrl: action.mainCharacterPortraitUrl,
                         role_name: state.roles[0].name,
-                        site_count: 0,
+                        site_count: 1,
                         helped_setup: false,
                         isPresent: true,
                     }
                 ]
+            };
+        case "toggle_share_value":
+            return {
+                ...state,
+                shares: state.shares.map(share => {
+                    if (share.character_id === action.characterId) {
+                        return { ...share, [action.field]: !share[action.field] };
+                    } else {
+                        return share;
+                    }
+                })
+            };
+        case "change_share_role":
+            if (!state.roles.some(role => role.name === action.newRoleName)) {
+                return state;
+            }
+            return {
+                ...state,
+                shares: state.shares.map(share => {
+                    if (share.character_id === action.characterId) {
+                        return { ...share, role_name: action.newRoleName };
+                    } else {
+                        return share;
+                    }
+                })
+            };
+        case "update_share_count":
+            return {
+                ...state,
+                shares: state.shares.map(share => {
+                    if (share.character_id === action.characterId) {
+                        const newSiteCount = (action.value < 0 || isNaN(action.value)) ? 0 : action.value;
+                        return { ...share, site_count: newSiteCount };
+                    } else {
+                        return share;
+                    }
+                })
+            };
+        case "delete_share":
+            return {
+                ...state,
+                shares: state.shares.filter(share => share.character_id !== action.characterId)
             };
         default:
             return state;
@@ -141,9 +187,11 @@ interface EntryFormProviderProps {
 export function EntryFormProvider({ initialData, submitEntry, children }: PropsWithChildren<EntryFormProviderProps>) {
     const [entryData, dispatchEntryData] = useReducer(entryFormDataReducer, initialData);
 
-    if (initialData.roles.length === 0) {
-        dispatchEntryData({ type: 'add_role', role: { name: "Krab", value: 1 } });
-    }
+    useEffect(() => {
+        if (initialData.roles.length === 0) {
+            dispatchEntryData({ type: 'add_role', role: { name: "Krab", value: 1 } });
+        }
+    }, []);
 
     const submitAction = () => {
         submitEntry(entryData);

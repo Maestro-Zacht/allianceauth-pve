@@ -1,0 +1,17 @@
+#users {
+    display: grid;
+    grid-template-columns: auto 1fr 1fr auto auto auto auto;
+    column-gap: 2ch;
+    row-gap: 2rem;
+    align-items: center;
+}
+
+.selected-user {
+    color: #259c21;
+    transform: scale(1.5, 1.5);
+}
+
+.unselected-user {
+    transform: scaleX(-1);
+    color: #ff5e00;
+}
