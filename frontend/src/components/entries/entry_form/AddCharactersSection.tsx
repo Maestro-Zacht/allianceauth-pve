@@ -50,7 +50,7 @@ export default function AddCharactersSection({ addedCharacterIds }: AddCharacter
     });
 
     const debouncedSearch = useDebounce(searchText, 500);
-    useEffect(() => mutation.mutate(debouncedSearch), [debouncedSearch]);
+    useEffect(() => mutation.mutate(debouncedSearch), [debouncedSearch, addedCharacterIds.length]);
 
     return <>
         <Form.Control
