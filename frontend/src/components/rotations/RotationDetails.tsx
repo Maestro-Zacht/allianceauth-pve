@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { getRotation } from "../../api/api";
 import Loading from "../Loading";
 import type { components } from "../../api/Schema";
@@ -12,6 +12,7 @@ import { GroupCard } from "../StatCards";
 import CloseRotationSection from "./CloseRotationSection";
 import NavBackButton from "../NavBackButton";
 import { usePermissions } from "../../providers/PermissionsProvider";
+import TooltipComponent from "../TooltipComponent";
 
 type rotationType = components["schemas"]["RotationSchema"];
 
@@ -58,11 +59,18 @@ function RotationHeader({ rotation }: RotationHeaderProps) {
                     title={t("tax_rate")}
                     value={localizedTaxRate}
                 />
-                {!rotation.is_closed && permissions && permissions.manage_rotations && (
+                {!rotation.is_closed && permissions && (permissions.manage_rotations || permissions.manage_entries) && (
                     <GroupCard
                         title={t("actions")}
                         value={<>
-                            <CloseRotationSection rotationId={rotation.id} />
+                            {permissions.manage_rotations && <CloseRotationSection rotationId={rotation.id} />}
+                            {permissions.manage_entries && (
+                                <TooltipComponent id="add-entry-tooltip" text={t("new_entry")}>
+                                    <Link to={`/pve/r/rotations/${rotation.id}/entries/new/`} className="btn btn-success ms-3">
+                                        <i className="fa-solid fa-plus"></i>
+                                    </Link>
+                                </TooltipComponent>
+                            )}
                         </>}
                     />
                 )}
@@ -95,7 +103,7 @@ export default function RotationDetails() {
             <Row>
                 <RotationHeader rotation={data!} />
                 <RotationSummarySection rotationId={data!.id} isClosed={data!.is_closed} />
-                <RotationEntriesSection rotationId={data!.id} isClosed={data!.is_closed} />
+                <RotationEntriesSection rotationId={data!.id} />
             </Row>
         }
     </>

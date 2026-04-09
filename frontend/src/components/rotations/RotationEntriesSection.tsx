@@ -6,17 +6,15 @@ import { getRotationEntries } from "../../api/api";
 import type { components } from "../../api/Schema";
 import { useEffect, useRef, useState } from "react";
 import type { DataTableRef } from "datatables.net-react";
-import { Link, useNavigate } from "react-router";
-import { usePermissions } from "../../providers/PermissionsProvider";
+import { useNavigate } from "react-router";
 
 interface RotationEntriesSectionProps {
     rotationId: number;
-    isClosed: boolean;
 }
 
 type characterType = components["schemas"]["EveCharacterSchema"];
 
-export default function RotationEntriesSection({ rotationId, isClosed }: RotationEntriesSectionProps) {
+export default function RotationEntriesSection({ rotationId }: RotationEntriesSectionProps) {
     const [imagesLoaded, setImagesLoaded] = useState(0);
     const { t, i18n } = useTranslation();
     const { data, isLoading, error } = useQuery({
@@ -25,7 +23,6 @@ export default function RotationEntriesSection({ rotationId, isClosed }: Rotatio
     });
     const tableRef = useRef<DataTableRef>(null);
     const navigate = useNavigate();
-    const permissions = usePermissions();
 
     if (error) {
         console.error('Error loading entries:', error);
@@ -161,13 +158,6 @@ export default function RotationEntriesSection({ rotationId, isClosed }: Rotatio
                                 </tr>
                             </thead>
                         </DataTable>
-                        {!isClosed && permissions && permissions.manage_entries &&
-                            <div className="d-flex justify-content-center">
-                                <Link to={`/pve/r/rotations/${rotationId}/entries/new/`} className="btn btn-success">
-                                    {t('new_entry')}
-                                </Link>
-                            </div>
-                        }
                     </>}
                 </Card.Body>
             </Card>
