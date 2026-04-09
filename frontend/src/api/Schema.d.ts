@@ -504,7 +504,7 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
-            created_by_character: components["schemas"]["EveCharacterSchema"];
+            created_by_character: components["schemas"]["EveCharacterSchema"] | null;
             /** Total User Count */
             total_user_count: number;
             /** Total Site Count */
@@ -634,7 +634,7 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
-            created_by_character: components["schemas"]["EveCharacterSchema"];
+            created_by_character: components["schemas"]["EveCharacterSchema"] | null;
             /** Total User Count */
             total_user_count: number;
             /** Total Site Count */
@@ -664,7 +664,7 @@ export interface components {
         };
         /** EntryCharacterSchema */
         EntryCharacterSchema: {
-            user_main_character: components["schemas"]["EveCharacterSchema"];
+            user_main_character: components["schemas"]["EveCharacterSchema"] | null;
             user_character: components["schemas"]["EveCharacterSchema"];
             /** Role Name */
             role_name: string;

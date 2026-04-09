@@ -10,6 +10,7 @@ import type { EntryFormErrors, EntryFormSchema, ExtendedEntryFormSchema } from "
 import { useState } from "react";
 import { EntryFormProvider } from "../../../providers/EntryFormProvider";
 import EntryForm from "./EntryForm";
+import NavBackButton from "../../NavBackButton";
 
 export default function EditEntryForm() {
     const [formErrors, setFormErrors] = useState<EntryFormErrors | null>(null);
@@ -82,6 +83,7 @@ export default function EditEntryForm() {
     }
 
     return <>
+        <NavBackButton url={`/pve/r/rotations/${rotationIdNum}/entries/${entryIdNum}/`} />
         <Row>
             <EntryFormProvider initialData={entryInitialData} submitEntry={submitEntry}>
                 <EntryForm rotationId={rotationIdNum} isLoading={mutation.isPending} errors={formErrors} />

@@ -97,7 +97,7 @@ class EveCharacterSchema(Schema):
 class EntrySchema(Schema):
     id: int
     created_at: datetime
-    created_by_character: EveCharacterSchema
+    created_by_character: EveCharacterSchema | None
     total_user_count: int
     total_site_count: int
     estimated_total: int
@@ -105,7 +105,7 @@ class EntrySchema(Schema):
     actual_total_after_tax: float
 
     @staticmethod
-    def resolve_created_by_character(obj: Entry) -> EveCharacter:
+    def resolve_created_by_character(obj: Entry) -> EveCharacter | None:
         return obj.created_by.profile.main_character
 
 
@@ -119,7 +119,7 @@ class EntryRoleSchema(BaseRoleSchema):
 
 
 class EntryCharacterSchema(Schema):
-    user_main_character: EveCharacterSchema
+    user_main_character: EveCharacterSchema | None
     user_character: EveCharacterSchema
     role_name: str
     site_count: int
@@ -130,7 +130,7 @@ class EntryCharacterSchema(Schema):
     actual_funding_amount: float
 
     @staticmethod
-    def resolve_user_main_character(obj: EntryCharacter) -> EveCharacter:
+    def resolve_user_main_character(obj: EntryCharacter) -> EveCharacter | None:
         return obj.user.profile.main_character
 
     @staticmethod
@@ -453,17 +453,11 @@ class ExtendedShareFormSchema(ShareFormSchema):
 
     @staticmethod
     def resolve_main_character_name(obj: EntryCharacter) -> str:
-        main_character = obj.user.profile.main_character
-        if main_character is not None:
-            return main_character.character_name
-        return None
+        return obj.user.profile.main_character.character_name
 
     @staticmethod
     def resolve_main_character_portrait_url(obj: EntryCharacter) -> str:
-        main_character = obj.user.profile.main_character
-        if main_character is not None:
-            return main_character.portrait_url_32.split('?')[0]
-        return None
+        return obj.user.profile.main_character.portrait_url_32.split('?')[0]
 
 
 class ExtendedEntryFormSchema(EntryFormSchema):

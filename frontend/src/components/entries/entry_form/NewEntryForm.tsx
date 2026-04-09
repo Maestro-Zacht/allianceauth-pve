@@ -1,13 +1,14 @@
 import { Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
-import type { ExtendedEntryFormSchema, EntryFormSchema, EntryFormErrors } from "./EntryTypes";
+import type { ExtendedEntryFormSchema, EntryFormSchema, EntryFormErrors } from "../EntryTypes";
 import { useNavigate, useParams } from "react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createEntry } from "../../api/api";
-import { useToast } from "../../providers/ToastProvider";
-import { EntryFormProvider } from "../../providers/EntryFormProvider";
-import EntryForm from "./entry_form/EntryForm";
+import { createEntry } from "../../../api/api";
+import { useToast } from "../../../providers/ToastProvider";
+import { EntryFormProvider } from "../../../providers/EntryFormProvider";
+import EntryForm from "./EntryForm";
 import { useState } from "react";
+import NavBackButton from "../../NavBackButton";
 
 
 
@@ -64,6 +65,7 @@ export default function NewEntryForm() {
     };
 
     return <>
+        <NavBackButton url={`/pve/r/rotations/${rotationIdNum}/`} />
         <Row>
             <EntryFormProvider initialData={initialEntryData} submitEntry={submitEntry}>
                 <EntryForm rotationId={rotationIdNum} isLoading={mutation.isPending} errors={formErrors} />

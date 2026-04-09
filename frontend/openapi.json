@@ -111,7 +111,7 @@
                 },
                 "security": [
                     {
-                        "CanAccessPVE": []
+                        "NeedsPermission": []
                     }
                 ]
             }
@@ -1646,7 +1646,14 @@
                         "type": "string"
                     },
                     "created_by_character": {
-                        "$ref": "#/components/schemas/EveCharacterSchema"
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/EveCharacterSchema"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "total_user_count": {
                         "title": "Total User Count",
@@ -1915,7 +1922,14 @@
                         "type": "string"
                     },
                     "created_by_character": {
-                        "$ref": "#/components/schemas/EveCharacterSchema"
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/EveCharacterSchema"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "total_user_count": {
                         "title": "Total User Count",
@@ -2003,7 +2017,14 @@
             "EntryCharacterSchema": {
                 "properties": {
                     "user_main_character": {
-                        "$ref": "#/components/schemas/EveCharacterSchema"
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/EveCharacterSchema"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "user_character": {
                         "$ref": "#/components/schemas/EveCharacterSchema"

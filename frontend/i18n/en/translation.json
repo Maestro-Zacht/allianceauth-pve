@@ -69,7 +69,7 @@
     "tax_rate_help": "Tax rate as a percentage. For example, enter 10 for a 10% tax rate."
   },
   "funding_percentage_tooltip": "Percentage in integer form (1-100)",
-  "funding_project": "funding_project",
+  "funding_project": "Funding Project",
   "funding_project_contribution": "Funding Project Contribution",
   "goal": "Goal",
   "helped_setup": "Helped Setup",
@@ -83,6 +83,7 @@
   "mark_as_completed": "Mark as Completed",
   "max_daily_setups": "Max Daily Setups",
   "min_people_share_setup": "Min People Share Setup",
+  "missing_character": "Missing Character",
   "monthNumber_one": "{{count}} month",
   "monthNumber_other": "{{count}} months",
   "name": "Name",

@@ -6,6 +6,7 @@ import Loading from "../Loading";
 import type { components } from "../../api/Schema";
 import CharacterWithPortrait from "../CharacterWithPortrait";
 import "./HelpedSetupSytels.css";
+import { t } from "i18next";
 
 type EntryShareType = components["schemas"]["EntryCharacterSchema"]
 
@@ -34,10 +35,13 @@ function ShareRow({ share, hasProjectContribution }: ShareRowProps) {
 
     return <tr>
         <td style={{ textAlign: "left" }}>
-            <CharacterWithPortrait
-                character_name={share.user_main_character.character_name}
-                portrait_url={share.user_main_character.portrait_url}
-            />
+            {share.user_main_character ?
+                <CharacterWithPortrait
+                    character_name={share.user_main_character.character_name}
+                    portrait_url={share.user_main_character.portrait_url}
+                />
+                : t("missing_character")
+            }
         </td>
         <td style={{ textAlign: "left" }}>
             <CharacterWithPortrait

@@ -72,10 +72,10 @@ export default function EntryInfo({ entry, rotationId }: EntryInfoProps) {
                 />
                 <GroupCard
                     title={t('created_by')}
-                    value={<CharacterWithPortrait
+                    value={entry.created_by_character ? <CharacterWithPortrait
                         character_name={entry.created_by_character.character_name}
                         portrait_url={entry.created_by_character.portrait_url}
-                    />}
+                    /> : t("missing_character")}
                 />
                 {entry.user_can_edit && !entry.rotation_is_closed && (
                     <GroupCard

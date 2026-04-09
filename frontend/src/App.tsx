@@ -15,7 +15,7 @@ import ProjectDetails from "./components/projects/ProjectDetails";
 import NewRotationForm from "./components/rotations/NewRotationForm";
 import { PermissionsProvider } from "./providers/PermissionsProvider";
 import NewProjectForm from "./components/projects/NewProjectForm";
-import NewEntryForm from "./components/entries/NewEntryForm";
+import NewEntryForm from "./components/entries/entry_form/NewEntryForm";
 import EditEntryForm from "./components/entries/entry_form/EditEntryForm";
 
 

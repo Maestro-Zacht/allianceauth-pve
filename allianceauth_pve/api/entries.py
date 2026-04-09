@@ -1,6 +1,6 @@
 from ninja import Path, Router
 
-from django.db.models import F, Subquery, Sum, Prefetch
+from django.db.models import F, Subquery, Sum, Prefetch, Exists
 from django.utils.translation import gettext as _
 from django.db import transaction
 
@@ -159,6 +159,9 @@ def get_entry_for_edit(request, entry_id: int, rotation_id: int = Path(...)):
 
     if entry.rotation.is_closed:
         return 403, _("The rotation is closed")
+
+    if EntryCharacter.objects.filter(entry=entry, user__profile__main_character__isnull=True).exists():
+        return 403, _("One or more characters in this entry do not have a main character set")
 
     return 200, entry
 
