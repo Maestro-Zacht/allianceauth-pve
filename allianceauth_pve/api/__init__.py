@@ -17,7 +17,7 @@ from .activity import router as activity_router
 from .projects import router as projects_router
 from .permissions import router as permissions_router
 
-from .authenticators import CanAccessPVE
+from .authenticators import CanAccessPVE, NeedsPermission
 
 
 api = NinjaAPI(
@@ -44,7 +44,11 @@ def list_role_setups(request):
     return RoleSetup.objects.all()
 
 
-@api.post("/search/", response=list[RatterSchema])
+@api.post(
+    "/search/",
+    response=list[RatterSchema],
+    auth=NeedsPermission('allianceauth_pve.manage_rotations')
+)
 def search_ratters(request, name: str = "", exclude_ids: list[int] = []):
     content_type = ContentType.objects.get_for_model(General)
     permission = Permission.objects.get(content_type=content_type, codename='access_pve')
