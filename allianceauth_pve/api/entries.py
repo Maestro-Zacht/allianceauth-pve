@@ -144,7 +144,7 @@ def new_entry(request, data: EntryFormSchema, rotation_id: int = Path(...)):
 )
 def get_entry_for_edit(request, entry_id: int, rotation_id: int = Path(...)):
     try:
-        entry_char_qs = EntryCharacter.objects.select_related('user_character', 'role')
+        entry_char_qs = EntryCharacter.objects.select_related('user_character', 'role', 'user__profile__main_character')
         entry = (
             Entry.objects
             .select_related('rotation')
