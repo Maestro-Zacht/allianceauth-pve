@@ -40,6 +40,8 @@
     "button_tooltip": "{{increment, number}} ISK"
   },
   "entry_buttons": "Entry Buttons",
+  "entry_change_failed": "Entry change failed",
+  "entry_changed": "Entry changed successfully",
   "entry_created": "Entry created successfully",
   "entry_creation_failed": "Entry creation failed",
   "entry_failed": "Failed: {{error}}",

@@ -7,7 +7,7 @@ import type { components } from "../../api/Schema";
 import TooltipComponent from "../TooltipComponent";
 import { useState } from "react";
 import { useToast } from "../../providers/ToastProvider";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Loading from "../Loading";
 import { deleteEntry } from "../../api/api";
 
@@ -82,17 +82,12 @@ export default function EntryInfo({ entry, rotationId }: EntryInfoProps) {
                         title={t('actions')}
                         value={<>
                             <TooltipComponent id={`edit-entry-${entry.id}-tooltip`} text={t("edit")}>
-                                <Button
-                                    variant="warning"
-                                    className="me-3"
-                                    href="#"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        alert("Edit TODO");
-                                    }}
+                                <Link
+                                    to={`/pve/r/rotations/${rotationId}/entries/${entry.id}/edit/`}
+                                    className="btn btn-warning me-3"
                                 >
                                     <i className="fa-solid fa-pen"></i>
-                                </Button>
+                                </Link>
                             </TooltipComponent>
                             <TooltipComponent id={`delete-entry-${entry.id}-tooltip`} text={t("delete")}>
                                 <Button variant="danger" onClick={() => setShowDeleteConfirm(true)}>

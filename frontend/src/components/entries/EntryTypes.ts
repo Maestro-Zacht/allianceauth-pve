@@ -1,13 +1,10 @@
 import type { components } from "../../api/Schema";
 
 export type EntryFormSchema = components["schemas"]["EntryFormSchema"];
+type ExtendedServerEntryFormSchema = components["schemas"]["ExtendedEntryFormSchema"];
 
-export type ExtendedShareItem = EntryFormSchema['shares'][number] & {
-    portraitUrl: string;
-    characterName: string;
-    mainCharacterName: string;
-    mainCharacterPortraitUrl: string;
-    isPresent: boolean;
+export type ExtendedShareItem = ExtendedServerEntryFormSchema['shares'][number] & {
+    is_present: boolean;
 };
 
 export type ExtendedEntryFormSchema = Omit<EntryFormSchema, 'shares'> & {

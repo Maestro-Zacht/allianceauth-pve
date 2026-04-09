@@ -681,6 +681,77 @@
                         "NeedsPermission": []
                     }
                 ]
+            },
+            "post": {
+                "operationId": "allianceauth_pve_api_entries_edit_entry",
+                "summary": "Edit Entry",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "entry_id",
+                        "schema": {
+                            "title": "Entry Id",
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "rotation_id",
+                        "schema": {
+                            "title": "Rotation Id",
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EntryFormErrorsSchema"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "entries"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EntryFormSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "NeedsPermission": []
+                    }
+                ]
             }
         },
         "/pve/api/rotations/{rotation_id}/entries/{entry_id}/roles/": {
@@ -785,6 +856,66 @@
                 "security": [
                     {
                         "CanAccessPVE": []
+                    }
+                ]
+            }
+        },
+        "/pve/api/rotations/{rotation_id}/entries/{entry_id}/edit/": {
+            "get": {
+                "operationId": "allianceauth_pve_api_entries_get_entry_for_edit",
+                "summary": "Get Entry For Edit",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "entry_id",
+                        "schema": {
+                            "title": "Entry Id",
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "rotation_id",
+                        "schema": {
+                            "title": "Rotation Id",
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExtendedEntryFormSchema"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "entries"
+                ],
+                "security": [
+                    {
+                        "NeedsPermission": []
                     }
                 ]
             }
@@ -1891,11 +2022,11 @@
                     },
                     "estimated_share_total": {
                         "title": "Estimated Share Total",
-                        "type": "integer"
+                        "type": "number"
                     },
                     "estimated_funding_amount": {
                         "title": "Estimated Funding Amount",
-                        "type": "integer"
+                        "type": "number"
                     },
                     "actual_share_total": {
                         "title": "Actual Share Total",
@@ -1918,6 +2049,107 @@
                     "actual_funding_amount"
                 ],
                 "title": "EntryCharacterSchema",
+                "type": "object"
+            },
+            "ExtendedEntryFormSchema": {
+                "properties": {
+                    "estimated_total": {
+                        "title": "Estimated Total",
+                        "type": "integer"
+                    },
+                    "funding_project_id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Funding Project Id"
+                    },
+                    "funding_percentage": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Funding Percentage"
+                    },
+                    "roles": {
+                        "items": {
+                            "$ref": "#/components/schemas/RoleFormSchema"
+                        },
+                        "title": "Roles",
+                        "type": "array"
+                    },
+                    "shares": {
+                        "items": {
+                            "$ref": "#/components/schemas/ExtendedShareFormSchema"
+                        },
+                        "title": "Shares",
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "estimated_total",
+                    "funding_project_id",
+                    "funding_percentage",
+                    "roles",
+                    "shares"
+                ],
+                "title": "ExtendedEntryFormSchema",
+                "type": "object"
+            },
+            "ExtendedShareFormSchema": {
+                "properties": {
+                    "character_id": {
+                        "title": "Character Id",
+                        "type": "integer"
+                    },
+                    "helped_setup": {
+                        "title": "Helped Setup",
+                        "type": "boolean"
+                    },
+                    "site_count": {
+                        "title": "Site Count",
+                        "type": "integer"
+                    },
+                    "role_name": {
+                        "title": "Role Name",
+                        "type": "string"
+                    },
+                    "portrait_url": {
+                        "title": "Portrait Url",
+                        "type": "string"
+                    },
+                    "character_name": {
+                        "title": "Character Name",
+                        "type": "string"
+                    },
+                    "main_character_name": {
+                        "title": "Main Character Name",
+                        "type": "string"
+                    },
+                    "main_character_portrait_url": {
+                        "title": "Main Character Portrait Url",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "character_id",
+                    "helped_setup",
+                    "site_count",
+                    "role_name",
+                    "portrait_url",
+                    "character_name",
+                    "main_character_name",
+                    "main_character_portrait_url"
+                ],
+                "title": "ExtendedShareFormSchema",
                 "type": "object"
             },
             "ActivitySchema": {

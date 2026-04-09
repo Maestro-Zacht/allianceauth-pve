@@ -17,10 +17,14 @@ async function genericGet<Path extends GetPaths>(
     ...options: ConditionallyOptional<FetchOptions<paths[Path]["get"]>>
 ) {
     const fetchOptions = options[0] as FetchOptions<paths[Path]["get"]>;
-    const { data, error } = await apiClient.GET(url, fetchOptions);
+    const { data, error, response } = await apiClient.GET(url, fetchOptions);
     if (error) {
         console.error(`Error fetching ${String(url)}:`, error);
         throw error;
+    }
+    if (!response.ok) {
+        console.error(`Error response ${response.status} fetching ${String(url)}`);
+        throw response.status;
     }
     return data as NonNullable<typeof data>;
 }
@@ -222,4 +226,27 @@ export async function searchRatters(name?: string | undefined, excludeIds?: numb
         throw error;
     }
     return data;
+}
+
+export async function getEntryEditData(rotationId: number, entryId: number) {
+    return await genericGet(
+        "/pve/api/rotations/{rotation_id}/entries/{entry_id}/edit/",
+        { params: { path: { rotation_id: rotationId, entry_id: entryId } } }
+    );
+}
+
+export async function editEntry(rotationId: number, entryId: number, entryData: components["schemas"]["EntryFormSchema"]) {
+    const { error, response } = await apiClient.POST(
+        "/pve/api/rotations/{rotation_id}/entries/{entry_id}/",
+        {
+            params: { path: { rotation_id: rotationId, entry_id: entryId } },
+            body: entryData
+        }
+    );
+    if (error) {
+        throw error;
+    }
+    if (!response.ok) {
+        throw response.status;
+    }
 }

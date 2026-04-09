@@ -124,8 +124,8 @@ class EntryCharacterSchema(Schema):
     role_name: str
     site_count: int
     helped_setup: bool
-    estimated_share_total: int
-    estimated_funding_amount: int
+    estimated_share_total: float
+    estimated_funding_amount: float
     actual_share_total: float
     actual_funding_amount: float
 
@@ -282,6 +282,18 @@ class ShareFormSchema(Schema):
     site_count: int
     role_name: str
 
+    @staticmethod
+    def resolve_role_name(obj: EntryCharacter) -> str:
+        if type(obj) is EntryCharacter:
+            return obj.role.name
+        return obj['role_name']
+
+    @staticmethod
+    def resolve_character_id(obj: EntryCharacter) -> int:
+        if type(obj) is EntryCharacter:
+            return obj.user_character.character_id
+        return obj['character_id']
+
     def validate(self, character_ids: set[int], roles: dict[str, int], users: set[int]) -> ShareFormErrorsSchema | None:
         errors = defaultdict(list)
 
@@ -378,16 +390,25 @@ class EntryFormSchema(Schema):
             return EntryFormErrorsSchema(**dict(errors))
         return None
 
-    def save(self, created_by: User, rotation: Rotation) -> Entry:
-        entry = Entry.objects.create(
-            rotation=rotation,
-            created_by=created_by,
-            estimated_total=self.estimated_total,
-            funding_project_id=self.funding_project_id,
-            funding_percentage=self.funding_percentage or 0,
-        )
+    def save(self, created_by: User, rotation: Rotation, entry: Entry | None = None) -> Entry:
+        if entry is None:
+            entry = Entry.objects.create(
+                rotation=rotation,
+                created_by=created_by,
+                estimated_total=self.estimated_total,
+                funding_project_id=self.funding_project_id,
+                funding_percentage=self.funding_percentage or 0,
+            )
+        else:
+            entry.ratting_shares.all().delete()
+            entry.roles.all().delete()
+            entry.estimated_total = self.estimated_total
+            entry.funding_project_id = self.funding_project_id
+            entry.funding_percentage = self.funding_percentage or 0
+            entry.save()
 
         roles_to_add = [EntryRole(entry=entry, name=role.name, value=role.value) for role in self.roles]
+        EntryRole.objects.bulk_create(roles_to_add)
 
         shares_to_add = []
         setups = set()
@@ -411,10 +432,42 @@ class EntryFormSchema(Schema):
                 )
             )
 
-        EntryRole.objects.bulk_create(roles_to_add)
         EntryCharacter.objects.bulk_create(shares_to_add)
 
         return entry
+
+
+class ExtendedShareFormSchema(ShareFormSchema):
+    portrait_url: str
+    character_name: str
+    main_character_name: str
+    main_character_portrait_url: str
+
+    @staticmethod
+    def resolve_portrait_url(obj: EntryCharacter) -> str:
+        return obj.user_character.portrait_url_32.split('?')[0]
+
+    @staticmethod
+    def resolve_character_name(obj: EntryCharacter) -> str:
+        return obj.user_character.character_name
+
+    @staticmethod
+    def resolve_main_character_name(obj: EntryCharacter) -> str:
+        main_character = obj.user.profile.main_character
+        if main_character is not None:
+            return main_character.character_name
+        return None
+
+    @staticmethod
+    def resolve_main_character_portrait_url(obj: EntryCharacter) -> str:
+        main_character = obj.user.profile.main_character
+        if main_character is not None:
+            return main_character.portrait_url_32.split('?')[0]
+        return None
+
+
+class ExtendedEntryFormSchema(EntryFormSchema):
+    shares: list[ExtendedShareFormSchema]
 
 
 class RatterSchema(Schema):

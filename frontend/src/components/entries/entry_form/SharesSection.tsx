@@ -36,23 +36,23 @@ export default function SharesSection({ shares, roles, errors_root, errors }: Sh
                             onClick={() => updateEntryData({
                                 type: "toggle_share_value",
                                 characterId: share.character_id,
-                                field: "isPresent"
+                                field: "is_present"
                             })}
                         >
-                            {share.isPresent ?
+                            {share.is_present ?
                                 <i className="fas fa-arrow-right selected-user"></i> :
                                 <i className="fas fa-running unselected-user"></i>}
                         </span>
                         <span className="d-flex justify-content-start align-items-center">
                             <CharacterWithPortrait
-                                character_name={share.mainCharacterName}
-                                portrait_url={share.mainCharacterPortraitUrl}
+                                character_name={share.main_character_name}
+                                portrait_url={share.main_character_portrait_url}
                             />
                         </span>
                         <span className="d-flex justify-content-start align-items-center">
                             <CharacterWithPortrait
-                                character_name={share.characterName}
-                                portrait_url={share.portraitUrl}
+                                character_name={share.character_name}
+                                portrait_url={share.portrait_url}
                             />
                         </span>
                         <Form.Select

@@ -11,7 +11,7 @@ import useDebounce from "../../../hooks/debounceHook";
 import Loading from "../../Loading";
 
 type RatterType = Omit<ExtendedShareItem,
-    'helped_setup' | 'site_count' | 'role_name' | 'isPresent'
+    'helped_setup' | 'site_count' | 'role_name' | 'is_present'
 > & {
     tooltip: string;
     isMain: boolean;
@@ -33,10 +33,10 @@ export default function AddCharactersSection({ addedCharacterIds }: AddCharacter
                 const isMain = ratter.character.character_id === ratter.main_character.character_id;
                 return {
                     character_id: ratter.character.character_id,
-                    characterName: ratter.character.character_name,
-                    portraitUrl: ratter.character.portrait_url,
-                    mainCharacterName: ratter.main_character.character_name,
-                    mainCharacterPortraitUrl: ratter.main_character.portrait_url,
+                    character_name: ratter.character.character_name,
+                    portrait_url: ratter.character.portrait_url,
+                    main_character_name: ratter.main_character.character_name,
+                    main_character_portrait_url: ratter.main_character.portrait_url,
                     isMain,
                     tooltip: isMain ? ratter.extra_chars.join(", ") : ratter.main_character.character_name,
                 };
@@ -68,9 +68,9 @@ export default function AddCharactersSection({ addedCharacterIds }: AddCharacter
                         <CharacterWithPortrait
                             character_name={t(
                                 result.isMain ? "main_character_name" : "alt_character_name",
-                                { character_name: result.characterName }
+                                { character_name: result.character_name }
                             )}
-                            portrait_url={result.portraitUrl}
+                            portrait_url={result.portrait_url}
                             skip_margin
                             tooltip={result.tooltip}
                         />
@@ -80,10 +80,10 @@ export default function AddCharactersSection({ addedCharacterIds }: AddCharacter
                                 updateEntryData({
                                     type: 'add_character',
                                     characterId: result.character_id,
-                                    characterName: result.characterName,
-                                    portraitUrl: result.portraitUrl,
-                                    mainCharacterName: result.mainCharacterName,
-                                    mainCharacterPortraitUrl: result.mainCharacterPortraitUrl,
+                                    characterName: result.character_name,
+                                    portraitUrl: result.portrait_url,
+                                    mainCharacterName: result.main_character_name,
+                                    mainCharacterPortraitUrl: result.main_character_portrait_url,
                                 });
                                 setSearchResults(prev => prev.filter(r => r.character_id !== result.character_id));
                             }}

@@ -1,10 +1,10 @@
 from ninja import Path, Router
 
-from django.db.models import F, Subquery, Sum
+from django.db.models import F, Subquery, Sum, Prefetch
 from django.utils.translation import gettext as _
 from django.db import transaction
 
-from ..models import EntryRole, Rotation, Entry
+from ..models import EntryRole, Rotation, Entry, EntryCharacter
 from .schema import (
     EntrySchema,
     EntryRoleSchema,
@@ -12,6 +12,7 @@ from .schema import (
     EntryDetailsSchema,
     EntryFormSchema,
     EntryFormErrorsSchema,
+    ExtendedEntryFormSchema,
 )
 from .authenticators import NeedsPermission
 
@@ -123,14 +124,67 @@ def new_entry(request, data: EntryFormSchema, rotation_id: int = Path(...)):
         return 404, None
 
     if rotation.is_closed:
-        return 403, _("The rotation is closed, you cannot add an entry")
+        return 403, _("The rotation is closed")
 
     errors = data.validate()
     if errors is not None:
         return 400, errors
 
-    data.save(created_by=request.user, rotation=rotation)
+    data.save(request.user, rotation)
 
     # TODO: cache keys
+
+    return 200, None
+
+
+@router.get(
+    "/{int:entry_id}/edit/",
+    response={200: ExtendedEntryFormSchema, 404: None, 403: str},
+    auth=NeedsPermission('allianceauth_pve.manage_entries')
+)
+def get_entry_for_edit(request, entry_id: int, rotation_id: int = Path(...)):
+    try:
+        entry_char_qs = EntryCharacter.objects.select_related('user_character', 'role')
+        entry = (
+            Entry.objects
+            .select_related('rotation')
+            .prefetch_related(Prefetch('ratting_shares', queryset=entry_char_qs, to_attr='shares'))
+            .get(pk=entry_id, rotation_id=rotation_id)
+        )
+    except Entry.DoesNotExist:
+        return 404, None
+
+    if entry.created_by != request.user and not request.user.is_superuser:
+        return 403, _("You cannot edit this entry")
+
+    if entry.rotation.is_closed:
+        return 403, _("The rotation is closed")
+
+    return 200, entry
+
+
+@router.post(
+    "/{int:entry_id}/",
+    response={200: None, 400: EntryFormErrorsSchema, 404: None, 403: str},
+    auth=NeedsPermission('allianceauth_pve.manage_entries')
+)
+@transaction.atomic
+def edit_entry(request, entry_id: int, data: EntryFormSchema, rotation_id: int = Path(...)):
+    try:
+        entry = Entry.objects.select_related('rotation').get(pk=entry_id, rotation_id=rotation_id)
+    except Entry.DoesNotExist:
+        return 404, None
+
+    if entry.created_by != request.user and not request.user.is_superuser:
+        return 403, _("You cannot edit this entry")
+
+    if entry.rotation.is_closed:
+        return 403, _("The rotation is closed")
+
+    errors = data.validate()
+    if errors is not None:
+        return 400, errors
+
+    data.save(request.user, entry.rotation, entry)
 
     return 200, None

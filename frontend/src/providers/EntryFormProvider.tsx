@@ -17,7 +17,7 @@ type EntryReducerAction =
     | { type: 'select_funding_project'; projectId: number | null }
     | { type: 'update_funding_percentage'; percentage: number }
     | { type: 'add_character'; characterId: number, characterName: string, portraitUrl: string, mainCharacterName: string, mainCharacterPortraitUrl: string }
-    | { type: 'toggle_share_value'; characterId: number, field: 'helped_setup' | 'isPresent' }
+    | { type: 'toggle_share_value'; characterId: number, field: 'helped_setup' | 'is_present' }
     | { type: 'change_share_role'; characterId: number; newRoleName: string }
     | { type: 'update_share_count'; characterId: number; value: number }
     | { type: 'delete_share'; characterId: number };
@@ -69,7 +69,7 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
             return {
                 ...state,
                 shares: state.shares.map(share => {
-                    if (share.isPresent || !action.onlyPresent) {
+                    if (share.is_present || !action.onlyPresent) {
                         const newSiteCount = share.site_count + action.increment;
                         return {
                             ...share,
@@ -116,14 +116,14 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                     ...state.shares,
                     {
                         character_id: action.characterId,
-                        characterName: action.characterName,
-                        portraitUrl: action.portraitUrl,
-                        mainCharacterName: action.mainCharacterName,
-                        mainCharacterPortraitUrl: action.mainCharacterPortraitUrl,
+                        character_name: action.characterName,
+                        portrait_url: action.portraitUrl,
+                        main_character_name: action.mainCharacterName,
+                        main_character_portrait_url: action.mainCharacterPortraitUrl,
                         role_name: state.roles[0].name,
                         site_count: 1,
                         helped_setup: false,
-                        isPresent: true,
+                        is_present: true,
                     }
                 ]
             };
