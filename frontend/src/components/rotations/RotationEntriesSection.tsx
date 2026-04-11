@@ -47,9 +47,9 @@ export default function RotationEntriesSection({ rotationId }: RotationEntriesSe
     const renderDate = (data: string, type: string, _: any) => {
         switch (type) {
             case 'display':
-                return new Date(data).toLocaleDateString(i18n.language, {
+                return new Date(data).toLocaleDateString((i18n.language === 'en' || i18n.language === 'en-US') ? 'en-GB' : i18n.language, {
                     year: 'numeric',
-                    month: 'short',
+                    month: 'numeric',
                     day: 'numeric',
                     hour: "numeric",
                     minute: "numeric",
