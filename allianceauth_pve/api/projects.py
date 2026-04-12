@@ -84,8 +84,14 @@ def get_project_summary(request, project_id: int):
     summary = project.summary.order_by('-estimated_total').values(
         'actual_total',
         'estimated_total',
-        character_name=F('user__profile__main_character__character_name'),
-        character_id=F('user__profile__main_character__character_id'),
+        character_name=Coalesce(
+            F('user__profile__main_character__character_name'),
+            F('user_character__character_name'),
+        ),
+        character_id=Coalesce(
+            F('user__profile__main_character__character_id'),
+            F('user_character__character_id'),
+        ),
         main_character_id=F('user__profile__main_character__character_id'),
     )
     cache.set(cache_key, summary, FUNDING_PROJECT_SUMMARY_CACHE_TIMEOUT)
