@@ -88,7 +88,7 @@ INSTALLED_APPS += [
     'allianceauth_pve',
 
     "debug_toolbar",
-    'taskmonitor',
+    # 'taskmonitor',
 ]
 
 #######################################
