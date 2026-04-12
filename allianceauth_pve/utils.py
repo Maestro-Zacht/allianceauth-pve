@@ -1,10 +1,8 @@
 from django.db.models import Sum, Subquery
 from django.db.models.functions import Coalesce
 from django.utils import timezone
-from django.utils.translation import gettext as _
 
 from .models import EntryCharacter, Rotation, RotationPreset
-from .forms import NewEntryForm, NewShareFormSet, NewRoleFormSet
 
 
 def running_averages(user, start_date, end_date=None):
@@ -31,37 +29,6 @@ def running_averages(user, start_date, end_date=None):
         return result[0]
     else:
         return {'helped_setups': 0, 'estimated_total': 0.0, 'actual_total': 0.0}
-
-
-def check_forms_valid(role_form: NewRoleFormSet, entry_form: NewEntryForm, share_form: NewShareFormSet) -> list:
-    errors = []
-
-    if role_form.is_valid():
-        roles_choices = []
-        roles_values = {}
-        for new_role in role_form.cleaned_data:
-            roles_choices.append((new_role['name'], new_role['name']))
-            roles_values[new_role['name']] = new_role['value']
-
-        for form in share_form:
-            form.fields['role'].choices = roles_choices
-
-        if entry_form.is_valid() and share_form.is_valid():
-            if share_form.total_form_count() > 0 and role_form.total_form_count() > 0:
-                total_value = 0
-                for share in share_form.cleaned_data:
-                    total_value += share['site_count'] * roles_values[share['role']]
-
-                if total_value == 0:
-                    errors.append(_('Form not valid, you need at least 1 person to receive loot'))
-            else:
-                errors.append(_('Not enough shares or roles'))
-        else:
-            errors.append(_('Entry form or shares are not correct'))
-    else:
-        errors.append(_('Error in roles'))
-
-    return errors
 
 
 def ensure_rotation_presets_applied():
