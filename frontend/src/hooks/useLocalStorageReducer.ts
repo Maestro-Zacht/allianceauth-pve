@@ -6,7 +6,7 @@ export function useLocalStorageReducer<S, A>(
     key: string | null,
     reducer: Reducer<S, A>,
     initialState: S
-): [S, Dispatch<A>] {
+): [S, Dispatch<A>, () => void] {
     const init = (defaultState: S): S => {
         if (key === null)
             return defaultState;
@@ -38,5 +38,15 @@ export function useLocalStorageReducer<S, A>(
         }
     }, [key, state]);
 
-    return [state, dispatch];
+    const resetLocalStorage = () => {
+        if (key !== null) {
+            try {
+                window.localStorage.removeItem(key);
+            } catch (error) {
+                console.warn(`Error removing localStorage key "${key}":`, error);
+            }
+        }
+    };
+
+    return [state, dispatch, resetLocalStorage];
 }

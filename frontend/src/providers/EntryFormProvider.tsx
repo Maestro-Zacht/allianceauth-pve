@@ -178,16 +178,17 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
 type EntryProcessorType = {
     updateEntryData: Dispatch<EntryReducerAction>;
     submitEntry: () => void;
+    resetLocalStorage: () => void;
 };
 
 interface EntryFormProviderProps {
     initialData: ExtendedEntryFormSchema;
     localStorageKey?: string | null | undefined;
-    submitEntry: (data: ExtendedEntryFormSchema) => void;
+    submitEntry: (data: ExtendedEntryFormSchema, resetFunction: () => void) => void;
 }
 
 export function EntryFormProvider({ initialData, localStorageKey, submitEntry, children }: PropsWithChildren<EntryFormProviderProps>) {
-    const [entryData, dispatchEntryData] = useLocalStorageReducer(localStorageKey ?? null, entryFormDataReducer, initialData);
+    const [entryData, dispatchEntryData, resetLocalStorage] = useLocalStorageReducer(localStorageKey ?? null, entryFormDataReducer, initialData);
 
     useEffect(() => {
         if (initialData.roles.length === 0) {
@@ -196,12 +197,13 @@ export function EntryFormProvider({ initialData, localStorageKey, submitEntry, c
     }, []);
 
     const submitAction = () => {
-        submitEntry(entryData);
+        submitEntry(entryData, resetLocalStorage);
     };
 
     const entryProcessor: EntryProcessorType = {
         updateEntryData: dispatchEntryData,
         submitEntry: submitAction,
+        resetLocalStorage: resetLocalStorage,
     };
 
     return <>

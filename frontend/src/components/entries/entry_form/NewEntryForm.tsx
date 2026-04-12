@@ -39,7 +39,7 @@ export default function NewEntryForm() {
         }
     });
 
-    const submitEntry = (entryFormData: ExtendedEntryFormSchema) => {
+    const submitEntry = (entryFormData: ExtendedEntryFormSchema, resetFunction: () => void) => {
         const sendData: EntryFormSchema = {
             estimated_total: entryFormData.estimated_total,
             funding_percentage: entryFormData.funding_percentage,
@@ -52,7 +52,11 @@ export default function NewEntryForm() {
             })),
             roles: entryFormData.roles,
         };
-        mutation.mutate(sendData);
+        mutation.mutate(sendData, {
+            onSuccess: () => {
+                resetFunction();
+            }
+        });
         setFormErrors(null);
     }
 
