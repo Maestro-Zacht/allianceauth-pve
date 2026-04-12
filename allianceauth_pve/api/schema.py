@@ -139,7 +139,7 @@ class EntryCharacterSchema(Schema):
 
 class EntryDetailsSchema(EntrySchema):
     funding_project: FundingProjectBasicSchema | None
-    funding_percentage: int
+    funding_percentage: int | None
 
     rotation_is_closed: bool
 
@@ -396,14 +396,14 @@ class EntryFormSchema(Schema):
                 created_by=created_by,
                 estimated_total=self.estimated_total,
                 funding_project_id=self.funding_project_id,
-                funding_percentage=self.funding_percentage or 0,
+                funding_percentage=self.funding_percentage,
             )
         else:
             entry.ratting_shares.all().delete()
             entry.roles.all().delete()
             entry.estimated_total = self.estimated_total
             entry.funding_project_id = self.funding_project_id
-            entry.funding_percentage = self.funding_percentage or 0
+            entry.funding_percentage = self.funding_percentage
             entry.save()
 
         roles_to_add = [EntryRole(entry=entry, name=role.name, value=role.value) for role in self.roles]

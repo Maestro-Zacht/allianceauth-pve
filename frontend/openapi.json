@@ -512,6 +512,7 @@
                     }
                 },
                 "tags": [
+                    "rotations",
                     "entries"
                 ],
                 "security": [
@@ -564,6 +565,7 @@
                     }
                 },
                 "tags": [
+                    "rotations",
                     "entries"
                 ],
                 "requestBody": {
@@ -623,6 +625,7 @@
                     }
                 },
                 "tags": [
+                    "rotations",
                     "entries"
                 ],
                 "security": [
@@ -674,6 +677,7 @@
                     }
                 },
                 "tags": [
+                    "rotations",
                     "entries"
                 ],
                 "security": [
@@ -735,6 +739,7 @@
                     }
                 },
                 "tags": [
+                    "rotations",
                     "entries"
                 ],
                 "requestBody": {
@@ -798,6 +803,7 @@
                     }
                 },
                 "tags": [
+                    "rotations",
                     "entries"
                 ],
                 "security": [
@@ -851,6 +857,7 @@
                     }
                 },
                 "tags": [
+                    "rotations",
                     "entries"
                 ],
                 "security": [
@@ -911,6 +918,7 @@
                     }
                 },
                 "tags": [
+                    "rotations",
                     "entries"
                 ],
                 "security": [
@@ -1659,10 +1667,6 @@
                         "title": "Total User Count",
                         "type": "integer"
                     },
-                    "total_site_count": {
-                        "title": "Total Site Count",
-                        "type": "integer"
-                    },
                     "estimated_total": {
                         "title": "Estimated Total",
                         "type": "integer"
@@ -1681,7 +1685,6 @@
                     "created_at",
                     "created_by_character",
                     "total_user_count",
-                    "total_site_count",
                     "estimated_total",
                     "estimated_total_after_tax",
                     "actual_total_after_tax"
@@ -1935,10 +1938,6 @@
                         "title": "Total User Count",
                         "type": "integer"
                     },
-                    "total_site_count": {
-                        "title": "Total Site Count",
-                        "type": "integer"
-                    },
                     "estimated_total": {
                         "title": "Estimated Total",
                         "type": "integer"
@@ -1962,8 +1961,15 @@
                         ]
                     },
                     "funding_percentage": {
-                        "title": "Funding Percentage",
-                        "type": "integer"
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Funding Percentage"
                     },
                     "rotation_is_closed": {
                         "title": "Rotation Is Closed",
@@ -1979,7 +1985,6 @@
                     "created_at",
                     "created_by_character",
                     "total_user_count",
-                    "total_site_count",
                     "estimated_total",
                     "estimated_total_after_tax",
                     "actual_total_after_tax",

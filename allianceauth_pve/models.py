@@ -4,7 +4,6 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _, gettext
 from django.db.models.functions import Coalesce
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.eveonline.models import EveCharacter
@@ -120,7 +119,7 @@ class EntryCharacterManager(models.Manager):
 
 class PveButton(models.Model):
     text = models.CharField(max_length=16, unique=True)
-    amount = models.BigIntegerField(validators=[MinValueValidator(-1000000000000), MaxValueValidator(1000000000000)])
+    amount = models.BigIntegerField()
 
     def __str__(self) -> str:
         return self.text
@@ -307,10 +306,7 @@ class Entry(models.Model):
         null=True,
         blank=True
     )
-    funding_percentage = models.PositiveSmallIntegerField(
-        default=0,
-        validators=[MinValueValidator(0), MaxValueValidator(100)]
-    )
+    funding_percentage = models.PositiveSmallIntegerField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, related_name='+')

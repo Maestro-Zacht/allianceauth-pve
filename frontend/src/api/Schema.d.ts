@@ -507,8 +507,6 @@ export interface components {
             created_by_character: components["schemas"]["EveCharacterSchema"] | null;
             /** Total User Count */
             total_user_count: number;
-            /** Total Site Count */
-            total_site_count: number;
             /** Estimated Total */
             estimated_total: number;
             /** Estimated Total After Tax */
@@ -637,8 +635,6 @@ export interface components {
             created_by_character: components["schemas"]["EveCharacterSchema"] | null;
             /** Total User Count */
             total_user_count: number;
-            /** Total Site Count */
-            total_site_count: number;
             /** Estimated Total */
             estimated_total: number;
             /** Estimated Total After Tax */
@@ -647,7 +643,7 @@ export interface components {
             actual_total_after_tax: number;
             funding_project: components["schemas"]["FundingProjectBasicSchema"] | null;
             /** Funding Percentage */
-            funding_percentage: number;
+            funding_percentage: number | null;
             /** Rotation Is Closed */
             rotation_is_closed: boolean;
             /** User Can Edit */
