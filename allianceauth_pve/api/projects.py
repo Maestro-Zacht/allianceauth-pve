@@ -4,10 +4,12 @@ from django.db.models import Count, OuterRef, Subquery, F
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext as _
 from django.utils import timezone
+from django.core.cache import cache
 
 from .schema import FundingProjectSchema, SummarySchema, NewProjectSchema
 from ..models import FundingProject, EntryCharacter
 from .authenticators import NeedsPermission
+from ..app_settings import FUNDING_PROJECT_SUMMARY_CACHE_KEY, FUNDING_PROJECT_SUMMARY_CACHE_TIMEOUT
 
 router = Router(tags=["projects"])
 
@@ -74,13 +76,21 @@ def get_project_summary(request, project_id: int):
     except FundingProject.DoesNotExist:
         return 404, None
 
-    return 200, project.summary.order_by('-estimated_total').values(
+    cache_key = FUNDING_PROJECT_SUMMARY_CACHE_KEY.format(project_id=project_id)
+    cached_summary = cache.get(cache_key)
+    if cached_summary is not None:
+        return 200, cached_summary
+
+    summary = project.summary.order_by('-estimated_total').values(
         'actual_total',
         'estimated_total',
         character_name=F('user__profile__main_character__character_name'),
         character_id=F('user__profile__main_character__character_id'),
         main_character_id=F('user__profile__main_character__character_id'),
     )
+    cache.set(cache_key, summary, FUNDING_PROJECT_SUMMARY_CACHE_TIMEOUT)
+
+    return 200, summary
 
 
 @router.post(

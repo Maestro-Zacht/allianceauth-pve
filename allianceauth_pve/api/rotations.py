@@ -4,8 +4,9 @@ from django.db.models import Count, F
 from django.db.models.functions import Coalesce
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.core.cache import cache
 
-from ..models import Rotation
+from ..models import EntryCharacter, FundingProject, Rotation
 from .schema import (
     RotationSchema,
     RotationSummarySchema,
@@ -17,6 +18,14 @@ from .schema import (
 )
 from .authenticators import NeedsPermission
 from ..utils import ensure_rotation_presets_applied
+from ..app_settings import (
+    ROTATION_SUMMARY_CACHE_KEY,
+    ROTATION_SUMMARY_CACHE_TIMEOUT,
+    ROTATION_PROJECT_SUMMARY_CACHE_KEY,
+    ROTATION_PROJECT_SUMMARY_CACHE_TIMEOUT,
+    FUNDING_PROJECT_SUMMARY_CACHE_KEY,
+    ACTIVITY_CACHE_KEY,
+)
 
 from .entries import router as entries_router
 
@@ -91,7 +100,25 @@ def close_rotation(request, rotation_id: int, data: CloseRotationSchema):
     rotation.closed_at = timezone.now()
     rotation.save(update_fields=['actual_total', 'is_closed', 'closed_at'])
 
-    # TODO: cache invalidation
+    summary_cache_key = ROTATION_SUMMARY_CACHE_KEY.format(rotation_id=rotation_id)
+    project_summaries_cache_key = ROTATION_PROJECT_SUMMARY_CACHE_KEY.format(rotation_id=rotation_id)
+
+    cache.delete(summary_cache_key)
+    cache.delete(project_summaries_cache_key)
+
+    cache.delete_many(
+        FUNDING_PROJECT_SUMMARY_CACHE_KEY.format(project_id=pk)
+        for pk in FundingProject.objects.affected_by(rotation)
+        .values_list('pk', flat=True).distinct()
+    )
+
+    cache.delete_many(
+        ACTIVITY_CACHE_KEY.format(user_id=user_id, months=months)
+        for user_id in EntryCharacter.objects
+        .filter(entry__rotation=rotation)
+        .values_list('user_id', flat=True).distinct()
+        for months in [1, 3, 6, 12]
+    )
 
     ensure_rotation_presets_applied()
 
@@ -105,7 +132,12 @@ def get_rotation_summary(request, rotation_id: int):
     except Rotation.DoesNotExist:
         return 404, None
 
-    return 200, rotation.summary.order_by('-estimated_total').values(
+    cache_key = ROTATION_SUMMARY_CACHE_KEY.format(rotation_id=rotation_id)
+    cached_summary = cache.get(cache_key)
+    if cached_summary is not None:
+        return 200, cached_summary
+
+    summary = rotation.summary.order_by('-estimated_total').values(
         'helped_setups',
         'estimated_total',
         'actual_total',
@@ -119,6 +151,9 @@ def get_rotation_summary(request, rotation_id: int):
         ),
         main_character_id=F('user__profile__main_character__character_id'),
     )
+    cache.set(cache_key, summary, ROTATION_SUMMARY_CACHE_TIMEOUT)
+
+    return 200, summary
 
 
 @router.get("/{int:rotation_id}/project_summaries/", response={200: list[RotationProjectSummarySchema], 404: None})
@@ -128,10 +163,18 @@ def get_rotation_project_summaries(request, rotation_id: int):
     except Rotation.DoesNotExist:
         return 404, None
 
-    return 200, [
+    cache_key = ROTATION_PROJECT_SUMMARY_CACHE_KEY.format(rotation_id=rotation_id)
+    cached_summaries = cache.get(cache_key)
+    if cached_summaries is not None:
+        return 200, cached_summaries
+
+    summaries = [
         {'project': project, 'summary': summary}
         for project, summary in rotation.funding_projects_summary.items()
     ]
+    cache.set(cache_key, summaries, ROTATION_PROJECT_SUMMARY_CACHE_TIMEOUT)
+
+    return 200, summaries
 
 
 @router.get("/{int:rotation_id}/role_setups/", response={200: list[RoleSetupSchema], 404: None})

@@ -3,6 +3,7 @@ from ninja import Path, Router
 from django.db.models import F, Subquery, Sum, Prefetch, Exists
 from django.utils.translation import gettext as _
 from django.db import transaction
+from django.core.cache import cache
 
 from ..models import EntryRole, Rotation, Entry, EntryCharacter
 from .schema import (
@@ -15,6 +16,11 @@ from .schema import (
     ExtendedEntryFormSchema,
 )
 from .authenticators import NeedsPermission
+from ..app_settings import (
+    ROTATION_SUMMARY_CACHE_KEY,
+    ROTATION_PROJECT_SUMMARY_CACHE_KEY,
+    FUNDING_PROJECT_SUMMARY_CACHE_KEY,
+)
 
 router = Router(tags=["entries"])
 
@@ -68,7 +74,19 @@ def delete_rotation_entry(request, entry_id: int, rotation_id: int = Path(...)):
     if (entry.created_by != request.user and not request.user.is_superuser) or entry.rotation.is_closed:
         return 403, "You cannot delete this entry"
 
+    rotation_summary_cache_key = ROTATION_SUMMARY_CACHE_KEY.format(rotation_id=rotation_id)
+    rotation_project_summary_cache_key = ROTATION_PROJECT_SUMMARY_CACHE_KEY.format(rotation_id=rotation_id)
+    funding_project_summary_cache_key = None
+    if entry.funding_project is not None:
+        funding_project_summary_cache_key = FUNDING_PROJECT_SUMMARY_CACHE_KEY.format(project_id=entry.funding_project_id)
+
     entry.delete()
+
+    cache.delete(rotation_summary_cache_key)
+
+    if funding_project_summary_cache_key:
+        cache.delete(rotation_project_summary_cache_key)
+        cache.delete(funding_project_summary_cache_key)
 
     return 200, None
 
@@ -116,23 +134,32 @@ def get_rotation_entry_shares(request, entry_id: int, rotation_id: int = Path(..
     response={200: None, 400: EntryFormErrorsSchema, 404: None, 403: str},
     auth=NeedsPermission('allianceauth_pve.manage_entries')
 )
-@transaction.atomic
 def new_entry(request, data: EntryFormSchema, rotation_id: int = Path(...)):
-    try:
-        rotation = Rotation.objects.get(pk=rotation_id)
-    except Rotation.DoesNotExist:
-        return 404, None
+    with transaction.atomic():
+        try:
+            rotation = Rotation.objects.get(pk=rotation_id)
+        except Rotation.DoesNotExist:
+            return 404, None
 
-    if rotation.is_closed:
-        return 403, _("The rotation is closed")
+        if rotation.is_closed:
+            return 403, _("The rotation is closed")
 
-    errors = data.validate()
-    if errors is not None:
-        return 400, errors
+        errors = data.validate()
+        if errors is not None:
+            return 400, errors
 
-    data.save(request.user, rotation)
+        entry = data.save(request.user, rotation)
 
-    # TODO: cache keys
+    rotation_summary_cache_key = ROTATION_SUMMARY_CACHE_KEY.format(rotation_id=rotation_id)
+    rotation_project_summary_cache_key = ROTATION_PROJECT_SUMMARY_CACHE_KEY.format(rotation_id=rotation_id)
+
+    cache.delete(rotation_summary_cache_key)
+
+    if entry.funding_project is not None:
+        cache.delete(rotation_project_summary_cache_key)
+
+        funding_project_summary_cache_key = FUNDING_PROJECT_SUMMARY_CACHE_KEY.format(project_id=entry.funding_project_id)
+        cache.delete(funding_project_summary_cache_key)
 
     return 200, None
 
@@ -171,23 +198,42 @@ def get_entry_for_edit(request, entry_id: int, rotation_id: int = Path(...)):
     response={200: None, 400: EntryFormErrorsSchema, 404: None, 403: str},
     auth=NeedsPermission('allianceauth_pve.manage_entries')
 )
-@transaction.atomic
 def edit_entry(request, entry_id: int, data: EntryFormSchema, rotation_id: int = Path(...)):
-    try:
-        entry = Entry.objects.select_related('rotation').get(pk=entry_id, rotation_id=rotation_id)
-    except Entry.DoesNotExist:
-        return 404, None
+    with transaction.atomic():
+        try:
+            entry = Entry.objects.select_related('rotation').get(pk=entry_id, rotation_id=rotation_id)
+        except Entry.DoesNotExist:
+            return 404, None
 
-    if entry.created_by != request.user and not request.user.is_superuser:
-        return 403, _("You cannot edit this entry")
+        if entry.created_by != request.user and not request.user.is_superuser:
+            return 403, _("You cannot edit this entry")
 
-    if entry.rotation.is_closed:
-        return 403, _("The rotation is closed")
+        if entry.rotation.is_closed:
+            return 403, _("The rotation is closed")
 
-    errors = data.validate()
-    if errors is not None:
-        return 400, errors
+        errors = data.validate()
+        if errors is not None:
+            return 400, errors
 
-    data.save(request.user, entry.rotation, entry)
+        rotation_summary_cache_key = ROTATION_SUMMARY_CACHE_KEY.format(rotation_id=rotation_id)
+        rotation_project_summary_cache_key = ROTATION_PROJECT_SUMMARY_CACHE_KEY.format(rotation_id=rotation_id)
+        funding_project_summary_cache_keys = set()
+        if entry.funding_project is not None:
+            funding_project_summary_cache_keys.add(
+                FUNDING_PROJECT_SUMMARY_CACHE_KEY.format(project_id=entry.funding_project_id)
+            )
+
+        new_entry = data.save(request.user, entry.rotation, entry)
+
+        if new_entry.funding_project is not None:
+            funding_project_summary_cache_keys.add(
+                FUNDING_PROJECT_SUMMARY_CACHE_KEY.format(project_id=new_entry.funding_project_id)
+            )
+
+    cache.delete(rotation_summary_cache_key)
+
+    if len(funding_project_summary_cache_keys) > 0:
+        cache.delete(rotation_project_summary_cache_key)
+        cache.delete_many(funding_project_summary_cache_keys)
 
     return 200, None
