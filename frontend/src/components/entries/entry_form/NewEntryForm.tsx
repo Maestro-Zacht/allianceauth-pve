@@ -67,7 +67,7 @@ export default function NewEntryForm() {
     return <>
         <NavBackButton url={`/pve/r/rotations/${rotationIdNum}/`} />
         <Row>
-            <EntryFormProvider initialData={initialEntryData} submitEntry={submitEntry}>
+            <EntryFormProvider initialData={initialEntryData} localStorageKey={`new-entry-form-${rotationIdNum}`} submitEntry={submitEntry}>
                 <EntryForm rotationId={rotationIdNum} isLoading={mutation.isPending} errors={formErrors} />
             </EntryFormProvider>
         </Row>

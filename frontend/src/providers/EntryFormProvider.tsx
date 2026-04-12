@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useReducer, type Dispatch, type PropsWithChildren } from "react";
+import { createContext, useContext, useEffect, type Dispatch, type PropsWithChildren } from "react";
 import type { ExtendedEntryFormSchema } from "../components/entries/EntryTypes";
+import { useLocalStorageReducer } from "../hooks/useLocalStorageReducer";
 
 type RoleType = ExtendedEntryFormSchema["roles"][number];
 
@@ -181,11 +182,12 @@ type EntryProcessorType = {
 
 interface EntryFormProviderProps {
     initialData: ExtendedEntryFormSchema;
+    localStorageKey?: string | null | undefined;
     submitEntry: (data: ExtendedEntryFormSchema) => void;
 }
 
-export function EntryFormProvider({ initialData, submitEntry, children }: PropsWithChildren<EntryFormProviderProps>) {
-    const [entryData, dispatchEntryData] = useReducer(entryFormDataReducer, initialData);
+export function EntryFormProvider({ initialData, localStorageKey, submitEntry, children }: PropsWithChildren<EntryFormProviderProps>) {
+    const [entryData, dispatchEntryData] = useLocalStorageReducer(localStorageKey ?? null, entryFormDataReducer, initialData);
 
     useEffect(() => {
         if (initialData.roles.length === 0) {
