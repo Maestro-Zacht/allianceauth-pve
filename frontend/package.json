@@ -19,7 +19,7 @@
     "datatables.net-bs5": "^2.3.7",
     "datatables.net-columncontrol-bs5": "^1.2.1",
     "datatables.net-react": "^1.0.1",
-    "i18next": "^25.7.2",
+    "i18next": "^26.0.4",
     "i18next-browser-languagedetector": "^8.2.1",
     "i18next-http-backend": "^3.0.4",
     "js-cookie": "^3.0.5",
