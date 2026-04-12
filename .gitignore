@@ -102,3 +102,5 @@ ENV/
 .idea/
 
 mysql-data/
+allianceauth_pve/static/allianceauth_pve/react
+frontend/analyse.html

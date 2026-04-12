@@ -5,6 +5,12 @@ filters:
     source_language: en
     translation_files_expression: allianceauth_pve/locale/<lang>/LC_MESSAGES/django.po
 
+  - filter_type: file
+    file_format: KEYVALUEJSON
+    source_language: en
+    source_file: frontend/i18n/en/translation.json
+    translation_files_expression: frontend/i18n/<lang>/translation.json
+
 settings:
   language_mapping:
     zh-Hans: zh_Hans

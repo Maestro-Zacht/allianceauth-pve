@@ -1,0 +1,7 @@
+#search-results {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    column-gap: 4ch;
+    row-gap: 1.1rem;
+    align-items: center;
+}

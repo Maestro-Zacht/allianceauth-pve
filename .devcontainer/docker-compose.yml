@@ -1,5 +1,3 @@
-version: '3.8'
-
 x-allianceauth-base: &allianceauth-base
   restart: always
   network_mode: service:auth_mysql # needed for forwarding ports in devcontainer.json
@@ -71,6 +69,8 @@ services:
     volumes:
       - "redis-data:/data"
       - ./redis_healthcheck.sh:/usr/local/bin/redis_healthcheck.sh
+    ports:
+      - "6379:6379"
     healthcheck:
       test: [ "CMD", "bash", "/usr/local/bin/redis_healthcheck.sh" ]
     logging:
