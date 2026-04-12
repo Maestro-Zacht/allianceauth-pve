@@ -34,7 +34,6 @@ export default function RotationEntriesSection({ rotationId }: RotationEntriesSe
     const columns = [
         { data: 'created_at', type: 'date' },
         { data: 'total_user_count' },
-        { data: 'total_site_count' },
         { data: 'estimated_total_after_tax' },
         { data: 'estimated_total' },
         { data: 'created_by_character' },
@@ -126,10 +125,10 @@ export default function RotationEntriesSection({ rotationId }: RotationEntriesSe
                             ref={tableRef}
                             slots={{
                                 0: renderDate,
+                                2: renderNumber,
                                 3: renderNumber,
-                                4: renderNumber,
-                                5: renderCreatedBy,
-                                6: renderButton,
+                                4: renderCreatedBy,
+                                5: renderButton,
                             }}
                             options={{
                                 pageLength: 50,
@@ -139,7 +138,7 @@ export default function RotationEntriesSection({ rotationId }: RotationEntriesSe
                                         className: 'dt-left',
                                     },
                                     {
-                                        targets: [0, 1, 2, 3, 4, 6],
+                                        targets: [0, 1, 2, 3, 5],
                                         searchable: false,
                                     }
                                 ],
@@ -150,7 +149,6 @@ export default function RotationEntriesSection({ rotationId }: RotationEntriesSe
                                 <tr>
                                     <th>{t('date')}</th>
                                     <th>{t('user_count')}</th>
-                                    <th>{t('share_count')}</th>
                                     <th>{t('total_after_tax')}</th>
                                     <th>{t('total')}</th>
                                     <th>{t('created_by')}</th>

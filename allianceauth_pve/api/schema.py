@@ -99,7 +99,6 @@ class EntrySchema(Schema):
     created_at: datetime
     created_by_character: EveCharacterSchema | None
     total_user_count: int
-    total_site_count: int
     estimated_total: int
     estimated_total_after_tax: float
     actual_total_after_tax: float
