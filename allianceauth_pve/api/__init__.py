@@ -47,7 +47,7 @@ def list_role_setups(request):
 @api.post(
     "/search/",
     response=list[RatterSchema],
-    auth=NeedsPermission('allianceauth_pve.manage_rotations')
+    auth=NeedsPermission('allianceauth_pve.manage_entries')
 )
 def search_ratters(request, name: str = "", exclude_ids: list[int] = []):
     content_type = ContentType.objects.get_for_model(General)
