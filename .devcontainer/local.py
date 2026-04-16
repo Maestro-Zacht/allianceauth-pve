@@ -61,6 +61,9 @@ CACHES = {
     }
 }
 
+INSTALLED_APPS = [
+    "modeltranslation",
+] + INSTALLED_APPS
 
 # Add any additional apps to this list.
 INSTALLED_APPS += [
@@ -86,6 +89,7 @@ INSTALLED_APPS += [
     # 'allianceauth.services.modules.xenforo',
 
     'allianceauth_pve',
+    "eve_sde",
 
     "debug_toolbar",
     # 'taskmonitor',
@@ -104,3 +108,11 @@ DEBUG_TOOLBAR_CONFIG = {
 CSRF_TRUSTED_ORIGINS += [
     "http://localhost:3000",
 ]
+
+
+if "eve_sde" in INSTALLED_APPS:
+    # Run at 12:00 UTC each day
+    CELERYBEAT_SCHEDULE["EVE SDE :: Check for SDE Updates"] = {
+        "task": "eve_sde.tasks.check_for_sde_updates",
+        "schedule": crontab(minute="0", hour="12"),
+    }

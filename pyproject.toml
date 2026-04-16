@@ -38,6 +38,7 @@ requires-python = "~=3.10"
 dependencies = [
     "allianceauth>=4.6,<6",
 	"django-ninja~=1.4",
+	"django-eveonline-sde>=0.0.1b9,<1",
 ]
 
 [project.urls]

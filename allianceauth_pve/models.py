@@ -8,6 +8,8 @@ from django.db.models.functions import Coalesce
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.eveonline.models import EveCharacter
 
+from eve_sde.models import ItemType
+
 logger = get_extension_logger(__name__)
 
 
@@ -53,7 +55,7 @@ class EntryCharacterQueryset(models.QuerySet):
             .values('total_value')
         )
 
-        estimated_total = (
+        rotation_estimated_total = (
             Entry.objects
             .filter(rotation=models.OuterRef('entry__rotation'))
             .values('rotation')
@@ -61,20 +63,34 @@ class EntryCharacterQueryset(models.QuerySet):
             .values('estimated_total')
         )
 
+        entry_item_total = (
+            EntryLootItem.objects
+            .filter(entry_id=models.OuterRef('entry_id'))
+            .annotate(item_total=models.F('quantity') * models.F('sale_price'))
+            .values('entry')
+            .annotate(entry_total=models.Sum('item_total'))
+            .values('entry_total')
+        )
+
         return self.annotate(
-            _share_total=(
+            share_relative_value=models.ExpressionWrapper(
+                models.F('site_count') * models.F('role__value') /
+                models.Subquery(total_values),
+                output_field=models.FloatField()
+            )
+        ).annotate(
+            share_total=(
                 models.F('entry__estimated_total') *
                 (100 - models.F('entry__rotation__tax_rate')) / 100 *
-                models.F('site_count') * models.F('role__value') /
-                models.Subquery(total_values)
+                models.F('share_relative_value')
             )
         ).annotate(
             estimated_share_total=models.Case(
                 models.When(
                     entry__funding_project__isnull=True,
-                    then=models.F('_share_total')
+                    then=models.F('share_total')
                 ),
-                default=models.F('_share_total') * (100 - models.F('entry__funding_percentage')) / 100
+                default=models.F('share_total') * (100 - models.F('entry__funding_percentage')) / 100
             )
         ).annotate(
             estimated_funding_amount=models.Case(
@@ -83,17 +99,41 @@ class EntryCharacterQueryset(models.QuerySet):
                     then=models.Value(0, output_field=models.PositiveBigIntegerField())
                 ),
                 default=models.ExpressionWrapper(
-                    models.F('_share_total') - models.F('estimated_share_total'),
+                    models.F('share_total') - models.F('estimated_share_total'),
                     output_field=models.PositiveBigIntegerField()
                 )
             )
         ).annotate(
+            share_total_for_items=(
+                models.Subquery(entry_item_total) *
+                (100 - models.F('entry__rotation__tax_rate_loot_items')) / 100 *
+                models.F('share_relative_value')
+            )
+        ).annotate(
             actual_share_total=models.F('estimated_share_total') *
-            models.F('entry__rotation__actual_total') / models.Subquery(estimated_total)
-
+            models.F('entry__rotation__actual_total') / models.Subquery(rotation_estimated_total)
+        ).annotate(
+            actual_share_total_for_items=models.Case(
+                models.When(
+                    entry__funding_project__isnull=True,
+                    then=models.F('share_total_for_items')
+                ),
+                default=models.F('share_total_for_items') * (100 - models.F('entry__funding_percentage')) / 100
+            )
         ).annotate(
             actual_funding_amount=models.F('estimated_funding_amount') *
-            models.F('entry__rotation__actual_total') / models.Subquery(estimated_total)
+            models.F('entry__rotation__actual_total') / models.Subquery(rotation_estimated_total)
+        ).annotate(
+            actual_funding_amount_for_items=models.Case(
+                models.When(
+                    entry__funding_project__isnull=True,
+                    then=models.Value(0, output_field=models.PositiveBigIntegerField())
+                ),
+                default=models.ExpressionWrapper(
+                    models.F('share_total_for_items') - models.F('actual_share_total_for_items'),
+                    output_field=models.PositiveBigIntegerField()
+                )
+            )
         )
 
     def with_contributions_to(self, funding_project, rotation_closed: bool = None):
@@ -182,6 +222,7 @@ class Rotation(models.Model):
     min_people_share_setup = models.PositiveSmallIntegerField(default=3, help_text=_('The minimum number of users in an entry to consider the helped setup valid.'))
 
     tax_rate = models.FloatField(default=0, help_text=_('Tax rate in percentage'))
+    tax_rate_loot_items = models.FloatField(default=0)
     is_closed = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -341,6 +382,24 @@ class Entry(models.Model):
         default_permissions = ()
         verbose_name = 'entry'
         verbose_name_plural = 'entries'
+
+
+class EntryLootItem(models.Model):
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name='loot_items')
+
+    item = models.ForeignKey(ItemType, on_delete=models.RESTRICT, related_name='+')
+    quantity = models.PositiveIntegerField()
+
+    sale_price = models.PositiveBigIntegerField(null=True, blank=True)
+
+    class Meta:
+        default_permissions = ()
+        constraints = [
+            models.UniqueConstraint(fields=['entry', 'item'], name='unique_item_per_entry'),
+        ]
+
+    def __str__(self) -> str:
+        return f'{self.item} x{self.quantity}'
 
 
 class EntryRole(models.Model):
