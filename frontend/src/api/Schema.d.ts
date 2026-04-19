@@ -38,23 +38,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/pve/api/search/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Search Ratters */
-        post: operations["allianceauth_pve_api_search_ratters"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/pve/api/rotations/": {
         parameters: {
             query?: never;
@@ -350,6 +333,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/pve/api/search/ratters/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Search Ratters */
+        post: operations["allianceauth_pve_api_search_search_ratters"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pve/api/search/items/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Search Items */
+        post: operations["allianceauth_pve_api_search_search_items"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -369,22 +386,6 @@ export interface components {
             id: number;
             /** Name */
             name: string;
-        };
-        /** EveCharacterSchema */
-        EveCharacterSchema: {
-            /** Character Id */
-            character_id: number;
-            /** Character Name */
-            character_name: string;
-            /** Portrait Url */
-            portrait_url: string;
-        };
-        /** RatterSchema */
-        RatterSchema: {
-            character: components["schemas"]["EveCharacterSchema"];
-            main_character: components["schemas"]["EveCharacterSchema"];
-            /** Extra Chars */
-            extra_chars: string[];
         };
         /** RotationSchema */
         RotationSchema: {
@@ -420,6 +421,8 @@ export interface components {
             priority: number;
             /** Tax Rate */
             tax_rate: number;
+            /** Tax Rate Loot Items */
+            tax_rate_loot_items: boolean;
             /** Max Daily Setups */
             max_daily_setups: number;
             /** Min People Share Setup */
@@ -514,6 +517,15 @@ export interface components {
             /** Actual Total After Tax */
             actual_total_after_tax: number;
         };
+        /** EveCharacterSchema */
+        EveCharacterSchema: {
+            /** Character Id */
+            character_id: number;
+            /** Character Name */
+            character_name: string;
+            /** Portrait Url */
+            portrait_url: string;
+        };
         /** EntryFormErrorsSchema */
         EntryFormErrorsSchema: {
             /**
@@ -555,6 +567,26 @@ export interface components {
             shares: {
                 [key: string]: components["schemas"]["ShareFormErrorsSchema"];
             };
+            /**
+             * Items
+             * @default {}
+             */
+            items: {
+                [key: string]: components["schemas"]["EntryItemErrorsSchema"];
+            };
+        };
+        /** EntryItemErrorsSchema */
+        EntryItemErrorsSchema: {
+            /**
+             * Item
+             * @default []
+             */
+            item: string[];
+            /**
+             * Quantity
+             * @default []
+             */
+            quantity: string[];
         };
         /** RoleFormErrorsSchema */
         RoleFormErrorsSchema: {
@@ -604,6 +636,15 @@ export interface components {
             roles: components["schemas"]["RoleFormSchema"][];
             /** Shares */
             shares: components["schemas"]["ShareFormSchema"][];
+            /** Items */
+            items: components["schemas"]["EntryItemSchema"][];
+        };
+        /** EntryItemSchema */
+        EntryItemSchema: {
+            /** Id */
+            id: number;
+            /** Quantity */
+            quantity: number;
         };
         /** RoleFormSchema */
         RoleFormSchema: {
@@ -689,6 +730,8 @@ export interface components {
             roles: components["schemas"]["RoleFormSchema"][];
             /** Shares */
             shares: components["schemas"]["ExtendedShareFormSchema"][];
+            /** Items */
+            items: components["schemas"]["ItemSearchResultSchema"][];
         };
         /** ExtendedShareFormSchema */
         ExtendedShareFormSchema: {
@@ -708,6 +751,17 @@ export interface components {
             main_character_name: string;
             /** Main Character Portrait Url */
             main_character_portrait_url: string;
+        };
+        /** ItemSearchResultSchema */
+        ItemSearchResultSchema: {
+            /** Id */
+            id: number;
+            /** Icon Url */
+            icon_url: string;
+            /** Name */
+            name: string;
+            /** Quantity */
+            quantity: number;
         };
         /** ActivitySchema */
         ActivitySchema: {
@@ -768,6 +822,13 @@ export interface components {
             /** Is Superuser */
             is_superuser: boolean;
         };
+        /** RatterSchema */
+        RatterSchema: {
+            character: components["schemas"]["EveCharacterSchema"];
+            main_character: components["schemas"]["EveCharacterSchema"];
+            /** Extra Chars */
+            extra_chars: string[];
+        };
     };
     responses: never;
     parameters: never;
@@ -813,32 +874,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BaseRoleSetupSchema"][];
-                };
-            };
-        };
-    };
-    allianceauth_pve_api_search_ratters: {
-        parameters: {
-            query?: {
-                name?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": number[];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RatterSchema"][];
                 };
             };
         };
@@ -1593,6 +1628,65 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PermissionsSchema"];
+                };
+            };
+        };
+    };
+    allianceauth_pve_api_search_search_ratters: {
+        parameters: {
+            query?: {
+                name?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": number[];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RatterSchema"][];
+                };
+            };
+        };
+    };
+    allianceauth_pve_api_search_search_items: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": string;
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemSearchResultSchema"][];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
                 };
             };
         };

@@ -77,6 +77,10 @@ export default function EditEntryForm() {
                 site_count: share.site_count,
             })),
             roles: entryFormData.roles,
+            items: entryFormData.items.map(item => ({
+                id: item.id,
+                quantity: item.quantity,
+            })),
         };
         mutation.mutate(sendData);
         setFormErrors(null);

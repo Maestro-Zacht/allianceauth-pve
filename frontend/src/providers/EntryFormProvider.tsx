@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, type Dispatch, type PropsWithChildren } from "react";
-import type { ExtendedEntryFormSchema } from "../components/entries/EntryTypes";
+import type { ExtendedEntryFormSchema, ExtendedEntryItem } from "../components/entries/EntryTypes";
 import { useLocalStorageReducer } from "../hooks/useLocalStorageReducer";
 
 type RoleType = ExtendedEntryFormSchema["roles"][number];
@@ -10,6 +10,9 @@ const EntryFormDataContext = createContext<ExtendedEntryFormSchema | undefined>(
 type EntryReducerAction =
     | { type: 'update_estimated_total'; estimated_total: number }
     | { type: 'increment_estimated_total'; increment: number }
+    | { type: 'add_items'; items: ExtendedEntryItem[] }
+    | { type: 'replace_items'; items: ExtendedEntryItem[] }
+    | { type: 'update_item_quantity'; item_id: number; quantity: number }
     | { type: 'add_role'; role: RoleType }
     | { type: 'load_role_setup'; roles: RoleType[] }
     | { type: 'update_role_value'; roleName: string; value: number }
@@ -29,6 +32,26 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
             return { ...state, estimated_total: action.estimated_total };
         case 'increment_estimated_total':
             return { ...state, estimated_total: state.estimated_total + action.increment };
+        case 'add_items':
+            const newItemMap = new Map<number, ExtendedEntryItem>();
+            for (const item of [...action.items, ...state.items]) {
+                const existingItem = newItemMap.get(item.id) || { ...item, quantity: 0 };
+                existingItem.quantity += item.quantity;
+                newItemMap.set(item.id, existingItem);
+            }
+            return { ...state, items: Array.from(newItemMap.values()).map(item => item.quantity < 1 ? { ...item, quantity: 1 } : item) };
+        case 'replace_items':
+            return { ...state, items: action.items.map(item => item.quantity < 1 ? { ...item, quantity: 1 } : item) };
+        case 'update_item_quantity':
+            if (isNaN(action.quantity) || action.quantity < 1) {
+                return state;
+            }
+            return {
+                ...state,
+                items: state.items.map(item =>
+                    item.id === action.item_id ? { ...item, quantity: action.quantity } : item
+                )
+            };
         case 'add_role':
             if (state.roles.some(role => role.name === action.role.name)) {
                 return state;

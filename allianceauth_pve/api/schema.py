@@ -488,7 +488,11 @@ class ItemSchema(ModelSchema):
 
     @staticmethod
     def resolve_icon_url(obj: ItemType) -> str:
-        return f"https://images.evetech.net/types/{obj.id}/icon"
+        if type(obj) is ItemType:
+            obj_id = obj.id
+        else:
+            obj_id = obj['id']
+        return f"https://images.evetech.net/types/{obj_id}/icon"
 
 
 class ItemSearchResultSchema(ItemSchema):
@@ -521,6 +525,11 @@ class ExtendedShareFormSchema(ShareFormSchema):
 class ExtendedEntryFormSchema(EntryFormSchema):
     shares: list[ExtendedShareFormSchema]
     items: list[ItemSearchResultSchema]
+
+    @staticmethod
+    def resolve_items(obj: Entry) -> list[ItemSearchResultSchema]:
+        items = EntryLootItem.objects.filter(entry=obj).select_related('item')
+        return [{'id': item.item_id, 'quantity': item.quantity, 'name': item.item.name} for item in items]
 
 
 class RatterSchema(Schema):

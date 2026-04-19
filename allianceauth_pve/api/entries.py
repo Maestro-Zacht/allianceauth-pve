@@ -1,6 +1,6 @@
 from ninja import Path, Router
 
-from django.db.models import F, Subquery, Sum, Prefetch, Exists
+from django.db.models import F, Subquery, Sum, Prefetch
 from django.utils.translation import gettext as _
 from django.db import transaction
 from django.core.cache import cache

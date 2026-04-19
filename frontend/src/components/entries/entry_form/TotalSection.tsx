@@ -3,14 +3,16 @@ import { useTranslation } from "react-i18next";
 import { parseLocalizedNumber } from "../../../utils";
 import { useEntryProcessor } from "../../../providers/EntryFormProvider";
 import TooltipComponent from "../../TooltipComponent";
-import type { EntryFormErrors } from "../EntryTypes";
+import type { EntryFormErrors, ExtendedEntryItem } from "../EntryTypes";
+import ItemSection from "./ItemSection";
 
 interface TotalSectionProps {
     estimatedTotal: number;
     errors: EntryFormErrors["estimated_total"] | null | undefined;
+    items: ExtendedEntryItem[];
 }
 
-export default function TotalSection({ estimatedTotal, errors }: TotalSectionProps) {
+export default function TotalSection({ estimatedTotal, errors, items }: TotalSectionProps) {
     const { t, i18n } = useTranslation();
     const { updateEntryData } = useEntryProcessor();
 
@@ -19,6 +21,7 @@ export default function TotalSection({ estimatedTotal, errors }: TotalSectionPro
     }
 
     return <>
+        <ItemSection items={items} />
         <Form.Group as={Row} className="mb-3" controlId="estimatedTotal">
             <Form.Label column sm={2}>
                 {t("total")}
@@ -27,7 +30,7 @@ export default function TotalSection({ estimatedTotal, errors }: TotalSectionPro
                 <Form.Control
                     type="text" placeholder={t("total")}
                     value={localizeNumber(estimatedTotal)}
-                    isInvalid={!!errors}
+                    isInvalid={!!errors && errors.length > 0}
                     onChange={(e) => {
                         const newTotal = parseLocalizedNumber(e.target.value, i18n.language);
                         if (e.target.value === '') {
@@ -38,7 +41,7 @@ export default function TotalSection({ estimatedTotal, errors }: TotalSectionPro
                         }
                     }}
                 />
-                {errors && <Form.Control.Feedback type="invalid" tooltip>
+                {errors && errors.length > 0 && <Form.Control.Feedback type="invalid" tooltip>
                     {errors.map((error, index) => <div key={`error-${index}`}>{error}</div>)}
                 </Form.Control.Feedback>}
             </Col>

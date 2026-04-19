@@ -62,60 +62,6 @@
                 ]
             }
         },
-        "/pve/api/search/": {
-            "post": {
-                "operationId": "allianceauth_pve_api_search_ratters",
-                "summary": "Search Ratters",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "name",
-                        "schema": {
-                            "default": "",
-                            "title": "Name",
-                            "type": "string"
-                        },
-                        "required": false
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "items": {
-                                        "$ref": "#/components/schemas/RatterSchema"
-                                    },
-                                    "title": "Response",
-                                    "type": "array"
-                                }
-                            }
-                        }
-                    }
-                },
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "default": [],
-                                "items": {
-                                    "type": "integer"
-                                },
-                                "title": "Exclude Ids",
-                                "type": "array"
-                            }
-                        }
-                    },
-                    "required": false
-                },
-                "security": [
-                    {
-                        "NeedsPermission": []
-                    }
-                ]
-            }
-        },
         "/pve/api/rotations/": {
             "get": {
                 "operationId": "allianceauth_pve_api_rotations_list_rotations",
@@ -1242,6 +1188,119 @@
                     }
                 ]
             }
+        },
+        "/pve/api/search/ratters/": {
+            "post": {
+                "operationId": "allianceauth_pve_api_search_search_ratters",
+                "summary": "Search Ratters",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "name",
+                        "schema": {
+                            "default": "",
+                            "title": "Name",
+                            "type": "string"
+                        },
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/RatterSchema"
+                                    },
+                                    "title": "Response",
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "search"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "default": [],
+                                "items": {
+                                    "type": "integer"
+                                },
+                                "title": "Exclude Ids",
+                                "type": "array"
+                            }
+                        }
+                    },
+                    "required": false
+                },
+                "security": [
+                    {
+                        "NeedsPermission": []
+                    }
+                ]
+            }
+        },
+        "/pve/api/search/items/": {
+            "post": {
+                "operationId": "allianceauth_pve_api_search_search_items",
+                "summary": "Search Items",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/ItemSearchResultSchema"
+                                    },
+                                    "title": "Response",
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "title": "Response",
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "search"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "title": "Paste",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "NeedsPermission": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -1287,53 +1346,6 @@
                     "name"
                 ],
                 "title": "BaseRoleSetupSchema",
-                "type": "object"
-            },
-            "EveCharacterSchema": {
-                "properties": {
-                    "character_id": {
-                        "title": "Character Id",
-                        "type": "integer"
-                    },
-                    "character_name": {
-                        "title": "Character Name",
-                        "type": "string"
-                    },
-                    "portrait_url": {
-                        "title": "Portrait Url",
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "character_id",
-                    "character_name",
-                    "portrait_url"
-                ],
-                "title": "EveCharacterSchema",
-                "type": "object"
-            },
-            "RatterSchema": {
-                "properties": {
-                    "character": {
-                        "$ref": "#/components/schemas/EveCharacterSchema"
-                    },
-                    "main_character": {
-                        "$ref": "#/components/schemas/EveCharacterSchema"
-                    },
-                    "extra_chars": {
-                        "items": {
-                            "type": "string"
-                        },
-                        "title": "Extra Chars",
-                        "type": "array"
-                    }
-                },
-                "required": [
-                    "character",
-                    "main_character",
-                    "extra_chars"
-                ],
-                "title": "RatterSchema",
                 "type": "object"
             },
             "RotationSchema": {
@@ -1416,6 +1428,10 @@
                         "title": "Tax Rate",
                         "type": "number"
                     },
+                    "tax_rate_loot_items": {
+                        "title": "Tax Rate Loot Items",
+                        "type": "boolean"
+                    },
                     "max_daily_setups": {
                         "title": "Max Daily Setups",
                         "type": "integer"
@@ -1443,6 +1459,7 @@
                     "name",
                     "priority",
                     "tax_rate",
+                    "tax_rate_loot_items",
                     "max_daily_setups",
                     "min_people_share_setup",
                     "entry_buttons",
@@ -1692,6 +1709,29 @@
                 "title": "EntrySchema",
                 "type": "object"
             },
+            "EveCharacterSchema": {
+                "properties": {
+                    "character_id": {
+                        "title": "Character Id",
+                        "type": "integer"
+                    },
+                    "character_name": {
+                        "title": "Character Name",
+                        "type": "string"
+                    },
+                    "portrait_url": {
+                        "title": "Portrait Url",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "character_id",
+                    "character_name",
+                    "portrait_url"
+                ],
+                "title": "EveCharacterSchema",
+                "type": "object"
+            },
             "EntryFormErrorsSchema": {
                 "properties": {
                     "estimated_total": {
@@ -1749,9 +1789,39 @@
                         "default": {},
                         "title": "Shares",
                         "type": "object"
+                    },
+                    "items": {
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/EntryItemErrorsSchema"
+                        },
+                        "default": {},
+                        "title": "Items",
+                        "type": "object"
                     }
                 },
                 "title": "EntryFormErrorsSchema",
+                "type": "object"
+            },
+            "EntryItemErrorsSchema": {
+                "properties": {
+                    "item": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Item",
+                        "type": "array"
+                    },
+                    "quantity": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Quantity",
+                        "type": "array"
+                    }
+                },
+                "title": "EntryItemErrorsSchema",
                 "type": "object"
             },
             "RoleFormErrorsSchema": {
@@ -1855,6 +1925,13 @@
                         },
                         "title": "Shares",
                         "type": "array"
+                    },
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/EntryItemSchema"
+                        },
+                        "title": "Items",
+                        "type": "array"
                     }
                 },
                 "required": [
@@ -1862,9 +1939,28 @@
                     "funding_project_id",
                     "funding_percentage",
                     "roles",
-                    "shares"
+                    "shares",
+                    "items"
                 ],
                 "title": "EntryFormSchema",
+                "type": "object"
+            },
+            "EntryItemSchema": {
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
+                    },
+                    "quantity": {
+                        "title": "Quantity",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "id",
+                    "quantity"
+                ],
+                "title": "EntryItemSchema",
                 "type": "object"
             },
             "RoleFormSchema": {
@@ -2118,6 +2214,13 @@
                         },
                         "title": "Shares",
                         "type": "array"
+                    },
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/ItemSearchResultSchema"
+                        },
+                        "title": "Items",
+                        "type": "array"
                     }
                 },
                 "required": [
@@ -2125,7 +2228,8 @@
                     "funding_project_id",
                     "funding_percentage",
                     "roles",
-                    "shares"
+                    "shares",
+                    "items"
                 ],
                 "title": "ExtendedEntryFormSchema",
                 "type": "object"
@@ -2176,6 +2280,35 @@
                     "main_character_portrait_url"
                 ],
                 "title": "ExtendedShareFormSchema",
+                "type": "object"
+            },
+            "ItemSearchResultSchema": {
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
+                    },
+                    "icon_url": {
+                        "title": "Icon Url",
+                        "type": "string"
+                    },
+                    "name": {
+                        "maxLength": 250,
+                        "title": "Name",
+                        "type": "string"
+                    },
+                    "quantity": {
+                        "title": "Quantity",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "id",
+                    "icon_url",
+                    "name",
+                    "quantity"
+                ],
+                "title": "ItemSearchResultSchema",
                 "type": "object"
             },
             "ActivitySchema": {
@@ -2326,6 +2459,30 @@
                     "is_superuser"
                 ],
                 "title": "PermissionsSchema",
+                "type": "object"
+            },
+            "RatterSchema": {
+                "properties": {
+                    "character": {
+                        "$ref": "#/components/schemas/EveCharacterSchema"
+                    },
+                    "main_character": {
+                        "$ref": "#/components/schemas/EveCharacterSchema"
+                    },
+                    "extra_chars": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Extra Chars",
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "character",
+                    "main_character",
+                    "extra_chars"
+                ],
+                "title": "RatterSchema",
                 "type": "object"
             }
         },
