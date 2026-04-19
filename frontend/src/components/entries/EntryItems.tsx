@@ -5,7 +5,7 @@ import { Card, Col, Image, Row, Table } from "react-bootstrap";
 import Loading from "../Loading";
 import type { components } from "../../api/Schema";
 
-type EntryItemType = components["schemas"]["EntryItemSchema"]
+type EntryItemType = components["schemas"]["ExtendedEntryItemSchema"]
 
 interface ItemTableProps {
     items: EntryItemType[];

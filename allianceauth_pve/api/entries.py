@@ -14,7 +14,7 @@ from .schema import (
     EntryFormSchema,
     EntryFormErrorsSchema,
     ExtendedEntryFormSchema,
-    EntryItemSchema,
+    ExtendedEntryItemSchema,
 )
 from .authenticators import NeedsPermission
 from ..app_settings import (
@@ -130,7 +130,7 @@ def get_rotation_entry_shares(request, entry_id: int, rotation_id: int = Path(..
     )
 
 
-@router.get("/{int:entry_id}/items/", response={200: list[EntryItemSchema], 404: None})
+@router.get("/{int:entry_id}/items/", response={200: list[ExtendedEntryItemSchema], 404: None})
 def get_rotation_entry_items(request, entry_id: int, rotation_id: int = Path(...)):
     try:
         entry = Entry.objects.get(pk=entry_id, rotation_id=rotation_id)

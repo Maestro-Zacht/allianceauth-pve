@@ -168,7 +168,7 @@ class NewRotationSchema(Schema):
     name: str
     priority: int
     tax_rate: float
-    tax_rate_loot_items: bool
+    tax_rate_loot_items: float
     max_daily_setups: int
     min_people_share_setup: int
     entry_buttons: list[int]
@@ -506,7 +506,7 @@ class ItemSearchResultSchema(ItemSchema):
     quantity: int
 
 
-class EntryItemSchema(ItemSearchResultSchema):
+class ExtendedEntryItemSchema(ItemSearchResultSchema):
     sale_price: int | None
 
 

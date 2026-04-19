@@ -443,7 +443,7 @@ export interface components {
             /** Tax Rate */
             tax_rate: number;
             /** Tax Rate Loot Items */
-            tax_rate_loot_items: boolean;
+            tax_rate_loot_items: number;
             /** Max Daily Setups */
             max_daily_setups: number;
             /** Min People Share Setup */
@@ -668,14 +668,8 @@ export interface components {
         EntryItemSchema: {
             /** Id */
             id: number;
-            /** Icon Url */
-            icon_url: string;
-            /** Name */
-            name: string;
             /** Quantity */
             quantity: number;
-            /** Sale Price */
-            sale_price: number | null;
         };
         /** RoleFormSchema */
         RoleFormSchema: {
@@ -752,6 +746,19 @@ export interface components {
             actual_share_total_for_items: number;
             /** Actual Funding Amount For Items */
             actual_funding_amount_for_items: number;
+        };
+        /** ExtendedEntryItemSchema */
+        ExtendedEntryItemSchema: {
+            /** Id */
+            id: number;
+            /** Icon Url */
+            icon_url: string;
+            /** Name */
+            name: string;
+            /** Quantity */
+            quantity: number;
+            /** Sale Price */
+            sale_price: number | null;
         };
         /** ExtendedEntryFormSchema */
         ExtendedEntryFormSchema: {
@@ -1435,7 +1442,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EntryItemSchema"][];
+                    "application/json": components["schemas"]["ExtendedEntryItemSchema"][];
                 };
             };
             /** @description Not Found */

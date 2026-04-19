@@ -66,7 +66,8 @@
     "number": "The field must be a number.",
     "priority_help": "Ordering priority. The higher priorities are in the first positions.",
     "roles_setups_help": "Setups available for loading in the Entry form.",
-    "tax_rate_help": "Tax rate as a percentage. For example, enter 10 for a 10% tax rate."
+    "tax_rate_help": "Tax rate as a percentage. For example, enter 10 for a 10% tax rate.",
+    "tax_rate_loot_items_help": "Tax rate for loot items as a percentage. For example, enter 10 for a 10% tax rate."
   },
   "funding_percentage_tooltip": "Percentage in integer form (1-100)",
   "funding_project": "Funding Project",
@@ -147,6 +148,7 @@
   "submit": "Submit",
   "summary": "Summary",
   "tax_rate": "Tax Rate",
+  "tax_rate_loot_items": "Tax Rate for Loot Items",
   "toast": {
     "title": "Notification"
   },

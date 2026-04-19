@@ -844,7 +844,7 @@
                             "application/json": {
                                 "schema": {
                                     "items": {
-                                        "$ref": "#/components/schemas/EntryItemSchema"
+                                        "$ref": "#/components/schemas/ExtendedEntryItemSchema"
                                     },
                                     "title": "Response",
                                     "type": "array"
@@ -1494,7 +1494,7 @@
                     },
                     "tax_rate_loot_items": {
                         "title": "Tax Rate Loot Items",
-                        "type": "boolean"
+                        "type": "number"
                     },
                     "max_daily_setups": {
                         "title": "Max Daily Setups",
@@ -2025,37 +2025,14 @@
                         "title": "Id",
                         "type": "integer"
                     },
-                    "icon_url": {
-                        "title": "Icon Url",
-                        "type": "string"
-                    },
-                    "name": {
-                        "maxLength": 250,
-                        "title": "Name",
-                        "type": "string"
-                    },
                     "quantity": {
                         "title": "Quantity",
                         "type": "integer"
-                    },
-                    "sale_price": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Sale Price"
                     }
                 },
                 "required": [
                     "id",
-                    "icon_url",
-                    "name",
-                    "quantity",
-                    "sale_price"
+                    "quantity"
                 ],
                 "title": "EntryItemSchema",
                 "type": "object"
@@ -2278,6 +2255,47 @@
                     "actual_funding_amount_for_items"
                 ],
                 "title": "EntryCharacterSchema",
+                "type": "object"
+            },
+            "ExtendedEntryItemSchema": {
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
+                    },
+                    "icon_url": {
+                        "title": "Icon Url",
+                        "type": "string"
+                    },
+                    "name": {
+                        "maxLength": 250,
+                        "title": "Name",
+                        "type": "string"
+                    },
+                    "quantity": {
+                        "title": "Quantity",
+                        "type": "integer"
+                    },
+                    "sale_price": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Sale Price"
+                    }
+                },
+                "required": [
+                    "id",
+                    "icon_url",
+                    "name",
+                    "quantity",
+                    "sale_price"
+                ],
+                "title": "ExtendedEntryItemSchema",
                 "type": "object"
             },
             "ExtendedEntryFormSchema": {
