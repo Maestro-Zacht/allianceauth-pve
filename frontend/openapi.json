@@ -1452,6 +1452,14 @@
                     "tax_rate": {
                         "title": "Tax Rate",
                         "type": "number"
+                    },
+                    "tax_rate_loot_items": {
+                        "title": "Tax Rate Loot Items",
+                        "type": "number"
+                    },
+                    "actual_total_from_items": {
+                        "title": "Actual Total From Items",
+                        "type": "number"
                     }
                 },
                 "required": [
@@ -1463,7 +1471,9 @@
                     "estimated_total",
                     "actual_total",
                     "priority",
-                    "tax_rate"
+                    "tax_rate",
+                    "tax_rate_loot_items",
+                    "actual_total_from_items"
                 ],
                 "title": "RotationSchema",
                 "type": "object"
@@ -1568,6 +1578,10 @@
                         "title": "Actual Total",
                         "type": "number"
                     },
+                    "actual_total_from_items": {
+                        "title": "Actual Total From Items",
+                        "type": "number"
+                    },
                     "helped_setups": {
                         "title": "Helped Setups",
                         "type": "integer"
@@ -1580,6 +1594,7 @@
                     "character_name",
                     "estimated_total",
                     "actual_total",
+                    "actual_total_from_items",
                     "helped_setups"
                 ],
                 "title": "RotationSummarySchema",
@@ -1655,6 +1670,10 @@
                     "actual_total": {
                         "title": "Actual Total",
                         "type": "number"
+                    },
+                    "actual_total_from_items": {
+                        "title": "Actual Total From Items",
+                        "type": "number"
                     }
                 },
                 "required": [
@@ -1663,7 +1682,8 @@
                     "main_character_id",
                     "character_name",
                     "estimated_total",
-                    "actual_total"
+                    "actual_total",
+                    "actual_total_from_items"
                 ],
                 "title": "SummarySchema",
                 "type": "object"
@@ -2234,6 +2254,14 @@
                     "actual_funding_amount": {
                         "title": "Actual Funding Amount",
                         "type": "number"
+                    },
+                    "actual_share_total_for_items": {
+                        "title": "Actual Share Total For Items",
+                        "type": "number"
+                    },
+                    "actual_funding_amount_for_items": {
+                        "title": "Actual Funding Amount For Items",
+                        "type": "number"
                     }
                 },
                 "required": [
@@ -2245,7 +2273,9 @@
                     "estimated_share_total",
                     "estimated_funding_amount",
                     "actual_share_total",
-                    "actual_funding_amount"
+                    "actual_funding_amount",
+                    "actual_share_total_for_items",
+                    "actual_funding_amount_for_items"
                 ],
                 "title": "EntryCharacterSchema",
                 "type": "object"

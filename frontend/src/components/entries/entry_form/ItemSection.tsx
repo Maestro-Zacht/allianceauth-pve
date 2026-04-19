@@ -41,7 +41,7 @@ function ItemModal() {
             onHide={handleClose}
         >
             <Modal.Header closeButton>
-                <Modal.Title>{t("add_loot_items")}</Modal.Title>
+                <Modal.Title>{t("paste_loot_items")}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 {items === null ? <>
@@ -51,7 +51,7 @@ function ItemModal() {
                             rows={15}
                             value={pasteData}
                             onChange={(e) => setPasteData(e.target.value)}
-                            placeholder={t("add_loot_items")}
+                            placeholder={t("paste_loot_items")}
                         />
                     </Form.Group>
                 </> : <>

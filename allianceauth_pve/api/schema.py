@@ -41,6 +41,8 @@ class RotationSchema(Schema):
     actual_total: float
     priority: int
     tax_rate: float
+    tax_rate_loot_items: float
+    actual_total_from_items: float
 
 
 class FundingProjectBasicSchema(Schema):
@@ -67,6 +69,7 @@ class SummarySchema(Schema):
     character_name: str
     estimated_total: float
     actual_total: float
+    actual_total_from_items: float
 
     @staticmethod
     def resolve_portrait_url(obj) -> str:
@@ -129,6 +132,8 @@ class EntryCharacterSchema(Schema):
     estimated_funding_amount: float
     actual_share_total: float
     actual_funding_amount: float
+    actual_share_total_for_items: float
+    actual_funding_amount_for_items: float
 
     @staticmethod
     def resolve_user_main_character(obj: EntryCharacter) -> EveCharacter | None:
@@ -414,8 +419,10 @@ class EntryFormSchema(Schema):
         if items_errors:
             errors['items'] = items_errors
 
-        if self.estimated_total < 1:
-            errors['estimated_total'].append(_('Estimated total must be at least 1 ISK.'))
+        if self.estimated_total < 0:
+            errors['estimated_total'].append(_('Estimated total must be non-negative.'))
+        elif self.estimated_total == 0 and len(self.items) == 0:
+            errors['estimated_total'].append(_('Estimated total must be at least 1 ISK or you must add at least one item.'))
 
         if self.funding_project_id is not None and not FundingProject.objects.filter(pk=self.funding_project_id, is_active=True).exists():
             errors['funding_project_id'].append(_('Funding project does not exist or is not active.'))

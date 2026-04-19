@@ -429,6 +429,10 @@ export interface components {
             priority: number;
             /** Tax Rate */
             tax_rate: number;
+            /** Tax Rate Loot Items */
+            tax_rate_loot_items: number;
+            /** Actual Total From Items */
+            actual_total_from_items: number;
         };
         /** NewRotationSchema */
         NewRotationSchema: {
@@ -468,6 +472,8 @@ export interface components {
             estimated_total: number;
             /** Actual Total */
             actual_total: number;
+            /** Actual Total From Items */
+            actual_total_from_items: number;
             /** Helped Setups */
             helped_setups: number;
         };
@@ -498,6 +504,8 @@ export interface components {
             estimated_total: number;
             /** Actual Total */
             actual_total: number;
+            /** Actual Total From Items */
+            actual_total_from_items: number;
         };
         /** BaseRoleSchema */
         BaseRoleSchema: {
@@ -740,6 +748,10 @@ export interface components {
             actual_share_total: number;
             /** Actual Funding Amount */
             actual_funding_amount: number;
+            /** Actual Share Total For Items */
+            actual_share_total_for_items: number;
+            /** Actual Funding Amount For Items */
+            actual_funding_amount_for_items: number;
         };
         /** ExtendedEntryFormSchema */
         ExtendedEntryFormSchema: {

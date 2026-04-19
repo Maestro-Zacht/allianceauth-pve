@@ -104,10 +104,11 @@ class EntryCharacterQueryset(models.QuerySet):
                 )
             )
         ).annotate(
-            share_total_for_items=(
+            share_total_for_items=Coalesce(
                 models.Subquery(entry_item_total) *
                 (100 - models.F('entry__rotation__tax_rate_loot_items')) / 100 *
-                models.F('share_relative_value')
+                models.F('share_relative_value'),
+                0.0
             )
         ).annotate(
             actual_share_total=models.F('estimated_share_total') *
@@ -259,11 +260,13 @@ class Rotation(models.Model):
                 .values('user')
                 .annotate(estimated_total=models.Sum('estimated_funding_amount'))
                 .annotate(actual_total=models.Sum('actual_funding_amount'))
+                .annotate(actual_total_from_items=Coalesce(models.Sum('actual_funding_amount_for_items'), 0))
                 .order_by('-estimated_total')
                 .values(
                     'user',
                     'estimated_total',
                     'actual_total',
+                    'actual_total_from_items',
                     character_name=models.F('user__profile__main_character__character_name'),
                     character_id=models.F('user__profile__main_character__character_id'),
                     main_character_id=models.F('user__profile__main_character__character_id'),
@@ -291,6 +294,7 @@ class Rotation(models.Model):
             .annotate(helped_setups=Coalesce(models.Subquery(setup_summary[:1]), 0))
             .annotate(estimated_total=models.Sum('estimated_share_total'))
             .annotate(actual_total=models.Sum('actual_share_total'))
+            .annotate(actual_total_from_items=models.Sum('actual_share_total_for_items'))
         )
 
     @property
@@ -312,6 +316,18 @@ class Rotation(models.Model):
             .filter(entry__rotation=self)
             .aggregate(num=models.Count('user', distinct=True))
             ['num']
+        )
+
+    @property
+    def actual_total_from_items(self):
+        return (
+            EntryLootItem.objects
+            .filter(entry__rotation=self)
+            .annotate(item_total=models.F('quantity') * models.F('sale_price'))
+            .aggregate(total=Coalesce(
+                models.Sum('item_total'),
+                0
+            ))['total']
         )
 
     def __str__(self):
@@ -479,7 +495,7 @@ class FundingProject(models.Model):
             .with_totals()
             .aggregate(
                 current_total=Coalesce(
-                    models.Sum('actual_funding_amount'),
+                    models.Sum('actual_funding_amount') + models.Sum('actual_funding_amount_for_items'),
                     0
                 )
             )['current_total']
@@ -557,7 +573,8 @@ class FundingProject(models.Model):
             .order_by()
             .values('user')
             .annotate(actual_total=models.Sum('actual_funding_amount'))
-            .annotate(estimated_total=models.F('actual_total') + Coalesce(models.Subquery(estimated_part), 0))
+            .annotate(actual_total_from_items=Coalesce(models.Sum('actual_funding_amount_for_items'), 0))
+            .annotate(estimated_total=models.F('actual_total') + models.F('actual_total_from_items') + Coalesce(models.Subquery(estimated_part), 0))
         )
 
     @property

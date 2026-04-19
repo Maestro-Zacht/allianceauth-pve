@@ -141,6 +141,7 @@ def get_rotation_summary(request, rotation_id: int):
         'helped_setups',
         'estimated_total',
         'actual_total',
+        'actual_total_from_items',
         character_name=Coalesce(
             F('user__profile__main_character__character_name'),
             F('user_character__character_name'),
