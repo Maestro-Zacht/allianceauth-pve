@@ -813,6 +813,60 @@
                 ]
             }
         },
+        "/pve/api/rotations/{rotation_id}/entries/{entry_id}/items/": {
+            "get": {
+                "operationId": "allianceauth_pve_api_entries_get_rotation_entry_items",
+                "summary": "Get Rotation Entry Items",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "entry_id",
+                        "schema": {
+                            "title": "Entry Id",
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "rotation_id",
+                        "schema": {
+                            "title": "Rotation Id",
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/EntryItemSchema"
+                                    },
+                                    "title": "Response",
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "tags": [
+                    "rotations",
+                    "entries"
+                ],
+                "security": [
+                    {
+                        "CanAccessPVE": []
+                    }
+                ]
+            }
+        },
         "/pve/api/rotations/{rotation_id}/entries/{entry_id}/edit/": {
             "get": {
                 "operationId": "allianceauth_pve_api_entries_get_entry_for_edit",
@@ -1951,14 +2005,37 @@
                         "title": "Id",
                         "type": "integer"
                     },
+                    "icon_url": {
+                        "title": "Icon Url",
+                        "type": "string"
+                    },
+                    "name": {
+                        "maxLength": 250,
+                        "title": "Name",
+                        "type": "string"
+                    },
                     "quantity": {
                         "title": "Quantity",
                         "type": "integer"
+                    },
+                    "sale_price": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Sale Price"
                     }
                 },
                 "required": [
                     "id",
-                    "quantity"
+                    "icon_url",
+                    "name",
+                    "quantity",
+                    "sale_price"
                 ],
                 "title": "EntryItemSchema",
                 "type": "object"

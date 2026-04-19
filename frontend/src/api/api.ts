@@ -261,3 +261,10 @@ export async function searchItems(paste: string) {
     }
     return data;
 }
+
+export async function getEntryItems(rotationId: number, entryId: number) {
+    return await genericGet(
+        "/pve/api/rotations/{rotation_id}/entries/{entry_id}/items/",
+        { params: { path: { rotation_id: rotationId, entry_id: entryId } } }
+    );
+}

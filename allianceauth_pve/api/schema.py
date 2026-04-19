@@ -499,6 +499,10 @@ class ItemSearchResultSchema(ItemSchema):
     quantity: int
 
 
+class EntryItemSchema(ItemSearchResultSchema):
+    sale_price: int | None
+
+
 class ExtendedShareFormSchema(ShareFormSchema):
     portrait_url: str
     character_name: str

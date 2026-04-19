@@ -213,6 +213,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/pve/api/rotations/{rotation_id}/entries/{entry_id}/items/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Rotation Entry Items */
+        get: operations["allianceauth_pve_api_entries_get_rotation_entry_items"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/pve/api/rotations/{rotation_id}/entries/{entry_id}/edit/": {
         parameters: {
             query?: never;
@@ -643,8 +660,14 @@ export interface components {
         EntryItemSchema: {
             /** Id */
             id: number;
+            /** Icon Url */
+            icon_url: string;
+            /** Name */
+            name: string;
             /** Quantity */
             quantity: number;
+            /** Sale Price */
+            sale_price: number | null;
         };
         /** RoleFormSchema */
         RoleFormSchema: {
@@ -1371,6 +1394,36 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EntryCharacterSchema"][];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    allianceauth_pve_api_entries_get_rotation_entry_items: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: number;
+                rotation_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryItemSchema"][];
                 };
             };
             /** @description Not Found */

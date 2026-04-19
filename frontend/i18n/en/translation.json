@@ -77,6 +77,7 @@
   "increment_all_shares": "Increment All Shares",
   "increment_selected_shares": "Increment Selected Shares",
   "isk": "{{isk, number}} ISK",
+  "item": "Item",
   "items_count_one": "{{count}} item",
   "items_count_other": "{{count}} items",
   "load": "Load",
@@ -100,6 +101,7 @@
   "no_loot_items": "No loot items",
   "no_permission": "You do not have permission to perform this action",
   "no_results": "No results",
+  "not_available": "Not available",
   "number_of_users": "Number of Users",
   "participants": "Participants",
   "percentage": "Percentage",
@@ -129,6 +131,7 @@
     "closedTab": "Closed Rotations",
     "openTab": "Open Rotations"
   },
+  "sale_price": "Sale Price",
   "sales_value": "Sales Value",
   "search": "Search",
   "select": "Select",

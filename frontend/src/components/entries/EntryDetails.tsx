@@ -7,6 +7,7 @@ import { getEntry } from "../../api/api";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "../Loading";
 import NavBackButton from "../NavBackButton";
+import EntryItems from "./EntryItems";
 
 export default function EntryDetails() {
     const { entryId, rotationId } = useParams();
@@ -31,6 +32,7 @@ export default function EntryDetails() {
                 <EntryInfo entry={data!} rotationId={rotationIdNum} />
             }
             <EntryRoles rotationId={rotationIdNum} entryId={entryIdNum} />
+            <EntryItems rotationId={rotationIdNum} entryId={entryIdNum} />
             <EntryShares rotationId={rotationIdNum} entryId={entryIdNum} />
         </Row>
     </>

@@ -5,7 +5,7 @@ from django.utils.translation import gettext as _
 from django.db import transaction
 from django.core.cache import cache
 
-from ..models import EntryRole, Rotation, Entry, EntryCharacter
+from ..models import EntryLootItem, EntryRole, Rotation, Entry, EntryCharacter
 from .schema import (
     EntrySchema,
     EntryRoleSchema,
@@ -14,6 +14,7 @@ from .schema import (
     EntryFormSchema,
     EntryFormErrorsSchema,
     ExtendedEntryFormSchema,
+    EntryItemSchema,
 )
 from .authenticators import NeedsPermission
 from ..app_settings import (
@@ -127,6 +128,17 @@ def get_rotation_entry_shares(request, entry_id: int, rotation_id: int = Path(..
         )
         .with_totals()
     )
+
+
+@router.get("/{int:entry_id}/items/", response={200: list[EntryItemSchema], 404: None})
+def get_rotation_entry_items(request, entry_id: int, rotation_id: int = Path(...)):
+    try:
+        entry = Entry.objects.get(pk=entry_id, rotation_id=rotation_id)
+    except Entry.DoesNotExist:
+        return 404, None
+
+    items = EntryLootItem.objects.filter(entry=entry).select_related('item')
+    return 200, [{'id': item.item_id, 'quantity': item.quantity, 'name': item.item.name, 'sale_price': item.sale_price} for item in items]
 
 
 @router.post(
