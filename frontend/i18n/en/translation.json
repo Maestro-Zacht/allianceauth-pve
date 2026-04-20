@@ -11,6 +11,7 @@
   "character": "Character",
   "clear_copy": "Remove Copy Color",
   "close_rotation": "Close Rotation",
+  "close_rotation_missing_items": "Missing items: {{items}}",
   "closed": "Closed",
   "closed_on": "Closed On",
   "completed": "Completed",

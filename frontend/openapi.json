@@ -208,14 +208,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "additionalProperties": {
-                                        "items": {
-                                            "type": "string"
-                                        },
-                                        "type": "array"
-                                    },
-                                    "title": "Response",
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/CloseRotationErrorsSchema"
                                 }
                             }
                         }
@@ -402,6 +395,50 @@
                                 "schema": {
                                     "items": {
                                         "$ref": "#/components/schemas/PveButtonSchema"
+                                    },
+                                    "title": "Response",
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "tags": [
+                    "rotations"
+                ],
+                "security": [
+                    {
+                        "CanAccessPVE": []
+                    }
+                ]
+            }
+        },
+        "/pve/api/rotations/{rotation_id}/items/": {
+            "get": {
+                "operationId": "allianceauth_pve_api_rotations_get_rotation_items",
+                "summary": "Get Rotation Items",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "rotation_id",
+                        "schema": {
+                            "title": "Rotation Id",
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/ItemSchema"
                                     },
                                     "title": "Response",
                                     "type": "array"
@@ -1532,17 +1569,95 @@
                 "title": "NewRotationSchema",
                 "type": "object"
             },
+            "CloseRotationErrorsSchema": {
+                "properties": {
+                    "sales_value": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Sales Value",
+                        "type": "array"
+                    },
+                    "item_sales": {
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/ItemSaleValueErrorsSchema"
+                        },
+                        "default": {},
+                        "title": "Item Sales",
+                        "type": "object"
+                    },
+                    "items_missing": {
+                        "default": [],
+                        "items": {
+                            "type": "integer"
+                        },
+                        "title": "Items Missing",
+                        "type": "array"
+                    }
+                },
+                "title": "CloseRotationErrorsSchema",
+                "type": "object"
+            },
+            "ItemSaleValueErrorsSchema": {
+                "properties": {
+                    "item_id": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Item Id",
+                        "type": "array"
+                    },
+                    "sale_value": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Sale Value",
+                        "type": "array"
+                    }
+                },
+                "title": "ItemSaleValueErrorsSchema",
+                "type": "object"
+            },
             "CloseRotationSchema": {
                 "properties": {
                     "sales_value": {
                         "title": "Sales Value",
                         "type": "integer"
+                    },
+                    "item_sales": {
+                        "items": {
+                            "$ref": "#/components/schemas/ItemSaleValueSchema"
+                        },
+                        "title": "Item Sales",
+                        "type": "array"
                     }
                 },
                 "required": [
-                    "sales_value"
+                    "sales_value",
+                    "item_sales"
                 ],
                 "title": "CloseRotationSchema",
+                "type": "object"
+            },
+            "ItemSaleValueSchema": {
+                "properties": {
+                    "item_id": {
+                        "title": "Item Id",
+                        "type": "integer"
+                    },
+                    "sale_value": {
+                        "title": "Sale Value",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "item_id",
+                    "sale_value"
+                ],
+                "title": "ItemSaleValueSchema",
                 "type": "object"
             },
             "RotationSummarySchema": {
@@ -1731,6 +1846,30 @@
                     "roles"
                 ],
                 "title": "RoleSetupSchema",
+                "type": "object"
+            },
+            "ItemSchema": {
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
+                    },
+                    "icon_url": {
+                        "title": "Icon Url",
+                        "type": "string"
+                    },
+                    "name": {
+                        "maxLength": 250,
+                        "title": "Name",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "icon_url",
+                    "name"
+                ],
+                "title": "ItemSchema",
                 "type": "object"
             },
             "EntrySchema": {

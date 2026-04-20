@@ -142,6 +142,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/pve/api/rotations/{rotation_id}/items/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Rotation Items */
+        get: operations["allianceauth_pve_api_rotations_get_rotation_items"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/pve/api/rotations/{rotation_id}/entries/": {
         parameters: {
             query?: never;
@@ -453,10 +470,52 @@ export interface components {
             /** Roles Setups */
             roles_setups: number[];
         };
+        /** CloseRotationErrorsSchema */
+        CloseRotationErrorsSchema: {
+            /**
+             * Sales Value
+             * @default []
+             */
+            sales_value: string[];
+            /**
+             * Item Sales
+             * @default {}
+             */
+            item_sales: {
+                [key: string]: components["schemas"]["ItemSaleValueErrorsSchema"];
+            };
+            /**
+             * Items Missing
+             * @default []
+             */
+            items_missing: number[];
+        };
+        /** ItemSaleValueErrorsSchema */
+        ItemSaleValueErrorsSchema: {
+            /**
+             * Item Id
+             * @default []
+             */
+            item_id: string[];
+            /**
+             * Sale Value
+             * @default []
+             */
+            sale_value: string[];
+        };
         /** CloseRotationSchema */
         CloseRotationSchema: {
             /** Sales Value */
             sales_value: number;
+            /** Item Sales */
+            item_sales: components["schemas"]["ItemSaleValueSchema"][];
+        };
+        /** ItemSaleValueSchema */
+        ItemSaleValueSchema: {
+            /** Item Id */
+            item_id: number;
+            /** Sale Value */
+            sale_value: number;
         };
         /** RotationSummarySchema */
         RotationSummarySchema: {
@@ -522,6 +581,15 @@ export interface components {
             name: string;
             /** Roles */
             roles: components["schemas"]["BaseRoleSchema"][];
+        };
+        /** ItemSchema */
+        ItemSchema: {
+            /** Id */
+            id: number;
+            /** Icon Url */
+            icon_url: string;
+            /** Name */
+            name: string;
         };
         /** EntrySchema */
         EntrySchema: {
@@ -1032,9 +1100,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: string[];
-                    };
+                    "application/json": components["schemas"]["CloseRotationErrorsSchema"];
                 };
             };
             /** @description Forbidden */
@@ -1158,6 +1224,35 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PveButtonSchema"][];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    allianceauth_pve_api_rotations_get_rotation_items: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rotation_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemSchema"][];
                 };
             };
             /** @description Not Found */

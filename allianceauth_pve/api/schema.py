@@ -5,6 +5,7 @@ from ninja import Schema, ModelSchema
 
 from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
+from django.utils import timezone
 
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.authentication.models import CharacterOwnership
@@ -242,16 +243,72 @@ class NewProjectSchema(Schema):
         return dict(errors)
 
 
-class CloseRotationSchema(Schema):
-    sales_value: int
+class ItemSaleValueErrorsSchema(Schema):
+    item_id: list[str] = []
+    sale_value: list[str] = []
 
-    def validate(self) -> dict[str, list[str]]:
+
+class ItemSaleValueSchema(Schema):
+    item_id: int
+    sale_value: int
+
+    def validate(self, item_ids: set[int]) -> ItemSaleValueErrorsSchema | None:
         errors = defaultdict(list)
 
-        if self.sales_value < 1:
-            errors['sales_value'].append(_('Sales value must be at least 1 ISK.'))
+        if not ItemType.objects.filter(pk=self.item_id, published=True).exists():
+            errors['item_id'].append(_('Item does not exist or is not published.'))
 
-        return dict(errors)
+        if self.sale_value < 0:
+            errors['sale_value'].append(_('Sale value must be a non-negative integer.'))
+
+        if self.item_id not in item_ids:
+            errors['item_id'].append(_('Item has not been added in this rotation.'))
+        else:
+            item_ids.remove(self.item_id)
+
+        return ItemSaleValueErrorsSchema(**dict(errors)) if errors else None
+
+
+class CloseRotationErrorsSchema(Schema):
+    sales_value: list[str] = []
+    item_sales: dict[int, ItemSaleValueErrorsSchema] = {}
+    items_missing: list[int] = []
+
+
+class CloseRotationSchema(Schema):
+    sales_value: int
+    item_sales: list[ItemSaleValueSchema]
+
+    def validate(self, item_ids: set[int]) -> CloseRotationErrorsSchema | None:
+        errors = defaultdict(list)
+
+        if self.sales_value < 0:
+            errors['sales_value'].append(_('Sales value must be a non-negative integer.'))
+
+        item_sales_errors = {}
+        for i, item_sale in enumerate(self.item_sales):
+            item_sale_errors = item_sale.validate(item_ids)
+            if item_sale_errors is not None:
+                item_sales_errors[i] = item_sale_errors
+        if item_sales_errors:
+            errors['item_sales'] = item_sales_errors
+
+        if len(item_ids) > 0:
+            errors['items_missing'] = list(item_ids)
+
+        return CloseRotationErrorsSchema(**dict(errors)) if errors else None
+
+    def save(self, rotation: Rotation):
+        rotation.actual_total = self.sales_value
+        rotation.is_closed = True
+        rotation.closed_at = timezone.now()
+        rotation.save(update_fields=['actual_total', 'is_closed', 'closed_at'])
+
+        for item_sale in self.item_sales:
+            EntryLootItem.objects.filter(
+                entry__rotation=rotation,
+                item_id=item_sale.item_id
+            ).update(sale_price=item_sale.sale_value)
 
 
 class RoleFormErrorsSchema(Schema):
