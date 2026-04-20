@@ -609,6 +609,8 @@ export interface components {
             estimated_total_after_tax: number;
             /** Actual Total After Tax */
             actual_total_after_tax: number;
+            /** Actual Total From Items */
+            actual_total_from_items: number;
         };
         /** EveCharacterSchema */
         EveCharacterSchema: {
@@ -775,6 +777,8 @@ export interface components {
             estimated_total_after_tax: number;
             /** Actual Total After Tax */
             actual_total_after_tax: number;
+            /** Actual Total From Items */
+            actual_total_from_items: number;
             funding_project: components["schemas"]["FundingProjectBasicSchema"] | null;
             /** Funding Percentage */
             funding_percentage: number | null;
@@ -827,6 +831,8 @@ export interface components {
             quantity: number;
             /** Sale Price */
             sale_price: number | null;
+            /** Total After Tax */
+            total_after_tax: number | null;
         };
         /** ExtendedEntryFormSchema */
         ExtendedEntryFormSchema: {

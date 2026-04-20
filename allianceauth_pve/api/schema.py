@@ -108,6 +108,7 @@ class EntrySchema(Schema):
     estimated_total: int
     estimated_total_after_tax: float
     actual_total_after_tax: float
+    actual_total_from_items: float
 
     @staticmethod
     def resolve_created_by_character(obj: Entry) -> EveCharacter | None:
@@ -565,6 +566,7 @@ class ItemSearchResultSchema(ItemSchema):
 
 class ExtendedEntryItemSchema(ItemSearchResultSchema):
     sale_price: int | None
+    total_after_tax: float | None
 
 
 class ExtendedShareFormSchema(ShareFormSchema):

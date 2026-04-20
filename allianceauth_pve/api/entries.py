@@ -35,6 +35,7 @@ def get_rotation_entries(request, rotation_id: int = Path(...)):
 
     return 200, (
         rotation.entries
+        .with_items_total()
         .select_related('created_by__profile__main_character')
         .order_by('-created_at')
     )
@@ -50,6 +51,7 @@ def get_rotation_entry(request, entry_id: int, rotation_id: int = Path(...)):
                 'funding_project',
                 'rotation'
             )
+            .with_items_total()
             .get(pk=entry_id, rotation_id=rotation_id)
         )
         return 200, entry
@@ -137,8 +139,22 @@ def get_rotation_entry_items(request, entry_id: int, rotation_id: int = Path(...
     except Entry.DoesNotExist:
         return 404, None
 
-    items = EntryLootItem.objects.filter(entry=entry).select_related('item')
-    return 200, [{'id': item.item_id, 'quantity': item.quantity, 'name': item.item.name, 'sale_price': item.sale_price} for item in items]
+    items = (
+        EntryLootItem.objects
+        .filter(entry=entry)
+        .select_related('item')
+        .annotate(total_after_tax=(
+            F('quantity') * F('sale_price') *
+            (100.0 - F('entry__rotation__tax_rate_loot_items')) / 100.0
+        ))
+    )
+    return 200, [{
+        'id': item.item_id,
+        'quantity': item.quantity,
+        'name': item.item.name,
+        'sale_price': item.sale_price,
+        'total_after_tax': item.total_after_tax
+    } for item in items]
 
 
 @router.post(

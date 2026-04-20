@@ -33,7 +33,10 @@ export default function EntryDetails() {
             }
             <EntryRoles rotationId={rotationIdNum} entryId={entryIdNum} />
             <EntryItems rotationId={rotationIdNum} entryId={entryIdNum} />
-            <EntryShares rotationId={rotationIdNum} entryId={entryIdNum} />
+            {isLoading ?
+                <div className="text-center my-3"><Loading /></div> :
+                <EntryShares rotationId={rotationIdNum} entryId={entryIdNum} isRotationClosed={data!.rotation_is_closed} />
+            }
         </Row>
     </>
 }

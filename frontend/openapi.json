@@ -1908,6 +1908,10 @@
                     "actual_total_after_tax": {
                         "title": "Actual Total After Tax",
                         "type": "number"
+                    },
+                    "actual_total_from_items": {
+                        "title": "Actual Total From Items",
+                        "type": "number"
                     }
                 },
                 "required": [
@@ -1917,7 +1921,8 @@
                     "total_user_count",
                     "estimated_total",
                     "estimated_total_after_tax",
-                    "actual_total_after_tax"
+                    "actual_total_after_tax",
+                    "actual_total_from_items"
                 ],
                 "title": "EntrySchema",
                 "type": "object"
@@ -2259,6 +2264,10 @@
                         "title": "Actual Total After Tax",
                         "type": "number"
                     },
+                    "actual_total_from_items": {
+                        "title": "Actual Total From Items",
+                        "type": "number"
+                    },
                     "funding_project": {
                         "anyOf": [
                             {
@@ -2297,6 +2306,7 @@
                     "estimated_total",
                     "estimated_total_after_tax",
                     "actual_total_after_tax",
+                    "actual_total_from_items",
                     "funding_project",
                     "funding_percentage",
                     "rotation_is_closed",
@@ -2425,6 +2435,17 @@
                             }
                         ],
                         "title": "Sale Price"
+                    },
+                    "total_after_tax": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Total After Tax"
                     }
                 },
                 "required": [
@@ -2432,7 +2453,8 @@
                     "icon_url",
                     "name",
                     "quantity",
-                    "sale_price"
+                    "sale_price",
+                    "total_after_tax"
                 ],
                 "title": "ExtendedEntryItemSchema",
                 "type": "object"

@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
@@ -158,6 +160,27 @@ class EntryCharacterManager(models.Manager):
         return self.get_queryset().with_contributions_to(funding_project, rotation_closed)
 
 
+class EntryQueryset(models.QuerySet):
+    def with_items_total(self):
+        items_qs = (
+            EntryLootItem.objects
+            .filter(entry_id=models.OuterRef('pk'))
+            .annotate(item_total=models.F('quantity') * models.F('sale_price'))
+            .values('entry')
+            .annotate(entry_total=models.Sum('item_total'))
+            .values('entry_total')
+        )
+        return self.annotate(actual_total_from_items=Coalesce(models.Subquery(items_qs), 0))
+
+
+class EntryManager(models.Manager):
+    def get_queryset(self):
+        return EntryQueryset(self.model, using=self._db)
+
+    def with_items_total(self):
+        return self.get_queryset().with_items_total()
+
+
 class PveButton(models.Model):
     text = models.CharField(max_length=16, unique=True)
     amount = models.BigIntegerField()
@@ -234,7 +257,7 @@ class Rotation(models.Model):
     entry_buttons = models.ManyToManyField(PveButton, related_name='+', help_text=_('Button to be shown in the Entry form.'), blank=True)
     roles_setups = models.ManyToManyField(RoleSetup, related_name='+', help_text=_('Setup avaiable for loading in the Entry form.'), blank=True)
 
-    objects = RotationManager()
+    objects: ClassVar[RotationManager] = RotationManager()
 
     @cached_property
     def funding_projects_summary(self):
@@ -346,7 +369,7 @@ class EntryCharacter(models.Model):
     site_count = models.PositiveIntegerField(default=1)
     helped_setup = models.BooleanField(default=False)
 
-    objects = EntryCharacterManager()
+    objects: ClassVar[EntryCharacterManager] = EntryCharacterManager()
 
     class Meta:
         default_permissions = ()
@@ -368,6 +391,8 @@ class Entry(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, related_name='+')
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects: ClassVar[EntryManager] = EntryManager()
 
     @cached_property
     def total_user_count(self):

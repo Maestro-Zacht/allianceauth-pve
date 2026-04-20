@@ -112,6 +112,7 @@
     "marked_completed": "Project is marked as completed",
     "reopened": "Project is reopened"
   },
+  "project_contribution": "Project Contribution",
   "project_created": "Project created successfully",
   "project_summary_for": "Contributions to {{projectName}}",
   "projects": {
@@ -133,7 +134,7 @@
     "closedTab": "Closed Rotations",
     "openTab": "Open Rotations"
   },
-  "sale_price": "Sale Price",
+  "sale_price": "Sale Price: {{price, number(maximumFractionDigits: 0)}} ISK",
   "sales_value": "Sales Value",
   "search": "Search",
   "select": "Select",
