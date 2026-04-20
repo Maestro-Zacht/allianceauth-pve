@@ -165,12 +165,15 @@ class EntryQueryset(models.QuerySet):
         items_qs = (
             EntryLootItem.objects
             .filter(entry_id=models.OuterRef('pk'))
-            .annotate(item_total=models.F('quantity') * models.F('sale_price'))
+            .annotate(item_total=(
+                models.F('quantity') * models.F('sale_price') *
+                (100.0 - models.F('entry__rotation__tax_rate_loot_items')) / 100.0
+            ))
             .values('entry')
             .annotate(entry_total=models.Sum('item_total'))
             .values('entry_total')
         )
-        return self.annotate(actual_total_from_items=Coalesce(models.Subquery(items_qs), 0))
+        return self.annotate(actual_total_from_items=Coalesce(models.Subquery(items_qs), 0.0))
 
 
 class EntryManager(models.Manager):

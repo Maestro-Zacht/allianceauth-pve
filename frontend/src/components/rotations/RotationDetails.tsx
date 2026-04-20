@@ -116,7 +116,7 @@ export default function RotationDetails() {
             <Row>
                 <RotationHeader rotation={data!} />
                 <RotationSummarySection rotationId={data!.id} isClosed={data!.is_closed} />
-                <RotationEntriesSection rotationId={data!.id} />
+                <RotationEntriesSection rotationId={data!.id} isRotationClosed={data!.is_closed} />
             </Row>
         }
     </>

@@ -156,6 +156,7 @@
   },
   "total": "Total",
   "total_after_tax": "Total After Tax",
+  "total_from_items": "Total From Items",
   "total_from_items_tooltip": "{{total, number(maximumFractionDigits: 0)}} + {{items, number(maximumFractionDigits: 0)}} from items",
   "unknown_error": "Unknown error",
   "user_count": "User Count",
