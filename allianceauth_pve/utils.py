@@ -47,6 +47,7 @@ def ensure_rotation_presets_applied():
             max_daily_setups=setup.max_daily_setups,
             min_people_share_setup=setup.min_people_share_setup,
             tax_rate=setup.tax_rate,
+            tax_rate_loot_items=setup.tax_rate_loot_items,
             priority=setup.priority,
         )
 

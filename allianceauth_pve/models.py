@@ -225,6 +225,7 @@ class RotationPreset(models.Model):
     min_people_share_setup = models.PositiveSmallIntegerField(default=3, help_text=_('The minimum number of users in an entry to consider the helped setup valid.'))
 
     tax_rate = models.FloatField(default=0, help_text=_('Tax rate in percentage'))
+    tax_rate_loot_items = models.FloatField(default=0, help_text=_('Tax rate for loot items in percentage'))
     priority = models.IntegerField(default=100, help_text=_('Ordering priority. The higher priorities are in the first positions.'))
 
     entry_buttons = models.ManyToManyField(PveButton, related_name='+', help_text=_('Button to be shown in the Entry form.'), blank=True)
