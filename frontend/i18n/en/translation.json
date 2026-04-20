@@ -77,7 +77,7 @@
   "helped_setup": "Helped Setup",
   "increment_all_shares": "Increment All Shares",
   "increment_selected_shares": "Increment Selected Shares",
-  "isk": "{{isk, number}} ISK",
+  "isk": "{{isk, number(maximumFractionDigits: 0)}} ISK",
   "item": "Item",
   "items": "Items",
   "items_count_one": "{{count}} item",
