@@ -1,11 +1,11 @@
 from ninja import Path, Router
 
-from django.db.models import F, Subquery, Sum, Prefetch, Exists
+from django.db.models import F, Subquery, Sum, Prefetch
 from django.utils.translation import gettext as _
 from django.db import transaction
 from django.core.cache import cache
 
-from ..models import EntryRole, Rotation, Entry, EntryCharacter
+from ..models import EntryLootItem, EntryRole, Rotation, Entry, EntryCharacter
 from .schema import (
     EntrySchema,
     EntryRoleSchema,
@@ -14,6 +14,7 @@ from .schema import (
     EntryFormSchema,
     EntryFormErrorsSchema,
     ExtendedEntryFormSchema,
+    ExtendedEntryItemSchema,
 )
 from .authenticators import NeedsPermission
 from ..app_settings import (
@@ -34,6 +35,7 @@ def get_rotation_entries(request, rotation_id: int = Path(...)):
 
     return 200, (
         rotation.entries
+        .with_items_total()
         .select_related('created_by__profile__main_character')
         .order_by('-created_at')
     )
@@ -49,6 +51,7 @@ def get_rotation_entry(request, entry_id: int, rotation_id: int = Path(...)):
                 'funding_project',
                 'rotation'
             )
+            .with_items_total()
             .get(pk=entry_id, rotation_id=rotation_id)
         )
         return 200, entry
@@ -127,6 +130,28 @@ def get_rotation_entry_shares(request, entry_id: int, rotation_id: int = Path(..
         )
         .with_totals()
     )
+
+
+@router.get("/{int:entry_id}/items/", response={200: list[ExtendedEntryItemSchema], 404: None})
+def get_rotation_entry_items(request, entry_id: int, rotation_id: int = Path(...)):
+    try:
+        entry = Entry.objects.get(pk=entry_id, rotation_id=rotation_id)
+    except Entry.DoesNotExist:
+        return 404, None
+
+    items = (
+        EntryLootItem.objects
+        .filter(entry=entry)
+        .select_related('item')
+        .with_total_after_tax()
+    )
+    return 200, [{
+        'id': item.item_id,
+        'quantity': item.quantity,
+        'name': item.item.name,
+        'sale_price': item.sale_price,
+        'total_after_tax': item.total_after_tax
+    } for item in items]
 
 
 @router.post(

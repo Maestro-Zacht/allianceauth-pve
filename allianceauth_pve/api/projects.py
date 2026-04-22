@@ -83,6 +83,7 @@ def get_project_summary(request, project_id: int):
 
     summary = project.summary.order_by('-estimated_total').values(
         'actual_total',
+        'actual_total_from_items',
         'estimated_total',
         character_name=Coalesce(
             F('user__profile__main_character__character_name'),

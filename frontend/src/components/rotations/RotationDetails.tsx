@@ -25,10 +25,11 @@ function RotationHeader({ rotation }: RotationHeaderProps) {
     const { t, i18n } = useTranslation();
     const permissions = usePermissions();
 
-    const localizedTaxRate = (rotation.tax_rate / 100).toLocaleString(
-        i18n.language,
-        { style: 'percent' }
-    );
+    const localizePercentage = (num: number) => {
+        return num.toLocaleString(i18n.language, {
+            style: 'percent',
+        });
+    }
 
     return <>
         <h1 className="page-header text-center">{rotation.name}</h1>
@@ -38,26 +39,37 @@ function RotationHeader({ rotation }: RotationHeaderProps) {
                     <GroupCard
                         title={t("status")}
                         value={t("closed")}
+                        align
                     />
                     :
                     <GroupCard
                         title={t("age")}
                         value={<TimeAgo date={rotation.created_at} />}
+                        align
                     />
                 }
                 <GroupCard
                     title={t("estimated_total")}
-                    value={rotation.estimated_total.toLocaleString(i18n.language)}
+                    value={t("isk", { isk: rotation.estimated_total })}
+                    align
                 />
                 {rotation.is_closed && (
                     <GroupCard
                         title={t("actual_total")}
-                        value={rotation.actual_total.toLocaleString(i18n.language)}
+                        value={
+                            <TooltipComponent id="actual-total-tooltip" text={t("total_from_items_tooltip", { total: rotation.actual_total, items: rotation.actual_total_from_items })}>
+                                <span>{t("isk", { isk: rotation.actual_total + rotation.actual_total_from_items })}</span>
+                            </TooltipComponent>
+                        }
+                        align
                     />
                 )}
                 <GroupCard
                     title={t("tax_rate")}
-                    value={localizedTaxRate}
+                    value={<>
+                        {localizePercentage(rotation.tax_rate / 100)} / {localizePercentage(rotation.tax_rate_loot_items / 100)} ({t("items")})
+                    </>}
+                    align
                 />
                 {!rotation.is_closed && permissions && (permissions.manage_rotations || permissions.manage_entries) && (
                     <GroupCard
@@ -72,6 +84,7 @@ function RotationHeader({ rotation }: RotationHeaderProps) {
                                 </TooltipComponent>
                             )}
                         </>}
+                        align
                     />
                 )}
             </CardGroup>
@@ -103,7 +116,7 @@ export default function RotationDetails() {
             <Row>
                 <RotationHeader rotation={data!} />
                 <RotationSummarySection rotationId={data!.id} isClosed={data!.is_closed} />
-                <RotationEntriesSection rotationId={data!.id} />
+                <RotationEntriesSection rotationId={data!.id} isRotationClosed={data!.is_closed} />
             </Row>
         }
     </>

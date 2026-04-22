@@ -216,7 +216,7 @@ export async function getActiveProjects() {
 
 export async function searchRatters(name?: string | undefined, excludeIds?: number[] | undefined) {
     const { data, error } = await apiClient.POST(
-        "/pve/api/search/",
+        "/pve/api/search/ratters/",
         {
             params: { query: { name } },
             body: excludeIds,
@@ -249,4 +249,29 @@ export async function editEntry(rotationId: number, entryId: number, entryData: 
     if (!response.ok) {
         throw response.status;
     }
+}
+
+export async function searchItems(paste: string) {
+    const { data, error } = await apiClient.POST(
+        "/pve/api/search/items/",
+        { body: paste }
+    );
+    if (error) {
+        throw error;
+    }
+    return data;
+}
+
+export async function getEntryItems(rotationId: number, entryId: number) {
+    return await genericGet(
+        "/pve/api/rotations/{rotation_id}/entries/{entry_id}/items/",
+        { params: { path: { rotation_id: rotationId, entry_id: entryId } } }
+    );
+}
+
+export async function getRotationItems(rotationId: number) {
+    return await genericGet(
+        "/pve/api/rotations/{rotation_id}/items/",
+        { params: { path: { rotation_id: rotationId } } }
+    );
 }

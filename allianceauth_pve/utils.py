@@ -1,8 +1,13 @@
+import re
+
 from django.db.models import Sum, Subquery
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from .models import EntryCharacter, Rotation, RotationPreset
+
+
+item_re = re.compile(r"^\s*(?P<name>[\S \xa0]+)\s+(?P<quantity>[\d.]+)")
 
 
 def running_averages(user, start_date, end_date=None):
@@ -17,7 +22,7 @@ def running_averages(user, start_date, end_date=None):
         .values('user').order_by()
         .annotate(helped_setups=Coalesce(Subquery(rotations[:1]), 0))
         .annotate(estimated_total=Sum('estimated_share_total'))
-        .annotate(actual_total=Sum('actual_share_total'))
+        .annotate(actual_total=Sum('actual_share_total') + Sum('actual_share_total_for_items'))
         .values(
             'helped_setups',
             'estimated_total',
@@ -42,8 +47,18 @@ def ensure_rotation_presets_applied():
             max_daily_setups=setup.max_daily_setups,
             min_people_share_setup=setup.min_people_share_setup,
             tax_rate=setup.tax_rate,
+            tax_rate_loot_items=setup.tax_rate_loot_items,
             priority=setup.priority,
         )
 
         r.entry_buttons.set(setup.entry_buttons.all())
         r.roles_setups.set(setup.roles_setups.all())
+
+
+def parse_items_from_inventory(line: str) -> tuple[str, int] | None:
+    match = item_re.match(line)
+    if match:
+        name = match.group('name').strip()
+        quantity = int(match.group('quantity').replace('.', ''))
+        return name, quantity
+    return None

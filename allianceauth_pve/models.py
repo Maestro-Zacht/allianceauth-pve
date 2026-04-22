@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
@@ -7,6 +9,8 @@ from django.db.models.functions import Coalesce
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.eveonline.models import EveCharacter
+
+from eve_sde.models import ItemType
 
 logger = get_extension_logger(__name__)
 
@@ -53,7 +57,7 @@ class EntryCharacterQueryset(models.QuerySet):
             .values('total_value')
         )
 
-        estimated_total = (
+        rotation_estimated_total = (
             Entry.objects
             .filter(rotation=models.OuterRef('entry__rotation'))
             .values('rotation')
@@ -61,20 +65,29 @@ class EntryCharacterQueryset(models.QuerySet):
             .values('estimated_total')
         )
 
+        entry_item_total = (
+            EntryLootItem.objects
+            .filter(entry_id=models.OuterRef('entry_id'))
+            .annotate(item_total=models.F('quantity') * models.F('sale_price'))
+            .values('entry')
+            .annotate(entry_total=models.Sum('item_total'))
+            .values('entry_total')
+        )
+
         return self.annotate(
-            _share_total=(
+            share_total=(
                 models.F('entry__estimated_total') *
                 (100 - models.F('entry__rotation__tax_rate')) / 100 *
                 models.F('site_count') * models.F('role__value') /
-                models.Subquery(total_values)
+                models.Subquery(total_values, output_field=models.FloatField())
             )
         ).annotate(
             estimated_share_total=models.Case(
                 models.When(
                     entry__funding_project__isnull=True,
-                    then=models.F('_share_total')
+                    then=models.F('share_total')
                 ),
-                default=models.F('_share_total') * (100 - models.F('entry__funding_percentage')) / 100
+                default=models.F('share_total') * (100 - models.F('entry__funding_percentage')) / 100
             )
         ).annotate(
             estimated_funding_amount=models.Case(
@@ -83,17 +96,43 @@ class EntryCharacterQueryset(models.QuerySet):
                     then=models.Value(0, output_field=models.PositiveBigIntegerField())
                 ),
                 default=models.ExpressionWrapper(
-                    models.F('_share_total') - models.F('estimated_share_total'),
+                    models.F('share_total') - models.F('estimated_share_total'),
                     output_field=models.PositiveBigIntegerField()
                 )
             )
         ).annotate(
+            share_total_for_items=Coalesce(
+                models.Subquery(entry_item_total) *
+                (100 - models.F('entry__rotation__tax_rate_loot_items')) / 100 *
+                models.F('site_count') * models.F('role__value') /
+                models.Subquery(total_values, output_field=models.FloatField()),
+                0.0
+            )
+        ).annotate(
             actual_share_total=models.F('estimated_share_total') *
-            models.F('entry__rotation__actual_total') / models.Subquery(estimated_total)
-
+            models.F('entry__rotation__actual_total') / models.Subquery(rotation_estimated_total)
+        ).annotate(
+            actual_share_total_for_items=models.Case(
+                models.When(
+                    entry__funding_project__isnull=True,
+                    then=models.F('share_total_for_items')
+                ),
+                default=models.F('share_total_for_items') * (100 - models.F('entry__funding_percentage')) / 100
+            )
         ).annotate(
             actual_funding_amount=models.F('estimated_funding_amount') *
-            models.F('entry__rotation__actual_total') / models.Subquery(estimated_total)
+            models.F('entry__rotation__actual_total') / models.Subquery(rotation_estimated_total)
+        ).annotate(
+            actual_funding_amount_for_items=models.Case(
+                models.When(
+                    entry__funding_project__isnull=True,
+                    then=models.Value(0, output_field=models.PositiveBigIntegerField())
+                ),
+                default=models.ExpressionWrapper(
+                    models.F('share_total_for_items') - models.F('actual_share_total_for_items'),
+                    output_field=models.PositiveBigIntegerField()
+                )
+            )
         )
 
     def with_contributions_to(self, funding_project, rotation_closed: bool = None):
@@ -115,6 +154,46 @@ class EntryCharacterManager(models.Manager):
 
     def with_contributions_to(self, funding_project, rotation_closed: bool = None):
         return self.get_queryset().with_contributions_to(funding_project, rotation_closed)
+
+
+class EntryQueryset(models.QuerySet):
+    def with_items_total(self):
+        items_qs = (
+            EntryLootItem.objects
+            .filter(entry_id=models.OuterRef('pk'))
+            .annotate(item_total=(
+                models.F('quantity') * models.F('sale_price') *
+                (100.0 - models.F('entry__rotation__tax_rate_loot_items')) / 100.0
+            ))
+            .values('entry')
+            .annotate(entry_total=models.Sum('item_total'))
+            .values('entry_total')
+        )
+        return self.annotate(actual_total_from_items=Coalesce(models.Subquery(items_qs), 0.0))
+
+
+class EntryManager(models.Manager):
+    def get_queryset(self):
+        return EntryQueryset(self.model, using=self._db)
+
+    def with_items_total(self):
+        return self.get_queryset().with_items_total()
+
+
+class EntryLootItemQueryset(models.QuerySet):
+    def with_total_after_tax(self):
+        return self.annotate(total_after_tax=(
+            models.F('quantity') * models.F('sale_price') *
+            (100.0 - models.F('entry__rotation__tax_rate_loot_items')) / 100.0
+        ))
+
+
+class EntryLootItemManager(models.Manager):
+    def get_queryset(self):
+        return EntryLootItemQueryset(self.model, using=self._db)
+
+    def with_total_after_tax(self):
+        return self.get_queryset().with_total_after_tax()
 
 
 class PveButton(models.Model):
@@ -161,6 +240,7 @@ class RotationPreset(models.Model):
     min_people_share_setup = models.PositiveSmallIntegerField(default=3, help_text=_('The minimum number of users in an entry to consider the helped setup valid.'))
 
     tax_rate = models.FloatField(default=0, help_text=_('Tax rate in percentage'))
+    tax_rate_loot_items = models.FloatField(default=0, help_text=_('Tax rate for loot items in percentage'))
     priority = models.IntegerField(default=100, help_text=_('Ordering priority. The higher priorities are in the first positions.'))
 
     entry_buttons = models.ManyToManyField(PveButton, related_name='+', help_text=_('Button to be shown in the Entry form.'), blank=True)
@@ -182,6 +262,7 @@ class Rotation(models.Model):
     min_people_share_setup = models.PositiveSmallIntegerField(default=3, help_text=_('The minimum number of users in an entry to consider the helped setup valid.'))
 
     tax_rate = models.FloatField(default=0, help_text=_('Tax rate in percentage'))
+    tax_rate_loot_items = models.FloatField(default=0)
     is_closed = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -192,7 +273,7 @@ class Rotation(models.Model):
     entry_buttons = models.ManyToManyField(PveButton, related_name='+', help_text=_('Button to be shown in the Entry form.'), blank=True)
     roles_setups = models.ManyToManyField(RoleSetup, related_name='+', help_text=_('Setup avaiable for loading in the Entry form.'), blank=True)
 
-    objects = RotationManager()
+    objects: ClassVar[RotationManager] = RotationManager()
 
     @cached_property
     def funding_projects_summary(self):
@@ -218,11 +299,13 @@ class Rotation(models.Model):
                 .values('user')
                 .annotate(estimated_total=models.Sum('estimated_funding_amount'))
                 .annotate(actual_total=models.Sum('actual_funding_amount'))
+                .annotate(actual_total_from_items=Coalesce(models.Sum('actual_funding_amount_for_items'), 0))
                 .order_by('-estimated_total')
                 .values(
                     'user',
                     'estimated_total',
                     'actual_total',
+                    'actual_total_from_items',
                     character_name=models.F('user__profile__main_character__character_name'),
                     character_id=models.F('user__profile__main_character__character_id'),
                     main_character_id=models.F('user__profile__main_character__character_id'),
@@ -250,6 +333,7 @@ class Rotation(models.Model):
             .annotate(helped_setups=Coalesce(models.Subquery(setup_summary[:1]), 0))
             .annotate(estimated_total=models.Sum('estimated_share_total'))
             .annotate(actual_total=models.Sum('actual_share_total'))
+            .annotate(actual_total_from_items=models.Sum('actual_share_total_for_items'))
         )
 
     @property
@@ -273,6 +357,18 @@ class Rotation(models.Model):
             ['num']
         )
 
+    @property
+    def actual_total_from_items(self):
+        return (
+            EntryLootItem.objects
+            .filter(entry__rotation=self)
+            .annotate(item_total=models.F('quantity') * models.F('sale_price'))
+            .aggregate(total=Coalesce(
+                models.Sum('item_total'),
+                0.0
+            ))['total']
+        )
+
     def __str__(self):
         return f'{self.pk} {self.name}'
 
@@ -289,7 +385,7 @@ class EntryCharacter(models.Model):
     site_count = models.PositiveIntegerField(default=1)
     helped_setup = models.BooleanField(default=False)
 
-    objects = EntryCharacterManager()
+    objects: ClassVar[EntryCharacterManager] = EntryCharacterManager()
 
     class Meta:
         default_permissions = ()
@@ -311,6 +407,8 @@ class Entry(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, related_name='+')
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects: ClassVar[EntryManager] = EntryManager()
 
     @cached_property
     def total_user_count(self):
@@ -341,6 +439,26 @@ class Entry(models.Model):
         default_permissions = ()
         verbose_name = 'entry'
         verbose_name_plural = 'entries'
+
+
+class EntryLootItem(models.Model):
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name='loot_items')
+
+    item = models.ForeignKey(ItemType, on_delete=models.RESTRICT, related_name='+')
+    quantity = models.PositiveIntegerField()
+
+    sale_price = models.FloatField(null=True, blank=True)
+
+    objects: ClassVar[EntryLootItemManager] = EntryLootItemManager()
+
+    class Meta:
+        default_permissions = ()
+        constraints = [
+            models.UniqueConstraint(fields=['entry', 'item'], name='unique_item_per_entry'),
+        ]
+
+    def __str__(self) -> str:
+        return f'{self.item} x{self.quantity}'
 
 
 class EntryRole(models.Model):
@@ -420,7 +538,7 @@ class FundingProject(models.Model):
             .with_totals()
             .aggregate(
                 current_total=Coalesce(
-                    models.Sum('actual_funding_amount'),
+                    models.Sum('actual_funding_amount') + models.Sum('actual_funding_amount_for_items'),
                     0
                 )
             )['current_total']
@@ -498,7 +616,8 @@ class FundingProject(models.Model):
             .order_by()
             .values('user')
             .annotate(actual_total=models.Sum('actual_funding_amount'))
-            .annotate(estimated_total=models.F('actual_total') + Coalesce(models.Subquery(estimated_part), 0))
+            .annotate(actual_total_from_items=Coalesce(models.Sum('actual_funding_amount_for_items'), 0))
+            .annotate(estimated_total=models.F('actual_total') + models.F('actual_total_from_items') + Coalesce(models.Subquery(estimated_part), 0))
         )
 
     @property

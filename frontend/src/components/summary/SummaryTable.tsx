@@ -8,8 +8,6 @@ import { useToast } from "../../providers/ToastProvider";
 import { usePermissions } from "../../providers/PermissionsProvider";
 
 
-// TODO: highlight main character
-
 type summaryRowType = components["schemas"]["SummarySchema"] & {
     helped_setups?: number;
 };
@@ -62,9 +60,11 @@ function SummaryRow({ row, isClosed, isProjectSummary }: SummaryRowProps) {
             {
                 isClosed ?
                     <>
-                        <td className={!isProjectSummary ? "copy-text" : undefined} onClick={!isProjectSummary ? handleCopy : undefined}>
-                            {localizeNumber(row.actual_total)}
-                        </td>
+                        <TooltipComponent id={row.portrait_url} text={t("total_from_items_tooltip", { total: row.actual_total, items: row.actual_total_from_items })}>
+                            <td className={!isProjectSummary ? "copy-text" : undefined} onClick={!isProjectSummary ? handleCopy : undefined}>
+                                {localizeNumber(row.actual_total + row.actual_total_from_items)}
+                            </td>
+                        </TooltipComponent>
                         <td>{localizeNumber(row.estimated_total)}</td>
                         {!isProjectSummary && <td>
                             <TooltipComponent id={row.portrait_url} text={t("clear_copy")}>

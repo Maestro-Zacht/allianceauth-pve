@@ -26,6 +26,7 @@ const getNewRotationSchema = (t: TFunction<"translation", undefined>, entryIds: 
             .max(128, { message: t("forms.max_len", { max: 128 }) }),
         priority: z.number({ message: t("forms.number") }).int({ message: t("forms.integer") }),
         tax_rate: z.number({ message: t("forms.number") }).min(0, { message: t("forms.min_value", { min: 0 }) }).max(100, { message: t("forms.max_value", { max: 100 }) }),
+        tax_rate_loot_items: z.number({ message: t("forms.number") }).min(0, { message: t("forms.min_value", { min: 0 }) }).max(100, { message: t("forms.max_value", { max: 100 }) }),
         max_daily_setups: z.number({ message: t("forms.number") }).int({ message: t("forms.integer") }).min(0, { message: t("forms.min_value", { min: 0 }) }),
         min_people_share_setup: z.number({ message: t("forms.number") }).int({ message: t("forms.integer") }).min(0, { message: t("forms.min_value", { min: 0 }) }),
         entry_buttons: z.array(
@@ -116,6 +117,19 @@ function RotationForm({ pveButtons, roleSetups }: RotationFormProps) {
                 <Form.Text muted>{t("forms.tax_rate_help")}</Form.Text>
                 <Form.Control.Feedback type="invalid">
                     {errors.tax_rate?.message}
+                </Form.Control.Feedback>
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="rotationTaxRateLootItems">
+                <Form.Label>{t("tax_rate_loot_items")}</Form.Label>
+                <Form.Control
+                    type="number" placeholder={t("tax_rate_loot_items")}
+                    {...register("tax_rate_loot_items", { valueAsNumber: true })}
+                    isInvalid={!!errors.tax_rate_loot_items}
+                />
+                <Form.Text muted>{t("forms.tax_rate_loot_items_help")}</Form.Text>
+                <Form.Control.Feedback type="invalid">
+                    {errors.tax_rate_loot_items?.message}
                 </Form.Control.Feedback>
             </Form.Group>
 

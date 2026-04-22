@@ -10,11 +10,12 @@ import { useNavigate } from "react-router";
 
 interface RotationEntriesSectionProps {
     rotationId: number;
+    isRotationClosed: boolean;
 }
 
 type characterType = components["schemas"]["EveCharacterSchema"];
 
-export default function RotationEntriesSection({ rotationId }: RotationEntriesSectionProps) {
+export default function RotationEntriesSection({ rotationId, isRotationClosed }: RotationEntriesSectionProps) {
     const [imagesLoaded, setImagesLoaded] = useState(0);
     const { t, i18n } = useTranslation();
     const { data, isLoading, error } = useQuery({
@@ -34,13 +35,15 @@ export default function RotationEntriesSection({ rotationId }: RotationEntriesSe
     const columns = [
         { data: 'created_at', type: 'date' },
         { data: 'total_user_count' },
-        { data: 'estimated_total_after_tax' },
-        { data: 'estimated_total' },
+        { data: isRotationClosed ? 'actual_total_after_tax' : 'estimated_total_after_tax' },
+        { data: isRotationClosed ? 'actual_total_from_items' : 'estimated_total' },
         { data: 'created_by_character' },
     ];
 
-    const renderNumber = (data: number) => {
-        return data.toLocaleString(i18n.language);
+    const localizeNumber = (data: number) => {
+        return data.toLocaleString(i18n.language, {
+            maximumFractionDigits: 0
+        });
     }
 
     const renderDate = (data: string, type: string, _: any) => {
@@ -125,8 +128,8 @@ export default function RotationEntriesSection({ rotationId }: RotationEntriesSe
                             ref={tableRef}
                             slots={{
                                 0: renderDate,
-                                2: renderNumber,
-                                3: renderNumber,
+                                2: localizeNumber,
+                                3: localizeNumber,
                                 4: renderCreatedBy,
                                 5: renderButton,
                             }}
@@ -149,8 +152,8 @@ export default function RotationEntriesSection({ rotationId }: RotationEntriesSe
                                 <tr>
                                     <th>{t('date')}</th>
                                     <th>{t('user_count')}</th>
-                                    <th>{t('total_after_tax')}</th>
-                                    <th>{t('total')}</th>
+                                    <th>{isRotationClosed ? t('total') : t('total_after_tax')}</th>
+                                    <th>{isRotationClosed ? t('total_from_items') : t('total')}</th>
                                     <th>{t('created_by')}</th>
                                     <th></th>
                                 </tr>

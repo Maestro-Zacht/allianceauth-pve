@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, Col, Nav, Tab } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
-import { getRotationProjectsSummaries, getRotationSummary } from "../../api/api";
+import { getRotationItems, getRotationProjectsSummaries, getRotationSummary } from "../../api/api";
 import Loading from "../Loading";
 import SummaryTable from "../summary/SummaryTable";
+import ItemSummary from "../summary/ItemSummary";
 
 interface RotationSummarySectionProps {
     rotationId: number;
@@ -30,8 +31,16 @@ export default function RotationSummarySection({ rotationId, isClosed }: Rotatio
         queryKey: ["rotation", rotationId, "project_summaries"],
         queryFn: () => getRotationProjectsSummaries(rotationId),
     });
+    const {
+        data: itemsData,
+        isLoading: itemsLoading,
+        error: itemsError
+    } = useQuery({
+        queryKey: ["rotation", rotationId, "items"],
+        queryFn: () => getRotationItems(rotationId),
+    });
 
-    const error = summaryError || projectSummariesError;
+    const error = summaryError || projectSummariesError || itemsError;
     if (error) {
         console.error("Error loading rotation summaries:", error);
         return <p>Error loading rotation summaries.</p>
@@ -39,6 +48,7 @@ export default function RotationSummarySection({ rotationId, isClosed }: Rotatio
 
     const rotationSummary = summaryData || [];
     const projectSummaries = projectSummariesData || [];
+    const items = itemsData || [];
 
     return <>
         <Col xs={12} className="my-3">
@@ -54,6 +64,20 @@ export default function RotationSummarySection({ rotationId, isClosed }: Rotatio
                                     }
                                 </Nav.Link>
                             </Nav.Item>
+                            {itemsLoading ?
+                                <Nav.Item>
+                                    <Nav.Link eventKey="items" disabled>
+                                        <Loading />
+                                    </Nav.Link>
+                                </Nav.Item> :
+                                items.length > 0 && (
+                                    <Nav.Item>
+                                        <Nav.Link eventKey="items">
+                                            {t("items")}
+                                        </Nav.Link>
+                                    </Nav.Item>
+                                )
+                            }
                             {projectSummariesLoading ? (
                                 <Nav.Item>
                                     <Nav.Link disabled>
@@ -76,6 +100,11 @@ export default function RotationSummarySection({ rotationId, isClosed }: Rotatio
                             <Tab.Pane eventKey="summary">
                                 <SummaryTable summary={rotationSummary} isClosed={isClosed} isProjectSummary={false} />
                             </Tab.Pane>
+                            {items.length > 0 && (
+                                <Tab.Pane eventKey="items">
+                                    <ItemSummary items={items} />
+                                </Tab.Pane>
+                            )}
                             {projectSummaries.map((projectData) => {
                                 return (
                                     <Tab.Pane key={projectData.project.id} eventKey={`project-${projectData.project.id}`}>

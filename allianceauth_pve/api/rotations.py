@@ -1,20 +1,23 @@
 from ninja import Router
 
-from django.db.models import Count, F
+from django.db.models import Count, F, Sum
 from django.db.models.functions import Coalesce
+from django.db import transaction
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.core.cache import cache
 
-from ..models import EntryCharacter, FundingProject, Rotation
+from ..models import EntryCharacter, FundingProject, Rotation, EntryLootItem
 from .schema import (
     RotationSchema,
     RotationSummarySchema,
     RotationProjectSummarySchema,
     NewRotationSchema,
     CloseRotationSchema,
+    CloseRotationErrorsSchema,
     RoleSetupSchema,
-    PveButtonSchema
+    PveButtonSchema,
+    ExtendedEntryItemSchema,
 )
 from .authenticators import NeedsPermission
 from ..utils import ensure_rotation_presets_applied
@@ -77,28 +80,35 @@ def get_rotation(request, rotation_id: int):
 
 @router.patch(
     "/{int:rotation_id}/",
-    response={200: None, 400: dict[str, list[str]], 403: None, 404: None},
+    response={200: None, 400: CloseRotationErrorsSchema, 403: None, 404: None},
     auth=NeedsPermission('allianceauth_pve.manage_rotations')
 )
 def close_rotation(request, rotation_id: int, data: CloseRotationSchema):
     user: User = request.user
 
-    errors = data.validate()
-    if errors:
-        return 400, errors
+    with transaction.atomic():
+        try:
+            rotation = Rotation.objects.get(pk=rotation_id)
+        except Rotation.DoesNotExist:
+            return 404, None
 
-    try:
-        rotation = Rotation.objects.get(pk=rotation_id)
-    except Rotation.DoesNotExist:
-        return 404, None
+        if rotation.is_closed or not user.has_perm('allianceauth_pve.manage_rotations'):
+            return 403, None
 
-    if rotation.is_closed or not user.has_perm('allianceauth_pve.manage_rotations'):
-        return 403, None
+        item_ids = set(
+            EntryLootItem.objects
+            .filter(entry__rotation=rotation)
+            .values_list('item_id', flat=True)
+            .distinct()
+        )
 
-    rotation.actual_total = data.sales_value
-    rotation.is_closed = True
-    rotation.closed_at = timezone.now()
-    rotation.save(update_fields=['actual_total', 'is_closed', 'closed_at'])
+        errors = data.validate(item_ids)
+        if errors:
+            return 400, errors
+
+        data.save(rotation)
+
+        ensure_rotation_presets_applied()
 
     summary_cache_key = ROTATION_SUMMARY_CACHE_KEY.format(rotation_id=rotation_id)
     project_summaries_cache_key = ROTATION_PROJECT_SUMMARY_CACHE_KEY.format(rotation_id=rotation_id)
@@ -120,8 +130,6 @@ def close_rotation(request, rotation_id: int, data: CloseRotationSchema):
         for months in [1, 3, 6, 12]
     )
 
-    ensure_rotation_presets_applied()
-
     return 200, None
 
 
@@ -141,6 +149,7 @@ def get_rotation_summary(request, rotation_id: int):
         'helped_setups',
         'estimated_total',
         'actual_total',
+        'actual_total_from_items',
         character_name=Coalesce(
             F('user__profile__main_character__character_name'),
             F('user_character__character_name'),
@@ -195,3 +204,28 @@ def get_rotation_buttons(request, rotation_id: int):
         return 404, None
 
     return 200, rotation.entry_buttons.all()
+
+
+@router.get("/{int:rotation_id}/items/", response={200: list[ExtendedEntryItemSchema], 404: None})
+def get_rotation_items(request, rotation_id: int):
+    try:
+        rotation = Rotation.objects.get(pk=rotation_id)
+    except Rotation.DoesNotExist:
+        return 404, None
+
+    item_qs = (
+        EntryLootItem.objects
+        .filter(entry__rotation=rotation)
+        .with_total_after_tax()
+        .values('item_id', 'item__name')
+        .annotate(quantity=Sum('quantity'))
+        .annotate(sale_price=Sum('sale_price'))
+        .annotate(total_after_tax=Sum('total_after_tax'))
+    )
+    return 200, [{
+        'id': item['item_id'],
+        'name': item['item__name'],
+        'quantity': item['quantity'],
+        'sale_price': item['sale_price'],
+        'total_after_tax': item['total_after_tax'],
+    } for item in item_qs]

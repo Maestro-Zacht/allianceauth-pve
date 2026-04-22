@@ -45,6 +45,10 @@ export default function EntryInfo({ entry, rotationId }: EntryInfoProps) {
         }
     }
 
+    const total = entry.rotation_is_closed ?
+        entry.actual_total_after_tax + entry.actual_total_from_items :
+        entry.estimated_total;
+
     return <>
         <Col xs={12} className="my-3">
             <CardGroup>
@@ -62,13 +66,21 @@ export default function EntryInfo({ entry, rotationId }: EntryInfoProps) {
                         value={`${entry.funding_project.name} (${entry.funding_percentage}%)`}
                     />
                 )}
-                <GroupCard
+                {!entry.rotation_is_closed && <GroupCard
                     title={t('total_after_tax')}
                     value={localizeNumber(entry.estimated_total_after_tax)}
-                />
+                />}
                 <GroupCard
                     title={t('total')}
-                    value={localizeNumber(entry.estimated_total)}
+                    value={entry.rotation_is_closed ?
+                        <TooltipComponent
+                            id={`total-${entry.id}-tooltip`}
+                            text={t('total_from_items_tooltip', { total: entry.actual_total_after_tax, items: entry.actual_total_from_items })}
+                        >
+                            <span>{localizeNumber(total)}</span>
+                        </TooltipComponent> :
+                        localizeNumber(total)
+                    }
                 />
                 <GroupCard
                     title={t('created_by')}

@@ -51,6 +51,10 @@ export default function NewEntryForm() {
                 site_count: share.site_count,
             })),
             roles: entryFormData.roles,
+            items: entryFormData.items.map(item => ({
+                id: item.id,
+                quantity: item.quantity,
+            })),
         };
         mutation.mutate(sendData, {
             onSuccess: () => {
@@ -66,6 +70,7 @@ export default function NewEntryForm() {
         funding_project_id: null,
         shares: [],
         roles: [{ name: 'Krab', value: 1 }],
+        items: [],
     };
 
     return <>

@@ -5,11 +5,15 @@ from ninja import Schema, ModelSchema
 
 from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
+from django.utils import timezone
+from django.db.models import Sum
 
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.authentication.models import CharacterOwnership
 
-from ..models import Entry, EntryCharacter, PveButton, RoleSetup, FundingProject, Rotation, EntryRole
+from eve_sde.models import ItemType
+
+from ..models import Entry, EntryCharacter, PveButton, RoleSetup, FundingProject, Rotation, EntryRole, EntryLootItem
 from ..app_settings import PVE_ONLY_MAINS
 
 
@@ -39,6 +43,8 @@ class RotationSchema(Schema):
     actual_total: float
     priority: int
     tax_rate: float
+    tax_rate_loot_items: float
+    actual_total_from_items: float
 
 
 class FundingProjectBasicSchema(Schema):
@@ -65,6 +71,7 @@ class SummarySchema(Schema):
     character_name: str
     estimated_total: float
     actual_total: float
+    actual_total_from_items: float
 
     @staticmethod
     def resolve_portrait_url(obj) -> str:
@@ -102,6 +109,7 @@ class EntrySchema(Schema):
     estimated_total: int
     estimated_total_after_tax: float
     actual_total_after_tax: float
+    actual_total_from_items: float
 
     @staticmethod
     def resolve_created_by_character(obj: Entry) -> EveCharacter | None:
@@ -127,6 +135,8 @@ class EntryCharacterSchema(Schema):
     estimated_funding_amount: float
     actual_share_total: float
     actual_funding_amount: float
+    actual_share_total_for_items: float
+    actual_funding_amount_for_items: float
 
     @staticmethod
     def resolve_user_main_character(obj: EntryCharacter) -> EveCharacter | None:
@@ -161,6 +171,7 @@ class NewRotationSchema(Schema):
     name: str
     priority: int
     tax_rate: float
+    tax_rate_loot_items: float
     max_daily_setups: int
     min_people_share_setup: int
     entry_buttons: list[int]
@@ -174,6 +185,9 @@ class NewRotationSchema(Schema):
 
         if self.tax_rate < 0.0 or self.tax_rate > 100.0:
             errors['tax_rate'].append(_('Tax rate must be between 0 and 100.'))
+
+        if self.tax_rate_loot_items < 0.0 or self.tax_rate_loot_items > 100.0:
+            errors['tax_rate_loot_items'].append(_('Tax rate must be between 0 and 100.'))
 
         if self.max_daily_setups < 0:
             errors['max_daily_setups'].append(_('The number of maximum daily setups must be non-negative.'))
@@ -231,16 +245,77 @@ class NewProjectSchema(Schema):
         return dict(errors)
 
 
-class CloseRotationSchema(Schema):
-    sales_value: int
+class ItemSaleValueErrorsSchema(Schema):
+    item_id: list[str] = []
+    sale_value: list[str] = []
 
-    def validate(self) -> dict[str, list[str]]:
+
+class ItemSaleValueSchema(Schema):
+    item_id: int
+    sale_value: int
+
+    def validate(self, item_ids: set[int]) -> ItemSaleValueErrorsSchema | None:
         errors = defaultdict(list)
 
-        if self.sales_value < 1:
-            errors['sales_value'].append(_('Sales value must be at least 1 ISK.'))
+        if not ItemType.objects.filter(pk=self.item_id, published=True).exists():
+            errors['item_id'].append(_('Item does not exist or is not published.'))
 
-        return dict(errors)
+        if self.sale_value < 0:
+            errors['sale_value'].append(_('Sale value must be a non-negative integer.'))
+
+        if self.item_id not in item_ids:
+            errors['item_id'].append(_('Item has not been added in this rotation.'))
+        else:
+            item_ids.remove(self.item_id)
+
+        return ItemSaleValueErrorsSchema(**dict(errors)) if errors else None
+
+
+class CloseRotationErrorsSchema(Schema):
+    sales_value: list[str] = []
+    item_sales: dict[int, ItemSaleValueErrorsSchema] = {}
+    items_missing: list[int] = []
+
+
+class CloseRotationSchema(Schema):
+    sales_value: int
+    item_sales: list[ItemSaleValueSchema]
+
+    def validate(self, item_ids: set[int]) -> CloseRotationErrorsSchema | None:
+        errors = defaultdict(list)
+
+        if self.sales_value < 0:
+            errors['sales_value'].append(_('Sales value must be a non-negative integer.'))
+
+        item_sales_errors = {}
+        for i, item_sale in enumerate(self.item_sales):
+            item_sale_errors = item_sale.validate(item_ids)
+            if item_sale_errors is not None:
+                item_sales_errors[i] = item_sale_errors
+        if item_sales_errors:
+            errors['item_sales'] = item_sales_errors
+
+        if len(item_ids) > 0:
+            errors['items_missing'] = list(item_ids)
+
+        return CloseRotationErrorsSchema(**dict(errors)) if errors else None
+
+    def save(self, rotation: Rotation):
+        rotation.actual_total = self.sales_value
+        rotation.is_closed = True
+        rotation.closed_at = timezone.now()
+        rotation.save(update_fields=['actual_total', 'is_closed', 'closed_at'])
+
+        for item_sale in self.item_sales:
+            total_quantity = EntryLootItem.objects.filter(
+                entry__rotation=rotation,
+                item_id=item_sale.item_id
+            ).aggregate(total=Sum('quantity'))['total']
+
+            EntryLootItem.objects.filter(
+                entry__rotation=rotation,
+                item_id=item_sale.item_id
+            ).update(sale_price=item_sale.sale_value / total_quantity)
 
 
 class RoleFormErrorsSchema(Schema):
@@ -323,6 +398,29 @@ class ShareFormSchema(Schema):
         return None
 
 
+class EntryItemErrorsSchema(Schema):
+    item: list[str] = []
+    quantity: list[str] = []
+
+
+class EntryItemSchema(Schema):
+    id: int
+    quantity: int
+
+    def validate(self) -> EntryItemErrorsSchema | None:
+        errors = defaultdict(list)
+
+        if not ItemType.objects.filter(pk=self.id, published=True).exists():
+            errors['item'].append(_('Item does not exist or is not published.'))
+
+        if self.quantity < 1:
+            errors['quantity'].append(_('Quantity must be at least 1.'))
+
+        if errors:
+            return EntryItemErrorsSchema(**dict(errors))
+        return None
+
+
 class EntryFormErrorsSchema(Schema):
     estimated_total: list[str] = []
     funding_project_id: list[str] = []
@@ -331,6 +429,7 @@ class EntryFormErrorsSchema(Schema):
     roles: dict[int, RoleFormErrorsSchema] = {}
     shares_root: list[str] = []
     shares: dict[int, ShareFormErrorsSchema] = {}
+    items: dict[int, EntryItemErrorsSchema] = {}
 
 
 class EntryFormSchema(Schema):
@@ -340,6 +439,7 @@ class EntryFormSchema(Schema):
 
     roles: list[RoleFormSchema]
     shares: list[ShareFormSchema]
+    items: list[EntryItemSchema]
 
     def validate(self) -> EntryFormErrorsSchema | None:
         errors = defaultdict(list)
@@ -375,8 +475,18 @@ class EntryFormSchema(Schema):
             elif total_value == 0:
                 errors['shares_root'].append(_('Form not valid, you need at least 1 person to receive loot'))
 
-        if self.estimated_total < 1:
-            errors['estimated_total'].append(_('Estimated total must be at least 1 ISK.'))
+        items_errors = {}
+        for i, item in enumerate(self.items):
+            item_errors = item.validate()
+            if item_errors is not None:
+                items_errors[i] = item_errors
+        if items_errors:
+            errors['items'] = items_errors
+
+        if self.estimated_total < 0:
+            errors['estimated_total'].append(_('Estimated total must be non-negative.'))
+        elif self.estimated_total == 0 and len(self.items) == 0:
+            errors['estimated_total'].append(_('Estimated total must be at least 1 ISK or you must add at least one item.'))
 
         if self.funding_project_id is not None and not FundingProject.objects.filter(pk=self.funding_project_id, is_active=True).exists():
             errors['funding_project_id'].append(_('Funding project does not exist or is not active.'))
@@ -399,6 +509,7 @@ class EntryFormSchema(Schema):
                 funding_percentage=self.funding_percentage,
             )
         else:
+            entry.loot_items.all().delete()
             entry.ratting_shares.all().delete()
             entry.roles.all().delete()
             entry.estimated_total = self.estimated_total
@@ -431,9 +542,37 @@ class EntryFormSchema(Schema):
                 )
             )
 
+        items_to_add = [EntryLootItem(entry=entry, item_id=item.id, quantity=item.quantity) for item in self.items]
+        EntryLootItem.objects.bulk_create(items_to_add)
         EntryCharacter.objects.bulk_create(shares_to_add)
 
         return entry
+
+
+class ItemSchema(ModelSchema):
+    id: int
+    icon_url: str
+
+    class Meta:
+        model = ItemType
+        fields = ['id', 'name']
+
+    @staticmethod
+    def resolve_icon_url(obj: ItemType) -> str:
+        if type(obj) is ItemType:
+            obj_id = obj.id
+        else:
+            obj_id = obj['id']
+        return f"https://images.evetech.net/types/{obj_id}/icon"
+
+
+class ItemSearchResultSchema(ItemSchema):
+    quantity: int
+
+
+class ExtendedEntryItemSchema(ItemSearchResultSchema):
+    sale_price: float | None
+    total_after_tax: float | None
 
 
 class ExtendedShareFormSchema(ShareFormSchema):
@@ -461,6 +600,12 @@ class ExtendedShareFormSchema(ShareFormSchema):
 
 class ExtendedEntryFormSchema(EntryFormSchema):
     shares: list[ExtendedShareFormSchema]
+    items: list[ItemSearchResultSchema]
+
+    @staticmethod
+    def resolve_items(obj: Entry) -> list[ItemSearchResultSchema]:
+        items = EntryLootItem.objects.filter(entry=obj).select_related('item')
+        return [{'id': item.item_id, 'quantity': item.quantity, 'name': item.item.name} for item in items]
 
 
 class RatterSchema(Schema):
