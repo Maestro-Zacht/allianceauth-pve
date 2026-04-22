@@ -582,14 +582,20 @@ export interface components {
             /** Roles */
             roles: components["schemas"]["BaseRoleSchema"][];
         };
-        /** ItemSchema */
-        ItemSchema: {
+        /** ExtendedEntryItemSchema */
+        ExtendedEntryItemSchema: {
             /** Id */
             id: number;
             /** Icon Url */
             icon_url: string;
             /** Name */
             name: string;
+            /** Quantity */
+            quantity: number;
+            /** Sale Price */
+            sale_price: number | null;
+            /** Total After Tax */
+            total_after_tax: number | null;
         };
         /** EntrySchema */
         EntrySchema: {
@@ -818,21 +824,6 @@ export interface components {
             actual_share_total_for_items: number;
             /** Actual Funding Amount For Items */
             actual_funding_amount_for_items: number;
-        };
-        /** ExtendedEntryItemSchema */
-        ExtendedEntryItemSchema: {
-            /** Id */
-            id: number;
-            /** Icon Url */
-            icon_url: string;
-            /** Name */
-            name: string;
-            /** Quantity */
-            quantity: number;
-            /** Sale Price */
-            sale_price: number | null;
-            /** Total After Tax */
-            total_after_tax: number | null;
         };
         /** ExtendedEntryFormSchema */
         ExtendedEntryFormSchema: {
@@ -1258,7 +1249,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ItemSchema"][];
+                    "application/json": components["schemas"]["ExtendedEntryItemSchema"][];
                 };
             };
             /** @description Not Found */

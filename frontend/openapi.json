@@ -438,7 +438,7 @@
                             "application/json": {
                                 "schema": {
                                     "items": {
-                                        "$ref": "#/components/schemas/ItemSchema"
+                                        "$ref": "#/components/schemas/ExtendedEntryItemSchema"
                                     },
                                     "title": "Response",
                                     "type": "array"
@@ -1848,7 +1848,7 @@
                 "title": "RoleSetupSchema",
                 "type": "object"
             },
-            "ItemSchema": {
+            "ExtendedEntryItemSchema": {
                 "properties": {
                     "id": {
                         "title": "Id",
@@ -1862,14 +1862,43 @@
                         "maxLength": 250,
                         "title": "Name",
                         "type": "string"
+                    },
+                    "quantity": {
+                        "title": "Quantity",
+                        "type": "integer"
+                    },
+                    "sale_price": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Sale Price"
+                    },
+                    "total_after_tax": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Total After Tax"
                     }
                 },
                 "required": [
                     "id",
                     "icon_url",
-                    "name"
+                    "name",
+                    "quantity",
+                    "sale_price",
+                    "total_after_tax"
                 ],
-                "title": "ItemSchema",
+                "title": "ExtendedEntryItemSchema",
                 "type": "object"
             },
             "EntrySchema": {
@@ -2404,59 +2433,6 @@
                     "actual_funding_amount_for_items"
                 ],
                 "title": "EntryCharacterSchema",
-                "type": "object"
-            },
-            "ExtendedEntryItemSchema": {
-                "properties": {
-                    "id": {
-                        "title": "Id",
-                        "type": "integer"
-                    },
-                    "icon_url": {
-                        "title": "Icon Url",
-                        "type": "string"
-                    },
-                    "name": {
-                        "maxLength": 250,
-                        "title": "Name",
-                        "type": "string"
-                    },
-                    "quantity": {
-                        "title": "Quantity",
-                        "type": "integer"
-                    },
-                    "sale_price": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Sale Price"
-                    },
-                    "total_after_tax": {
-                        "anyOf": [
-                            {
-                                "type": "number"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Total After Tax"
-                    }
-                },
-                "required": [
-                    "id",
-                    "icon_url",
-                    "name",
-                    "quantity",
-                    "sale_price",
-                    "total_after_tax"
-                ],
-                "title": "ExtendedEntryItemSchema",
                 "type": "object"
             },
             "ExtendedEntryFormSchema": {
