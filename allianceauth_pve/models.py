@@ -184,6 +184,22 @@ class EntryManager(models.Manager):
         return self.get_queryset().with_items_total()
 
 
+class EntryLootItemQueryset(models.QuerySet):
+    def with_total_after_tax(self):
+        return self.annotate(total_after_tax=(
+            models.F('quantity') * models.F('sale_price') *
+            (100.0 - models.F('entry__rotation__tax_rate_loot_items')) / 100.0
+        ))
+
+
+class EntryLootItemManager(models.Manager):
+    def get_queryset(self):
+        return EntryLootItemQueryset(self.model, using=self._db)
+
+    def with_total_after_tax(self):
+        return self.get_queryset().with_total_after_tax()
+
+
 class PveButton(models.Model):
     text = models.CharField(max_length=16, unique=True)
     amount = models.BigIntegerField()
@@ -353,7 +369,7 @@ class Rotation(models.Model):
             .annotate(item_total=models.F('quantity') * models.F('sale_price'))
             .aggregate(total=Coalesce(
                 models.Sum('item_total'),
-                0
+                0.0
             ))['total']
         )
 
@@ -435,7 +451,9 @@ class EntryLootItem(models.Model):
     item = models.ForeignKey(ItemType, on_delete=models.RESTRICT, related_name='+')
     quantity = models.PositiveIntegerField()
 
-    sale_price = models.PositiveBigIntegerField(null=True, blank=True)
+    sale_price = models.FloatField(null=True, blank=True)
+
+    objects: ClassVar[EntryLootItemManager] = EntryLootItemManager()
 
     class Meta:
         default_permissions = ()

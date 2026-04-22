@@ -143,10 +143,7 @@ def get_rotation_entry_items(request, entry_id: int, rotation_id: int = Path(...
         EntryLootItem.objects
         .filter(entry=entry)
         .select_related('item')
-        .annotate(total_after_tax=(
-            F('quantity') * F('sale_price') *
-            (100.0 - F('entry__rotation__tax_rate_loot_items')) / 100.0
-        ))
+        .with_total_after_tax()
     )
     return 200, [{
         'id': item.item_id,

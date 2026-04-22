@@ -6,6 +6,7 @@ from ninja import Schema, ModelSchema
 from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 from django.utils import timezone
+from django.db.models import Sum
 
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.authentication.models import CharacterOwnership
@@ -306,10 +307,15 @@ class CloseRotationSchema(Schema):
         rotation.save(update_fields=['actual_total', 'is_closed', 'closed_at'])
 
         for item_sale in self.item_sales:
+            total_quantity = EntryLootItem.objects.filter(
+                entry__rotation=rotation,
+                item_id=item_sale.item_id
+            ).aggregate(total=Sum('quantity'))['total']
+
             EntryLootItem.objects.filter(
                 entry__rotation=rotation,
                 item_id=item_sale.item_id
-            ).update(sale_price=item_sale.sale_value)
+            ).update(sale_price=item_sale.sale_value / total_quantity)
 
 
 class RoleFormErrorsSchema(Schema):
@@ -565,7 +571,7 @@ class ItemSearchResultSchema(ItemSchema):
 
 
 class ExtendedEntryItemSchema(ItemSearchResultSchema):
-    sale_price: int | None
+    sale_price: float | None
     total_after_tax: float | None
 
 

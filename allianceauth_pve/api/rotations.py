@@ -1,6 +1,6 @@
 from ninja import Router
 
-from django.db.models import Count, F
+from django.db.models import Count, F, Sum
 from django.db.models.functions import Coalesce
 from django.db import transaction
 from django.contrib.auth.models import User
@@ -17,7 +17,7 @@ from .schema import (
     CloseRotationErrorsSchema,
     RoleSetupSchema,
     PveButtonSchema,
-    ItemSchema,
+    ExtendedEntryItemSchema,
 )
 from .authenticators import NeedsPermission
 from ..utils import ensure_rotation_presets_applied
@@ -206,7 +206,7 @@ def get_rotation_buttons(request, rotation_id: int):
     return 200, rotation.entry_buttons.all()
 
 
-@router.get("/{int:rotation_id}/items/", response={200: list[ItemSchema], 404: None})
+@router.get("/{int:rotation_id}/items/", response={200: list[ExtendedEntryItemSchema], 404: None})
 def get_rotation_items(request, rotation_id: int):
     try:
         rotation = Rotation.objects.get(pk=rotation_id)
@@ -216,7 +216,16 @@ def get_rotation_items(request, rotation_id: int):
     item_qs = (
         EntryLootItem.objects
         .filter(entry__rotation=rotation)
+        .with_total_after_tax()
         .values('item_id', 'item__name')
-        .distinct()
+        .annotate(quantity=Sum('quantity'))
+        .annotate(sale_price=Sum('sale_price'))
+        .annotate(total_after_tax=Sum('total_after_tax'))
     )
-    return 200, [{'id': item['item_id'], 'name': item['item__name']} for item in item_qs]
+    return 200, [{
+        'id': item['item_id'],
+        'name': item['item__name'],
+        'quantity': item['quantity'],
+        'sale_price': item['sale_price'],
+        'total_after_tax': item['total_after_tax'],
+    } for item in item_qs]

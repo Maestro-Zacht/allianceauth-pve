@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('quantity', models.PositiveIntegerField()),
-                ('sale_price', models.PositiveBigIntegerField(blank=True, null=True)),
+                ('sale_price', models.FloatField(blank=True, null=True)),
                 ('entry', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='loot_items', to='allianceauth_pve.entry')),
                 ('item', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, related_name='+', to='eve_sde.itemtype')),
             ],
