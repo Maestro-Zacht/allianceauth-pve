@@ -583,7 +583,8 @@ class TestFundingProject(TestCase):
             {
                 'user': self.testuser.pk,
                 'actual_total': 500_000_000,
-                'estimated_total': 500_000_000
+                'estimated_total': 500_000_000,
+                'actual_total_from_items': 0,
             }
         )
 
@@ -618,7 +619,8 @@ class TestFundingProject(TestCase):
             {
                 'user': self.testuser.pk,
                 'actual_total': 500_000_000,
-                'estimated_total': 600_000_000
+                'estimated_total': 600_000_000,
+                'actual_total_from_items': 0,
             }
         )
 

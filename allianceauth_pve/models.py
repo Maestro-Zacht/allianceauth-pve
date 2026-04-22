@@ -75,16 +75,11 @@ class EntryCharacterQueryset(models.QuerySet):
         )
 
         return self.annotate(
-            share_relative_value=models.ExpressionWrapper(
-                models.F('site_count') * models.F('role__value') /
-                models.Subquery(total_values),
-                output_field=models.FloatField()
-            )
-        ).annotate(
             share_total=(
                 models.F('entry__estimated_total') *
                 (100 - models.F('entry__rotation__tax_rate')) / 100 *
-                models.F('share_relative_value')
+                models.F('site_count') * models.F('role__value') /
+                models.Subquery(total_values, output_field=models.FloatField())
             )
         ).annotate(
             estimated_share_total=models.Case(
@@ -109,7 +104,8 @@ class EntryCharacterQueryset(models.QuerySet):
             share_total_for_items=Coalesce(
                 models.Subquery(entry_item_total) *
                 (100 - models.F('entry__rotation__tax_rate_loot_items')) / 100 *
-                models.F('share_relative_value'),
+                models.F('site_count') * models.F('role__value') /
+                models.Subquery(total_values, output_field=models.FloatField()),
                 0.0
             )
         ).annotate(
