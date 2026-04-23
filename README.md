@@ -119,6 +119,10 @@ The following permissions are provided:
 
 You'll have to assign this permissions to desired groups/states to make the tool work.
 
+## Management commands
+
+The command `pve_clear_cache` can be used to clear the Redis cache of this app.
+
 ## Credits
 
 From an original idea of iRBlue.
