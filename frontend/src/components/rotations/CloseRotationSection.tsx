@@ -47,7 +47,7 @@ const getCloseRotationSchema = (t: TFunction<"translation", undefined>, i18n: i1
                         .min(0, { message: t("forms.min_value", { min: 0 }) }),
                 )
             })
-        ),
+        ).default([]),
     }) satisfies z.ZodType<CloseRotationData>;
 }
 
