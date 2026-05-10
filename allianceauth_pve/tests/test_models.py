@@ -223,7 +223,7 @@ class TestRotation(TestCase):
         self.assertEqual(str(self.rotation), f'{self.rotation.pk} {self.rotation.name}')
 
     def test_all_summary(self):
-        self.assertQuerysetEqual(Rotation.objects.get_setup_summary(), [])
+        self.assertQuerySetEqual(Rotation.objects.get_setup_summary(), [])
 
 
 class TestEntry(TestCase):
@@ -528,7 +528,7 @@ class TestFundingProject(TestCase):
             helped_setup=False
         )
 
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             EntryCharacter.objects.with_contributions_to(self.funding_project, True),
             [self.share.pk],
             transform=lambda x: x.pk
@@ -556,13 +556,13 @@ class TestFundingProject(TestCase):
             helped_setup=False
         )
 
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             EntryCharacter.objects.with_contributions_to(self.funding_project, False),
             [share_open.pk],
             transform=lambda x: x.pk
         )
 
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             EntryCharacter.objects.with_contributions_to(self.funding_project),
             [share_open.pk, self.share.pk],
             transform=lambda x: x.pk,
@@ -677,4 +677,4 @@ class TestFundingProject(TestCase):
             helped_setup=False
         )
 
-        self.assertQuerysetEqual(FundingProject.objects.affected_by(rotation2), [project2.pk], transform=lambda x: x.pk)
+        self.assertQuerySetEqual(FundingProject.objects.affected_by(rotation2), [project2.pk], transform=lambda x: x.pk)

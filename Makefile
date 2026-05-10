@@ -1,5 +1,5 @@
 tox_tests:
-	python -m tox -v -e py311; \
+	python -m tox -v -e py312; \
 	rm -rf .tox/
 
 # Translation files
