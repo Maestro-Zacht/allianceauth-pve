@@ -39,10 +39,6 @@ ROOT_URLCONF = "testauth.urls"
 WSGI_APPLICATION = "testauth.wsgi.application"
 SECRET_KEY = "t$@h+j#yqhmuy$x7$fkhytd&drajgfsb-6+j9pqn*vj0)gq&-2"
 
-STATICFILES_DIRS = [
-    "allianceauth_pve/static",
-]
-
 # This is where css/images will be placed for your webserver to read
 STATIC_ROOT = "/var/www/testauth/static/"
 
