@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, Col } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import { getProjectSummary } from "../../api/api";
-import Loading from "../Loading";
+import Loading from "../utils/Loading";
 import SummaryTable from "../summary/SummaryTable";
 
 interface ProjectContributionsProps {

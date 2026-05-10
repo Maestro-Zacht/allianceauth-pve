@@ -1,14 +1,14 @@
 import { Button, CardGroup, Col, Modal } from "react-bootstrap";
-import { GroupCard } from "../StatCards";
+import { GroupCard } from "../utils/StatCards";
 import { useTranslation } from "react-i18next";
-import TimeAgo from "react-timeago";
-import CharacterWithPortrait from "../CharacterWithPortrait";
+import TimeAgo from "../utils/TimeAgo";
+import CharacterWithPortrait from "../utils/CharacterWithPortrait";
 import type { components } from "../../api/Schema";
-import TooltipComponent from "../TooltipComponent";
+import TooltipComponent from "../utils/TooltipComponent";
 import { useState } from "react";
 import { useToast } from "../../providers/ToastProvider";
 import { Link, useNavigate } from "react-router";
-import Loading from "../Loading";
+import Loading from "../utils/Loading";
 import { deleteEntry } from "../../api/api";
 
 type EntryType = components["schemas"]["EntryDetailsSchema"];

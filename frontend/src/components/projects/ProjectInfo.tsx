@@ -1,15 +1,15 @@
 import { Button, Card, CardGroup, Col, ProgressBar } from "react-bootstrap";
 import type { components } from "../../api/Schema";
-import { GroupCard } from "../StatCards";
+import { GroupCard } from "../utils/StatCards";
 import { useTranslation } from "react-i18next";
-import TimeAgo from "react-timeago";
+import TimeAgo from "../utils/TimeAgo";
 import { usePermissions } from "../../providers/PermissionsProvider";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "../../providers/ToastProvider";
 import { toggleProjectComplete } from "../../api/api";
-import Loading from "../Loading";
-import TooltipComponent from "../TooltipComponent";
+import Loading from "../utils/Loading";
+import TooltipComponent from "../utils/TooltipComponent";
 
 type ProjectType = components["schemas"]["FundingProjectSchema"];
 

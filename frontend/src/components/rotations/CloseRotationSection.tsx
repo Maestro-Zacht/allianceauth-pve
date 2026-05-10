@@ -7,12 +7,12 @@ import z from "zod";
 import { parseLocalizedNumber } from "../../utils";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Loading from "../Loading";
+import Loading from "../utils/Loading";
 import { useToast } from "../../providers/ToastProvider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { closeRotation, getRotationItems } from "../../api/api";
 import { useNavigate } from "react-router";
-import TooltipComponent from "../TooltipComponent";
+import TooltipComponent from "../utils/TooltipComponent";
 
 
 type CloseRotationData = components["schemas"]["CloseRotationSchema"];

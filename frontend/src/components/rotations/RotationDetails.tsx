@@ -1,18 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router";
 import { getRotation } from "../../api/api";
-import Loading from "../Loading";
+import Loading from "../utils/Loading";
 import type { components } from "../../api/Schema";
 import { CardGroup, Col, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
-import TimeAgo from "react-timeago";
+import TimeAgo from "../utils/TimeAgo";
 import RotationSummarySection from "./RotationSummarySection";
 import RotationEntriesSection from "./RotationEntriesSection";
-import { GroupCard } from "../StatCards";
+import { GroupCard } from "../utils/StatCards";
 import CloseRotationSection from "./CloseRotationSection";
-import NavBackButton from "../NavBackButton";
+import NavBackButton from "../utils/NavBackButton";
 import { usePermissions } from "../../providers/PermissionsProvider";
-import TooltipComponent from "../TooltipComponent";
+import TooltipComponent from "../utils/TooltipComponent";
 
 type rotationType = components["schemas"]["RotationSchema"];
 

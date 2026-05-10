@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import type { EntryFormErrors, ExtendedEntryFormSchema } from "../EntryTypes";
 import "./RolesSectionStyles.css";
 import { Alert, Button, Form } from "react-bootstrap";
-import TooltipComponent from "../../TooltipComponent";
+import TooltipComponent from "../../utils/TooltipComponent";
 import { useEntryProcessor } from "../../../providers/EntryFormProvider";
 import NewRoleForm from "./NewRoleForm";
 import LoadRoleSetupsModal from "./LoadRoleSetupsModal";

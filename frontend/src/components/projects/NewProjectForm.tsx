@@ -5,7 +5,7 @@ import { z } from "zod";
 import type { components, operations } from "../../api/Schema";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Loading from "../Loading";
+import Loading from "../utils/Loading";
 import { Link, useNavigate } from "react-router";
 import { useToast } from "../../providers/ToastProvider";
 import { useMutation } from "@tanstack/react-query";

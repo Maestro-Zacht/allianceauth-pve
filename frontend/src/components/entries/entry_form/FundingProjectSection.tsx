@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query"
 import { getActiveProjects } from "../../../api/api";
-import Loading from "../../Loading";
+import Loading from "../../utils/Loading";
 import { t } from "i18next";
 import { Alert, Col, Form, Row } from "react-bootstrap";
-import TooltipComponent from "../../TooltipComponent";
+import TooltipComponent from "../../utils/TooltipComponent";
 import { useEntryProcessor } from "../../../providers/EntryFormProvider";
 
 interface FundingProjectSectionProps {

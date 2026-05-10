@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { components } from "../../api/Schema";
 import { useState } from "react";
 import "./SummaryStyles.css";
-import TooltipComponent from "../TooltipComponent";
+import TooltipComponent from "../utils/TooltipComponent";
 import { useToast } from "../../providers/ToastProvider";
 import { usePermissions } from "../../providers/PermissionsProvider";
 

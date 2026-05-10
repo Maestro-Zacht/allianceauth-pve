@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import type { components } from "../../api/Schema"
 import { Col, Image, Row, Table } from "react-bootstrap";
-import TooltipComponent from "../TooltipComponent";
+import TooltipComponent from "../utils/TooltipComponent";
 
 
 type EntryItemType = components["schemas"]["ExtendedEntryItemSchema"]

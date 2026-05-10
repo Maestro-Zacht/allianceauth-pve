@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { EntryFormErrors, ExtendedEntryFormSchema } from "../EntryTypes";
 import "./ShareSectionStyles.css";
 import { useEntryProcessor } from "../../../providers/EntryFormProvider";
-import CharacterWithPortrait from "../../CharacterWithPortrait";
+import CharacterWithPortrait from "../../utils/CharacterWithPortrait";
 import { Alert, Button, Form } from "react-bootstrap";
 
 interface SharesSectionProps {

@@ -2,10 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Col, Row } from "react-bootstrap";
 import { useParams } from "react-router";
 import { getProjectDetails } from "../../api/api";
-import Loading from "../Loading";
+import Loading from "../utils/Loading";
 import ProjectInfo from "./ProjectInfo";
 import ProjectContributions from "./ProjectContributions";
-import NavBackButton from "../NavBackButton";
+import NavBackButton from "../utils/NavBackButton";
 
 
 

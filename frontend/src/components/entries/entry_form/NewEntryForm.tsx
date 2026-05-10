@@ -8,7 +8,7 @@ import { useToast } from "../../../providers/ToastProvider";
 import { EntryFormProvider } from "../../../providers/EntryFormProvider";
 import EntryForm from "./EntryForm";
 import { useState } from "react";
-import NavBackButton from "../../NavBackButton";
+import NavBackButton from "../../utils/NavBackButton";
 
 
 

@@ -3,9 +3,9 @@ import { Badge, Card, Col, Nav, Row, Tab } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import { getRotationList } from "../../api/api";
 import type { components } from "../../api/Schema";
-import Loading from "../Loading";
+import Loading from "../utils/Loading";
 import DataTable from "../tables/DataTablesBase";
-import TimeAgo from "react-timeago";
+import TimeAgo from "../utils/TimeAgo";
 import { Link, useNavigate } from "react-router";
 import { usePermissions } from "../../providers/PermissionsProvider";
 

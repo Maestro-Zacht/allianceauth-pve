@@ -5,12 +5,12 @@ import { editEntry, getEntryEditData } from "../../../api/api";
 import type { components } from "../../../api/Schema";
 import { useToast } from "../../../providers/ToastProvider";
 import { useTranslation } from "react-i18next";
-import Loading from "../../Loading";
+import Loading from "../../utils/Loading";
 import type { EntryFormErrors, EntryFormSchema, ExtendedEntryFormSchema } from "../EntryTypes";
 import { useState } from "react";
 import { EntryFormProvider } from "../../../providers/EntryFormProvider";
 import EntryForm from "./EntryForm";
-import NavBackButton from "../../NavBackButton";
+import NavBackButton from "../../utils/NavBackButton";
 
 export default function EditEntryForm() {
     const [formErrors, setFormErrors] = useState<EntryFormErrors | null>(null);

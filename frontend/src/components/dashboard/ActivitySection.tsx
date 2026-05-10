@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardGroup, Col, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import { getUserPastActivity } from "../../api/api";
-import Loading from "../Loading";
+import Loading from "../utils/Loading";
 
 const activityMonths = [
     1,

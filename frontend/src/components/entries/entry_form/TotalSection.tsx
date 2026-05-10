@@ -2,7 +2,7 @@ import { Button, Col, Form, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import { parseLocalizedNumber } from "../../../utils";
 import { useEntryProcessor } from "../../../providers/EntryFormProvider";
-import TooltipComponent from "../../TooltipComponent";
+import TooltipComponent from "../../utils/TooltipComponent";
 import type { EntryFormErrors, ExtendedEntryItem } from "../EntryTypes";
 import ItemSection from "./ItemSection";
 

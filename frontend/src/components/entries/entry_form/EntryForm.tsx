@@ -8,7 +8,7 @@ import TotalSection from "./TotalSection";
 import AddCharactersSection from "./AddCharactersSection";
 import FundingProjectSection from "./FundingProjectSection";
 import "./EntryFormStyles.css"
-import Loading from "../../Loading";
+import Loading from "../../utils/Loading";
 import type { EntryFormErrors } from "../EntryTypes";
 
 interface EntryFormProps {

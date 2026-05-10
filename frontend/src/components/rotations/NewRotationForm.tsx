@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createRotation, getPveButtons, getRoleSetups } from "../../api/api";
-import Loading from "../Loading";
+import Loading from "../utils/Loading";
 import { Link, useNavigate } from "react-router";
 import { useToast } from "../../providers/ToastProvider";
 

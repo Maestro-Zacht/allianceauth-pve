@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { getEntryItems } from "../../api/api";
 import { Card, Col } from "react-bootstrap";
-import Loading from "../Loading";
+import Loading from "../utils/Loading";
 import ItemSummary from "../summary/ItemSummary";
 
 interface EntryItemsProps {

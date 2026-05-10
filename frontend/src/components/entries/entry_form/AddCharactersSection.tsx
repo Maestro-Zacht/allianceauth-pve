@@ -5,10 +5,10 @@ import "./AddCharacterSectionStyles.css"
 import { useMutation } from "@tanstack/react-query";
 import { searchRatters } from "../../../api/api";
 import type { ExtendedShareItem } from "../EntryTypes";
-import CharacterWithPortrait from "../../CharacterWithPortrait";
+import CharacterWithPortrait from "../../utils/CharacterWithPortrait";
 import { useEntryProcessor } from "../../../providers/EntryFormProvider";
 import useDebounce from "../../../hooks/debounceHook";
-import Loading from "../../Loading";
+import Loading from "../../utils/Loading";
 
 type RatterType = Omit<ExtendedShareItem,
     'helped_setup' | 'site_count' | 'role_name' | 'is_present'

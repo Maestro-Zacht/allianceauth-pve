@@ -5,8 +5,8 @@ import EntryShares from "./EntryShares";
 import EntryRoles from "./EntryRoles";
 import { getEntry } from "../../api/api";
 import { useQuery } from "@tanstack/react-query";
-import Loading from "../Loading";
-import NavBackButton from "../NavBackButton";
+import Loading from "../utils/Loading";
+import NavBackButton from "../utils/NavBackButton";
 import EntryItems from "./EntryItems";
 
 export default function EntryDetails() {

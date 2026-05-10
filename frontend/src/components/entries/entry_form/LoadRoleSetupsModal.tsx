@@ -3,7 +3,7 @@ import { Fragment, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import { getRotationRoleSetups } from "../../../api/api";
-import Loading from "../../Loading";
+import Loading from "../../utils/Loading";
 import { useEntryProcessor } from "../../../providers/EntryFormProvider";
 
 interface LoadRoleSetupsModalProps {
