@@ -6,18 +6,54 @@
 version: 2
 updates:
   # Enable version updates for npm
-  - package-ecosystem: 'npm'
-    directory: '/frontend'
+  - package-ecosystem: "npm"
+    directory: "/frontend"
     schedule:
-      interval: 'weekly'
+      interval: "weekly"
     open-pull-requests-limit: 10
     groups:
       minor-patch:
         patterns: ["*"]
         update-types: ["minor", "patch"]
+      react-ecosystem-major:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react*"
+          - "@vitejs/plugin-react"
+        update-types: ["major"]
+
+      eslint-ecosystem-major:
+        patterns:
+          - "eslint"
+          - "eslint-plugin-*"
+          - "@eslint/*"
+          - "typescript-eslint"
+          - "globals"
+        update-types: ["major"]
+
+      i18next-ecosystem-major:
+        patterns:
+          - "*i18next*"
+        update-types: ["major"]
+
+      datatables-ecosystem-major:
+        patterns:
+          - "datatables.net*"
+        update-types: ["major"]
+
+      tanstack-ecosystem-major:
+        patterns:
+          - "@tanstack/*"
+        update-types: ["major"]
 
   # Enable version updates for GitHub Actions
-  - package-ecosystem: 'github-actions'
-    directory: '/'
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: 'weekly'
+      interval: "weekly"
+
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "weekly"
