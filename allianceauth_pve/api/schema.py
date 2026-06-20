@@ -10,7 +10,11 @@ from django.utils.translation import gettext as _
 from eve_sde.models import ItemType
 from ninja import ModelSchema, Schema
 
-from allianceauth_pve.app_settings import PVE_ONLY_MAINS
+from allianceauth_pve.app_settings import (
+    PVE_IGNORED_ITEM_GROUPS,
+    PVE_IGNORED_ITEM_IDS,
+    PVE_ONLY_MAINS,
+)
 from allianceauth_pve.models import (
     Entry,
     EntryCharacter,
@@ -429,8 +433,16 @@ class EntryItemSchema(Schema):
     def validate(self) -> EntryItemErrorsSchema | None:
         errors = defaultdict(list)
 
-        if not ItemType.objects.filter(pk=self.id, published=True).exists():
+        try:
+            item = ItemType.objects.get(pk=self.id, published=True)
+        except ItemType.DoesNotExist:
             errors["item"].append(_("Item does not exist or is not published."))
+        else:
+            if (
+                item.group_id in PVE_IGNORED_ITEM_GROUPS
+                or item.id in PVE_IGNORED_ITEM_IDS
+            ):
+                errors["item"].append(_("Item is ignored and cannot be added."))
 
         if self.quantity < 1:
             errors["quantity"].append(_("Quantity must be at least 1."))
@@ -613,9 +625,11 @@ class ItemSchema(ModelSchema):
 
 class ItemSearchResultSchema(ItemSchema):
     quantity: int
+    is_ignored: bool
 
 
-class ExtendedEntryItemSchema(ItemSearchResultSchema):
+class ExtendedEntryItemSchema(ItemSchema):
+    quantity: int
     sale_price: float | None
     total_after_tax: float | None
 

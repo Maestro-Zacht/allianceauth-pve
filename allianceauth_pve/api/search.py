@@ -7,7 +7,11 @@ from django.db.models import Exists, F, OuterRef, Prefetch, Q
 from eve_sde.models import ItemType
 from ninja import Body, Router
 
-from allianceauth_pve.app_settings import PVE_ONLY_MAINS
+from allianceauth_pve.app_settings import (
+    PVE_IGNORED_ITEM_GROUPS,
+    PVE_IGNORED_ITEM_IDS,
+    PVE_ONLY_MAINS,
+)
 from allianceauth_pve.models import General
 from allianceauth_pve.utils import parse_items_from_inventory
 
@@ -86,7 +90,11 @@ def search_items(request, paste: str = Body(...)):  # noqa: ARG001
         return 400, no_match
 
     item_objs: list[ItemType] = []
-    for item in ItemType.objects.filter(name__in=items.keys(), published=True):
+    item_qs = ItemType.objects.filter(name__in=items.keys(), published=True).annotate(
+        is_ignored=Q(group_id__in=PVE_IGNORED_ITEM_GROUPS)
+        | Q(id__in=PVE_IGNORED_ITEM_IDS)
+    )
+    for item in item_qs:
         item.quantity = items[item.name]
         item_objs.append(item)
 
