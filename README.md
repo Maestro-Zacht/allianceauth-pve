@@ -83,9 +83,11 @@ Rotation presets can be created in the admin page by people who have access. The
 
 ## Settings
 
-| Setting          | Default | Description                                                      |
-| ---------------- | ------- | ---------------------------------------------------------------- |
-| `PVE_ONLY_MAINS` | `False` | When set to `True`, only main characters are shown in search bar |
+| Setting                   | Default | Description                                                                                                                                                |
+| ------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PVE_ONLY_MAINS`          | `False` | When set to `True`, only main characters are shown in search bar                                                                                           |
+| `PVE_IGNORED_ITEM_GROUPS` | `[]`    | List of item group ids to ignore in the entry form. This is useful for cases such as blue loot, where in game estimates can be added manually to the total |
+| `PVE_IGNORED_ITEM_IDS`    | `[]`    | Same as `PVE_IGNORED_ITEM_GROUPS`, but with individual item ids                                                                                            |
 
 ## Help wanted
 
