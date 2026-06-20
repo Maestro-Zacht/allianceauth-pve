@@ -665,7 +665,13 @@ class ExtendedEntryFormSchema(EntryFormSchema):
     def resolve_items(obj: Entry) -> list[ItemSearchResultSchema]:
         items = EntryLootItem.objects.filter(entry=obj).select_related("item")
         return [
-            {"id": item.item_id, "quantity": item.quantity, "name": item.item.name}
+            {
+                "id": item.item_id,
+                "quantity": item.quantity,
+                "name": item.item.name,
+                "is_ignored": item.item.group_id in PVE_IGNORED_ITEM_GROUPS
+                or item.item.id in PVE_IGNORED_ITEM_IDS,
+            }
             for item in items
         ]
 
