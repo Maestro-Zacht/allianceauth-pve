@@ -14,6 +14,7 @@ interface RotationEntriesSectionProps {
 }
 
 type characterType = components["schemas"]["EveCharacterSchema"];
+type entryType = components["schemas"]["EntrySchema"];
 
 export default function RotationEntriesSection({ rotationId, isRotationClosed }: RotationEntriesSectionProps) {
     const [imagesLoaded, setImagesLoaded] = useState(0);
@@ -25,12 +26,18 @@ export default function RotationEntriesSection({ rotationId, isRotationClosed }:
     const tableRef = useRef<DataTableRef>(null);
     const navigate = useNavigate();
 
+    const entries = data || [];
+
+    useEffect(() => {
+        if (imagesLoaded > 0 && imagesLoaded >= entries.length) {
+            tableRef.current?.dt()?.columns.adjust();
+        }
+    }, [imagesLoaded, entries.length]);
+
     if (error) {
         console.error('Error loading entries:', error);
         return <p>Error loading entries.</p>
     }
-
-    const entries = data || [];
 
     const columns = [
         { data: 'created_at', type: 'date' },
@@ -46,7 +53,7 @@ export default function RotationEntriesSection({ rotationId, isRotationClosed }:
         });
     }
 
-    const renderDate = (data: string, type: string, _: any) => {
+    const renderDate = (data: string, type: string, _: entryType) => {
         switch (type) {
             case 'display':
                 return new Date(data).toLocaleDateString((i18n.language === 'en' || i18n.language === 'en-US') ? 'en-GB' : i18n.language, {
@@ -64,7 +71,7 @@ export default function RotationEntriesSection({ rotationId, isRotationClosed }:
         }
     }
 
-    const renderCreatedBy = (data: characterType, type: string, _: any) => {
+    const renderCreatedBy = (data: characterType, type: string, _: entryType) => {
         switch (type) {
             case 'display':
                 return <>
@@ -85,7 +92,7 @@ export default function RotationEntriesSection({ rotationId, isRotationClosed }:
     }
 
 
-    const renderButton = (_: any, type: string, row: any) => {
+    const renderButton = (_: unknown, type: string, row: entryType) => {
         switch (type) {
             case 'display':
                 return <>
@@ -109,13 +116,6 @@ export default function RotationEntriesSection({ rotationId, isRotationClosed }:
                 return '';
         }
     }
-
-    useEffect(() => {
-        if (imagesLoaded > 0 && imagesLoaded >= entries.length) {
-            tableRef.current?.dt()?.columns.adjust();
-        }
-    }, [imagesLoaded, entries.length]);
-
 
     return <>
         <Col xs={12} className="my-3">

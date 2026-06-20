@@ -10,6 +10,7 @@ type GetPaths = {
     : never;
 }[keyof paths];
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- `{} extends T` checks whether T's properties are all optional
 type ConditionallyOptional<T> = {} extends T ? [options?: T] : [options: T];
 
 async function genericGet<Path extends GetPaths>(

@@ -50,6 +50,7 @@ export default function AddCharactersSection({ addedCharacterIds }: AddCharacter
     });
 
     const debouncedSearch = useDebounce(searchText, 500);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-run only when the debounced query or character set changes
     useEffect(() => mutation.mutate(debouncedSearch), [debouncedSearch, addedCharacterIds.length]);
 
     return <>

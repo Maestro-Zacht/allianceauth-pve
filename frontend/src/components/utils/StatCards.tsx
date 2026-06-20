@@ -1,8 +1,9 @@
+import type { ReactNode } from "react";
 import { Card, Col } from "react-bootstrap";
 
 interface SimpleStatCardProps {
     title: string;
-    value: any;
+    value: ReactNode;
     align?: boolean;
 }
 

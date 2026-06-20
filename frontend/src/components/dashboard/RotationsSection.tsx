@@ -45,7 +45,7 @@ function OpenRotationPane({ rotations }: RotationPaneProps) {
         }
     }
 
-    const renderAge = (data: string, type: string, _: any) => {
+    const renderAge = (data: string, type: string, _: rotationType) => {
         switch (type) {
             case 'display':
                 return <TimeAgo date={data} />;
@@ -123,7 +123,7 @@ function ClosedRotationPane({ rotations }: RotationPaneProps) {
         }
     }
 
-    const renderClosedOn = (data: string, type: string, _: any) => {
+    const renderClosedOn = (data: string, type: string, _: rotationType) => {
         switch (type) {
             case 'display':
                 return <TimeAgo date={data} />;

@@ -33,7 +33,7 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
             return { ...state, estimated_total: action.estimated_total };
         case 'increment_estimated_total':
             return { ...state, estimated_total: state.estimated_total + action.increment };
-        case 'add_items':
+        case 'add_items': {
             const newItemMap = new Map<number, ExtendedEntryItem>();
             for (const item of [...action.items, ...state.items]) {
                 const existingItem = newItemMap.get(item.id) || { ...item, quantity: 0 };
@@ -41,6 +41,7 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                 newItemMap.set(item.id, existingItem);
             }
             return { ...state, items: Array.from(newItemMap.values()).map(item => item.quantity < 1 ? { ...item, quantity: 1 } : item) };
+        }
         case 'replace_items':
             return { ...state, items: action.items.map(item => item.quantity < 1 ? { ...item, quantity: 1 } : item) };
         case 'update_item_quantity':
@@ -78,7 +79,7 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                         role
                 )
             };
-        case 'delete_role':
+        case 'delete_role': {
             const fallbackRole = state.roles.find(role => role.name !== action.roleName);
             if (state.roles.length === 1 || !fallbackRole) {
                 return state;
@@ -92,6 +93,7 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                         share
                 )
             };
+        }
         case 'update_shares':
             return {
                 ...state,
@@ -117,7 +119,7 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                         1 :
                         state.funding_percentage
             };
-        case "update_funding_percentage":
+        case "update_funding_percentage": {
             if (state.funding_project_id === null) {
                 return state;
             }
@@ -133,6 +135,7 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                 ...state,
                 funding_percentage: newPercentage
             };
+        }
         case "add_character":
             if (state.shares.some(share => share.character_id === action.characterId)) {
                 return state;
@@ -220,6 +223,7 @@ export function EntryFormProvider({ initialData, localStorageKey, submitEntry, c
         if (initialData.roles.length === 0) {
             dispatchEntryData({ type: 'add_role', role: { name: "Krab", value: 1 } });
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount to seed the default role
     }, []);
 
     const submitAction = () => {
@@ -241,6 +245,7 @@ export function EntryFormProvider({ initialData, localStorageKey, submitEntry, c
     </>
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook co-located with its provider
 export function useEntryProcessor() {
     const context = useContext(EntryFormUpdateContext);
     if (context === undefined) {
@@ -249,6 +254,7 @@ export function useEntryProcessor() {
     return context;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook co-located with its provider
 export function useEntryFormData() {
     const context = useContext(EntryFormDataContext);
     if (context === undefined) {

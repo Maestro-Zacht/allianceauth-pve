@@ -45,7 +45,7 @@ function ActiveProjectsPane({ projects }: ProjectPaneProps) {
         }
     }
 
-    const renderCreatedAt = (data: string, type: string, _: any) => {
+    const renderCreatedAt = (data: string, type: string, _: projectType) => {
         switch (type) {
             case 'display':
                 return <TimeAgo date={data} />;
@@ -59,8 +59,8 @@ function ActiveProjectsPane({ projects }: ProjectPaneProps) {
     }
 
     const renderTotals = (data: number, type: string, row: projectType) => {
-        let estimated_total: number = data;
-        let actual_total: number = row.current_total;
+        const estimated_total: number = data;
+        const actual_total: number = row.current_total;
         switch (type) {
             case 'display':
                 return <>
@@ -72,8 +72,8 @@ function ActiveProjectsPane({ projects }: ProjectPaneProps) {
     }
 
     const renderPercentage = (data: number, type: string, row: projectType) => {
-        let actual_percentage: number = data;
-        let estimated_percentage: number = data + row.estimated_missing_percentage;
+        const actual_percentage: number = data;
+        const estimated_percentage: number = data + row.estimated_missing_percentage;
         switch (type) {
             case 'display':
                 return <>
@@ -157,9 +157,9 @@ function FinishedProjectsPane({ projects }: ProjectPaneProps) {
     }
 
     const renderCompletedIn = (data: string, _: string, row: projectType) => {
-        let completed_at = new Date(data);
-        let created_at = new Date(row.created_at);
-        let diffInDays = Math.floor(
+        const completed_at = new Date(data);
+        const created_at = new Date(row.created_at);
+        const diffInDays = Math.floor(
             (completed_at.getTime() - created_at.getTime()) /
             (1000 * 60 * 60 * 24)
         );
