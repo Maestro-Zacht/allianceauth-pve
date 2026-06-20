@@ -39,7 +39,7 @@ export default function EntryForm({ rotationId, isLoading, errors }: EntryFormPr
                         errorsFundingProjectId={errors?.funding_project_id}
                         errorsFundingPercentage={errors?.funding_percentage}
                     />
-                    <div className="d-flex flex-row-reverse">
+                    <div className="d-flex flex-row-reverse mt-3">
                         <Button onClick={submitEntry} disabled={isLoading}>
                             {isLoading ? <Loading size="sm" /> : t("submit")}
                         </Button>
