@@ -32,7 +32,7 @@ class General(models.Model):  # noqa: DJ008
         )
 
 
-class RotationQueryset(models.QuerySet):
+class RotationQueryset(models.QuerySet["Rotation"]):
     def get_setup_summary(self):
         return (
             RotationSetupSummary.objects.filter(rotation__in=self)
@@ -42,15 +42,15 @@ class RotationQueryset(models.QuerySet):
         )
 
 
-class RotationManager(models.Manager):
-    def get_queryset(self):
+class RotationManager(models.Manager["Rotation"]):
+    def get_queryset(self) -> RotationQueryset:
         return RotationQueryset(self.model, using=self._db)
 
     def get_setup_summary(self):
         return self.get_queryset().get_setup_summary()
 
 
-class EntryCharacterQueryset(models.QuerySet):
+class EntryCharacterQueryset(models.QuerySet["EntryCharacter"]):
     def with_totals(self):
         total_values = (
             EntryCharacter.objects.filter(entry_id=models.OuterRef("entry_id"))
@@ -171,8 +171,8 @@ class EntryCharacterQueryset(models.QuerySet):
         return res
 
 
-class EntryCharacterManager(models.Manager):
-    def get_queryset(self):
+class EntryCharacterManager(models.Manager["EntryCharacter"]):
+    def get_queryset(self) -> EntryCharacterQueryset:
         return EntryCharacterQueryset(self.model, using=self._db)
 
     def with_totals(self):
@@ -186,7 +186,7 @@ class EntryCharacterManager(models.Manager):
         )
 
 
-class EntryQueryset(models.QuerySet):
+class EntryQueryset(models.QuerySet["Entry"]):
     def with_items_total(self):
         items_qs = (
             EntryLootItem.objects.filter(entry_id=models.OuterRef("pk"))
@@ -207,15 +207,15 @@ class EntryQueryset(models.QuerySet):
         )
 
 
-class EntryManager(models.Manager):
-    def get_queryset(self):
+class EntryManager(models.Manager["Entry"]):
+    def get_queryset(self) -> EntryQueryset:
         return EntryQueryset(self.model, using=self._db)
 
     def with_items_total(self):
         return self.get_queryset().with_items_total()
 
 
-class EntryLootItemQueryset(models.QuerySet):
+class EntryLootItemQueryset(models.QuerySet["EntryLootItem"]):
     def with_total_after_tax(self):
         return self.annotate(
             total_after_tax=(
@@ -227,8 +227,8 @@ class EntryLootItemQueryset(models.QuerySet):
         )
 
 
-class EntryLootItemManager(models.Manager):
-    def get_queryset(self):
+class EntryLootItemManager(models.Manager["EntryLootItem"]):
+    def get_queryset(self) -> EntryLootItemQueryset:
         return EntryLootItemQueryset(self.model, using=self._db)
 
     def with_total_after_tax(self):
@@ -657,7 +657,7 @@ class RotationSetupSummary(models.Model):
         return f"Setup summary for {self.user} in {self.rotation}"
 
 
-class FundingProjectQueryset(models.QuerySet):
+class FundingProjectQueryset(models.QuerySet["FundingProject"]):
     def affected_by(self, rotation: Rotation):
         return self.filter(
             models.Exists(
@@ -670,8 +670,8 @@ class FundingProjectQueryset(models.QuerySet):
         )
 
 
-class FundingProjectManager(models.Manager):
-    def get_queryset(self):
+class FundingProjectManager(models.Manager["FundingProject"]):
+    def get_queryset(self) -> FundingProjectQueryset:
         return FundingProjectQueryset(self.model, using=self._db)
 
     def affected_by(self, rotation: Rotation):
