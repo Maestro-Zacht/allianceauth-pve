@@ -5,7 +5,7 @@ import { getEntryShares } from "../../api/api";
 import Loading from "../utils/Loading";
 import type { components } from "../../api/Schema";
 import CharacterWithPortrait from "../utils/CharacterWithPortrait";
-import "./HelpedSetupSytels.css";
+import "./HelpedSetupStyles.css";
 import TooltipComponent from "../utils/TooltipComponent";
 
 type EntryShareType = components["schemas"]["EntryCharacterSchema"]
