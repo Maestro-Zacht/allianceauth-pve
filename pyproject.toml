@@ -1,52 +1,172 @@
 [build-system]
-requires = ["flit_core >=3.4,<4"]
 build-backend = "flit_core.buildapi"
+requires = [ "flit-core>=3.4,<4" ]
 
 [project]
 name = "allianceauth-pve"
-dynamic = ["version"]
-authors = [
-    {name = "Matteo Ghia", email = "matteo.ghia@yahoo.it"},
-]
-classifiers = [
-    "Environment :: Web Environment",
-	"Framework :: Django",
-	"Framework :: Django :: 4",
-	"Framework :: Django :: 4.2",
-	"Operating System :: POSIX :: Linux",
-	"Development Status :: 5 - Production/Stable",
-	"Intended Audience :: Developers",
-	"License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-	"Natural Language :: English",
-	"Programming Language :: Python :: 3",
-	"Programming Language :: Python :: 3.10",
-	"Programming Language :: Python :: 3.11",
-	"Programming Language :: Python :: 3.12",
-	"Programming Language :: Python :: 3.13",
-	"Topic :: Internet :: WWW/HTTP",
-	"Topic :: Internet :: WWW/HTTP :: Dynamic Content",
-]
 description = "PvE tool for AllianceAuth"
-license = {file = "LICENSE"}
 readme = "README.md"
 keywords = [
     "allianceauth",
+    "allianceauth_pve",
     "eveonline",
-	"allianceauth_pve",
+]
+license = { file = "LICENSE" }
+authors = [
+    { name = "Matteo Ghia", email = "matteo.ghia@yahoo.it" },
 ]
 requires-python = "~=3.10"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 4",
+    "Framework :: Django :: 4.2",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Natural Language :: English",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+]
+dynamic = [ "version" ]
 dependencies = [
     "allianceauth>=4.6,<6",
-	"django-ninja~=1.4",
-	"django-eveonline-sde>=0.0.1b9,<1",
+    "django-eveonline-sde>=0.0.1b9,<1",
+    "django-ninja~=1.4",
 ]
+urls.Changelog = "https://github.com/Maestro-Zacht/allianceauth-pve/releases"
+urls.Homepage = "https://github.com/Maestro-Zacht/allianceauth-pve"
+urls.Source = "https://github.com/Maestro-Zacht/allianceauth-pve"
+urls.Tracker = "https://github.com/Maestro-Zacht/allianceauth-pve/issues"
 
-[project.urls]
-Homepage = "https://github.com/Maestro-Zacht/allianceauth-pve"
-Source = "https://github.com/Maestro-Zacht/allianceauth-pve"
-Tracker = "https://github.com/Maestro-Zacht/allianceauth-pve/issues"
-Changelog = "https://github.com/Maestro-Zacht/allianceauth-pve/releases"
+[tool.flit]
+module.name = "allianceauth_pve"
 
-[tool.flit.module]
-name = "allianceauth_pve"
-
+[tool.ruff]
+extend-exclude = [
+    ".devcontainer/*.py",
+    "allianceauth_pve/migrations",
+    "runtests.py",
+    "testauth",
+]
+lint.extend-select = [
+    "A",
+    "AIR",
+    "ARG",
+    "ASYNC",
+    "B",
+    "BLE",
+    "C4",
+    "COM",
+    "D",
+    "DJ",
+    "DTZ",
+    "E",
+    "EM",
+    "EXE",
+    "F",
+    "FA",
+    "FAST",
+    "FBT",
+    "FIX",
+    "FLY",
+    "FURB",
+    "G",
+    "I",
+    "ICN",
+    "INP",
+    "INT",
+    "ISC",
+    "LOG",
+    "N",
+    "NPY",
+    "PD",
+    "PERF",
+    "PGH",
+    "PIE",
+    "PL",
+    "PTH",
+    "PYI",
+    "Q",
+    "RET",
+    "RSE",
+    "RUF",
+    "S",
+    "SIM",
+    "SLF",
+    "SLOT",
+    "T10",
+    "T20",
+    "TC",
+    "TD",
+    "TID",
+    "TRY",
+    "UP",
+    "W",
+    "YTT",
+]
+lint.ignore = [
+    "COM812",
+    "D1",
+    "D203",
+    "D213",
+    "E501",
+    "FBT001",
+    "PLR2004",
+    "S311",
+]
+lint.per-file-ignores."*_test.py" = [
+    "ANN",
+    "ARG001",
+    "D",
+    "EM102",
+    "PLC0415",
+    "PLR2004",
+    "S101",
+    "S105",
+    "S106",
+    "S107",
+    "SLF001"
+]
+lint.per-file-ignores."conftest.py" = [
+    "ANN",
+    "ARG001",
+    "D",
+    "EM102",
+    "PLC0415",
+    "PLR2004",
+    "S101",
+    "S105",
+    "S106",
+    "S107",
+    "SLF001"
+]
+# IGNORE RULES FOR TESTS
+# S101    # Flake8-bandit - asserts are standard in pytest
+# S105    # Flake8-bandit - possible hardcoded password
+# S106    # Flake8-bandit - possible hardcoded password in function argument
+# S107    # Flake8-bandit - hardcoded passwords in function defaults (test helpers need defaults)
+# PLR2004 # Pylint - magic values (e.g. 404, 200) are common in tests
+# SLF001  # Flake8-self - private member access needed to test internal state
+# D       # Pydocstyle - docstrings are often redundant in verbose test names
+# ANN     # Flake8-annotations - type annotations are unnecessary overhead for tests
+# ARG001  # Flake8-unused-arguments - pytest fixtures ensure state exists even when not directly used
+# PLC0415 # Pylint - local imports in tests are valid for test isolation and self-contained tests
+# EM102   # Flake8-errmsg - f-string exceptions in test helpers are acceptable for debugging
+lint.per-file-ignores."test_*.py" = [
+    "ANN",
+    "ARG001",
+    "D",
+    "EM102",
+    "PLC0415",
+    "PLR2004",
+    "S101",
+    "S105",
+    "S106",
+    "S107",
+    "SLF001"
+]
+lint.flake8-boolean-trap.extend-allowed-calls = [ "django.db.models.Value", "pydantic.Field" ]

@@ -4,7 +4,7 @@ from ninja.security import SessionAuth
 class CanAccessPVE(SessionAuth):
     def authenticate(self, request, key):
         user = super().authenticate(request, key)
-        if user and user.has_perm('allianceauth_pve.access_pve'):
+        if user and user.has_perm("allianceauth_pve.access_pve"):
             return user
         return None
 

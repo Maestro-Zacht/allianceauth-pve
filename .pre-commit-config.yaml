@@ -1,0 +1,128 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-ast
+        name: check-ast (Python)
+        description: Check for syntax errors in Python files.
+
+      - id: check-yaml
+        name: check-yaml (YAML)
+        description: Check for syntax errors in YAML files.
+
+      - id: check-toml
+        name: check-toml (TOML)
+        description: Check for syntax errors in TOML files.
+
+      - id: check-merge-conflict
+        name: Check for merge conflict strings
+        description: Check for files that contain merge conflict strings.
+
+      - id: check-added-large-files
+        name: Check for large files
+        description: Check for large files that were added to the repository.
+        args:
+          - --maxkb=1000
+
+      - id: detect-private-key
+        name: Detect private key
+        description: Check for private keys in the repository.
+
+      - id: check-case-conflict
+        name: Check for case conflicts
+        description: Check for files with names that differ only in case.
+
+      - id: debug-statements
+        name: Check for debug statements
+        description: Check for print statements and pdb imports.
+
+      - id: requirements-txt-fixer
+        name: Fix requirements.txt
+        description: Fix the formatting of requirements.txt files.
+
+      - id: fix-byte-order-marker
+        name: Fix byte order marker
+        description: Fix the byte order marker in Python files.
+
+      - id: check-builtin-literals
+        name: Check for built-in literals
+        description: Check for built-in literals in Python code.
+
+      - id: mixed-line-ending
+        name: Mixed line ending
+        description: Check for mixed line endings.
+        args:
+          - --fix=lf
+
+      - id: trailing-whitespace
+        name: Trailing whitespace
+        description: Check for trailing whitespace.
+        exclude: aa_contacts/(migrations|locale)
+        args:
+          - --markdown-linebreak-ext=md
+
+      - id: check-executables-have-shebangs
+        name: Check for shebangs in executables
+        description: Check that executables have shebangs.
+
+      - id: end-of-file-fixer
+        name: End of file fixer
+        description: Ensure that files end with a newline.
+
+  - repo: https://github.com/tox-dev/tox-ini-fmt
+    rev: "1.7.1"
+    hooks:
+      - id: tox-ini-fmt
+        name: tox.ini formatter
+        description: Format the tox.ini file.
+
+  - repo: https://github.com/tox-dev/pyproject-fmt
+    rev: v2.21.2
+    hooks:
+      - id: pyproject-fmt
+        name: pyproject.toml formatter
+        description: Format the pyproject.toml file.
+        args:
+          - --indent=4
+        additional_dependencies:
+          - tox==4.54.0 # https://github.com/tox-dev/tox/releases/latest
+
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.25
+    hooks:
+      - id: validate-pyproject
+        name: Validate pyproject.toml
+        description: Validate the pyproject.toml file.
+
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.37.2
+    hooks:
+      - id: check-github-actions
+        name: Check GitHub Actions
+        description: This hook checks that GitHub Actions files are valid.
+        args:
+          - --verbose
+
+      - id: check-github-workflows
+        name: Check GitHub Workflows
+        description: This hook checks that GitHub Workflows files are valid.
+        args:
+          - --verbose
+
+      - id: check-dependabot
+        name: Check Dependabot Configuration
+        description: This hook checks that Dependabot configuration files are valid.
+        args:
+          - --verbose
+
+      - id: check-codecov
+        name: Check Codecov Configuration
+        description: This hook checks that Codecov configuration files are valid.
+        args:
+          - --verbose
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.14
+    hooks:
+      - id: ruff-check
+      - id: ruff-format

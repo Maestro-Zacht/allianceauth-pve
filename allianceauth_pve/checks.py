@@ -31,7 +31,7 @@ def _check_setting_list_type(name, element_type, *, id_suffix):
 
 
 @register()
-def check_settings(app_configs, **kwargs):
+def check_settings(app_configs, **kwargs):  # noqa: ARG001
     errors = []
 
     if (
