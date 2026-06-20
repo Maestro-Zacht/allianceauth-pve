@@ -13,6 +13,7 @@ type EntryReducerAction =
     | { type: 'add_items'; items: ExtendedEntryItem[] }
     | { type: 'replace_items'; items: ExtendedEntryItem[] }
     | { type: 'update_item_quantity'; item_id: number; quantity: number }
+    | { type: 'delete_item'; item_id: number }
     | { type: 'add_role'; role: RoleType }
     | { type: 'load_role_setup'; roles: RoleType[] }
     | { type: 'update_role_value'; roleName: string; value: number }
@@ -52,6 +53,8 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                     item.id === action.item_id ? { ...item, quantity: action.quantity } : item
                 )
             };
+        case 'delete_item':
+            return { ...state, items: state.items.filter(item => item.id !== action.item_id) };
         case 'add_role':
             if (state.roles.some(role => role.name === action.role.name)) {
                 return state;

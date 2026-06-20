@@ -17,7 +17,7 @@ import TooltipComponent from "../utils/TooltipComponent";
 
 type CloseRotationData = components["schemas"]["CloseRotationSchema"];
 type CloseRotationError = operations["allianceauth_pve_api_rotations_close_rotation"]["responses"][400]["content"]["application/json"];
-type ItemType = components["schemas"]["ItemSearchResultSchema"];
+type ItemType = components["schemas"]["ExtendedEntryItemSchema"];
 
 const getCloseRotationSchema = (t: TFunction<"translation", undefined>, i18n: i18n, itemIds: number[]) => {
     const idsSet = new Set(itemIds);

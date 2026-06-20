@@ -79,6 +79,7 @@
   "increment_selected_shares": "Increment Selected Shares",
   "isk": "{{isk, number(maximumFractionDigits: 0)}} ISK",
   "item": "Item",
+  "item_ignored": "This item is ignored and will not be added.",
   "items": "Items",
   "items_count_one": "{{count}} item",
   "items_count_other": "{{count}} items",

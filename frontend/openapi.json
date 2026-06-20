@@ -1319,12 +1319,18 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "default": [],
-                                "items": {
-                                    "type": "integer"
-                                },
-                                "title": "Exclude Ids",
-                                "type": "array"
+                                "anyOf": [
+                                    {
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "type": "array"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "title": "Exclude Ids"
                             }
                         }
                     },
@@ -2562,13 +2568,18 @@
                     "quantity": {
                         "title": "Quantity",
                         "type": "integer"
+                    },
+                    "is_ignored": {
+                        "title": "Is Ignored",
+                        "type": "boolean"
                     }
                 },
                 "required": [
                     "id",
                     "icon_url",
                     "name",
-                    "quantity"
+                    "quantity",
+                    "is_ignored"
                 ],
                 "title": "ItemSearchResultSchema",
                 "type": "object"

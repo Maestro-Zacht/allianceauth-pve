@@ -1,13 +1,13 @@
 from datetime import timedelta
+
+from django.core.cache import cache
+from django.utils import timezone
 from ninja import Router
 
-from django.utils import timezone
-from django.core.cache import cache
+from allianceauth_pve.app_settings import ACTIVITY_CACHE_KEY, ACTIVITY_CACHE_TIMEOUT
+from allianceauth_pve.utils import running_averages
 
-from ..utils import running_averages
 from .schema import ActivitySchema
-from ..app_settings import ACTIVITY_CACHE_KEY, ACTIVITY_CACHE_TIMEOUT
-
 
 router = Router(tags=["activity"])
 

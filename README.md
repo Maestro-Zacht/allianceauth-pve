@@ -93,7 +93,7 @@ This modeling is based on how whormoles fleets and loot are managed. If you have
 
 ## Installation
 
-The following is assuming you have a functioning AllianceAuth installation.
+This app depends on Allianceauth and requires a functioning installation. It also depends on the [django-eveonline-sde](https://github.com/Solar-Helix-Independent-Transport/django-eveonline-sde) package, so make sure to follow its installation instructions before installing this package.
 
 1. `pip install allianceauth-pve`
 2. Add `allianceauth_pve` (note the underscore) to your `INSTALLED_APPS`

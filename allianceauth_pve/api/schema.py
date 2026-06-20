@@ -1,20 +1,30 @@
 from collections import defaultdict
 from datetime import datetime
 
-from ninja import Schema, ModelSchema
-
-from django.contrib.auth.models import User
-from django.utils.translation import gettext as _
-from django.utils import timezone
-from django.db.models import Sum
-
-from allianceauth.eveonline.models import EveCharacter
 from allianceauth.authentication.models import CharacterOwnership
-
+from allianceauth.eveonline.models import EveCharacter
+from django.contrib.auth.models import User
+from django.db.models import Sum
+from django.utils import timezone
+from django.utils.translation import gettext as _
 from eve_sde.models import ItemType
+from ninja import ModelSchema, Schema
 
-from ..models import Entry, EntryCharacter, PveButton, RoleSetup, FundingProject, Rotation, EntryRole, EntryLootItem
-from ..app_settings import PVE_ONLY_MAINS
+from allianceauth_pve.app_settings import (
+    PVE_IGNORED_ITEM_GROUPS,
+    PVE_IGNORED_ITEM_IDS,
+    PVE_ONLY_MAINS,
+)
+from allianceauth_pve.models import (
+    Entry,
+    EntryCharacter,
+    EntryLootItem,
+    EntryRole,
+    FundingProject,
+    PveButton,
+    RoleSetup,
+    Rotation,
+)
 
 
 class PermissionsSchema(Schema):
@@ -75,11 +85,7 @@ class SummarySchema(Schema):
 
     @staticmethod
     def resolve_portrait_url(obj) -> str:
-        return (
-            EveCharacter
-            .generic_portrait_url(obj['character_id'])
-            .split('?')[0]
-        )
+        return EveCharacter.generic_portrait_url(obj["character_id"]).split("?")[0]
 
 
 class RotationSummarySchema(SummarySchema):
@@ -98,7 +104,7 @@ class EveCharacterSchema(Schema):
 
     @staticmethod
     def resolve_portrait_url(obj: EveCharacter) -> str:
-        return obj.portrait_url_32.split('?')[0]
+        return obj.portrait_url_32.split("?")[0]
 
 
 class EntrySchema(Schema):
@@ -161,9 +167,9 @@ class EntryDetailsSchema(EntrySchema):
 
     @staticmethod
     def resolve_user_can_edit(obj: Entry, context) -> bool:
-        user: User = context['request'].user
+        user: User = context["request"].user
         return user.is_superuser or (
-            obj.created_by == user and user.has_perm('allianceauth_pve.manage_entries')
+            obj.created_by == user and user.has_perm("allianceauth_pve.manage_entries")
         )
 
 
@@ -181,27 +187,35 @@ class NewRotationSchema(Schema):
         errors = defaultdict(list)
 
         if len(self.name) == 0 or len(self.name) > 128:
-            errors['name'].append(_('Name must be between 1 and 128 characters long.'))
+            errors["name"].append(_("Name must be between 1 and 128 characters long."))
 
         if self.tax_rate < 0.0 or self.tax_rate > 100.0:
-            errors['tax_rate'].append(_('Tax rate must be between 0 and 100.'))
+            errors["tax_rate"].append(_("Tax rate must be between 0 and 100."))
 
         if self.tax_rate_loot_items < 0.0 or self.tax_rate_loot_items > 100.0:
-            errors['tax_rate_loot_items'].append(_('Tax rate must be between 0 and 100.'))
+            errors["tax_rate_loot_items"].append(
+                _("Tax rate must be between 0 and 100.")
+            )
 
         if self.max_daily_setups < 0:
-            errors['max_daily_setups'].append(_('The number of maximum daily setups must be non-negative.'))
+            errors["max_daily_setups"].append(
+                _("The number of maximum daily setups must be non-negative.")
+            )
 
         if self.min_people_share_setup < 0:
-            errors['min_people_share_setup'].append(_('The minimum number of people required to count a setup valid must be non-negative.'))
+            errors["min_people_share_setup"].append(
+                _(
+                    "The minimum number of people required to count a setup valid must be non-negative."
+                )
+            )
 
-        buttons = set(PveButton.objects.values_list('pk', flat=True))
+        buttons = set(PveButton.objects.values_list("pk", flat=True))
         if any(button_id not in buttons for button_id in self.entry_buttons):
-            errors['entry_buttons'].append(_('One or more entry buttons are invalid.'))
+            errors["entry_buttons"].append(_("One or more entry buttons are invalid."))
 
-        setups = set(RoleSetup.objects.values_list('pk', flat=True))
+        setups = set(RoleSetup.objects.values_list("pk", flat=True))
         if any(role_id not in setups for role_id in self.roles_setups):
-            errors['roles_setups'].append(_('One or more roles setups are invalid.'))
+            errors["roles_setups"].append(_("One or more roles setups are invalid."))
 
         return dict(errors)
 
@@ -211,7 +225,7 @@ class PveButtonSchema(ModelSchema):
 
     class Meta:
         model = PveButton
-        fields = ['id', 'text', 'amount']
+        fields = ("id", "text", "amount")
 
 
 class BaseRoleSetupSchema(ModelSchema):
@@ -219,7 +233,7 @@ class BaseRoleSetupSchema(ModelSchema):
 
     class Meta:
         model = RoleSetup
-        fields = ['id', 'name']
+        fields = ("id", "name")
 
 
 class RoleSetupSchema(BaseRoleSetupSchema):
@@ -234,20 +248,20 @@ class NewProjectSchema(Schema):
         errors = defaultdict(list)
 
         if len(self.name) == 0 or len(self.name) > 128:
-            errors['name'].append(_('Name must be between 1 and 128 characters long.'))
+            errors["name"].append(_("Name must be between 1 and 128 characters long."))
 
         if FundingProject.objects.filter(name=self.name, is_active=True).exists():
-            errors['name'].append(_('An active project with this name already exists.'))
+            errors["name"].append(_("An active project with this name already exists."))
 
         if self.goal < 1:
-            errors['goal'].append(_('Goal must be at least 1 ISK.'))
+            errors["goal"].append(_("Goal must be at least 1 ISK."))
 
         return dict(errors)
 
 
 class ItemSaleValueErrorsSchema(Schema):
-    item_id: list[str] = []
-    sale_value: list[str] = []
+    item_id: list[str] = []  # noqa: RUF012
+    sale_value: list[str] = []  # noqa: RUF012
 
 
 class ItemSaleValueSchema(Schema):
@@ -258,13 +272,13 @@ class ItemSaleValueSchema(Schema):
         errors = defaultdict(list)
 
         if not ItemType.objects.filter(pk=self.item_id, published=True).exists():
-            errors['item_id'].append(_('Item does not exist or is not published.'))
+            errors["item_id"].append(_("Item does not exist or is not published."))
 
         if self.sale_value < 0:
-            errors['sale_value'].append(_('Sale value must be a non-negative integer.'))
+            errors["sale_value"].append(_("Sale value must be a non-negative integer."))
 
         if self.item_id not in item_ids:
-            errors['item_id'].append(_('Item has not been added in this rotation.'))
+            errors["item_id"].append(_("Item has not been added in this rotation."))
         else:
             item_ids.remove(self.item_id)
 
@@ -272,9 +286,9 @@ class ItemSaleValueSchema(Schema):
 
 
 class CloseRotationErrorsSchema(Schema):
-    sales_value: list[str] = []
-    item_sales: dict[int, ItemSaleValueErrorsSchema] = {}
-    items_missing: list[int] = []
+    sales_value: list[str] = []  # noqa: RUF012
+    item_sales: dict[int, ItemSaleValueErrorsSchema] = {}  # noqa: RUF012
+    items_missing: list[int] = []  # noqa: RUF012
 
 
 class CloseRotationSchema(Schema):
@@ -285,7 +299,9 @@ class CloseRotationSchema(Schema):
         errors = defaultdict(list)
 
         if self.sales_value < 0:
-            errors['sales_value'].append(_('Sales value must be a non-negative integer.'))
+            errors["sales_value"].append(
+                _("Sales value must be a non-negative integer.")
+            )
 
         item_sales_errors = {}
         for i, item_sale in enumerate(self.item_sales):
@@ -293,10 +309,10 @@ class CloseRotationSchema(Schema):
             if item_sale_errors is not None:
                 item_sales_errors[i] = item_sale_errors
         if item_sales_errors:
-            errors['item_sales'] = item_sales_errors
+            errors["item_sales"] = item_sales_errors
 
         if len(item_ids) > 0:
-            errors['items_missing'] = list(item_ids)
+            errors["items_missing"] = list(item_ids)
 
         return CloseRotationErrorsSchema(**dict(errors)) if errors else None
 
@@ -304,39 +320,36 @@ class CloseRotationSchema(Schema):
         rotation.actual_total = self.sales_value
         rotation.is_closed = True
         rotation.closed_at = timezone.now()
-        rotation.save(update_fields=['actual_total', 'is_closed', 'closed_at'])
+        rotation.save(update_fields=["actual_total", "is_closed", "closed_at"])
 
         for item_sale in self.item_sales:
             total_quantity = EntryLootItem.objects.filter(
-                entry__rotation=rotation,
-                item_id=item_sale.item_id
-            ).aggregate(total=Sum('quantity'))['total']
+                entry__rotation=rotation, item_id=item_sale.item_id
+            ).aggregate(total=Sum("quantity"))["total"]
 
             EntryLootItem.objects.filter(
-                entry__rotation=rotation,
-                item_id=item_sale.item_id
+                entry__rotation=rotation, item_id=item_sale.item_id
             ).update(sale_price=item_sale.sale_value / total_quantity)
 
 
 class RoleFormErrorsSchema(Schema):
-    name: list[str] = []
-    value: list[str] = []
+    name: list[str] = []  # noqa: RUF012
+    value: list[str] = []  # noqa: RUF012
 
 
 class RoleFormSchema(BaseRoleSchema):
-
     def validate(self, names: dict[str, int]) -> RoleFormErrorsSchema | None:
         errors = defaultdict(list)
 
         if len(self.name) == 0 or len(self.name) > 64:
-            errors['name'].append(_('Name must be between 1 and 64 characters long.'))
+            errors["name"].append(_("Name must be between 1 and 64 characters long."))
         elif self.name in names:
-            errors['name'].append(_('Role names must be unique within the entry.'))
+            errors["name"].append(_("Role names must be unique within the entry."))
         else:
             names[self.name] = self.value
 
         if self.value < 0:
-            errors['value'].append(_('Value must be non-negative.'))
+            errors["value"].append(_("Value must be non-negative."))
 
         if errors:
             return RoleFormErrorsSchema(**dict(errors))
@@ -344,10 +357,10 @@ class RoleFormSchema(BaseRoleSchema):
 
 
 class ShareFormErrorsSchema(Schema):
-    character_id: list[str] = []
-    helped_setup: list[str] = []
-    site_count: list[str] = []
-    role_name: list[str] = []
+    character_id: list[str] = []  # noqa: RUF012
+    helped_setup: list[str] = []  # noqa: RUF012
+    site_count: list[str] = []  # noqa: RUF012
+    role_name: list[str] = []  # noqa: RUF012
 
 
 class ShareFormSchema(Schema):
@@ -360,38 +373,48 @@ class ShareFormSchema(Schema):
     def resolve_role_name(obj: EntryCharacter) -> str:
         if type(obj) is EntryCharacter:
             return obj.role.name
-        return obj['role_name']
+        return obj["role_name"]
 
     @staticmethod
     def resolve_character_id(obj: EntryCharacter) -> int:
         if type(obj) is EntryCharacter:
             return obj.user_character.character_id
-        return obj['character_id']
+        return obj["character_id"]
 
-    def validate(self, character_ids: set[int], roles: dict[str, int], users: set[int]) -> ShareFormErrorsSchema | None:
+    def validate(
+        self, character_ids: set[int], roles: dict[str, int], users: set[int]
+    ) -> ShareFormErrorsSchema | None:
         errors = defaultdict(list)
 
         if self.site_count < 0:
-            errors['site_count'].append(_('Site count must be non-negative.'))
+            errors["site_count"].append(_("Site count must be non-negative."))
 
         if not EveCharacter.objects.filter(character_id=self.character_id).exists():
-            errors['character_id'].append(_('Character does not exist.'))
+            errors["character_id"].append(_("Character does not exist."))
         elif self.character_id in character_ids:
-            errors['character_id'].append(_('Character can only have one share in the entry.'))
+            errors["character_id"].append(
+                _("Character can only have one share in the entry.")
+            )
         else:
             try:
-                user: User = CharacterOwnership.objects.get(character__character_id=self.character_id).user
+                user: User = CharacterOwnership.objects.get(
+                    character__character_id=self.character_id
+                ).user
             except CharacterOwnership.DoesNotExist:
-                errors['character_id'].append(_('Character is not owned by any user.'))
+                errors["character_id"].append(_("Character is not owned by any user."))
             else:
                 character_ids.add(self.character_id)
                 if PVE_ONLY_MAINS and user.pk in users:
-                    errors['character_id'].append(_('A user can only have one share in the entry.'))
+                    errors["character_id"].append(
+                        _("A user can only have one share in the entry.")
+                    )
                 else:
                     users.add(user.pk)
 
         if self.role_name not in roles:
-            errors['role_name'].append(_('Role name must match one of the roles defined in the entry.'))
+            errors["role_name"].append(
+                _("Role name must match one of the roles defined in the entry.")
+            )
 
         if errors:
             return ShareFormErrorsSchema(**dict(errors))
@@ -399,8 +422,8 @@ class ShareFormSchema(Schema):
 
 
 class EntryItemErrorsSchema(Schema):
-    item: list[str] = []
-    quantity: list[str] = []
+    item: list[str] = []  # noqa: RUF012
+    quantity: list[str] = []  # noqa: RUF012
 
 
 class EntryItemSchema(Schema):
@@ -410,11 +433,19 @@ class EntryItemSchema(Schema):
     def validate(self) -> EntryItemErrorsSchema | None:
         errors = defaultdict(list)
 
-        if not ItemType.objects.filter(pk=self.id, published=True).exists():
-            errors['item'].append(_('Item does not exist or is not published.'))
+        try:
+            item = ItemType.objects.get(pk=self.id, published=True)
+        except ItemType.DoesNotExist:
+            errors["item"].append(_("Item does not exist or is not published."))
+        else:
+            if (
+                item.group_id in PVE_IGNORED_ITEM_GROUPS
+                or item.id in PVE_IGNORED_ITEM_IDS
+            ):
+                errors["item"].append(_("Item is ignored and cannot be added."))
 
         if self.quantity < 1:
-            errors['quantity'].append(_('Quantity must be at least 1.'))
+            errors["quantity"].append(_("Quantity must be at least 1."))
 
         if errors:
             return EntryItemErrorsSchema(**dict(errors))
@@ -422,14 +453,14 @@ class EntryItemSchema(Schema):
 
 
 class EntryFormErrorsSchema(Schema):
-    estimated_total: list[str] = []
-    funding_project_id: list[str] = []
-    funding_percentage: list[str] = []
-    roles_root: list[str] = []
-    roles: dict[int, RoleFormErrorsSchema] = {}
-    shares_root: list[str] = []
-    shares: dict[int, ShareFormErrorsSchema] = {}
-    items: dict[int, EntryItemErrorsSchema] = {}
+    estimated_total: list[str] = []  # noqa: RUF012
+    funding_project_id: list[str] = []  # noqa: RUF012
+    funding_percentage: list[str] = []  # noqa: RUF012
+    roles_root: list[str] = []  # noqa: RUF012
+    roles: dict[int, RoleFormErrorsSchema] = {}  # noqa: RUF012
+    shares_root: list[str] = []  # noqa: RUF012
+    shares: dict[int, ShareFormErrorsSchema] = {}  # noqa: RUF012
+    items: dict[int, EntryItemErrorsSchema] = {}  # noqa: RUF012
 
 
 class EntryFormSchema(Schema):
@@ -441,12 +472,12 @@ class EntryFormSchema(Schema):
     shares: list[ShareFormSchema]
     items: list[EntryItemSchema]
 
-    def validate(self) -> EntryFormErrorsSchema | None:
+    def validate(self) -> EntryFormErrorsSchema | None:  # noqa: PLR0912
         errors = defaultdict(list)
         roles = {}
 
         if not self.roles:
-            errors['roles_root'].append(_('At least one role is required.'))
+            errors["roles_root"].append(_("At least one role is required."))
         else:
             roles_errors = {}
 
@@ -455,10 +486,10 @@ class EntryFormSchema(Schema):
                 if role_errors is not None:
                     roles_errors[i] = role_errors
             if roles_errors:
-                errors['roles'] = roles_errors
+                errors["roles"] = roles_errors
 
         if not self.shares:
-            errors['shares_root'].append(_('At least one share is required.'))
+            errors["shares_root"].append(_("At least one share is required."))
         else:
             shares_errors = {}
             character_ids = set()
@@ -471,9 +502,11 @@ class EntryFormSchema(Schema):
                 total_value += share.site_count * roles.get(share.role_name, 0)
 
             if shares_errors:
-                errors['shares'] = shares_errors
+                errors["shares"] = shares_errors
             elif total_value == 0:
-                errors['shares_root'].append(_('Form not valid, you need at least 1 person to receive loot'))
+                errors["shares_root"].append(
+                    _("Form not valid, you need at least 1 person to receive loot")
+                )
 
         items_errors = {}
         for i, item in enumerate(self.items):
@@ -481,25 +514,44 @@ class EntryFormSchema(Schema):
             if item_errors is not None:
                 items_errors[i] = item_errors
         if items_errors:
-            errors['items'] = items_errors
+            errors["items"] = items_errors
 
         if self.estimated_total < 0:
-            errors['estimated_total'].append(_('Estimated total must be non-negative.'))
+            errors["estimated_total"].append(_("Estimated total must be non-negative."))
         elif self.estimated_total == 0 and len(self.items) == 0:
-            errors['estimated_total'].append(_('Estimated total must be at least 1 ISK or you must add at least one item.'))
+            errors["estimated_total"].append(
+                _(
+                    "Estimated total must be at least 1 ISK or you must add at least one item."
+                )
+            )
 
-        if self.funding_project_id is not None and not FundingProject.objects.filter(pk=self.funding_project_id, is_active=True).exists():
-            errors['funding_project_id'].append(_('Funding project does not exist or is not active.'))
+        if (
+            self.funding_project_id is not None
+            and not FundingProject.objects.filter(
+                pk=self.funding_project_id, is_active=True
+            ).exists()
+        ):
+            errors["funding_project_id"].append(
+                _("Funding project does not exist or is not active.")
+            )
         elif self.funding_project_id is not None and self.funding_percentage is None:
-            errors['funding_percentage'].append(_('Funding percentage is required when a funding project is specified.'))
-        elif self.funding_percentage is not None and (self.funding_percentage < 1 or self.funding_percentage > 100):
-            errors['funding_percentage'].append(_('Funding percentage must be between 1 and 100.'))
+            errors["funding_percentage"].append(
+                _("Funding percentage is required when a funding project is specified.")
+            )
+        elif self.funding_percentage is not None and (
+            self.funding_percentage < 1 or self.funding_percentage > 100
+        ):
+            errors["funding_percentage"].append(
+                _("Funding percentage must be between 1 and 100.")
+            )
 
         if errors:
             return EntryFormErrorsSchema(**dict(errors))
         return None
 
-    def save(self, created_by: User, rotation: Rotation, entry: Entry | None = None) -> Entry:
+    def save(
+        self, created_by: User, rotation: Rotation, entry: Entry | None = None
+    ) -> Entry:
         if entry is None:
             entry = Entry.objects.create(
                 rotation=rotation,
@@ -517,7 +569,10 @@ class EntryFormSchema(Schema):
             entry.funding_percentage = self.funding_percentage
             entry.save()
 
-        roles_to_add = [EntryRole(entry=entry, name=role.name, value=role.value) for role in self.roles]
+        roles_to_add = [
+            EntryRole(entry=entry, name=role.name, value=role.value)
+            for role in self.roles
+        ]
         EntryRole.objects.bulk_create(roles_to_add)
 
         shares_to_add = []
@@ -525,7 +580,9 @@ class EntryFormSchema(Schema):
 
         for share in self.shares:
             role: EntryRole = entry.roles.get(name=share.role_name)
-            ownership: CharacterOwnership = CharacterOwnership.objects.get(character__character_id=share.character_id)
+            ownership: CharacterOwnership = CharacterOwnership.objects.get(
+                character__character_id=share.character_id
+            )
 
             setup = share.helped_setup and ownership.user_id not in setups
             if setup:
@@ -538,11 +595,14 @@ class EntryFormSchema(Schema):
                     user_character_id=ownership.character_id,
                     user_id=ownership.user_id,
                     site_count=share.site_count,
-                    helped_setup=setup
+                    helped_setup=setup,
                 )
             )
 
-        items_to_add = [EntryLootItem(entry=entry, item_id=item.id, quantity=item.quantity) for item in self.items]
+        items_to_add = [
+            EntryLootItem(entry=entry, item_id=item.id, quantity=item.quantity)
+            for item in self.items
+        ]
         EntryLootItem.objects.bulk_create(items_to_add)
         EntryCharacter.objects.bulk_create(shares_to_add)
 
@@ -555,22 +615,21 @@ class ItemSchema(ModelSchema):
 
     class Meta:
         model = ItemType
-        fields = ['id', 'name']
+        fields = ("id", "name")
 
     @staticmethod
     def resolve_icon_url(obj: ItemType) -> str:
-        if type(obj) is ItemType:
-            obj_id = obj.id
-        else:
-            obj_id = obj['id']
+        obj_id = obj.id if type(obj) is ItemType else obj["id"]
         return f"https://images.evetech.net/types/{obj_id}/icon"
 
 
 class ItemSearchResultSchema(ItemSchema):
     quantity: int
+    is_ignored: bool
 
 
-class ExtendedEntryItemSchema(ItemSearchResultSchema):
+class ExtendedEntryItemSchema(ItemSchema):
+    quantity: int
     sale_price: float | None
     total_after_tax: float | None
 
@@ -583,7 +642,7 @@ class ExtendedShareFormSchema(ShareFormSchema):
 
     @staticmethod
     def resolve_portrait_url(obj: EntryCharacter) -> str:
-        return obj.user_character.portrait_url_32.split('?')[0]
+        return obj.user_character.portrait_url_32.split("?")[0]
 
     @staticmethod
     def resolve_character_name(obj: EntryCharacter) -> str:
@@ -595,7 +654,7 @@ class ExtendedShareFormSchema(ShareFormSchema):
 
     @staticmethod
     def resolve_main_character_portrait_url(obj: EntryCharacter) -> str:
-        return obj.user.profile.main_character.portrait_url_32.split('?')[0]
+        return obj.user.profile.main_character.portrait_url_32.split("?")[0]
 
 
 class ExtendedEntryFormSchema(EntryFormSchema):
@@ -604,8 +663,17 @@ class ExtendedEntryFormSchema(EntryFormSchema):
 
     @staticmethod
     def resolve_items(obj: Entry) -> list[ItemSearchResultSchema]:
-        items = EntryLootItem.objects.filter(entry=obj).select_related('item')
-        return [{'id': item.item_id, 'quantity': item.quantity, 'name': item.item.name} for item in items]
+        items = EntryLootItem.objects.filter(entry=obj).select_related("item")
+        return [
+            {
+                "id": item.item_id,
+                "quantity": item.quantity,
+                "name": item.item.name,
+                "is_ignored": item.item.group_id in PVE_IGNORED_ITEM_GROUPS
+                or item.item.id in PVE_IGNORED_ITEM_IDS,
+            }
+            for item in items
+        ]
 
 
 class RatterSchema(Schema):
@@ -621,4 +689,4 @@ class RatterSchema(Schema):
     def resolve_extra_chars(obj: CharacterOwnership) -> list[str]:
         if obj.character != obj.user.profile.main_character:
             return []
-        return list(map(lambda alt: alt.character.character_name, obj.user.alts))
+        return [alt.character.character_name for alt in obj.user.alts]

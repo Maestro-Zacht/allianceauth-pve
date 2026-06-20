@@ -1,15 +1,32 @@
 from django.contrib import admin
 
-from .models import Rotation, Entry, EntryCharacter, PveButton, RoleSetup, GeneralRole, FundingProject, RotationPreset
+from .models import (
+    Entry,
+    EntryCharacter,
+    FundingProject,
+    GeneralRole,
+    PveButton,
+    RoleSetup,
+    Rotation,
+    RotationPreset,
+)
 from .utils import ensure_rotation_presets_applied
 
 
 @admin.register(Rotation)
 class RotationAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'priority', 'created_at', 'days_since', 'is_closed', 'closed_at', )
-    list_filter = ('is_closed', )
-    search_fields = ('name', )
-    readonly_fields = ('closed_at',)
+    list_display = (
+        "pk",
+        "name",
+        "priority",
+        "created_at",
+        "days_since",
+        "is_closed",
+        "closed_at",
+    )
+    list_filter = ("is_closed",)
+    search_fields = ("name",)
+    readonly_fields = ("closed_at",)
 
     def save_model(self, *args, **kwargs):
         super().save_model(*args, **kwargs)
@@ -26,16 +43,19 @@ class RotationAdmin(admin.ModelAdmin):
 
 class EntryCharacterInline(admin.TabularInline):
     model = EntryCharacter
-    raw_id_fields = ('user', 'user_character',)
+    raw_id_fields = (
+        "user",
+        "user_character",
+    )
     can_delete = False
     readonly_fields = (
-        'role',
-        'user',
-        'user_character',
-        'site_count',
-        'helped_setup',
-        'estimated_share_total',
-        'actual_share_total',
+        "role",
+        "user",
+        "user_character",
+        "site_count",
+        "helped_setup",
+        "estimated_share_total",
+        "actual_share_total",
     )
 
     def get_queryset(self, request):
@@ -50,15 +70,30 @@ class EntryCharacterInline(admin.TabularInline):
 
 @admin.register(Entry)
 class EntryAdmin(admin.ModelAdmin):
-    readonly_fields = ('rotation', 'estimated_total', 'created_by', 'created_at', 'updated_at', )
-    inlines = (EntryCharacterInline, )
-    list_display = ('pk', 'rotation', 'estimated_total', 'created_by', 'created_at', )
+    readonly_fields = (
+        "rotation",
+        "estimated_total",
+        "created_by",
+        "created_at",
+        "updated_at",
+    )
+    inlines = (EntryCharacterInline,)
+    list_display = (
+        "pk",
+        "rotation",
+        "estimated_total",
+        "created_by",
+        "created_at",
+    )
 
 
 @admin.register(PveButton)
 class PveButtonAdmin(admin.ModelAdmin):
-    search_fields = ('text',)
-    list_display = ('text', 'amount',)
+    search_fields = ("text",)
+    list_display = (
+        "text",
+        "amount",
+    )
 
 
 class GeneralRoleInline(admin.TabularInline):
@@ -67,23 +102,32 @@ class GeneralRoleInline(admin.TabularInline):
 
 @admin.register(RoleSetup)
 class RoleSetupAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    search_fields = ('name', 'roles__name',)
+    list_display = ("name",)
+    search_fields = (
+        "name",
+        "roles__name",
+    )
     inlines = (GeneralRoleInline,)
 
 
 @admin.register(FundingProject)
 class FundingProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'goal', 'is_active', 'created_at', 'completed_at',)
-    search_fields = ('name',)
-    list_filter = ('is_active',)
-    readonly_fields = ('completed_at',)
+    list_display = (
+        "name",
+        "goal",
+        "is_active",
+        "created_at",
+        "completed_at",
+    )
+    search_fields = ("name",)
+    list_filter = ("is_active",)
+    readonly_fields = ("completed_at",)
 
 
 @admin.register(RotationPreset)
 class RotationPresetAdmin(admin.ModelAdmin):
-    list_display = ('name', )
-    search_fields = ('name', )
+    list_display = ("name",)
+    search_fields = ("name",)
 
     def save_model(self, *args, **kwargs):
         super().save_model(*args, **kwargs)
