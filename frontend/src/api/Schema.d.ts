@@ -869,6 +869,8 @@ export interface components {
             name: string;
             /** Quantity */
             quantity: number;
+            /** Is Ignored */
+            is_ignored: boolean;
         };
         /** ActivitySchema */
         ActivitySchema: {
@@ -1807,7 +1809,7 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": number[];
+                "application/json": number[] | null;
             };
         };
         responses: {

@@ -7,6 +7,7 @@ import { Button, Modal, Form, ListGroup, Image, Row, Col, Offcanvas, FloatingLab
 import type { ExtendedEntryItem } from "../EntryTypes";
 import { useEntryProcessor } from "../../../providers/EntryFormProvider";
 import { parseLocalizedNumber } from "../../../utils";
+import TooltipComponent from "../../utils/TooltipComponent";
 
 
 function ItemModal() {
@@ -57,7 +58,7 @@ function ItemModal() {
                 </> : <>
                     <ListGroup variant="flush">
                         {items.map(item => (
-                            <ListGroup.Item key={item.id} className="d-flex align-items-center justify-content-between">
+                            <ListGroup.Item key={item.id} className={`d-flex align-items-center justify-content-between${item.is_ignored ? ' list-group-item-warning' : ''}`}>
                                 <div>
                                     <Image
                                         src={`${item.icon_url}?size=32`}
@@ -66,6 +67,11 @@ function ItemModal() {
                                         className="me-2"
                                     />
                                     {item.name}
+                                    {item.is_ignored && (
+                                        <TooltipComponent id={`ignored-${item.id}`} text={t("item_ignored")}>
+                                            <i className="fa-solid fa-circle-question text-warning ms-2" />
+                                        </TooltipComponent>
+                                    )}
                                 </div>
                                 <span>{t("quantity_num", { quantity: item.quantity })}</span>
                             </ListGroup.Item>
@@ -89,13 +95,13 @@ function ItemModal() {
                     </Button>
                 </> : <>
                     <Button variant="warning" onClick={() => {
-                        updateEntryData({ type: 'replace_items', items });
+                        updateEntryData({ type: 'replace_items', items: items.filter(item => !item.is_ignored) });
                         handleClose();
                     }}>
                         {t("replace")}
                     </Button>
                     <Button onClick={() => {
-                        updateEntryData({ type: 'add_items', items });
+                        updateEntryData({ type: 'add_items', items: items.filter(item => !item.is_ignored) });
                         handleClose();
                     }}>
                         {t("add")}
