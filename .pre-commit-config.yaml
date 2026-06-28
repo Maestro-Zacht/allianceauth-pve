@@ -1,4 +1,4 @@
-exclude: ^LICENSE$
+exclude: ^(LICENSE|frontend/(openapi\.json|src/api/Schema\.d\.ts))$
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
