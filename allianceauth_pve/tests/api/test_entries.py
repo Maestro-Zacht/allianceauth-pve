@@ -354,6 +354,7 @@ class TestEntriesApi(PveApiTestBase):
         self.assertEqual(resp.status_code, 400)
         self.assertTrue(resp.json()["shares_root"])
 
+    @patch("allianceauth_pve.api.schema.PVE_IGNORED_ITEM_GROUPS", new={880})
     def test_new_entry_ignored_item(self):
         ignored = self.make_item(99500080, "Ignored", group_id=880)
         self.client.force_login(self.owner)
