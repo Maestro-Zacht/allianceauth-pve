@@ -3,7 +3,7 @@ branch = True
 source = ./allianceauth_pve/
 omit =
     */tests.py
-    */tests/*.py
+    */tests/*
     */migrations/*
     doc/*
     */scripts/*

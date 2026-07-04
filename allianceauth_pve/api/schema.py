@@ -271,9 +271,6 @@ class ItemSaleValueSchema(Schema):
     def validate(self, item_ids: set[int]) -> ItemSaleValueErrorsSchema | None:
         errors = defaultdict(list)
 
-        if not ItemType.objects.filter(pk=self.item_id, published=True).exists():
-            errors["item_id"].append(_("Item does not exist or is not published."))
-
         if self.sale_value < 0:
             errors["sale_value"].append(_("Sale value must be a non-negative integer."))
 
