@@ -33,7 +33,7 @@ def list_projects(request, active: bool | None = None):  # noqa: ARG001
             base_qs = FundingProject.objects.filter(is_active=True)
         case False:
             base_qs = FundingProject.objects.filter(is_active=False)
-        case None:
+        case _:
             base_qs = FundingProject.objects.all()
 
     return base_qs.annotate(number_of_participants=Coalesce(Subquery(shares_qs), 0))

@@ -184,6 +184,29 @@ class TestRotationsApi(PveApiTestBase):
         self.assertIn("sales_value", data)
         self.assertGreater(len(data["sales_value"]), 0)
 
+    def test_close_rotation_negative_item_sale_value(self):
+        rotation = self.make_rotation(name="negitemsale")
+        entry, _, _ = self.make_entry(rotation, self.user, self.char)
+        item = self.make_item(99400002, "NegItem")
+        self.make_loot_item(entry, item, quantity=5)
+
+        self.client.force_login(self.user)
+        resp = self.api_request(
+            "PATCH",
+            "close_rotation",
+            {
+                "sales_value": 0,
+                "item_sales": [{"item_id": item.id, "sale_value": -1}],
+            },
+            rotation_id=rotation.pk,
+        )
+        self.assertEqual(resp.status_code, 400)
+        data = resp.json()
+        self.assertIn("item_sales", data)
+        self.assertIn("0", data["item_sales"])
+        self.assertIn("sale_value", data["item_sales"]["0"])
+        self.assertGreater(len(data["item_sales"]["0"]["sale_value"]), 0)
+
     def test_close_rotation_duplicate_item(self):
         rotation = self.make_rotation(name="dupitem")
         entry, _, _ = self.make_entry(rotation, self.user, self.char)

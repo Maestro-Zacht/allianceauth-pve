@@ -52,6 +52,12 @@ class TestSearchApi(PveApiTestBase):
         resp = self.api_request("POST", "search_ratters", [90700002])
         self.assertSetEqual(self._get_result_ids(resp), {90700001, 90700003})
 
+    def test_search_ratters_exclude_ids_none(self):
+        self.client.force_login(self.caller)
+        resp = self.api_request("POST", "search_ratters", None)
+        self.assertEqual(resp.status_code, 200)
+        self.assertSetEqual(self._get_result_ids(resp), {90700001, 90700002, 90700003})
+
     def test_search_ratters_name_main(self):
         self.client.force_login(self.caller)
         resp = self.api_request("POST", "search_ratters", [], query="?name=Bravo")

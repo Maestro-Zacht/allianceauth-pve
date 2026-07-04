@@ -2,7 +2,13 @@ from unittest.mock import patch
 
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.tests.auth_utils import AuthUtils
+from django.core.cache import cache
 
+from allianceauth_pve.app_settings import (
+    FUNDING_PROJECT_SUMMARY_CACHE_KEY,
+    ROTATION_PROJECT_SUMMARY_CACHE_KEY,
+    ROTATION_SUMMARY_CACHE_KEY,
+)
 from allianceauth_pve.models import (
     Entry,
     EntryCharacter,
@@ -343,6 +349,25 @@ class TestEntriesApi(PveApiTestBase):
         self.assertEqual(resp.status_code, 400)
         self.assertIn("role_name", resp.json()["shares"]["0"])
 
+    def test_new_entry_negative_site_count(self):
+        self.client.force_login(self.owner)
+        payload = self.valid_entry_payload(
+            self.owner_char.character_id,
+            shares=[
+                {
+                    "character_id": self.owner_char.character_id,
+                    "helped_setup": False,
+                    "site_count": -1,
+                    "role_name": "dps",
+                }
+            ],
+        )
+        resp = self.api_request(
+            "POST", "new_entry", payload, rotation_id=self.rotation.pk
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("site_count", resp.json()["shares"]["0"])
+
     def test_new_entry_zero_total_share_value(self):
         self.client.force_login(self.owner)
         payload = self.valid_entry_payload(
@@ -455,6 +480,31 @@ class TestEntriesApi(PveApiTestBase):
         )
         self.assertEqual(resp.status_code, 400)
         self.assertTrue(resp.json()["funding_percentage"])
+
+    def test_new_entry_with_funding_project_invalidates_caches(self):
+        project = FundingProject.objects.create(name="newfund", goal=1)
+        proj_summary_key = ROTATION_PROJECT_SUMMARY_CACHE_KEY.format(
+            rotation_id=self.rotation.pk
+        )
+        fund_key = FUNDING_PROJECT_SUMMARY_CACHE_KEY.format(project_id=project.pk)
+        cache.set_many({proj_summary_key: 1, fund_key: 1})
+
+        self.client.force_login(self.owner)
+        payload = self.valid_entry_payload(
+            self.owner_char.character_id,
+            funding_project_id=project.pk,
+            funding_percentage=50,
+        )
+        resp = self.api_request(
+            "POST", "new_entry", payload, rotation_id=self.rotation.pk
+        )
+        self.assertEqual(resp.status_code, 200, resp.content)
+
+        new = Entry.objects.exclude(pk=self.entry.pk).get(rotation=self.rotation)
+        self.assertEqual(new.funding_project_id, project.pk)
+        self.assertEqual(new.funding_percentage, 50)
+        self.assertFalse(cache.has_key(proj_summary_key))
+        self.assertFalse(cache.has_key(fund_key))
 
     # ---- PVE_ONLY_MAINS rule ----
 
@@ -653,6 +703,50 @@ class TestEntriesApi(PveApiTestBase):
         self.assertEqual(resp.status_code, 400)
         self.assertTrue(resp.json()["roles_root"])
 
+    def test_edit_entry_changing_funding_project_invalidates_both_caches(self):
+        old_project = FundingProject.objects.create(name="editfundold", goal=1)
+        new_project = FundingProject.objects.create(name="editfundnew", goal=1)
+        rotation = self.make_rotation(name="editfundrot")
+        entry, _, _ = self.make_entry(
+            rotation,
+            self.owner,
+            self.owner_char,
+            funding_project=old_project,
+            funding_percentage=50,
+        )
+        rot_key = ROTATION_SUMMARY_CACHE_KEY.format(rotation_id=rotation.pk)
+        proj_summary_key = ROTATION_PROJECT_SUMMARY_CACHE_KEY.format(
+            rotation_id=rotation.pk
+        )
+        old_fund_key = FUNDING_PROJECT_SUMMARY_CACHE_KEY.format(
+            project_id=old_project.pk
+        )
+        new_fund_key = FUNDING_PROJECT_SUMMARY_CACHE_KEY.format(
+            project_id=new_project.pk
+        )
+        cache.set_many(
+            {rot_key: 1, proj_summary_key: 1, old_fund_key: 1, new_fund_key: 1}
+        )
+
+        self.client.force_login(self.owner)
+        payload = self.valid_entry_payload(
+            self.owner_char.character_id,
+            funding_project_id=new_project.pk,
+            funding_percentage=25,
+        )
+        resp = self.api_request(
+            "POST", "edit_entry", payload, rotation_id=rotation.pk, entry_id=entry.pk
+        )
+        self.assertEqual(resp.status_code, 200, resp.content)
+
+        entry.refresh_from_db()
+        self.assertEqual(entry.funding_project_id, new_project.pk)
+        self.assertEqual(entry.funding_percentage, 25)
+        self.assertFalse(cache.has_key(rot_key))
+        self.assertFalse(cache.has_key(proj_summary_key))
+        self.assertFalse(cache.has_key(old_fund_key))
+        self.assertFalse(cache.has_key(new_fund_key))
+
     # ---- delete_rotation_entry ----
 
     def test_delete_entry_owner(self):
@@ -703,3 +797,30 @@ class TestEntriesApi(PveApiTestBase):
             url("delete_rotation_entry", rotation_id=self.rotation.pk, entry_id=999999)
         )
         self.assertEqual(resp.status_code, 404)
+
+    def test_delete_entry_with_funding_project_invalidates_caches(self):
+        project = FundingProject.objects.create(name="delfund", goal=1)
+        rotation = self.make_rotation(name="delfundrot")
+        entry, _, _ = self.make_entry(
+            rotation,
+            self.owner,
+            self.owner_char,
+            funding_project=project,
+            funding_percentage=50,
+        )
+        rot_key = ROTATION_SUMMARY_CACHE_KEY.format(rotation_id=rotation.pk)
+        proj_summary_key = ROTATION_PROJECT_SUMMARY_CACHE_KEY.format(
+            rotation_id=rotation.pk
+        )
+        fund_key = FUNDING_PROJECT_SUMMARY_CACHE_KEY.format(project_id=project.pk)
+        cache.set_many({rot_key: 1, proj_summary_key: 1, fund_key: 1})
+
+        self.client.force_login(self.owner)
+        resp = self.client.delete(
+            url("delete_rotation_entry", rotation_id=rotation.pk, entry_id=entry.pk)
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertFalse(Entry.objects.filter(pk=entry.pk).exists())
+        self.assertFalse(cache.has_key(rot_key))
+        self.assertFalse(cache.has_key(proj_summary_key))
+        self.assertFalse(cache.has_key(fund_key))
