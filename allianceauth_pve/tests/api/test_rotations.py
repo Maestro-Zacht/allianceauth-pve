@@ -101,6 +101,18 @@ class TestRotationsApi(PveApiTestBase):
                 self.assertEqual(resp.status_code, 400)
                 self.assertIn("tax_rate", resp.json())
 
+    def test_create_rotation_bad_tax_rate_loot_items(self):
+        self.client.force_login(self.user)
+        for value in (-1.0, 101.0):
+            with self.subTest(tax_rate_loot_items=value):
+                resp = self.api_request(
+                    "POST",
+                    "create_rotation",
+                    self.rotation_payload(tax_rate_loot_items=value),
+                )
+                self.assertEqual(resp.status_code, 400)
+                self.assertIn("tax_rate_loot_items", resp.json())
+
     def test_create_rotation_negative_daily_setups(self):
         self.client.force_login(self.user)
         resp = self.api_request(

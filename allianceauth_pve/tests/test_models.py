@@ -6,10 +6,12 @@ from allianceauth.tests.auth_utils import AuthUtils
 from django.db.models import Sum
 from django.test import TestCase
 from django.utils import timezone
+from eve_sde.models import ItemType
 
 from allianceauth_pve.models import (
     Entry,
     EntryCharacter,
+    EntryLootItem,
     EntryRole,
     FundingProject,
     GeneralRole,
@@ -17,6 +19,7 @@ from allianceauth_pve.models import (
     RoleSetup,
     Rotation,
     RotationPreset,
+    RotationSetupSummary,
 )
 
 logger = get_extension_logger(__name__)
@@ -207,8 +210,23 @@ class TestRotation(TestCase):
     def test_str(self):
         self.assertEqual(str(self.rotation), f"{self.rotation.pk} {self.rotation.name}")
 
+    def test_num_participants(self):
+        self.assertEqual(self.rotation.num_participants, 1)
+
     def test_all_summary(self):
         self.assertQuerySetEqual(Rotation.objects.get_setup_summary(), [])
+
+    def test_setup_summary_str(self):
+        summary = RotationSetupSummary(
+            rotation=self.rotation,
+            user=self.testuser,
+            entry_date=timezone.now().date(),
+            valid_setups=1,
+        )
+        self.assertEqual(
+            str(summary),
+            f"Setup summary for {self.testuser} in {self.rotation}",
+        )
 
 
 class TestEntry(TestCase):
@@ -251,6 +269,12 @@ class TestEntry(TestCase):
         cls.funding_project = FundingProject.objects.create(
             name="testproject", goal=100_000_000
         )
+
+    def test_str(self):
+        self.assertEqual(str(self.entry), f"Entry {self.entry.pk} in {self.rotation}")
+
+    def test_share_str(self):
+        self.assertEqual(str(self.share), f"{self.testcharacter} in {self.entry}")
 
     def test_total_user_count(self):
         self.assertEqual(self.entry.total_user_count, 1)
@@ -404,6 +428,42 @@ class TestEntry(TestCase):
         )
 
         self.assertEqual(entry.estimated_funding_total, 450_000_000)
+
+
+class TestEntryLootItem(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.testuser = AuthUtils.create_user("aauth_testuser")
+        cls.testcharacter = AuthUtils.add_main_character_2(
+            cls.testuser, "aauth_testchar", 2116790529
+        )
+
+        cls.rotation: Rotation = Rotation.objects.create(
+            name="test1rot", tax_rate_loot_items=10.0
+        )
+
+        cls.entry: Entry = Entry.objects.create(
+            rotation=cls.rotation,
+            created_by=cls.testuser,
+            estimated_total=1_000_000_000,
+        )
+
+        cls.item = ItemType.objects.create(
+            id=99500001, name="Loot Item", published=True
+        )
+
+        cls.loot_item: EntryLootItem = EntryLootItem.objects.create(
+            entry=cls.entry, item=cls.item, quantity=2, sale_price=100.0
+        )
+
+    def test_str(self):
+        self.assertEqual(str(self.loot_item), f"{self.item} x2")
+
+    def test_manager_with_total_after_tax(self):
+        loot_item = EntryLootItem.objects.with_total_after_tax().get(
+            pk=self.loot_item.pk
+        )
+        self.assertAlmostEqual(loot_item.total_after_tax, 180.0)
 
 
 class TestEntryRole(TestCase):
