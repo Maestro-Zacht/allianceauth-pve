@@ -73,12 +73,24 @@ class TestRotationsApi(PveApiTestBase):
     def test_create_rotation_success(self):
         self.client.force_login(self.user)
         payload = self.rotation_payload(
-            name="Created", entry_buttons=[self.button.pk], roles_setups=[self.setup.pk]
+            name="Created",
+            priority=50,
+            tax_rate=12.5,
+            tax_rate_loot_items=7.5,
+            max_daily_setups=2,
+            min_people_share_setup=4,
+            entry_buttons=[self.button.pk],
+            roles_setups=[self.setup.pk],
         )
         resp = self.api_request("POST", "create_rotation", payload)
         self.assertEqual(resp.status_code, 200, resp.content)
         rotation = Rotation.objects.get(pk=resp.json())
         self.assertEqual(rotation.name, "Created")
+        self.assertEqual(rotation.priority, 50)
+        self.assertAlmostEqual(rotation.tax_rate, 12.5)
+        self.assertAlmostEqual(rotation.tax_rate_loot_items, 7.5)
+        self.assertEqual(rotation.max_daily_setups, 2)
+        self.assertEqual(rotation.min_people_share_setup, 4)
         self.assertQuerySetEqual(rotation.entry_buttons.all(), [self.button])
         self.assertQuerySetEqual(rotation.roles_setups.all(), [self.setup])
 
