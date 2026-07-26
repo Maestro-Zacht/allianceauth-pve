@@ -28,7 +28,7 @@ function ToggleCompleteButton({ projectId, isActive }: ToggleCompleteButtonProps
         setLoading(true);
         try {
             await toggleProjectComplete(projectId);
-            await queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+            await queryClient.invalidateQueries({ queryKey: ["projects", projectId] });
             addToast(isActive ? t("project.marked_completed") : t("project.reopened"));
         } catch (error) {
             addToast(error as string, "danger");

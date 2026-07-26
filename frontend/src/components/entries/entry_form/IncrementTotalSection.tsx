@@ -17,7 +17,7 @@ export default function IncrementTotalSection({ rotationId }: IncrementTotalSect
     const { updateEntryData } = useEntryProcessor();
     const [customIncrement, setCustomIncrement] = useState(0);
     const { isLoading, error, data } = useQuery({
-        queryKey: ['rotation', rotationId, 'buttons'],
+        queryKey: ['rotations', rotationId, 'buttons'],
         queryFn: () => getRotationButtons(rotationId),
     });
 

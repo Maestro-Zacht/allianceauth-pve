@@ -57,6 +57,7 @@ function RotationForm({ pveButtons, roleSetups }: RotationFormProps) {
         defaultValues: {
             priority: 100,
             tax_rate: 0,
+            tax_rate_loot_items: 0,
             max_daily_setups: 1,
             min_people_share_setup: 3,
         },
@@ -197,11 +198,11 @@ function RotationForm({ pveButtons, roleSetups }: RotationFormProps) {
 export default function NewRotationForm() {
     const { t } = useTranslation();
     const { data: pveButtonsData, error: pveButtonsError, isLoading: pveButtonsLoading } = useQuery({
-        queryKey: ["pveButtons"],
+        queryKey: ["buttons"],
         queryFn: getPveButtons,
     });
     const { data: roleSetupsData, error: roleSetupsError, isLoading: roleSetupsLoading } = useQuery({
-        queryKey: ["roleSetups"],
+        queryKey: ["role_setups"],
         queryFn: getRoleSetups,
     });
 

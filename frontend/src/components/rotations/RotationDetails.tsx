@@ -96,7 +96,7 @@ export default function RotationDetails() {
     const { rotationId } = useParams();
     const rotationIdNum = Number(rotationId);
     const { data, isLoading, error } = useQuery({
-        queryKey: ['rotation', rotationIdNum],
+        queryKey: ['rotations', rotationIdNum],
         queryFn: () => getRotation(rotationIdNum),
     });
 

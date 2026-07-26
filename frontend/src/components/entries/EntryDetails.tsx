@@ -15,7 +15,7 @@ export default function EntryDetails() {
     const rotationIdNum = Number(rotationId);
 
     const { data, error, isLoading } = useQuery({
-        queryKey: ['entry', rotationIdNum, entryIdNum],
+        queryKey: ['rotations', rotationIdNum, 'entries', entryIdNum],
         queryFn: () => getEntry(rotationIdNum, entryIdNum),
     });
 

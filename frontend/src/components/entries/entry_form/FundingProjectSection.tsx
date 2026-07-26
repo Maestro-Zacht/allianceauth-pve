@@ -16,7 +16,7 @@ interface FundingProjectSectionProps {
 export default function FundingProjectSection({ fundingProjectId, fundingPercentage, errorsFundingProjectId, errorsFundingPercentage }: FundingProjectSectionProps) {
     const { updateEntryData } = useEntryProcessor();
     const { isLoading, error, data } = useQuery({
-        queryKey: ["projects", "active"],
+        queryKey: ["projects", { active: true }],
         queryFn: getActiveProjects
     });
 

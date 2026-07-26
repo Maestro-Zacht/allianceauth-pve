@@ -20,7 +20,7 @@ export default function RotationSummarySection({ rotationId, isClosed }: Rotatio
         isLoading: summaryLoading,
         error: summaryError
     } = useQuery({
-        queryKey: ["rotation", rotationId, "summary"],
+        queryKey: ["rotations", rotationId, "summary"],
         queryFn: () => getRotationSummary(rotationId),
     });
     const {
@@ -28,7 +28,7 @@ export default function RotationSummarySection({ rotationId, isClosed }: Rotatio
         isLoading: projectSummariesLoading,
         error: projectSummariesError
     } = useQuery({
-        queryKey: ["rotation", rotationId, "project_summaries"],
+        queryKey: ["rotations", rotationId, "project_summaries"],
         queryFn: () => getRotationProjectsSummaries(rotationId),
     });
     const {
@@ -36,7 +36,7 @@ export default function RotationSummarySection({ rotationId, isClosed }: Rotatio
         isLoading: itemsLoading,
         error: itemsError
     } = useQuery({
-        queryKey: ["rotation", rotationId, "items"],
+        queryKey: ["rotations", rotationId, "items"],
         queryFn: () => getRotationItems(rotationId),
     });
 

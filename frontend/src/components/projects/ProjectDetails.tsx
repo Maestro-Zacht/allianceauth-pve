@@ -14,7 +14,7 @@ export default function ProjectDetails() {
     const { projectId } = useParams();
     const projectIdNum = Number(projectId);
     const { data, isLoading, error } = useQuery({
-        queryKey: ["project", projectIdNum],
+        queryKey: ["projects", projectIdNum],
         queryFn: () => getProjectDetails(projectIdNum),
     });
 
