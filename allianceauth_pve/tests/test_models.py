@@ -204,14 +204,22 @@ class TestRotation(TestCase):
 
         self.assertAlmostEqual(self.rotation.sales_percentage, 0.9)
 
-    def test_estimated_total(self):
-        self.assertAlmostEqual(self.rotation.estimated_total, 1_000_000_000)
-
     def test_str(self):
         self.assertEqual(str(self.rotation), f"{self.rotation.pk} {self.rotation.name}")
 
-    def test_num_participants(self):
-        self.assertEqual(self.rotation.num_participants, 1)
+    def test_with_number_of_members(self):
+        rotation = Rotation.objects.with_number_of_members().get(pk=self.rotation.pk)
+        self.assertEqual(rotation.number_of_members, 1)
+
+    def test_with_estimated_total(self):
+        rotation = Rotation.objects.with_estimated_total().get(pk=self.rotation.pk)
+        self.assertEqual(rotation.estimated_total, 1_000_000_000)
+
+    def test_with_actual_total_from_items(self):
+        rotation = Rotation.objects.with_actual_total_from_items().get(
+            pk=self.rotation.pk
+        )
+        self.assertEqual(rotation.actual_total_from_items, 0.0)
 
     def test_all_summary(self):
         self.assertQuerySetEqual(Rotation.objects.get_setup_summary(), [])

@@ -49,12 +49,19 @@ class TestRotationsApi(PveApiTestBase):
         result = resp.json()
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["id"], self.rotation.pk)
+        self.assertEqual(result[0]["number_of_members"], 1)
+        self.assertEqual(result[0]["estimated_total"], 1_000_000_000)
+        self.assertEqual(result[0]["actual_total_from_items"], 0.0)
 
     def test_get_rotation(self):
         self.client.force_login(self.user)
         resp = self.client.get(url("get_rotation", rotation_id=self.rotation.pk))
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.json()["id"], self.rotation.pk)
+        data = resp.json()
+        self.assertEqual(data["id"], self.rotation.pk)
+        self.assertEqual(data["number_of_members"], 1)
+        self.assertEqual(data["estimated_total"], 1_000_000_000)
+        self.assertEqual(data["actual_total_from_items"], 0.0)
 
     def test_get_rotation_404(self):
         self.client.force_login(self.user)
