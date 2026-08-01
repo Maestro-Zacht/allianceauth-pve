@@ -91,7 +91,6 @@ jobs:
           - mysql:8.4 # [LTS] Maintained until: 30 Apr 2029
           - mysql:9.7 # [LTS] Maintained until: 21 Apr 2034 and Latest official release
           # https://endoflife.date/mariadb and https://mariadb.com/kb/en/mariadb-server-release-dates/
-          - mariadb:10.6 # [LTS] Maintained until: July 2026
           - mariadb:10.11 # [LTS] Maintained until: February 2028
           - mariadb:11.4 # [LTS] Maintained until: May 2029
           - mariadb:11.8 # [LTS] Maintained until: June 2028
