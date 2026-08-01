@@ -20,7 +20,7 @@ export default function RotationEntriesSection({ rotationId, isRotationClosed }:
     const [imagesLoaded, setImagesLoaded] = useState(0);
     const { t, i18n } = useTranslation();
     const { data, isLoading, error } = useQuery({
-        queryKey: ['rotation', rotationId, 'entries'],
+        queryKey: ['rotations', rotationId, 'entries'],
         queryFn: () => getRotationEntries(rotationId)
     });
     const tableRef = useRef<DataTableRef>(null);

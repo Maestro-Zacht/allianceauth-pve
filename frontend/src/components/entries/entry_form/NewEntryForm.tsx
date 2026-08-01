@@ -23,7 +23,7 @@ export default function NewEntryForm() {
     const mutation = useMutation({
         mutationFn: (data: EntryFormSchema) => createEntry(rotationIdNum, data),
         onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: ['rotation', rotationIdNum] });
+            await queryClient.invalidateQueries({ queryKey: ['rotations', rotationIdNum] });
             addToast(t('entry_created'));
             navigate(`/pve/r/rotations/${rotationIdNum}/`);
         },

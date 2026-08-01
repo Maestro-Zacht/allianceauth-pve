@@ -77,7 +77,7 @@ function CloseRotationForm({ rotationId, showForm, setShowForm, items }: CloseRo
         onSuccess: () => {
             addToast(t("rotation_closed"));
             setShowForm(false);
-            queryClient.invalidateQueries({ queryKey: ["rotation", rotationId] });
+            queryClient.invalidateQueries({ queryKey: ["rotations", rotationId] });
         },
         onError: (errors: CloseRotationError | number) => {
             if (typeof errors === "number") {
@@ -87,7 +87,7 @@ function CloseRotationForm({ rotationId, showForm, setShowForm, items }: CloseRo
                 } else if (errors === 403) {
                     addToast(t("no_permission"), "danger");
                     setShowForm(false);
-                    queryClient.invalidateQueries({ queryKey: ["rotation", rotationId] });
+                    queryClient.invalidateQueries({ queryKey: ["rotations", rotationId] });
                     queryClient.invalidateQueries({ queryKey: ["permissions"] });
                 } else {
                     addToast(t("unknown_error"), "danger");
@@ -226,7 +226,7 @@ export default function CloseRotationSection({ rotationId }: CloseRotationSectio
     const { t } = useTranslation();
     const [showCloseForm, setShowCloseForm] = useState(false);
     const { data, isLoading, error } = useQuery({
-        queryKey: ["rotation", rotationId, "items"],
+        queryKey: ["rotations", rotationId, "items"],
         queryFn: () => getRotationItems(rotationId),
     });
 

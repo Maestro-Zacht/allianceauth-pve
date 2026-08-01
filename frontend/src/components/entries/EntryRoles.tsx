@@ -61,7 +61,7 @@ function RolesTable({ roles }: RolesTableProps) {
 export default function EntryRoles({ rotationId, entryId }: EntryRolesProps) {
     const { t } = useTranslation();
     const { data, error, isLoading } = useQuery({
-        queryKey: [rotationId, entryId, "roles"],
+        queryKey: ["rotations", rotationId, "entries", entryId, "roles"],
         queryFn: () => getEntryRoles(rotationId, entryId),
     });
 

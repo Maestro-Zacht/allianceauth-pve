@@ -12,7 +12,7 @@ interface ProjectContributionsProps {
 export default function ProjectContributions({ projectId }: ProjectContributionsProps) {
     const { t } = useTranslation();
     const { data, error, isLoading } = useQuery({
-        queryKey: ["project", projectId, "summary"],
+        queryKey: ["projects", projectId, "summary"],
         queryFn: () => getProjectSummary(projectId),
     });
 

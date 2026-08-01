@@ -115,7 +115,7 @@ function ShareTable({ shares, isRotationClosed }: ShareTableProps) {
 export default function EntryShares({ rotationId, entryId, isRotationClosed }: EntrySharesProps) {
     const { t } = useTranslation();
     const { data, error, isLoading } = useQuery({
-        queryKey: [rotationId, entryId, "shares"],
+        queryKey: ["rotations", rotationId, "entries", entryId, "shares"],
         queryFn: () => getEntryShares(rotationId, entryId),
     });
 

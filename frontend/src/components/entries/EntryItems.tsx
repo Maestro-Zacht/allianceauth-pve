@@ -13,7 +13,7 @@ interface EntryItemsProps {
 export default function EntryItems({ rotationId, entryId }: EntryItemsProps) {
     const { t } = useTranslation();
     const { data, error, isLoading } = useQuery({
-        queryKey: [rotationId, entryId, "items"],
+        queryKey: ["rotations", rotationId, "entries", entryId, "items"],
         queryFn: () => getEntryItems(rotationId, entryId),
     });
 

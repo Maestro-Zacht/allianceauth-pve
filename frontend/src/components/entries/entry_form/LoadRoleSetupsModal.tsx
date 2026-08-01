@@ -15,7 +15,7 @@ export default function LoadRoleSetupsModal({ rotationId }: LoadRoleSetupsModalP
     const [show, setShow] = useState(false);
     const { updateEntryData } = useEntryProcessor();
     const { isLoading, data, error } = useQuery({
-        queryKey: ["rotation", rotationId, "role_setups"],
+        queryKey: ["rotations", rotationId, "role_setups"],
         queryFn: () => getRotationRoleSetups(rotationId),
     });
 

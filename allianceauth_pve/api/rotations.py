@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from django.core.cache import cache
 from django.db import transaction
-from django.db.models import Count, F, Sum
+from django.db.models import F, Sum
 from django.db.models.functions import Coalesce
 from ninja import Router
 
@@ -45,8 +45,10 @@ router.add_router("/{int:rotation_id}/entries", entries_router)
 
 @router.get("/", response=list[RotationSchema])
 def list_rotations(request):  # noqa: ARG001
-    return Rotation.objects.annotate(
-        number_of_members=Count("entries__ratting_shares__user", distinct=True)
+    return (
+        Rotation.objects.with_number_of_members()
+        .with_estimated_total()
+        .with_actual_total_from_items()
     )
 
 
@@ -64,6 +66,7 @@ def create_rotation(request, data: NewRotationSchema):  # noqa: ARG001
         name=data.name,
         priority=data.priority,
         tax_rate=data.tax_rate,
+        tax_rate_loot_items=data.tax_rate_loot_items,
         max_daily_setups=data.max_daily_setups,
         min_people_share_setup=data.min_people_share_setup,
     )
@@ -76,9 +79,12 @@ def create_rotation(request, data: NewRotationSchema):  # noqa: ARG001
 @router.get("/{int:rotation_id}/", response={200: RotationSchema, 404: None})
 def get_rotation(request, rotation_id: int):  # noqa: ARG001
     try:
-        return 200, Rotation.objects.annotate(
-            number_of_members=Count("entries__ratting_shares__user", distinct=True)
-        ).get(pk=rotation_id)
+        return 200, (
+            Rotation.objects.with_number_of_members()
+            .with_estimated_total()
+            .with_actual_total_from_items()
+            .get(pk=rotation_id)
+        )
     except Rotation.DoesNotExist:
         return 404, None
 

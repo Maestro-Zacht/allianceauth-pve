@@ -41,6 +41,40 @@ class RotationQueryset(models.QuerySet["Rotation"]):
             .annotate(total_setups=Coalesce(models.Sum("valid_setups"), 0))
         )
 
+    def with_number_of_members(self):
+        return self.annotate(
+            number_of_members=models.Count(
+                "entries__ratting_shares__user", distinct=True
+            ),
+        )
+
+    def with_estimated_total(self):
+        estimated_total = (
+            Entry.objects.filter(rotation=models.OuterRef("pk"))
+            .order_by()
+            .values("rotation")
+            .annotate(total=models.Sum("estimated_total"))
+            .values("total")
+        )
+        return self.annotate(
+            estimated_total=Coalesce(models.Subquery(estimated_total), 0),
+        )
+
+    def with_actual_total_from_items(self):
+        actual_total_from_items = (
+            EntryLootItem.objects.filter(entry__rotation=models.OuterRef("pk"))
+            .annotate(item_total=models.F("quantity") * models.F("sale_price"))
+            .order_by()
+            .values("entry__rotation")
+            .annotate(total=models.Sum("item_total"))
+            .values("total")
+        )
+        return self.annotate(
+            actual_total_from_items=Coalesce(
+                models.Subquery(actual_total_from_items), 0.0
+            ),
+        )
+
 
 class RotationManager(models.Manager["Rotation"]):
     def get_queryset(self) -> RotationQueryset:
@@ -48,6 +82,15 @@ class RotationManager(models.Manager["Rotation"]):
 
     def get_setup_summary(self):
         return self.get_queryset().get_setup_summary()
+
+    def with_number_of_members(self):
+        return self.get_queryset().with_number_of_members()
+
+    def with_estimated_total(self):
+        return self.get_queryset().with_estimated_total()
+
+    def with_actual_total_from_items(self):
+        return self.get_queryset().with_actual_total_from_items()
 
 
 class EntryCharacterQueryset(models.QuerySet["EntryCharacter"]):
@@ -235,6 +278,19 @@ class EntryLootItemManager(models.Manager["EntryLootItem"]):
         return self.get_queryset().with_total_after_tax()
 
 
+if TYPE_CHECKING:
+
+    class EntryRelatedManager(EntryManager, models.manager.RelatedManager["Entry"]): ...
+
+    class EntryCharacterRelatedManager(
+        EntryCharacterManager, models.manager.RelatedManager["EntryCharacter"]
+    ): ...
+
+    class EntryLootItemRelatedManager(
+        EntryLootItemManager, models.manager.RelatedManager["EntryLootItem"]
+    ): ...
+
+
 class PveButton(models.Model):
     text = models.CharField(max_length=16, unique=True)
     amount = models.BigIntegerField()
@@ -373,6 +429,9 @@ class Rotation(models.Model):
 
     objects: ClassVar[RotationManager] = RotationManager()
 
+    if TYPE_CHECKING:
+        entries: EntryRelatedManager
+
     class Meta:
         default_permissions = ()
 
@@ -455,30 +514,14 @@ class Rotation(models.Model):
 
     @property
     def sales_percentage(self):
-        return (
-            0.0
-            if not self.actual_total or self.estimated_total == 0
-            else self.actual_total / self.estimated_total
-        )
-
-    @cached_property
-    def estimated_total(self):
-        return self.entries.aggregate(
+        estimated_total: int = self.entries.aggregate(
             estimated_total=Coalesce(models.Sum("estimated_total"), 0)
         )["estimated_total"]
 
-    @cached_property
-    def num_participants(self):
-        return EntryCharacter.objects.filter(entry__rotation=self).aggregate(
-            num=models.Count("user", distinct=True)
-        )["num"]
-
-    @property
-    def actual_total_from_items(self):
         return (
-            EntryLootItem.objects.filter(entry__rotation=self)
-            .annotate(item_total=models.F("quantity") * models.F("sale_price"))
-            .aggregate(total=Coalesce(models.Sum("item_total"), 0.0))["total"]
+            0.0
+            if not self.actual_total or estimated_total == 0
+            else self.actual_total / estimated_total
         )
 
 
@@ -534,8 +577,8 @@ class Entry(models.Model):
     objects: ClassVar[EntryManager] = EntryManager()
 
     if TYPE_CHECKING:
-        ratting_shares: models.manager.RelatedManager["EntryCharacter"]
-        loot_items: models.manager.RelatedManager["EntryLootItem"]
+        ratting_shares: EntryCharacterRelatedManager
+        loot_items: EntryLootItemRelatedManager
         roles: models.manager.RelatedManager["EntryRole"]
 
     class Meta:
@@ -553,7 +596,7 @@ class Entry(models.Model):
         )["val"]
 
     @cached_property
-    def total_site_count(self):
+    def total_site_count(self) -> int:
         return self.ratting_shares.aggregate(val=models.Sum("site_count"))["val"]
 
     @cached_property
@@ -566,7 +609,7 @@ class Entry(models.Model):
         return self.estimated_total_after_tax * self.rotation.sales_percentage
 
     @cached_property
-    def estimated_funding_total(self):
+    def estimated_funding_total(self) -> int:
         return (
             0
             if self.funding_project is None or self.funding_percentage == 0
@@ -687,6 +730,9 @@ class FundingProject(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True)
 
     objects = FundingProjectManager()
+
+    if TYPE_CHECKING:
+        entries: EntryRelatedManager
 
     class Meta:
         default_permissions = ()

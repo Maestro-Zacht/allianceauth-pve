@@ -19,7 +19,7 @@ export default function EditEntryForm() {
     const rotationIdNum = Number(rotationId);
     const entryIdNum = Number(entryId);
     const { isLoading, error, data } = useQuery<components["schemas"]["ExtendedEntryFormSchema"], string | number>({
-        queryKey: ['rotation', rotationIdNum, 'entry', entryIdNum, 'edit_data'],
+        queryKey: ['rotations', rotationIdNum, 'entries', entryIdNum, 'edit'],
         queryFn: () => getEntryEditData(rotationIdNum, entryIdNum),
     });
     const queryClient = useQueryClient();
@@ -28,7 +28,7 @@ export default function EditEntryForm() {
     const mutation = useMutation({
         mutationFn: (data: EntryFormSchema) => editEntry(rotationIdNum, entryIdNum, data),
         onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: ['rotation', rotationIdNum] });
+            await queryClient.invalidateQueries({ queryKey: ['rotations', rotationIdNum] });
             addToast(t('entry_changed'));
             navigate(`/pve/r/rotations/${rotationIdNum}/entries/${entryIdNum}/`);
         },
