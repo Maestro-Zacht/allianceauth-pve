@@ -3,13 +3,17 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "packageManager": "pnpm@11.18.0",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && ./copy-assets.sh",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "buildApiTypes": "npx openapi-typescript ./openapi.json -o ./src/api/Schema.d.ts",
-    "buildTranslations": "npx i18next-cli extract"
+    "buildApiTypes": "pnpm exec openapi-typescript ./openapi.json -o ./src/api/Schema.d.ts",
+    "buildTranslations": "pnpm exec i18next-cli extract"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.5.7",

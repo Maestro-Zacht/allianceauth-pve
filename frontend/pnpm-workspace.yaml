@@ -1,0 +1,18 @@
+# Supply-chain settings mirrored from the machine-global config so they also
+# apply in CI and for other contributors.
+minimumReleaseAge: 10080
+minimumReleaseAgeIgnoreMissingTime: false
+trustPolicy: no-downgrade
+
+trustPolicyExclude:
+  - "semver@6.3.1"
+
+# strictDepBuilds defaults to true in pnpm 11: any dependency with an install
+# script must be listed here or `pnpm install` exits non-zero.
+allowBuilds:
+  "@swc/core": true # transitive via @vitejs/plugin-react
+
+minimumReleaseAgeExclude:
+  - "@types/node@26.1.2"
+  - globals@17.8.0
+  - i18next-http-backend@4.0.1

@@ -60,7 +60,7 @@ i18n
 declare global {
     interface Window {
         __TANSTACK_QUERY_CLIENT__:
-        import("@tanstack/query-core").QueryClient;
+        import("@tanstack/react-query").QueryClient;
     }
 }
 
