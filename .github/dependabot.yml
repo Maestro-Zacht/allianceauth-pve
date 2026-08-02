@@ -57,3 +57,8 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    groups:
+      pre-commit-ecosystem:
+        patterns:
+          - "*"
+        update-types: ["major", "minor", "patch"]
