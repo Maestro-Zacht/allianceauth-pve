@@ -16,7 +16,7 @@ compile_translations:
 .PHONY: dev
 dev:
 	@echo "Starting development server"
-	@cd frontend && npm run dev
+	@cd frontend && pnpm dev
 
 .PHONY: clean
 clean:
@@ -25,7 +25,7 @@ clean:
 
 .PHONY: buildjs
 buildjs:
-	cd frontend/ && npm install && npm run build && ./copy-langs.sh
+	cd frontend/ && pnpm install --frozen-lockfile && pnpm run build && ./copy-langs.sh
 
 .PHONY: package
 package: buildjs
