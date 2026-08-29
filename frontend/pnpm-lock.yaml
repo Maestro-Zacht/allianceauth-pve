@@ -21,14 +21,14 @@ importers:
         specifier: ^5.3.8
         version: 5.3.8(@popperjs/core@2.11.8)
       datatables.net-bs5:
-        specifier: ^2.3.8
-        version: 2.3.8
+        specifier: ^3.0.2
+        version: 3.0.2
       datatables.net-columncontrol-bs5:
-        specifier: ^1.2.1
-        version: 1.2.1
+        specifier: ^2.0.1
+        version: 2.0.1
       datatables.net-react:
         specifier: ^1.0.2
-        version: 1.0.2(datatables.net@2.3.8)
+        version: 1.0.2(datatables.net@3.0.2)
       i18next:
         specifier: ^26.3.6
         version: 26.3.6(typescript@5.9.3)
@@ -1011,22 +1011,22 @@ packages:
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
 
-  datatables.net-bs5@2.3.8:
-    resolution: {integrity: sha512-TbFH99QSWm93Kn3teHLFKeyOqYbaiddlHvRFdXUwAvh/fjTMhACWmHG+I43ss8d23OEFHV0WIbN4lpPusZm5zw==}
+  datatables.net-bs5@3.0.2:
+    resolution: {integrity: sha512-u4/h/G6UGg2IdOEznULU/tAwJ7ieAi3L4AHjNZdQPNuCJ+ErEycDeCK3Z++BlDm2absX8E9YRPyVH5jmJnzzow==}
 
-  datatables.net-columncontrol-bs5@1.2.1:
-    resolution: {integrity: sha512-gZeND0C0QEG3bEpO8r50XXh+CYXlnEbd0j33Y//YbGwN9tkB9kJ52dttr4QLvZyZ9N1L4DBXEWKACf4nhehCNQ==}
+  datatables.net-columncontrol-bs5@2.0.1:
+    resolution: {integrity: sha512-eq7Y5mKhK/6EE9Ufh00bigdF8+PhZXpjnXH1yjtqweJvFP22KpQFlZ8qitfQfnJqbI8g897egkCBpJ5FPWtdzA==}
 
-  datatables.net-columncontrol@1.2.1:
-    resolution: {integrity: sha512-NWh5CykZ1y+LiuKUHuDGKPM7glbj7nop7vk7htTrN8OqmEPlUZImUK9JJKJqMvs3qY0LzxQ4o8kX8Qu/eMNSaA==}
+  datatables.net-columncontrol@2.0.1:
+    resolution: {integrity: sha512-MpRejkDMzA3qnJLUThBhzJVpEx6z14G5KfbmaSEkvs9TkzDYVRRsNgHRa8IALqwA83gbipvGIMR5Ej88PSeM5g==}
 
   datatables.net-react@1.0.2:
     resolution: {integrity: sha512-MED+7SEUYivb7E2jkgqGv/TpJpixdtgPmQs7Q7Kz//qwkCzjNdm8GHM3V5fwIc26NM4Q4aaR8dowujCZZE7HrQ==}
     peerDependencies:
       datatables.net: ^2.1.3 || ^3.0.0-0
 
-  datatables.net@2.3.8:
-    resolution: {integrity: sha512-uhViowhlDlheAuo5a8TrkQqADsjrtGeOyvrigvr4t0+K3MyAWqClORXWAYIcN9VLX6iIX0C8O9gwJNd01hITRg==}
+  datatables.net@3.0.2:
+    resolution: {integrity: sha512-+fsSiPEtqfTGQuEla0hpURiYYrjSL5yLlEnUMGy6QFoVtic8vAvJ9Ibwb00772v/jTd8G1kOfJLq34233vhEqw==}
 
   debug@4.4.3:
     resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
@@ -1334,9 +1334,6 @@ packages:
   jiti@2.7.0:
     resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
     hasBin: true
-
-  jquery@4.0.0:
-    resolution: {integrity: sha512-TXCHVR3Lb6TZdtw1l3RTLf8RBWVGexdxL6AC8/e0xZKEpBflBsjh9/8LXw+dkNFuOyW9B7iB3O1sP7hS0Kiacg==}
 
   js-cookie@3.0.8:
     resolution: {integrity: sha512-yeJd4aNAdYZQjaon2bpD/Gb0B/omw7HQOsynXXcOiWVCacbBcPlgn8S/d1X6blFSaHao7ozqtW7NZW19xpCtIw==}
@@ -2744,27 +2741,24 @@ snapshots:
 
   csstype@3.2.3: {}
 
-  datatables.net-bs5@2.3.8:
+  datatables.net-bs5@3.0.2:
     dependencies:
-      datatables.net: 2.3.8
-      jquery: 4.0.0
+      datatables.net: 3.0.2
 
-  datatables.net-columncontrol-bs5@1.2.1:
+  datatables.net-columncontrol-bs5@2.0.1:
     dependencies:
-      datatables.net-bs5: 2.3.8
-      datatables.net-columncontrol: 1.2.1
+      datatables.net-bs5: 3.0.2
+      datatables.net-columncontrol: 2.0.1
 
-  datatables.net-columncontrol@1.2.1:
+  datatables.net-columncontrol@2.0.1:
     dependencies:
-      datatables.net: 2.3.8
+      datatables.net: 3.0.2
 
-  datatables.net-react@1.0.2(datatables.net@2.3.8):
+  datatables.net-react@1.0.2(datatables.net@3.0.2):
     dependencies:
-      datatables.net: 2.3.8
+      datatables.net: 3.0.2
 
-  datatables.net@2.3.8:
-    dependencies:
-      jquery: 4.0.0
+  datatables.net@3.0.2: {}
 
   debug@4.4.3(supports-color@10.2.2):
     dependencies:
@@ -3080,8 +3074,6 @@ snapshots:
   isexe@2.0.0: {}
 
   jiti@2.7.0: {}
-
-  jquery@4.0.0: {}
 
   js-cookie@3.0.8: {}
 
