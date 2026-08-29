@@ -36,6 +36,7 @@ class TestRotationsApi(PveApiTestBase):
         cls.entry, cls.role, cls.share = cls.make_entry(
             cls.rotation, cls.user, cls.char
         )
+        cls.closed_rotation = cls.make_rotation(name="closed", is_closed=True)
         cls.button = PveButton.objects.create(text="rbtn", amount=5)
         cls.setup = RoleSetup.objects.create(name="rsetup")
         GeneralRole.objects.create(setup=cls.setup, name="dps", value=10)
@@ -47,11 +48,35 @@ class TestRotationsApi(PveApiTestBase):
         resp = self.client.get(url("list_rotations"))
         self.assertEqual(resp.status_code, 200)
         result = resp.json()
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]["id"], self.rotation.pk)
-        self.assertEqual(result[0]["number_of_members"], 1)
-        self.assertEqual(result[0]["estimated_total"], 1_000_000_000)
+        ids = {r["id"] for r in result}
+        self.assertSetEqual({self.rotation.pk, self.closed_rotation.pk}, ids)
+        rotation = next(r for r in result if r["id"] == self.rotation.pk)
+        self.assertEqual(rotation["number_of_members"], 1)
+        self.assertEqual(rotation["estimated_total"], 1_000_000_000)
+        self.assertEqual(rotation["actual_total_from_items"], 0.0)
+
+    def test_list_rotations_open(self):
+        self.client.force_login(self.user)
+        resp = self.client.get(url("list_rotations"), {"is_closed": False})
+        self.assertEqual(resp.status_code, 200)
+        ids = {r["id"] for r in resp.json()}
+        self.assertSetEqual({self.rotation.pk}, ids)
+
+    def test_list_rotations_closed(self):
+        self.client.force_login(self.user)
+        resp = self.client.get(url("list_rotations"), {"is_closed": True})
+        self.assertEqual(resp.status_code, 200)
+        result = resp.json()
+        ids = {r["id"] for r in result}
+        self.assertSetEqual({self.closed_rotation.pk}, ids)
+        self.assertEqual(result[0]["number_of_members"], 0)
+        self.assertEqual(result[0]["estimated_total"], 0)
         self.assertEqual(result[0]["actual_total_from_items"], 0.0)
+
+    def test_list_rotations_invalid_is_closed(self):
+        self.client.force_login(self.user)
+        resp = self.client.get(url("list_rotations"), {"is_closed": "notabool"})
+        self.assertEqual(resp.status_code, 422)
 
     def test_get_rotation(self):
         self.client.force_login(self.user)

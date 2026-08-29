@@ -989,7 +989,9 @@ export interface operations {
     };
     allianceauth_pve_api_rotations_list_rotations: {
         parameters: {
-            query?: never;
+            query?: {
+                is_closed?: boolean | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;

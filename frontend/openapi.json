@@ -66,7 +66,24 @@
             "get": {
                 "operationId": "allianceauth_pve_api_rotations_list_rotations",
                 "summary": "List Rotations",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "is_closed",
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Is Closed"
+                        },
+                        "required": false
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
