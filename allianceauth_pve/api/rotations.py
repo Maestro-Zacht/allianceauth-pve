@@ -44,9 +44,14 @@ router.add_router("/{int:rotation_id}/entries", entries_router)
 
 
 @router.get("/", response=list[RotationSchema])
-def list_rotations(request):  # noqa: ARG001
+def list_rotations(request, is_closed: bool | None = None):  # noqa: ARG001
+    base_query = (
+        Rotation.objects.all()
+        if is_closed is None
+        else Rotation.objects.filter(is_closed=is_closed)
+    )
     return (
-        Rotation.objects.with_number_of_members()
+        base_query.with_number_of_members()
         .with_estimated_total()
         .with_actual_total_from_items()
     )

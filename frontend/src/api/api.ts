@@ -41,8 +41,8 @@ export async function getUserPastActivity(months: number) {
     );
 }
 
-export async function getRotationList() {
-    return await genericGet("/pve/api/rotations/");
+export async function getRotationList(is_closed?: boolean) {
+    return await genericGet("/pve/api/rotations/", { params: { query: { is_closed } } });
 }
 
 export async function getRotation(rotationId: number) {

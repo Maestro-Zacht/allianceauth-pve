@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { Badge, Card, Col, Nav, Row, Tab } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import { getRotationList } from "../../api/api";
@@ -171,32 +172,36 @@ function ClosedRotationPane({ rotations }: RotationPaneProps) {
 
 export default function RotationsSection() {
     const { t } = useTranslation();
-    const { data, isLoading, error } = useQuery({
-        queryKey: ['rotations'],
-        queryFn: getRotationList,
+    const { data: dataOpen, isLoading: isLoadingOpen, error: errorOpen } = useQuery({
+        queryKey: ['rotations', { is_closed: false }],
+        queryFn: () => getRotationList(false),
+    });
+    const { data: dataClosed, isLoading: isLoadingClosed, error: errorClosed } = useQuery({
+        queryKey: ['rotations', { is_closed: true }],
+        queryFn: () => getRotationList(true),
     });
 
-    if (error) {
-        console.error("Error loading rotation data:", error);
+    const openRotations = useMemo(
+        () => [...(dataOpen ?? [])].sort(
+            (a: rotationType, b: rotationType) => b.priority - a.priority
+        ),
+        [dataOpen]
+    );
+    const closedRotations = useMemo(
+        () => [...(dataClosed ?? [])].sort(
+            (a: rotationType, b: rotationType) => {
+                const dateA = new Date(a.closed_at!);
+                const dateB = new Date(b.closed_at!);
+                return dateB.getTime() - dateA.getTime();
+            }
+        ),
+        [dataClosed]
+    );
+
+    if (errorOpen || errorClosed) {
+        console.error("Error loading rotation data:", errorOpen || errorClosed);
         return <p>Error loading rotation data.</p>
     }
-
-    const rotations = data || [];
-
-    const openRotations = rotations.filter(
-        (rotation: rotationType) => !rotation.is_closed
-    ).sort(
-        (a: rotationType, b: rotationType) => b.priority - a.priority
-    );
-    const closedRotations = rotations.filter(
-        (rotation: rotationType) => rotation.is_closed
-    ).sort(
-        (a: rotationType, b: rotationType) => {
-            const dateA = new Date(a.closed_at!);
-            const dateB = new Date(b.closed_at!);
-            return dateB.getTime() - dateA.getTime();
-        }
-    );
 
     return <>
         <Row>
@@ -208,7 +213,7 @@ export default function RotationsSection() {
                                 <Nav.Item>
                                     <Nav.Link eventKey="open">
                                         {t("rotations.openTab")}
-                                        {!isLoading && <Badge className="ms-1">{openRotations.length}</Badge>}
+                                        {!isLoadingOpen && <Badge className="ms-1">{openRotations.length}</Badge>}
                                     </Nav.Link>
                                 </Nav.Item>
                                 <Nav.Item>
@@ -222,14 +227,14 @@ export default function RotationsSection() {
                             <Tab.Content>
                                 <Tab.Pane eventKey="open">
                                     {
-                                        isLoading ?
+                                        isLoadingOpen ?
                                             <Loading /> :
                                             <OpenRotationPane rotations={openRotations} />
                                     }
                                 </Tab.Pane>
                                 <Tab.Pane eventKey="closed">
                                     {
-                                        isLoading ?
+                                        isLoadingClosed ?
                                             <Loading /> :
                                             <ClosedRotationPane rotations={closedRotations} />
                                     }
