@@ -71,6 +71,8 @@ export default function NewEntryForm() {
         shares: [],
         roles: [{ name: 'Krab', value: 1 }],
         items: [],
+        mode: 'sites',
+        rampancy_level: 'critical',
     };
 
     return <>

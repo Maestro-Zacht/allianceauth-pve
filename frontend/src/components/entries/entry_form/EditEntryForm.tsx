@@ -59,6 +59,10 @@ export default function EditEntryForm() {
 
     const entryInitialData: ExtendedEntryFormSchema = {
         ...data!,
+        // The backend stores no wave data, so an entry always loads in "sites"
+        // mode showing its raw counts. Fabs is a create-time input aid.
+        mode: 'sites',
+        rampancy_level: 'critical',
         shares: data!.shares.map(share => ({
             ...share,
             is_present: true,

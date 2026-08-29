@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { useTranslation } from "react-i18next";
-import type { EntryFormErrors, ExtendedEntryFormSchema } from "../EntryTypes";
+import type { EntryFormErrors, EntryMode, ExtendedEntryFormSchema } from "../EntryTypes";
 import "./ShareSectionStyles.css";
 import { useEntryProcessor } from "../../../providers/EntryFormProvider";
 import CharacterWithPortrait from "../../utils/CharacterWithPortrait";
@@ -9,16 +9,19 @@ import { Alert, Button, Form } from "react-bootstrap";
 interface SharesSectionProps {
     shares: ExtendedEntryFormSchema['shares'];
     roles: ExtendedEntryFormSchema['roles'];
+    mode: EntryMode;
     errors_root: EntryFormErrors['shares_root'] | undefined | null;
     errors: EntryFormErrors['shares'] | undefined | null;
 }
 
-export default function SharesSection({ shares, roles, errors_root, errors }: SharesSectionProps) {
+export default function SharesSection({ shares, roles, mode, errors_root, errors }: SharesSectionProps) {
     const { t } = useTranslation();
     const { updateEntryData } = useEntryProcessor();
 
+    const isFabs = mode === 'fabs';
+
     return <>
-        <div id="users">
+        <div id="users" className={isFabs ? "fabs" : undefined}>
             {shares.length === 0 ?
                 <span className="all-cols text-center">{t("no_character_yet")}</span> :
                 <>
@@ -27,6 +30,8 @@ export default function SharesSection({ shares, roles, errors_root, errors }: Sh
                     <span>{t("character")}</span>
                     <span className="text-center">{t("role")}</span>
                     <span className="text-center">{t("setup")}</span>
+                    {isFabs && <span className="text-center">{t("start_wave")}</span>}
+                    {isFabs && <span className="text-center">{t("end_wave")}</span>}
                     <span className="text-center">{t("count")}</span>
                     <span className="text-center">{t("delete")}</span>
 
@@ -78,17 +83,43 @@ export default function SharesSection({ shares, roles, errors_root, errors }: Sh
                                 <i className="far fa-heart fa-heart-red"></i>
                             }
                         </span>
-                        <Form.Control
+                        {isFabs && <Form.Control
                             type="number"
-                            min={0}
-                            value={share.site_count}
+                            min={1}
+                            value={share.start_wave ?? 1}
                             onChange={(e) => updateEntryData({
-                                type: "update_share_count",
+                                type: "update_share_wave",
                                 characterId: share.character_id,
+                                field: "start_wave",
                                 value: parseInt(e.target.value)
                             })}
                             style={{ maxWidth: "7ch" }}
-                        />
+                        />}
+                        {isFabs && <Form.Control
+                            type="number"
+                            min={1}
+                            value={share.end_wave ?? 1}
+                            onChange={(e) => updateEntryData({
+                                type: "update_share_wave",
+                                characterId: share.character_id,
+                                field: "end_wave",
+                                value: parseInt(e.target.value)
+                            })}
+                            style={{ maxWidth: "7ch" }}
+                        />}
+                        {isFabs ?
+                            <span className="text-center align-self-center">{share.site_count}</span> :
+                            <Form.Control
+                                type="number"
+                                min={0}
+                                value={share.site_count}
+                                onChange={(e) => updateEntryData({
+                                    type: "update_share_count",
+                                    characterId: share.character_id,
+                                    value: parseInt(e.target.value)
+                                })}
+                                style={{ maxWidth: "7ch" }}
+                            />}
                         <Button
                             variant="danger"
                             style={{ transform: 'scale(0.8)' }}
