@@ -87,7 +87,7 @@ repos:
         args:
           - --indent=4
         additional_dependencies:
-          - tox==4.61.1 # https://github.com/tox-dev/tox/releases/latest
+          - tox==4.61.4 # https://github.com/tox-dev/tox/releases/latest
 
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: 17e12779811926f000bdfa1795f9e3735dd71ac3  # frozen: 0.26
