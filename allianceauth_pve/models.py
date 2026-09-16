@@ -1,10 +1,12 @@
+from collections.abc import Sequence
+from decimal import ROUND_HALF_EVEN, Decimal, localcontext
 from typing import TYPE_CHECKING, ClassVar
 
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.services.hooks import get_extension_logger
 from django.conf import settings
 from django.db import models
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Cast, Coalesce, NullIf
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext
@@ -12,6 +14,44 @@ from django.utils.translation import gettext_lazy as _
 from eve_sde.models import ItemType
 
 logger = get_extension_logger(__name__)
+
+RELATIVE_VALUE_DECIMAL_PLACES = 20
+RELATIVE_VALUE_QUANTUM = Decimal(1).scaleb(-RELATIVE_VALUE_DECIMAL_PLACES)
+
+#: Output field for an entry- or rotation-level money factor, i.e. the amount that
+#: gets split across the shares of an entry. Snapping it to 1e-6 ISK is four orders
+#: of magnitude finer than the cent the UI displays, and because it is a single
+#: number shared by every row of the entry its rounding does not accumulate.
+SHARE_FACTOR_FIELD = models.DecimalField(max_digits=32, decimal_places=6)
+
+#: Output field of ``<factor> * relative_value``. Its scale is the sum of the two
+#: operands' (6 + 20 = 26), which has to stay under MariaDB's 30-digit cap on the
+#: scale of a result — hence the rule that a factor is multiplied by
+#: ``relative_value`` exactly once, never decimal by decimal by decimal.
+SHARE_TOTAL_FIELD = models.DecimalField(max_digits=53, decimal_places=26)
+
+ZERO_SHARE_TOTAL = models.Value(Decimal(0), output_field=SHARE_TOTAL_FIELD)
+
+
+def compute_relative_values(weights: Sequence[int]) -> list[Decimal]:
+    """Split 1 across ``weights`` so the result sums to exactly ``Decimal(1)``."""
+    total = sum(weights)
+    if total == 0:
+        return [Decimal(0)] * len(weights)
+
+    with localcontext() as ctx:
+        ctx.prec = 40
+        values = [
+            (Decimal(w) / total).quantize(
+                RELATIVE_VALUE_QUANTUM, rounding=ROUND_HALF_EVEN
+            )
+            for w in weights
+        ]
+
+    residual = Decimal(1) - sum(values)
+    if residual:
+        values[max(range(len(weights)), key=weights.__getitem__)] += residual
+    return values
 
 
 class General(models.Model):  # noqa: DJ008
@@ -95,14 +135,6 @@ class RotationManager(models.Manager["Rotation"]):
 
 class EntryCharacterQueryset(models.QuerySet["EntryCharacter"]):
     def with_totals(self):
-        total_values = (
-            EntryCharacter.objects.filter(entry_id=models.OuterRef("entry_id"))
-            .annotate(weight_value=models.F("site_count") * models.F("role__value"))
-            .values("entry")
-            .annotate(total_value=models.Sum("weight_value"))
-            .values("total_value")
-        )
-
         rotation_estimated_total = (
             Entry.objects.filter(rotation=models.OuterRef("entry__rotation"))
             .values("rotation")
@@ -118,89 +150,67 @@ class EntryCharacterQueryset(models.QuerySet["EntryCharacter"]):
             .values("entry_total")
         )
 
-        return (
-            self.annotate(
-                share_total=(
-                    models.F("entry__estimated_total")
-                    * (100 - models.F("entry__rotation__tax_rate"))
-                    / 100
-                    * models.F("site_count")
-                    * models.F("role__value")
-                    / models.Subquery(total_values, output_field=models.FloatField())
-                )
-            )
-            .annotate(
-                estimated_share_total=models.Case(
-                    models.When(
-                        entry__funding_project__isnull=True,
-                        then=models.F("share_total"),
-                    ),
-                    default=models.F("share_total")
-                    * (100 - models.F("entry__funding_percentage"))
-                    / 100,
-                )
-            )
-            .annotate(
-                estimated_funding_amount=models.Case(
-                    models.When(
-                        entry__funding_project__isnull=True,
-                        then=models.Value(
-                            0, output_field=models.PositiveBigIntegerField()
-                        ),
-                    ),
-                    default=models.ExpressionWrapper(
-                        models.F("share_total") - models.F("estimated_share_total"),
-                        output_field=models.PositiveBigIntegerField(),
-                    ),
-                )
-            )
-            .annotate(
-                share_total_for_items=Coalesce(
-                    models.Subquery(entry_item_total)
-                    * (100 - models.F("entry__rotation__tax_rate_loot_items"))
-                    / 100
-                    * models.F("site_count")
-                    * models.F("role__value")
-                    / models.Subquery(total_values, output_field=models.FloatField()),
-                    0.0,
-                )
-            )
-            .annotate(
-                actual_share_total=models.F("estimated_share_total")
+        # multiply by ``relative_value`` exactly once, otherwise the numeric constraints in db for decimal are broken
+        estimated_factor = (
+            models.F("entry__estimated_total")
+            * (100 - models.F("entry__rotation__tax_rate"))
+            / 100
+        )
+        items_factor = Coalesce(
+            models.Subquery(entry_item_total)
+            * (100 - models.F("entry__rotation__tax_rate_loot_items"))
+            / 100,
+            0.0,
+        )
+
+        funded_estimated = (
+            estimated_factor * (100 - models.F("entry__funding_percentage")) / 100
+        )
+        funded_items = (
+            items_factor * (100 - models.F("entry__funding_percentage")) / 100
+        )
+
+        estimated_share_factor = models.Case(
+            models.When(entry__funding_project__isnull=True, then=estimated_factor),
+            default=funded_estimated,
+        )
+        estimated_funding_factor = models.Case(
+            models.When(
+                entry__funding_project__isnull=True,
+                then=models.Value(0.0, output_field=models.FloatField()),
+            ),
+            default=estimated_factor - funded_estimated,
+        )
+        items_share_factor = models.Case(
+            models.When(entry__funding_project__isnull=True, then=items_factor),
+            default=funded_items,
+        )
+        items_funding_factor = models.Case(
+            models.When(
+                entry__funding_project__isnull=True,
+                then=models.Value(0.0, output_field=models.FloatField()),
+            ),
+            default=items_factor - funded_items,
+        )
+
+        def realised(factor):
+            return Coalesce(
+                factor
                 * models.F("entry__rotation__actual_total")
-                / models.Subquery(rotation_estimated_total)
+                / NullIf(models.Subquery(rotation_estimated_total), 0),
+                0.0,
             )
-            .annotate(
-                actual_share_total_for_items=models.Case(
-                    models.When(
-                        entry__funding_project__isnull=True,
-                        then=models.F("share_total_for_items"),
-                    ),
-                    default=models.F("share_total_for_items")
-                    * (100 - models.F("entry__funding_percentage"))
-                    / 100,
-                )
-            )
-            .annotate(
-                actual_funding_amount=models.F("estimated_funding_amount")
-                * models.F("entry__rotation__actual_total")
-                / models.Subquery(rotation_estimated_total)
-            )
-            .annotate(
-                actual_funding_amount_for_items=models.Case(
-                    models.When(
-                        entry__funding_project__isnull=True,
-                        then=models.Value(
-                            0, output_field=models.PositiveBigIntegerField()
-                        ),
-                    ),
-                    default=models.ExpressionWrapper(
-                        models.F("share_total_for_items")
-                        - models.F("actual_share_total_for_items"),
-                        output_field=models.PositiveBigIntegerField(),
-                    ),
-                )
-            )
+
+        def per_share(factor):
+            return Cast(factor, SHARE_FACTOR_FIELD) * models.F("relative_value")
+
+        return self.annotate(
+            estimated_share_total=per_share(estimated_share_factor),
+            estimated_funding_amount=per_share(estimated_funding_factor),
+            actual_share_total=per_share(realised(estimated_share_factor)),
+            actual_share_total_for_items=per_share(items_share_factor),
+            actual_funding_amount=per_share(realised(estimated_funding_factor)),
+            actual_funding_amount_for_items=per_share(items_funding_factor),
         )
 
     def with_contributions_to(
@@ -463,7 +473,8 @@ class Rotation(models.Model):
                 .annotate(actual_total=models.Sum("actual_funding_amount"))
                 .annotate(
                     actual_total_from_items=Coalesce(
-                        models.Sum("actual_funding_amount_for_items"), 0
+                        models.Sum("actual_funding_amount_for_items"),
+                        ZERO_SHARE_TOTAL,
                     )
                 )
                 .order_by("-estimated_total")
@@ -543,11 +554,22 @@ class EntryCharacter(models.Model):
 
     site_count = models.PositiveIntegerField(default=1)
     helped_setup = models.BooleanField(default=False)
+    relative_value = models.DecimalField(
+        _("relative value"),
+        max_digits=RELATIVE_VALUE_DECIMAL_PLACES + 1,
+        decimal_places=RELATIVE_VALUE_DECIMAL_PLACES,
+    )
 
     objects: ClassVar[EntryCharacterManager] = EntryCharacterManager()
 
     class Meta:
         default_permissions = ()
+        constraints = (
+            models.CheckConstraint(
+                condition=models.Q(relative_value__gte=0, relative_value__lte=1),
+                name="relative_value_is_a_fraction",
+            ),
+        )
 
     def __str__(self) -> str:
         return f"{self.user_character} in {self.entry}"
@@ -749,7 +771,7 @@ class FundingProject(models.Model):
                 current_total=Coalesce(
                     models.Sum("actual_funding_amount")
                     + models.Sum("actual_funding_amount_for_items"),
-                    0,
+                    ZERO_SHARE_TOTAL,
                 )
             )["current_total"]
         )
@@ -764,7 +786,9 @@ class FundingProject(models.Model):
                 )
                 .with_totals()
                 .aggregate(
-                    estimated_total=Coalesce(models.Sum("estimated_funding_amount"), 0)
+                    estimated_total=Coalesce(
+                        models.Sum("estimated_funding_amount"), ZERO_SHARE_TOTAL
+                    )
                 )["estimated_total"]
             )
         )
@@ -831,13 +855,13 @@ class FundingProject(models.Model):
             .annotate(actual_total=models.Sum("actual_funding_amount"))
             .annotate(
                 actual_total_from_items=Coalesce(
-                    models.Sum("actual_funding_amount_for_items"), 0
+                    models.Sum("actual_funding_amount_for_items"), ZERO_SHARE_TOTAL
                 )
             )
             .annotate(
                 estimated_total=models.F("actual_total")
                 + models.F("actual_total_from_items")
-                + Coalesce(models.Subquery(estimated_part), 0)
+                + Coalesce(models.Subquery(estimated_part), ZERO_SHARE_TOTAL)
             )
         )
 

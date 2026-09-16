@@ -1,43 +1,23 @@
 import datetime
 
-from allianceauth.tests.auth_utils import AuthUtils
-from django.test import TestCase
 from django.utils import timezone
 
-from allianceauth_pve.models import (
-    Entry,
-    EntryCharacter,
-    EntryRole,
-    Rotation,
-    RotationPreset,
-)
+from allianceauth_pve.models import Rotation, RotationPreset
 from allianceauth_pve.utils import ensure_rotation_presets_applied, running_averages
 
+from .utils import PveTestBase
 
-class TestRunningAverages(TestCase):
+
+class TestRunningAverages(PveTestBase):
     @classmethod
     def setUpTestData(cls):
-        cls.testuser = AuthUtils.create_user("aauth_testuser")
-        cls.testcharacter = AuthUtils.add_main_character_2(
-            cls.testuser, "aauth_testchar", 2116790529
+        cls.testuser, cls.testcharacter = cls.make_user(
+            "aauth_testuser", 2116790529, "aauth_testchar"
         )
 
-        rotation: Rotation = Rotation.objects.create(name="test1rot")
+        rotation = cls.make_rotation(name="test1rot")
 
-        entry: Entry = Entry.objects.create(
-            rotation=rotation, created_by=cls.testuser, estimated_total=1_000_000_000
-        )
-
-        role = EntryRole.objects.create(entry=entry, name="testrole1", value=1)
-
-        EntryCharacter.objects.create(
-            entry=entry,
-            user=cls.testuser,
-            user_character=cls.testcharacter,
-            role=role,
-            site_count=1,
-            helped_setup=False,
-        )
+        cls.make_entry(rotation, cls.testuser, cls.testcharacter)
 
         rotation.actual_total = 900_000_000
         rotation.is_closed = True
@@ -67,15 +47,14 @@ class TestRunningAverages(TestCase):
         )
 
 
-class TestEnsureRotationPresetsApplied(TestCase):
+class TestEnsureRotationPresetsApplied(PveTestBase):
     @classmethod
     def setUpTestData(cls):
-        cls.testuser = AuthUtils.create_user("aauth_testuser")
-        cls.testcharacter = AuthUtils.add_main_character_2(
-            cls.testuser, "aauth_testchar", 2116790529
+        cls.testuser, cls.testcharacter = cls.make_user(
+            "aauth_testuser", 2116790529, "aauth_testchar"
         )
 
-        cls.rotation = Rotation.objects.create(name="test1rot")
+        cls.rotation = cls.make_rotation(name="test1rot")
 
         cls.preset = RotationPreset.objects.create(
             name="test1rot",
@@ -96,7 +75,7 @@ class TestEnsureRotationPresetsApplied(TestCase):
 
     def test_ignore_closed(self):
         self.rotation.delete()
-        Rotation.objects.create(name="test1rot", is_closed=True)
+        self.make_rotation(name="test1rot", is_closed=True)
 
         ensure_rotation_presets_applied()
 
