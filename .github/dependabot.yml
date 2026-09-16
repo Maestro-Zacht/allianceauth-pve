@@ -11,6 +11,9 @@ updates:
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 10
+    # Match minimumReleaseAge (7 days) in frontend/pnpm-workspace.yaml
+    cooldown:
+      default-days: 7
     groups:
       minor-patch:
         patterns: ["*"]
@@ -57,6 +60,8 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 7
     groups:
       pre-commit-ecosystem:
         patterns:
