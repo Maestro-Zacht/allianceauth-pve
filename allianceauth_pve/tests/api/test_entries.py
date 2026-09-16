@@ -11,7 +11,6 @@ from allianceauth_pve.app_settings import (
 )
 from allianceauth_pve.models import (
     Entry,
-    EntryCharacter,
     FundingProject,
 )
 from allianceauth_pve.tests.utils import (
@@ -609,13 +608,7 @@ class TestEntriesApi(PveApiTestBase):
         self.make_ownership(nomain, nomain_char)
         rotation = self.make_rotation(name="nomainrot")
         entry, role, _ = self.make_entry(rotation, self.owner, self.owner_char)
-        EntryCharacter.objects.create(
-            entry=entry,
-            user=nomain,
-            user_character=nomain_char,
-            role=role,
-            site_count=1,
-        )
+        self.make_share(entry, nomain, nomain_char, role)
         self.client.force_login(self.owner)
         resp = self.client.get(
             url("get_entry_for_edit", rotation_id=rotation.pk, entry_id=entry.pk)

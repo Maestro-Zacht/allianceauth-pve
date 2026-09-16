@@ -1,9 +1,7 @@
 from io import StringIO
 
-from allianceauth.tests.auth_utils import AuthUtils
 from django.core.cache import cache
 from django.core.management import call_command
-from django.test import TestCase
 
 from allianceauth_pve.app_settings import (
     ACTIVITY_CACHE_KEY,
@@ -11,45 +9,25 @@ from allianceauth_pve.app_settings import (
     ROTATION_PROJECT_SUMMARY_CACHE_KEY,
     ROTATION_SUMMARY_CACHE_KEY,
 )
-from allianceauth_pve.models import (
-    Entry,
-    EntryCharacter,
-    EntryRole,
-    FundingProject,
-    Rotation,
-)
+from allianceauth_pve.models import FundingProject
+
+from .utils import PveTestBase
 
 
-class TestPveClearCache(TestCase):
+class TestPveClearCache(PveTestBase):
     @classmethod
     def setUpTestData(cls):
-        cls.testuser = AuthUtils.create_user("aauth_testuser")
-        cls.testcharacter = AuthUtils.add_main_character_2(
-            cls.testuser, "aauth_testchar", 2116790529
+        cls.testuser, cls.testcharacter = cls.make_user(
+            "aauth_testuser", 2116790529, "aauth_testchar"
         )
 
-        cls.rotation = Rotation.objects.create(name="test1rot")
+        cls.rotation = cls.make_rotation(name="test1rot")
 
         cls.funding_project = FundingProject.objects.create(
             name="testproject", goal=1_000_000_000
         )
 
-        entry = Entry.objects.create(
-            rotation=cls.rotation,
-            created_by=cls.testuser,
-            estimated_total=1_000_000_000,
-        )
-
-        role = EntryRole.objects.create(entry=entry, name="testrole1", value=1)
-
-        EntryCharacter.objects.create(
-            entry=entry,
-            user=cls.testuser,
-            user_character=cls.testcharacter,
-            role=role,
-            site_count=1,
-            helped_setup=False,
-        )
+        cls.make_entry(cls.rotation, cls.testuser, cls.testcharacter)
 
     def test_clears_all_cache_keys(self):
         keys = [

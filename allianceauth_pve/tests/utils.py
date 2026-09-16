@@ -1,4 +1,5 @@
 import json
+from decimal import Decimal
 
 from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.eveonline.models import EveCharacter
@@ -16,6 +17,7 @@ from allianceauth_pve.models import (
     EntryLootItem,
     EntryRole,
     Rotation,
+    compute_relative_values,
 )
 
 ACCESS = "allianceauth_pve.access_pve"
@@ -28,7 +30,17 @@ def url(name, **kwargs):
     return reverse(f"allianceauth_pve:api:{name}", kwargs=kwargs)
 
 
-class PveApiTestBase(TestCase):
+def recompute_relative_values(entry: Entry) -> None:
+    shares = list(entry.ratting_shares.select_related("role"))
+    values = compute_relative_values(
+        [share.site_count * share.role.value for share in shares]
+    )
+    for share, value in zip(shares, values, strict=True):
+        share.relative_value = value
+    EntryCharacter.objects.bulk_update(shares, ["relative_value"])
+
+
+class PveTestBase(TestCase):
     # ---- user / character helpers -------------------------------------
 
     @staticmethod
@@ -75,7 +87,25 @@ class PveApiTestBase(TestCase):
         return Rotation.objects.create(name=name, **kwargs)
 
     @staticmethod
+    def make_share(  # noqa: PLR0913
+        entry, user, char, role, *, site_count=1, helped_setup=False
+    ):
+        share = EntryCharacter.objects.create(
+            entry=entry,
+            user=user,
+            user_character=char,
+            role=role,
+            site_count=site_count,
+            helped_setup=helped_setup,
+            relative_value=Decimal(0),
+        )
+        recompute_relative_values(entry)
+        share.refresh_from_db(fields=["relative_value"])
+        return share
+
+    @classmethod
     def make_entry(  # noqa: PLR0913
+        cls,
         rotation,
         user,
         char,
@@ -96,11 +126,11 @@ class PveApiTestBase(TestCase):
             funding_percentage=funding_percentage,
         )
         role = EntryRole.objects.create(entry=entry, name=role_name, value=role_value)
-        share = EntryCharacter.objects.create(
-            entry=entry,
-            user=user,
-            user_character=char,
-            role=role,
+        share = cls.make_share(
+            entry,
+            user,
+            char,
+            role,
             site_count=site_count,
             helped_setup=helped_setup,
         )
@@ -120,6 +150,8 @@ class PveApiTestBase(TestCase):
             id=item_id, name=name, group_id=group_id, published=published
         )
 
+
+class PveApiTestBase(PveTestBase):
     # ---- payload builders ---------------------------------------------
 
     @staticmethod

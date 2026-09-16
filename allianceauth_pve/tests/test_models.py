@@ -1,12 +1,11 @@
 import itertools
 import random
+from decimal import Decimal
 
 from allianceauth.services.hooks import get_extension_logger
-from allianceauth.tests.auth_utils import AuthUtils
 from django.db.models import Sum
 from django.test import TestCase
 from django.utils import timezone
-from eve_sde.models import ItemType
 
 from allianceauth_pve.models import (
     Entry,
@@ -20,7 +19,10 @@ from allianceauth_pve.models import (
     Rotation,
     RotationPreset,
     RotationSetupSummary,
+    compute_relative_values,
 )
+
+from .utils import PveTestBase
 
 logger = get_extension_logger(__name__)
 
@@ -68,32 +70,16 @@ class TestRotationPreset(TestCase):
         )
 
 
-class TestRotation(TestCase):
+class TestRotation(PveTestBase):
     @classmethod
     def setUpTestData(cls):
-        cls.testuser = AuthUtils.create_user("aauth_testuser")
-        cls.testcharacter = AuthUtils.add_main_character_2(
-            cls.testuser, "aauth_testchar", 2116790529
+        cls.testuser, cls.testcharacter = cls.make_user(
+            "aauth_testuser", 2116790529, "aauth_testchar"
         )
 
-        cls.rotation: Rotation = Rotation.objects.create(name="test1rot")
+        cls.rotation = cls.make_rotation(name="test1rot")
 
-        entry: Entry = Entry.objects.create(
-            rotation=cls.rotation,
-            created_by=cls.testuser,
-            estimated_total=1_000_000_000,
-        )
-
-        role = EntryRole.objects.create(entry=entry, name="testrole1", value=1)
-
-        EntryCharacter.objects.create(
-            entry=entry,
-            user=cls.testuser,
-            user_character=cls.testcharacter,
-            role=role,
-            site_count=1,
-            helped_setup=False,
-        )
+        cls.make_entry(cls.rotation, cls.testuser, cls.testcharacter)
 
     def test_summary_open(self):
         summary = self.rotation.summary
@@ -133,44 +119,22 @@ class TestRotation(TestCase):
             name="testproject2", goal=1_000_000_000
         )
 
-        rotation2 = Rotation.objects.create(name="test2rot")
+        rotation2 = self.make_rotation(name="test2rot")
 
-        entry1 = Entry.objects.create(
-            rotation=self.rotation,
-            created_by=self.testuser,
-            estimated_total=1_000_000_000,
+        self.make_entry(
+            self.rotation,
+            self.testuser,
+            self.testcharacter,
             funding_project=project1,
             funding_percentage=50,
         )
 
-        role1 = EntryRole.objects.create(entry=entry1, name="testrole1", value=1)
-
-        EntryCharacter.objects.create(
-            entry=entry1,
-            user=self.testuser,
-            user_character=self.testcharacter,
-            role=role1,
-            site_count=1,
-            helped_setup=False,
-        )
-
-        entry2 = Entry.objects.create(
-            rotation=rotation2,
-            created_by=self.testuser,
-            estimated_total=1_000_000_000,
+        self.make_entry(
+            rotation2,
+            self.testuser,
+            self.testcharacter,
             funding_project=project2,
             funding_percentage=50,
-        )
-
-        role2 = EntryRole.objects.create(entry=entry2, name="testrole2", value=1)
-
-        EntryCharacter.objects.create(
-            entry=entry2,
-            user=self.testuser,
-            user_character=self.testcharacter,
-            role=role2,
-            site_count=1,
-            helped_setup=False,
         )
 
         summary = self.rotation.funding_projects_summary
@@ -237,41 +201,25 @@ class TestRotation(TestCase):
         )
 
 
-class TestEntry(TestCase):
+class TestEntry(PveTestBase):
     @classmethod
     def setUpTestData(cls):
-        cls.testuser = AuthUtils.create_user("aauth_testuser")
-        cls.testcharacter = AuthUtils.add_main_character_2(
-            cls.testuser, "aauth_testchar", 2116790529
+        cls.testuser, cls.testcharacter = cls.make_user(
+            "aauth_testuser", 2116790529, "aauth_testchar"
         )
 
-        cls.testuser2 = AuthUtils.create_user("aauth_testuser2")
-        cls.testcharacter2 = AuthUtils.add_main_character_2(
-            cls.testuser2, "aauth_testchar2", 795853496
+        cls.testuser2, cls.testcharacter2 = cls.make_user(
+            "aauth_testuser2", 795853496, "aauth_testchar2"
         )
 
-        cls.testuser3 = AuthUtils.create_user("aauth_testuser3")
-        cls.testcharacter3 = AuthUtils.add_main_character_2(
-            cls.testuser3, "aauth_testchar3", 781335233
+        cls.testuser3, cls.testcharacter3 = cls.make_user(
+            "aauth_testuser3", 781335233, "aauth_testchar3"
         )
 
-        cls.rotation: Rotation = Rotation.objects.create(name="test1rot", tax_rate=10.0)
+        cls.rotation = cls.make_rotation(name="test1rot", tax_rate=10.0)
 
-        cls.entry: Entry = Entry.objects.create(
-            rotation=cls.rotation,
-            created_by=cls.testuser,
-            estimated_total=1_000_000_000,
-        )
-
-        cls.role = EntryRole.objects.create(entry=cls.entry, name="testrole1", value=1)
-
-        cls.share: EntryCharacter = EntryCharacter.objects.create(
-            entry=cls.entry,
-            user=cls.testuser,
-            user_character=cls.testcharacter,
-            role=cls.role,
-            site_count=2,
-            helped_setup=False,
+        cls.entry, cls.role, cls.share = cls.make_entry(
+            cls.rotation, cls.testuser, cls.testcharacter, site_count=2
         )
 
         cls.funding_project = FundingProject.objects.create(
@@ -316,41 +264,35 @@ class TestEntry(TestCase):
             if total_count > 0 and total_roles > 0 and total_value > 0:
                 estimated_total = random.randint(100_000_000, 10_000_000_000)
 
-                entry: Entry = Entry.objects.create(
-                    rotation=self.rotation,
-                    created_by=self.testuser,
+                entry, _, share1 = self.make_entry(
+                    self.rotation,
+                    self.testuser,
+                    self.testcharacter,
+                    role_name="role1",
+                    role_value=value1,
+                    site_count=count1,
                     estimated_total=estimated_total,
                 )
 
-                role1: EntryRole = EntryRole.objects.create(
-                    entry=entry, name="role1", value=value1
-                )
-                role2: EntryRole = EntryRole.objects.create(
+                role2 = EntryRole.objects.create(
                     entry=entry, name="role2", value=value2
                 )
-                role3: EntryRole = EntryRole.objects.create(
+                role3 = EntryRole.objects.create(
                     entry=entry, name="role3", value=value3
                 )
 
-                share1: EntryCharacter = EntryCharacter.objects.create(
-                    entry=entry,
-                    user=self.testuser,
-                    user_character=self.testcharacter,
-                    role=role1,
-                    site_count=count1,
-                )
-                share2: EntryCharacter = EntryCharacter.objects.create(
-                    entry=entry,
-                    user=self.testuser2,
-                    user_character=self.testcharacter2,
-                    role=role2,
+                share2 = self.make_share(
+                    entry,
+                    self.testuser2,
+                    self.testcharacter2,
+                    role2,
                     site_count=count2,
                 )
-                share3: EntryCharacter = EntryCharacter.objects.create(
-                    entry=entry,
-                    user=self.testuser3,
-                    user_character=self.testcharacter3,
-                    role=role3,
+                share3 = self.make_share(
+                    entry,
+                    self.testuser3,
+                    self.testcharacter3,
+                    role3,
                     site_count=count3,
                 )
 
@@ -361,17 +303,17 @@ class TestEntry(TestCase):
                 share3 = EntryCharacter.objects.with_totals().get(pk=share3.pk)
 
                 self.assertAlmostEqual(
-                    share1.estimated_share_total,
+                    float(share1.estimated_share_total),
                     estimated_total * 0.9 * count1 * value1 / total_value,
                     places=2,
                 )
                 self.assertAlmostEqual(
-                    share2.estimated_share_total,
+                    float(share2.estimated_share_total),
                     estimated_total * 0.9 * count2 * value2 / total_value,
                     places=2,
                 )
                 self.assertAlmostEqual(
-                    share3.estimated_share_total,
+                    float(share3.estimated_share_total),
                     estimated_total * 0.9 * count3 * value3 / total_value,
                     places=2,
                 )
@@ -380,7 +322,7 @@ class TestEntry(TestCase):
                     val=Sum("estimated_share_total")
                 )["val"]
                 self.assertAlmostEqual(
-                    sum_estimated, entry.estimated_total_after_tax, places=2
+                    float(sum_estimated), entry.estimated_total_after_tax, places=2
                 )
 
                 self.assertEqual(share1.actual_share_total, 0)
@@ -389,79 +331,175 @@ class TestEntry(TestCase):
 
         # funding project
 
-        entry: Entry = Entry.objects.create(
-            rotation=self.rotation,
-            created_by=self.testuser,
+        _, _, share1 = self.make_entry(
+            self.rotation,
+            self.testuser,
+            self.testcharacter,
             estimated_total=estimated_total,
             funding_project=self.funding_project,
             funding_percentage=50,
         )
 
-        role1: EntryRole = EntryRole.objects.create(entry=entry, name="role1", value=1)
-
-        share1: EntryCharacter = EntryCharacter.objects.create(
-            entry=entry,
-            user=self.testuser,
-            user_character=self.testcharacter,
-            role=role1,
-            site_count=1,
-        )
-
         share1 = EntryCharacter.objects.with_totals().get(pk=share1.pk)
 
         self.assertAlmostEqual(
-            share1.estimated_share_total, estimated_total * 0.9 * 0.5, places=2
+            float(share1.estimated_share_total), estimated_total * 0.9 * 0.5, places=2
         )
-        self.assertEqual(
-            share1.estimated_funding_amount, int(share1.estimated_share_total)
-        )
+        # The two halves are now decimals rather than truncated whole ISK, so they
+        # are exactly equal instead of equal-after-int().
+        self.assertEqual(share1.estimated_funding_amount, share1.estimated_share_total)
 
     def test_estimated_funding_total(self):
-        entry: Entry = Entry.objects.create(
-            rotation=self.rotation,
-            created_by=self.testuser,
-            estimated_total=1_000_000_000,
+        entry, _, _ = self.make_entry(
+            self.rotation,
+            self.testuser,
+            self.testcharacter,
             funding_project=self.funding_project,
             funding_percentage=50,
-        )
-
-        role1: EntryRole = EntryRole.objects.create(entry=entry, name="role1", value=1)
-
-        EntryCharacter.objects.create(
-            entry=entry,
-            user=self.testuser,
-            user_character=self.testcharacter,
-            role=role1,
-            site_count=1,
         )
 
         self.assertEqual(entry.estimated_funding_total, 450_000_000)
 
 
-class TestEntryLootItem(TestCase):
+class TestComputeRelativeValues(TestCase):
+    def test_sums_to_exactly_one(self):
+        for weights in (
+            [1],
+            [1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1],
+            [7, 11, 13],
+            [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5],
+            list(range(1, 51)),
+            [1] * 50,
+        ):
+            with self.subTest(weights=weights):
+                values = compute_relative_values(weights)
+
+                self.assertEqual(len(values), len(weights))
+                self.assertEqual(sum(values), Decimal(1))
+                for value in values:
+                    self.assertGreaterEqual(value, Decimal(0))
+                    self.assertLessEqual(value, Decimal(1))
+
+    def test_zero_weights(self):
+        self.assertEqual(compute_relative_values([0, 0, 0]), [Decimal(0)] * 3)
+
+    def test_empty(self):
+        self.assertEqual(compute_relative_values([]), [])
+
+    def test_proportional(self):
+        self.assertEqual(
+            compute_relative_values([1, 3]),
+            [Decimal("0.25"), Decimal("0.75")],
+        )
+
+    def test_residual_lands_on_the_largest_weight(self):
+        # 1/3 + 1/3 + 1/3 quantized leaves 1e-20 unallocated; it must not be
+        # dropped, and it must go to the biggest share.
+        values = compute_relative_values([1, 1, 10])
+        self.assertEqual(sum(values), Decimal(1))
+        self.assertEqual(max(values), values[2])
+
+
+class TestShareTotalsAreExact(PveTestBase):
+    """The stored fractions sum to 1, so every derived total sums to its entry."""
+
+    ENTRY_TOTAL = 999_999_999_999
+    AFTER_TAX = Decimal(999_999_999_999) * Decimal("0.875")
+
     @classmethod
     def setUpTestData(cls):
-        cls.testuser = AuthUtils.create_user("aauth_testuser")
-        cls.testcharacter = AuthUtils.add_main_character_2(
-            cls.testuser, "aauth_testchar", 2116790529
+        cls.users = [
+            cls.make_user(f"aauth_exact{i}", 93000100 + i, f"aauth_exactchar{i}")
+            for i in range(3)
+        ]
+
+    def make_entry_with_three_equal_shares(self, rotation, **entry_kwargs):
+        entry, _, _ = self.make_entry(
+            rotation, *self.users[0], role_name="role0", role_value=10, **entry_kwargs
+        )
+        for i, (user, char) in enumerate(self.users[1:], start=1):
+            role = EntryRole.objects.create(entry=entry, name=f"role{i}", value=10)
+            self.make_share(entry, user, char, role)
+        return entry
+
+    def test_relative_values_sum_to_one(self):
+        rotation = self.make_rotation(name="exactrot", tax_rate=12.5)
+        entry = self.make_entry_with_three_equal_shares(
+            rotation, estimated_total=self.ENTRY_TOTAL
         )
 
-        cls.rotation: Rotation = Rotation.objects.create(
-            name="test1rot", tax_rate_loot_items=10.0
+        self.assertEqual(
+            entry.ratting_shares.aggregate(val=Sum("relative_value"))["val"],
+            Decimal(1),
         )
 
-        cls.entry: Entry = Entry.objects.create(
-            rotation=cls.rotation,
-            created_by=cls.testuser,
-            estimated_total=1_000_000_000,
+    def test_estimated_share_total_sums_exactly(self):
+        rotation = self.make_rotation(name="exactrot", tax_rate=12.5)
+        entry = self.make_entry_with_three_equal_shares(
+            rotation, estimated_total=self.ENTRY_TOTAL
         )
 
-        cls.item = ItemType.objects.create(
-            id=99500001, name="Loot Item", published=True
+        total = entry.ratting_shares.with_totals().aggregate(
+            val=Sum("estimated_share_total")
+        )["val"]
+
+        self.assertEqual(total, self.AFTER_TAX)
+
+    def test_funded_shares_and_funding_sum_exactly(self):
+        rotation = self.make_rotation(name="exactrot", tax_rate=12.5)
+        project = FundingProject.objects.create(name="exactproject", goal=1)
+        entry = self.make_entry_with_three_equal_shares(
+            rotation,
+            estimated_total=self.ENTRY_TOTAL,
+            funding_project=project,
+            funding_percentage=40,
         )
 
-        cls.loot_item: EntryLootItem = EntryLootItem.objects.create(
-            entry=cls.entry, item=cls.item, quantity=2, sale_price=100.0
+        totals = entry.ratting_shares.with_totals().aggregate(
+            shares=Sum("estimated_share_total"),
+            funding=Sum("estimated_funding_amount"),
+        )
+
+        self.assertEqual(totals["shares"], self.AFTER_TAX * Decimal("0.6"))
+        self.assertEqual(totals["funding"], self.AFTER_TAX * Decimal("0.4"))
+        self.assertEqual(totals["shares"] + totals["funding"], self.AFTER_TAX)
+
+    def test_items_only_rotation(self):
+        """``estimated_total == 0`` must not divide by zero in the actual totals."""
+        rotation = self.make_rotation(
+            name="itemsonly", tax_rate=12.5, tax_rate_loot_items=10.0, actual_total=0
+        )
+        entry = self.make_entry_with_three_equal_shares(rotation, estimated_total=0)
+        item = self.make_item(99500002, "Items Only")
+        self.make_loot_item(entry, item, quantity=3, sale_price=1_000.0)
+
+        totals = entry.ratting_shares.with_totals().aggregate(
+            estimated=Sum("estimated_share_total"),
+            actual=Sum("actual_share_total"),
+            items=Sum("actual_share_total_for_items"),
+        )
+
+        self.assertEqual(totals["estimated"], Decimal(0))
+        self.assertEqual(totals["actual"], Decimal(0))
+        self.assertEqual(totals["items"], Decimal(2700))
+
+
+class TestEntryLootItem(PveTestBase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.testuser, cls.testcharacter = cls.make_user(
+            "aauth_testuser", 2116790529, "aauth_testchar"
+        )
+
+        cls.rotation = cls.make_rotation(name="test1rot", tax_rate_loot_items=10.0)
+
+        cls.entry, _, _ = cls.make_entry(cls.rotation, cls.testuser, cls.testcharacter)
+
+        cls.item = cls.make_item(99500001, "Loot Item")
+
+        cls.loot_item = cls.make_loot_item(
+            cls.entry, cls.item, quantity=2, sale_price=100.0
         )
 
     def test_str(self):
@@ -474,29 +512,24 @@ class TestEntryLootItem(TestCase):
         self.assertAlmostEqual(loot_item.total_after_tax, 180.0)
 
 
-class TestEntryRole(TestCase):
+class TestEntryRole(PveTestBase):
     @classmethod
     def setUpTestData(cls):
-        cls.testuser = AuthUtils.create_user("aauth_testuser")
-        cls.testcharacter = AuthUtils.add_main_character_2(
-            cls.testuser, "aauth_testchar", 2116790529
+        cls.testuser, cls.testcharacter = cls.make_user(
+            "aauth_testuser", 2116790529, "aauth_testchar"
         )
 
-        cls.rotation: Rotation = Rotation.objects.create(name="test1rot", tax_rate=10.0)
+        cls.rotation = cls.make_rotation(name="test1rot", tax_rate=10.0)
 
-        entry: Entry = Entry.objects.create(
-            rotation=cls.rotation,
-            created_by=cls.testuser,
-            estimated_total=1_000_000_000,
+        entry, cls.role1, _ = cls.make_entry(
+            cls.rotation,
+            cls.testuser,
+            cls.testcharacter,
+            role_name="testrole1",
+            role_value=1,
         )
 
-        cls.role1: EntryRole = EntryRole.objects.create(
-            entry=entry, name="testrole1", value=1
-        )
-
-        cls.role2: EntryRole = EntryRole.objects.create(
-            entry=entry, name="testrole2", value=2
-        )
+        cls.role2 = EntryRole.objects.create(entry=entry, name="testrole2", value=2)
 
     def test_str(self):
         self.assertEqual(str(self.role1), self.role1.name)
@@ -506,37 +539,26 @@ class TestEntryRole(TestCase):
         self.assertAlmostEqual(self.role2.approximate_percentage, (2 / 3) * 100)
 
 
-class TestFundingProject(TestCase):
+class TestFundingProject(PveTestBase):
     @classmethod
     def setUpTestData(cls):
-        cls.testuser = AuthUtils.create_user("aauth_testuser")
-        cls.testcharacter = AuthUtils.add_main_character_2(
-            cls.testuser, "aauth_testchar", 2116790529
+        cls.testuser, cls.testcharacter = cls.make_user(
+            "aauth_testuser", 2116790529, "aauth_testchar"
         )
 
         cls.funding_project: FundingProject = FundingProject.objects.create(
             name="testproject", goal=1_000_000_000
         )
 
-        cls.rotation: Rotation = Rotation.objects.create(name="test1rot", tax_rate=0.0)
+        cls.rotation = cls.make_rotation(name="test1rot", tax_rate=0.0)
 
-        cls.entry: Entry = Entry.objects.create(
-            rotation=cls.rotation,
-            created_by=cls.testuser,
-            estimated_total=1_000_000_000,
+        cls.entry, _, cls.share = cls.make_entry(
+            cls.rotation,
+            cls.testuser,
+            cls.testcharacter,
             funding_project=cls.funding_project,
             funding_percentage=50,
-        )
-
-        cls.role = EntryRole.objects.create(entry=cls.entry, name="testrole1", value=1)
-
-        cls.share: EntryCharacter = EntryCharacter.objects.create(
-            entry=cls.entry,
-            user=cls.testuser,
-            user_character=cls.testcharacter,
-            role=cls.role,
             site_count=2,
-            helped_setup=False,
         )
 
         cls.rotation.is_closed = True
@@ -548,36 +570,15 @@ class TestFundingProject(TestCase):
         self.assertEqual(str(self.funding_project), self.funding_project.name)
 
     def test_with_contributions_to(self):
-        entry2 = Entry.objects.create(
-            rotation=self.rotation,
-            created_by=self.testuser,
-            estimated_total=1_000_000_000,
-        )
+        self.make_entry(self.rotation, self.testuser, self.testcharacter, site_count=2)
 
-        EntryCharacter.objects.create(
-            entry=entry2,
-            user=self.testuser,
-            user_character=self.testcharacter,
-            role=self.role,
-            site_count=2,
-            helped_setup=False,
-        )
-
-        entry3 = Entry.objects.create(
-            rotation=self.rotation,
-            created_by=self.testuser,
-            estimated_total=1_000_000_000,
+        self.make_entry(
+            self.rotation,
+            self.testuser,
+            self.testcharacter,
             funding_project=self.funding_project,
             funding_percentage=0,
-        )
-
-        EntryCharacter.objects.create(
-            entry=entry3,
-            user=self.testuser,
-            user_character=self.testcharacter,
-            role=self.role,
             site_count=2,
-            helped_setup=False,
         )
 
         self.assertQuerySetEqual(
@@ -588,23 +589,15 @@ class TestFundingProject(TestCase):
             transform=lambda x: x.pk,
         )
 
-        open_rotation = Rotation.objects.create(name="test1rot", tax_rate=0.0)
+        open_rotation = self.make_rotation(name="test1rot", tax_rate=0.0)
 
-        entry4 = Entry.objects.create(
-            rotation=open_rotation,
-            created_by=self.testuser,
-            estimated_total=1_000_000_000,
+        _, _, share_open = self.make_entry(
+            open_rotation,
+            self.testuser,
+            self.testcharacter,
             funding_project=self.funding_project,
             funding_percentage=10,
-        )
-
-        share_open = EntryCharacter.objects.create(
-            entry=entry4,
-            user=self.testuser,
-            user_character=self.testcharacter,
-            role=self.role,
             site_count=2,
-            helped_setup=False,
         )
 
         self.assertQuerySetEqual(
@@ -645,23 +638,14 @@ class TestFundingProject(TestCase):
 
         self.assertFalse(self.funding_project.has_open_contributions)
 
-        rotation_open = Rotation.objects.create(name="test1rot", tax_rate=0.0)
+        rotation_open = self.make_rotation(name="test1rot", tax_rate=0.0)
 
-        entry_open = Entry.objects.create(
-            rotation=rotation_open,
-            created_by=self.testuser,
-            estimated_total=1_000_000_000,
+        self.make_entry(
+            rotation_open,
+            self.testuser,
+            self.testcharacter,
             funding_project=self.funding_project,
             funding_percentage=10,
-        )
-
-        EntryCharacter.objects.create(
-            entry=entry_open,
-            user=self.testuser,
-            user_character=self.testcharacter,
-            role=self.role,
-            site_count=1,
-            helped_setup=False,
         )
 
         self.assertDictEqual(
@@ -676,9 +660,11 @@ class TestFundingProject(TestCase):
 
         self.assertEqual(self.funding_project.estimated_total, 600_000_000)
 
-        self.assertAlmostEqual(self.funding_project.estimated_missing_percentage, 10.0)
+        self.assertAlmostEqual(
+            float(self.funding_project.estimated_missing_percentage), 10.0
+        )
 
-        self.assertAlmostEqual(self.funding_project.total_percentage, 60.0)
+        self.assertAlmostEqual(float(self.funding_project.total_percentage), 60.0)
 
         self.assertEqual(self.funding_project.html_actual_percentage_width, 50)
 
@@ -698,25 +684,15 @@ class TestFundingProject(TestCase):
             name="testproject2", goal=1_000_000_000
         )
 
-        rotation2 = Rotation.objects.create(name="test2rot", tax_rate=0.0)
+        rotation2 = self.make_rotation(name="test2rot", tax_rate=0.0)
 
-        entry2 = Entry.objects.create(
-            rotation=rotation2,
-            created_by=self.testuser,
-            estimated_total=1_000_000_000,
+        self.make_entry(
+            rotation2,
+            self.testuser,
+            self.testcharacter,
             funding_project=project2,
             funding_percentage=50,
-        )
-
-        role2 = EntryRole.objects.create(entry=entry2, name="testrole2", value=1)
-
-        EntryCharacter.objects.create(
-            entry=entry2,
-            user=self.testuser,
-            user_character=self.testcharacter,
-            role=role2,
             site_count=2,
-            helped_setup=False,
         )
 
         self.assertQuerySetEqual(

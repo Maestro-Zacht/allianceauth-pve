@@ -24,6 +24,7 @@ from allianceauth_pve.models import (
     PveButton,
     RoleSetup,
     Rotation,
+    compute_relative_values,
 )
 
 
@@ -595,6 +596,12 @@ class EntryFormSchema(Schema):
                     helped_setup=setup,
                 )
             )
+
+        relative_values = compute_relative_values(
+            [share.site_count * share.role.value for share in shares_to_add]
+        )
+        for share, relative_value in zip(shares_to_add, relative_values, strict=True):
+            share.relative_value = relative_value
 
         items_to_add = [
             EntryLootItem(entry=entry, item_id=item.id, quantity=item.quantity)

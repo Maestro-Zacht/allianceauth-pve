@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-from allianceauth.tests.auth_utils import AuthUtils
 from django.contrib.admin.sites import AdminSite
 from django.test import RequestFactory, TestCase
 from django.utils import timezone
@@ -10,7 +9,9 @@ from allianceauth_pve.admin import (
     RotationAdmin,
     RotationPresetAdmin,
 )
-from allianceauth_pve.models import Entry, EntryCharacter, EntryRole, Rotation
+from allianceauth_pve.models import EntryCharacter, Rotation
+
+from .utils import PveTestBase
 
 
 class TestRotationAdmin(TestCase):
@@ -63,7 +64,7 @@ class TestRotationAdmin(TestCase):
         mock_delete_model.assert_called_once()
 
 
-class TestEntryCharacterAdmin(TestCase):
+class TestEntryCharacterAdmin(PveTestBase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -75,31 +76,13 @@ class TestEntryCharacterAdmin(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.testuser = AuthUtils.create_user("aauth_testuser")
-        cls.testcharacter = AuthUtils.add_main_character_2(
-            cls.testuser, "aauth_testchar", 2116790529
-        )
-        cls.testuser.is_superuser = True
-        cls.testuser.save()
-
-        cls.rotation: Rotation = Rotation.objects.create(name="test1rot")
-
-        entry: Entry = Entry.objects.create(
-            rotation=cls.rotation,
-            created_by=cls.testuser,
-            estimated_total=1_000_000_000,
+        cls.testuser, cls.testcharacter = cls.make_superuser(
+            "aauth_testuser", 2116790529, "aauth_testchar"
         )
 
-        role = EntryRole.objects.create(entry=entry, name="testrole1", value=1)
+        cls.rotation = cls.make_rotation(name="test1rot")
 
-        EntryCharacter.objects.create(
-            entry=entry,
-            user=cls.testuser,
-            user_character=cls.testcharacter,
-            role=role,
-            site_count=1,
-            helped_setup=False,
-        )
+        cls.make_entry(cls.rotation, cls.testuser, cls.testcharacter)
 
         cls.rotation.actual_total = 900_000_000
         cls.rotation.is_closed = True
