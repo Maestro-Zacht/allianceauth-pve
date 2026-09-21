@@ -3,16 +3,17 @@ import { useTranslation } from "react-i18next";
 import { parseLocalizedNumber } from "../../../utils";
 import { useEntryProcessor } from "../../../providers/EntryFormProvider";
 import TooltipComponent from "../../utils/TooltipComponent";
-import type { EntryFormErrors, ExtendedEntryItem } from "../EntryTypes";
+import type { EntryFormErrors, EntryMode, ExtendedEntryItem } from "../EntryTypes";
 import ItemSection from "./ItemSection";
 
 interface TotalSectionProps {
     estimatedTotal: number;
     errors: EntryFormErrors["estimated_total"] | null | undefined;
     items: ExtendedEntryItem[];
+    mode: EntryMode;
 }
 
-export default function TotalSection({ estimatedTotal, errors, items }: TotalSectionProps) {
+export default function TotalSection({ estimatedTotal, errors, items, mode }: TotalSectionProps) {
     const { t, i18n } = useTranslation();
     const { updateEntryData } = useEntryProcessor();
 
@@ -45,7 +46,7 @@ export default function TotalSection({ estimatedTotal, errors, items }: TotalSec
                     {errors.map((error, index) => <div key={`error-${index}`}>{error}</div>)}
                 </Form.Control.Feedback>}
             </Col>
-            <Col sm={4} className="d-flex justify-content-between align-items-center">
+            {mode !== 'fabs' && <Col sm={4} className="d-flex justify-content-between align-items-center">
                 <TooltipComponent id="increment-all-tooltip" text={t("increment_all_shares")}>
                     <Button
                         size="sm" variant="success"
@@ -78,7 +79,7 @@ export default function TotalSection({ estimatedTotal, errors, items }: TotalSec
                         <i className="fas fa-user-minus"></i>
                     </Button>
                 </TooltipComponent>
-            </Col>
+            </Col>}
         </Form.Group>
     </>
 }

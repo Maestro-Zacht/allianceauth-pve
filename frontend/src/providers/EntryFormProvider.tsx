@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, type Dispatch, type PropsWithChildren } from "react";
-import type { ExtendedEntryFormSchema, ExtendedEntryItem } from "../components/entries/EntryTypes";
+import type { EntryMode, ExtendedEntryFormSchema, ExtendedEntryItem, RampancyLevel } from "../components/entries/EntryTypes";
+import { computeWaveCounts, DEFAULT_RAMPANCY_LEVEL } from "../components/entries/entry_form/waveShares";
 import { useLocalStorageReducer } from "../hooks/useLocalStorageReducer";
 
 type RoleType = ExtendedEntryFormSchema["roles"][number];
@@ -19,6 +20,9 @@ type EntryReducerAction =
     | { type: 'update_role_value'; roleName: string; value: number }
     | { type: 'delete_role'; roleName: string }
     | { type: 'update_shares'; onlyPresent: boolean; increment: number }
+    | { type: 'set_mode'; mode: EntryMode }
+    | { type: 'set_rampancy_level'; level: RampancyLevel }
+    | { type: 'update_share_wave'; characterId: number; field: 'start_wave' | 'end_wave'; value: number }
     | { type: 'select_funding_project'; projectId: number | null }
     | { type: 'update_funding_percentage'; percentage: number }
     | { type: 'add_character'; characterId: number, characterName: string, portraitUrl: string, mainCharacterName: string, mainCharacterPortraitUrl: string }
@@ -26,6 +30,24 @@ type EntryReducerAction =
     | { type: 'change_share_role'; characterId: number; newRoleName: string }
     | { type: 'update_share_count'; characterId: number; value: number }
     | { type: 'delete_share'; characterId: number };
+
+// In "fabs" mode each share's `site_count` is derived from its start/end wave
+// via the wave-weighted formula, so it is recomputed whenever the roster or a
+// wave range changes. In "sites" mode `site_count` is edited directly and this
+// is a no-op.
+function recountWaves(state: ExtendedEntryFormSchema): ExtendedEntryFormSchema {
+    if (state.mode !== 'fabs') {
+        return state;
+    }
+    const counts = computeWaveCounts(state.shares, state.rampancy_level ?? DEFAULT_RAMPANCY_LEVEL);
+    return {
+        ...state,
+        shares: state.shares.map(share => ({
+            ...share,
+            site_count: counts[share.character_id] ?? 0,
+        })),
+    };
+}
 
 function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReducerAction): ExtendedEntryFormSchema {
     switch (action.type) {
@@ -136,11 +158,54 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                 funding_percentage: newPercentage
             };
         }
-        case "add_character":
+        case "set_mode": {
+            if (action.mode === state.mode) {
+                return state;
+            }
+            if (action.mode === 'fabs') {
+                return recountWaves({
+                    ...state,
+                    mode: 'fabs',
+                    shares: state.shares.map(share => ({
+                        ...share,
+                        start_wave: share.start_wave ?? 1,
+                        end_wave: share.end_wave ?? 1,
+                    })),
+                });
+            }
+            return {
+                ...state,
+                mode: 'sites',
+                // Leaving fabs: hand the count back to the user; keep the wave
+                // ranges so toggling back restores them. Normalising a missing
+                // mode must not touch existing counts.
+                shares: state.mode === 'fabs'
+                    ? state.shares.map(share => ({ ...share, site_count: 1 }))
+                    : state.shares,
+            };
+        }
+        case "set_rampancy_level": {
+            if (action.level === state.rampancy_level) {
+                return state;
+            }
+            return recountWaves({ ...state, rampancy_level: action.level });
+        }
+        case "update_share_wave": {
+            const value = isNaN(action.value) ? 1 : Math.max(1, Math.trunc(action.value));
+            return recountWaves({
+                ...state,
+                shares: state.shares.map(share =>
+                    share.character_id === action.characterId
+                        ? { ...share, [action.field]: value }
+                        : share
+                )
+            });
+        }
+        case "add_character": {
             if (state.shares.some(share => share.character_id === action.characterId)) {
                 return state;
             }
-            return {
+            return recountWaves({
                 ...state,
                 shares: [
                     ...state.shares,
@@ -154,9 +219,12 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                         site_count: 1,
                         helped_setup: false,
                         is_present: true,
+                        start_wave: 1,
+                        end_wave: 1,
                     }
                 ]
-            };
+            });
+        }
         case "toggle_share_value":
             return {
                 ...state,
@@ -195,10 +263,10 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                 })
             };
         case "delete_share":
-            return {
+            return recountWaves({
                 ...state,
                 shares: state.shares.filter(share => share.character_id !== action.characterId)
-            };
+            });
         default:
             return state;
     }
@@ -223,7 +291,14 @@ export function EntryFormProvider({ initialData, localStorageKey, submitEntry, c
         if (initialData.roles.length === 0) {
             dispatchEntryData({ type: 'add_role', role: { name: "Krab", value: 1 } });
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount to seed the default role
+        // Drafts persisted before the Sites/Fabs toggle existed have no `mode`.
+        if (entryData.mode !== 'sites' && entryData.mode !== 'fabs') {
+            dispatchEntryData({ type: 'set_mode', mode: 'sites' });
+        }
+        if (!entryData.rampancy_level) {
+            dispatchEntryData({ type: 'set_rampancy_level', level: DEFAULT_RAMPANCY_LEVEL });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount to seed defaults
     }, []);
 
     const submitAction = () => {

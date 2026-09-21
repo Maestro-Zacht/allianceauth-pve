@@ -6,6 +6,11 @@
     align-items: center;
 }
 
+/* Fabs mode adds start wave + end wave columns before the (read-only) count. */
+#users.fabs {
+    grid-template-columns: auto 1fr 1fr auto auto auto auto auto auto;
+}
+
 .selected-user {
     color: #259c21;
     transform: scale(1.5, 1.5);
