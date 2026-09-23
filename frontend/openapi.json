@@ -2134,12 +2134,20 @@
                         "title": "Helped Setup",
                         "type": "array"
                     },
-                    "site_count": {
+                    "first_site": {
                         "default": [],
                         "items": {
                             "type": "string"
                         },
-                        "title": "Site Count",
+                        "title": "First Site",
+                        "type": "array"
+                    },
+                    "last_site": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Last Site",
                         "type": "array"
                     },
                     "role_name": {
@@ -2261,9 +2269,27 @@
                         "title": "Helped Setup",
                         "type": "boolean"
                     },
-                    "site_count": {
-                        "title": "Site Count",
-                        "type": "integer"
+                    "first_site": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "First Site"
+                    },
+                    "last_site": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Last Site"
                     },
                     "role_name": {
                         "title": "Role Name",
@@ -2273,7 +2299,8 @@
                 "required": [
                     "character_id",
                     "helped_setup",
-                    "site_count",
+                    "first_site",
+                    "last_site",
                     "role_name"
                 ],
                 "title": "ShareFormSchema",
@@ -2409,9 +2436,27 @@
                         "title": "Role Name",
                         "type": "string"
                     },
-                    "site_count": {
-                        "title": "Site Count",
-                        "type": "integer"
+                    "first_site": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "First Site"
+                    },
+                    "last_site": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Last Site"
                     },
                     "helped_setup": {
                         "title": "Helped Setup",
@@ -2446,7 +2491,8 @@
                     "user_main_character",
                     "user_character",
                     "role_name",
-                    "site_count",
+                    "first_site",
+                    "last_site",
                     "helped_setup",
                     "estimated_share_total",
                     "estimated_funding_amount",
@@ -2529,9 +2575,27 @@
                         "title": "Helped Setup",
                         "type": "boolean"
                     },
-                    "site_count": {
-                        "title": "Site Count",
-                        "type": "integer"
+                    "first_site": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "First Site"
+                    },
+                    "last_site": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Last Site"
                     },
                     "role_name": {
                         "title": "Role Name",
@@ -2557,7 +2621,8 @@
                 "required": [
                     "character_id",
                     "helped_setup",
-                    "site_count",
+                    "first_site",
+                    "last_site",
                     "role_name",
                     "portrait_url",
                     "character_name",

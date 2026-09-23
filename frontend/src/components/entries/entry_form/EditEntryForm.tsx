@@ -11,6 +11,7 @@ import { useState } from "react";
 import { EntryFormProvider } from "../../../providers/EntryFormProvider";
 import EntryForm from "./EntryForm";
 import NavBackButton from "../../utils/NavBackButton";
+import { validateShareSites } from "./validateShareSites";
 
 export default function EditEntryForm() {
     const [formErrors, setFormErrors] = useState<EntryFormErrors | null>(null);
@@ -66,6 +67,12 @@ export default function EditEntryForm() {
     };
 
     const submitEntry = (entryFormData: ExtendedEntryFormSchema) => {
+        const siteErrors = validateShareSites(entryFormData.shares, t);
+        if (siteErrors) {
+            setFormErrors(siteErrors);
+            addToast(t('entry_change_failed'), 'danger');
+            return;
+        }
         const sendData: EntryFormSchema = {
             estimated_total: entryFormData.estimated_total,
             funding_percentage: entryFormData.funding_percentage,
@@ -74,7 +81,8 @@ export default function EditEntryForm() {
                 character_id: share.character_id,
                 helped_setup: share.helped_setup,
                 role_name: share.role_name,
-                site_count: share.site_count,
+                first_site: share.first_site,
+                last_site: share.last_site,
             })),
             roles: entryFormData.roles,
             items: entryFormData.items.map(item => ({

@@ -715,10 +715,15 @@ export interface components {
              */
             helped_setup: string[];
             /**
-             * Site Count
+             * First Site
              * @default []
              */
-            site_count: string[];
+            first_site: string[];
+            /**
+             * Last Site
+             * @default []
+             */
+            last_site: string[];
             /**
              * Role Name
              * @default []
@@ -760,8 +765,10 @@ export interface components {
             character_id: number;
             /** Helped Setup */
             helped_setup: boolean;
-            /** Site Count */
-            site_count: number;
+            /** First Site */
+            first_site: number | null;
+            /** Last Site */
+            last_site: number | null;
             /** Role Name */
             role_name: string;
         };
@@ -808,8 +815,10 @@ export interface components {
             user_character: components["schemas"]["EveCharacterSchema"];
             /** Role Name */
             role_name: string;
-            /** Site Count */
-            site_count: number;
+            /** First Site */
+            first_site: number | null;
+            /** Last Site */
+            last_site: number | null;
             /** Helped Setup */
             helped_setup: boolean;
             /** Estimated Share Total */
@@ -846,8 +855,10 @@ export interface components {
             character_id: number;
             /** Helped Setup */
             helped_setup: boolean;
-            /** Site Count */
-            site_count: number;
+            /** First Site */
+            first_site: number | null;
+            /** Last Site */
+            last_site: number | null;
             /** Role Name */
             role_name: string;
             /** Portrait Url */

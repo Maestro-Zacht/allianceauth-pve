@@ -67,7 +67,8 @@ function ShareRow({ share, hasProjectContribution, isRotationClosed }: ShareRowP
                 <i className="far fa-heart fa-heart-red"></i>
             }
         </td>
-        <td>{share.site_count}</td>
+        <td>{share.first_site ?? "-"}</td>
+        <td>{share.last_site ?? "-"}</td>
         {isRotationClosed ?
             <TooltipComponent id={`share-total-tooltip-${share.user_character.character_id}`} text={t("total_from_items_tooltip", { total: share.actual_share_total, items: share.actual_share_total_for_items })}>
                 <td>{localizeNumber(total)}</td>
@@ -96,7 +97,8 @@ function ShareTable({ shares, isRotationClosed }: ShareTableProps) {
                     <th scope="col" style={{ textAlign: "left" }}>{t("character")}</th>
                     <th scope="col">{t("fleet_role", { count: 1 })}</th>
                     <th scope="col">{t("helped_setup")}</th>
-                    <th scope="col">{t("count")}</th>
+                    <th scope="col">{t("first_site")}</th>
+                    <th scope="col">{t("last_site")}</th>
                     <th scope="col">{t("share_total")}</th>
                     {hasProjectContribution &&
                         <th scope="col">{isRotationClosed ? t("project_contribution") : t("estimated_project_contribution")}</th>

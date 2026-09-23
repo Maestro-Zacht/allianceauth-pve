@@ -38,7 +38,7 @@ To add an entry to a rotation, click on the plus button on the bottom left of th
 
 Every entry has a list of shares. To add a share, search for the character you want to add in the panel on the right and click the add button.
 
-A share will be added with the first role in the list, 1 site count and no setup. Setups are helpful in wormholes when you want to track who helped setting up a system before ratting. Roles defines how loot will be split between the shares: for example, if someone has 1 site count and a role with a value of 1 and someone else has 1 site count and a role with a value of 2, this last person will receive double the amount of money of the first one.
+A share will be added with the first role in the list, no setup, and first/last site both set to the site the fleet is currently running. The first/last site is the inclusive range of sites the character took part in (leave both empty for a share that ran no sites). Setups are helpful in wormholes when you want to track who helped setting up a system before ratting. Roles defines how loot will be split between the shares: for example, if someone ran sites x to y with a role with a value of 1 and someone else ran the same sites with a role with a value of 2, this last person will receive double the amount of money of the first one.
 
 In order to add a role, you can click on the `New Role` button and create one from scratch or load a roles setup, if you chose at least one in the rotation form, by clicking on the `Load Roles Setup` button.
 
@@ -46,7 +46,7 @@ When you have a role loaded, you can choose it from the dropdown select on the s
 
 On the center of the right panel there is the Estimated total section. There is a numeric field and a list of buttons if you selected at least one in the rotation form. you can either input the estimated total by hand or click on the buttons while you are running the sites.
 
-On the right of the Estimated total field there are 4 buttons for incrementing the site count of the shares. If you hover each of them there'll be a tooltip telling what each button does.
+On the right of the Estimated total field there are 4 buttons for moving the last site of the shares forward or back by one. If you hover each of them there'll be a tooltip telling what each button does.
 The ones that change selected chars only edit the shares with the green arrow. This is helpful if you are doing the form while you are running the sites: if a person leaves, you can click on the arrow and it'll be unselected.
 
 ![Selected Shares](https://raw.githubusercontent.com/Maestro-Zacht/allianceauth-pve/main/images/select_button.png)

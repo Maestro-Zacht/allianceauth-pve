@@ -1,6 +1,6 @@
 #users {
     display: grid;
-    grid-template-columns: auto 1fr 1fr auto auto auto auto;
+    grid-template-columns: auto 1fr 1fr auto auto auto auto auto;
     column-gap: 2ch;
     row-gap: 2rem;
     align-items: center;

@@ -6,6 +6,8 @@ import { useEntryProcessor } from "../../../providers/EntryFormProvider";
 import CharacterWithPortrait from "../../utils/CharacterWithPortrait";
 import { Alert, Button, Form } from "react-bootstrap";
 
+const siteFields = ["first_site", "last_site"] as const;
+
 interface SharesSectionProps {
     shares: ExtendedEntryFormSchema['shares'];
     roles: ExtendedEntryFormSchema['roles'];
@@ -27,7 +29,8 @@ export default function SharesSection({ shares, roles, errors_root, errors }: Sh
                     <span>{t("character")}</span>
                     <span className="text-center">{t("role")}</span>
                     <span className="text-center">{t("setup")}</span>
-                    <span className="text-center">{t("count")}</span>
+                    <span className="text-center">{t("first_site")}</span>
+                    <span className="text-center">{t("last_site")}</span>
                     <span className="text-center">{t("delete")}</span>
 
                     {shares.map((share, index) => <Fragment key={index}>
@@ -78,17 +81,20 @@ export default function SharesSection({ shares, roles, errors_root, errors }: Sh
                                 <i className="far fa-heart fa-heart-red"></i>
                             }
                         </span>
-                        <Form.Control
+                        {siteFields.map(field => <Form.Control
+                            key={field}
                             type="number"
-                            min={0}
-                            value={share.site_count}
+                            min={field === "last_site" ? share.first_site ?? 1 : 1}
+                            max={field === "first_site" ? share.last_site ?? undefined : undefined}
+                            value={share[field] ?? ""}
                             onChange={(e) => updateEntryData({
-                                type: "update_share_count",
+                                type: "update_share_site",
                                 characterId: share.character_id,
+                                field,
                                 value: parseInt(e.target.value)
                             })}
                             style={{ maxWidth: "7ch" }}
-                        />
+                        />)}
                         <Button
                             variant="danger"
                             style={{ transform: 'scale(0.8)' }}
@@ -105,7 +111,7 @@ export default function SharesSection({ shares, roles, errors_root, errors }: Sh
                             && errors[index] && Object.keys(errors[index]).length > 0
                             && <Alert variant="danger" className="all-cols" dismissible>
                                 {errors[index].role_name && errors[index].role_name.map((error, errorIndex) => <div key={`error-role-${index}-${errorIndex}`}>{error}</div>)}
-                                {errors[index].site_count && errors[index].site_count.map((error, errorIndex) => <div key={`error-count-${index}-${errorIndex}`}>{error}</div>)}
+                                {siteFields.map(field => errors[index][field]?.map((error, errorIndex) => <div key={`error-${field}-${index}-${errorIndex}`}>{error}</div>))}
                             </Alert>}
                     </Fragment>)}
                 </>

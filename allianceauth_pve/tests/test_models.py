@@ -3,6 +3,7 @@ import random
 from decimal import Decimal
 
 from allianceauth.services.hooks import get_extension_logger
+from django.db import IntegrityError, transaction
 from django.db.models import Sum
 from django.test import TestCase
 from django.utils import timezone
@@ -25,6 +26,12 @@ from allianceauth_pve.models import (
 from .utils import PveTestBase
 
 logger = get_extension_logger(__name__)
+
+
+def site_range(count: int) -> dict[str, int | None]:
+    if count == 0:
+        return {"first_site": None, "last_site": None}
+    return {"first_site": 1, "last_site": count}
 
 
 class TestRoleSetup(TestCase):
@@ -219,7 +226,7 @@ class TestEntry(PveTestBase):
         cls.rotation = cls.make_rotation(name="test1rot", tax_rate=10.0)
 
         cls.entry, cls.role, cls.share = cls.make_entry(
-            cls.rotation, cls.testuser, cls.testcharacter, site_count=2
+            cls.rotation, cls.testuser, cls.testcharacter, last_site=2
         )
 
         cls.funding_project = FundingProject.objects.create(
@@ -237,6 +244,43 @@ class TestEntry(PveTestBase):
 
     def test_total_site_count(self):
         self.assertEqual(self.entry.total_site_count, 2)
+
+    def test_total_site_count_zero_site_shares(self):
+        self.make_share(
+            self.entry,
+            self.testuser2,
+            self.testcharacter2,
+            self.role,
+            first_site=None,
+            last_site=None,
+        )
+        self.assertEqual(self.entry.total_site_count, 2)
+
+        entry, _, _ = self.make_entry(
+            self.rotation,
+            self.testuser,
+            self.testcharacter,
+            first_site=None,
+            last_site=None,
+        )
+        self.assertEqual(entry.total_site_count, 0)
+
+    def test_site_range_constraint(self):
+        for first_site, last_site in ((1, None), (None, 1), (3, 2), (0, 0)):
+            with (
+                self.subTest(first_site=first_site, last_site=last_site),
+                self.assertRaises(IntegrityError),
+                transaction.atomic(),
+            ):
+                EntryCharacter.objects.create(
+                    entry=self.entry,
+                    user=self.testuser2,
+                    user_character=self.testcharacter2,
+                    role=self.role,
+                    first_site=first_site,
+                    last_site=last_site,
+                    relative_value=Decimal(0),
+                )
 
     def test_estimated_total_after_tax(self):
         self.assertAlmostEqual(self.entry.estimated_total_after_tax, 900_000_000.0)
@@ -270,7 +314,7 @@ class TestEntry(PveTestBase):
                     self.testcharacter,
                     role_name="role1",
                     role_value=value1,
-                    site_count=count1,
+                    **site_range(count1),
                     estimated_total=estimated_total,
                 )
 
@@ -286,14 +330,14 @@ class TestEntry(PveTestBase):
                     self.testuser2,
                     self.testcharacter2,
                     role2,
-                    site_count=count2,
+                    **site_range(count2),
                 )
                 share3 = self.make_share(
                     entry,
                     self.testuser3,
                     self.testcharacter3,
                     role3,
-                    site_count=count3,
+                    **site_range(count3),
                 )
 
                 self.assertTrue(Entry.objects.filter(pk=entry.pk).exists())
@@ -558,7 +602,7 @@ class TestFundingProject(PveTestBase):
             cls.testcharacter,
             funding_project=cls.funding_project,
             funding_percentage=50,
-            site_count=2,
+            last_site=2,
         )
 
         cls.rotation.is_closed = True
@@ -570,7 +614,7 @@ class TestFundingProject(PveTestBase):
         self.assertEqual(str(self.funding_project), self.funding_project.name)
 
     def test_with_contributions_to(self):
-        self.make_entry(self.rotation, self.testuser, self.testcharacter, site_count=2)
+        self.make_entry(self.rotation, self.testuser, self.testcharacter, last_site=2)
 
         self.make_entry(
             self.rotation,
@@ -578,7 +622,7 @@ class TestFundingProject(PveTestBase):
             self.testcharacter,
             funding_project=self.funding_project,
             funding_percentage=0,
-            site_count=2,
+            last_site=2,
         )
 
         self.assertQuerySetEqual(
@@ -597,7 +641,7 @@ class TestFundingProject(PveTestBase):
             self.testcharacter,
             funding_project=self.funding_project,
             funding_percentage=10,
-            site_count=2,
+            last_site=2,
         )
 
         self.assertQuerySetEqual(
@@ -692,7 +736,7 @@ class TestFundingProject(PveTestBase):
             self.testcharacter,
             funding_project=project2,
             funding_percentage=50,
-            site_count=2,
+            last_site=2,
         )
 
         self.assertQuerySetEqual(

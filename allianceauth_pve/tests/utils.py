@@ -88,14 +88,15 @@ class PveTestBase(TestCase):
 
     @staticmethod
     def make_share(  # noqa: PLR0913
-        entry, user, char, role, *, site_count=1, helped_setup=False
+        entry, user, char, role, *, first_site=1, last_site=1, helped_setup=False
     ):
         share = EntryCharacter.objects.create(
             entry=entry,
             user=user,
             user_character=char,
             role=role,
-            site_count=site_count,
+            first_site=first_site,
+            last_site=last_site,
             helped_setup=helped_setup,
             relative_value=Decimal(0),
         )
@@ -112,7 +113,8 @@ class PveTestBase(TestCase):
         *,
         role_name="dps",
         role_value=10,
-        site_count=1,
+        first_site=1,
+        last_site=1,
         helped_setup=False,
         estimated_total=1_000_000_000,
         funding_project=None,
@@ -131,7 +133,8 @@ class PveTestBase(TestCase):
             user,
             char,
             role,
-            site_count=site_count,
+            first_site=first_site,
+            last_site=last_site,
             helped_setup=helped_setup,
         )
         return entry, role, share
@@ -165,7 +168,8 @@ class PveApiTestBase(PveTestBase):
                 {
                     "character_id": char_id,
                     "helped_setup": False,
-                    "site_count": 1,
+                    "first_site": 1,
+                    "last_site": 1,
                     "role_name": role_name,
                 }
             ],

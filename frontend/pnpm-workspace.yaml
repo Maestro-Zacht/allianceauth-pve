@@ -12,6 +12,9 @@ trustPolicyExclude:
 allowBuilds:
   "@swc/core": true # transitive via @vitejs/plugin-react
 
+overrides:
+  datatables.net: "^3"
+
 minimumReleaseAgeExclude:
   - "@types/node@26.1.2"
   - globals@17.8.0

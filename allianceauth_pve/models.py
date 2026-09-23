@@ -54,6 +54,10 @@ def compute_relative_values(weights: Sequence[int]) -> list[Decimal]:
     return values
 
 
+def count_sites(first_site: int | None, last_site: int | None) -> int:
+    return 0 if first_site is None or last_site is None else last_site - first_site + 1
+
+
 class General(models.Model):  # noqa: DJ008
     class Meta:
         managed = False
@@ -552,7 +556,8 @@ class EntryCharacter(models.Model):
         "EntryRole", on_delete=models.RESTRICT, related_name="shares"
     )
 
-    site_count = models.PositiveIntegerField(default=1)
+    first_site = models.PositiveIntegerField(null=True, blank=True)
+    last_site = models.PositiveIntegerField(null=True, blank=True)
     helped_setup = models.BooleanField(default=False)
     relative_value = models.DecimalField(
         _("relative value"),
@@ -569,10 +574,24 @@ class EntryCharacter(models.Model):
                 condition=models.Q(relative_value__gte=0, relative_value__lte=1),
                 name="relative_value_is_a_fraction",
             ),
+            models.CheckConstraint(
+                condition=models.Q(first_site__isnull=True, last_site__isnull=True)
+                | models.Q(
+                    first_site__isnull=False,
+                    last_site__isnull=False,
+                    first_site__gte=1,
+                    last_site__gte=models.F("first_site"),
+                ),
+                name="sites_are_a_valid_range",
+            ),
         )
 
     def __str__(self) -> str:
         return f"{self.user_character} in {self.entry}"
+
+    @property
+    def site_count(self) -> int:
+        return count_sites(self.first_site, self.last_site)
 
 
 class Entry(models.Model):
@@ -619,7 +638,11 @@ class Entry(models.Model):
 
     @cached_property
     def total_site_count(self) -> int:
-        return self.ratting_shares.aggregate(val=models.Sum("site_count"))["val"]
+        return self.ratting_shares.aggregate(
+            val=Coalesce(
+                models.Sum(models.F("last_site") - models.F("first_site") + 1), 0
+            )
+        )["val"]
 
     @cached_property
     def estimated_total_after_tax(self):

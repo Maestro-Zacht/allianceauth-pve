@@ -3,6 +3,11 @@ import type { ExtendedEntryFormSchema, ExtendedEntryItem } from "../components/e
 import { useLocalStorageReducer } from "../hooks/useLocalStorageReducer";
 
 type RoleType = ExtendedEntryFormSchema["roles"][number];
+type ShareType = ExtendedEntryFormSchema["shares"][number];
+
+function currentFleetSite(shares: ShareType[]): number {
+    return Math.max(0, ...shares.map(share => share.last_site ?? 0));
+}
 
 const EntryFormUpdateContext = createContext<EntryProcessorType | undefined>(undefined);
 const EntryFormDataContext = createContext<ExtendedEntryFormSchema | undefined>(undefined);
@@ -24,7 +29,7 @@ type EntryReducerAction =
     | { type: 'add_character'; characterId: number, characterName: string, portraitUrl: string, mainCharacterName: string, mainCharacterPortraitUrl: string }
     | { type: 'toggle_share_value'; characterId: number, field: 'helped_setup' | 'is_present' }
     | { type: 'change_share_role'; characterId: number; newRoleName: string }
-    | { type: 'update_share_count'; characterId: number; value: number }
+    | { type: 'update_share_site'; characterId: number; field: 'first_site' | 'last_site'; value: number }
     | { type: 'delete_share'; characterId: number };
 
 function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReducerAction): ExtendedEntryFormSchema {
@@ -94,21 +99,31 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                 )
             };
         }
-        case 'update_shares':
+        case 'update_shares': {
+            const fleetSite = currentFleetSite(state.shares);
             return {
                 ...state,
                 shares: state.shares.map(share => {
-                    if (share.is_present || !action.onlyPresent) {
-                        const newSiteCount = share.site_count + action.increment;
-                        return {
-                            ...share,
-                            site_count: newSiteCount < 0 ? 0 : newSiteCount
-                        }
-                    } else {
+                    if (!share.is_present && action.onlyPresent) {
                         return share;
                     }
+                    if (share.first_site === null && share.last_site === null) {
+                        return action.increment > 0 ?
+                            { ...share, first_site: fleetSite + 1, last_site: fleetSite + 1 } :
+                            share;
+                    }
+                    if (share.last_site === null) {
+                        return action.increment > 0 ?
+                            { ...share, last_site: share.first_site } :
+                            share;
+                    }
+                    const newLastSite = share.last_site + action.increment;
+                    return newLastSite < (share.first_site ?? 1) ?
+                        { ...share, last_site: null } :
+                        { ...share, last_site: newLastSite };
                 })
             };
+        }
         case "select_funding_project":
             return {
                 ...state,
@@ -136,10 +151,11 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                 funding_percentage: newPercentage
             };
         }
-        case "add_character":
+        case "add_character": {
             if (state.shares.some(share => share.character_id === action.characterId)) {
                 return state;
             }
+            const startSite = Math.max(currentFleetSite(state.shares), 1);
             return {
                 ...state,
                 shares: [
@@ -151,12 +167,14 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                         main_character_name: action.mainCharacterName,
                         main_character_portrait_url: action.mainCharacterPortraitUrl,
                         role_name: state.roles[0].name,
-                        site_count: 1,
+                        first_site: startSite,
+                        last_site: startSite,
                         helped_setup: false,
                         is_present: true,
                     }
                 ]
             };
+        }
         case "toggle_share_value":
             return {
                 ...state,
@@ -182,13 +200,13 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                     }
                 })
             };
-        case "update_share_count":
+        case "update_share_site":
             return {
                 ...state,
                 shares: state.shares.map(share => {
                     if (share.character_id === action.characterId) {
-                        const newSiteCount = (action.value < 0 || isNaN(action.value)) ? 0 : action.value;
-                        return { ...share, site_count: newSiteCount };
+                        const newSite = isNaN(action.value) ? null : Math.max(action.value, 1);
+                        return { ...share, [action.field]: newSite };
                     } else {
                         return share;
                     }
