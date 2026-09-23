@@ -35,7 +35,7 @@ SHARE_TOTAL_FIELD = models.DecimalField(max_digits=53, decimal_places=26)
 ZERO_SHARE_TOTAL = models.Value(Decimal(0), output_field=SHARE_TOTAL_FIELD)
 
 
-def compute_relative_values(weights: Sequence[Fraction | int]) -> list[Decimal]:
+def normalize_weights(weights: Sequence[Fraction | int]) -> list[Decimal]:
     """Return a normalization of ``weights`` (sums to exactly ``Decimal(1)``)."""
     total = sum(weights)
     if total == 0:
@@ -80,7 +80,7 @@ def compute_site_relative_values(
                 if site_weights[site]:
                     weight += Fraction(role_value, site_weights[site])
         weights.append(weight)
-    return compute_relative_values(weights)
+    return normalize_weights(weights)
 
 
 class General(models.Model):  # noqa: DJ008

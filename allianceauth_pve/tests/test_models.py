@@ -21,8 +21,8 @@ from allianceauth_pve.models import (
     Rotation,
     RotationPreset,
     RotationSetupSummary,
-    compute_relative_values,
     compute_site_relative_values,
+    normalize_weights,
 )
 
 from .utils import PveTestBase
@@ -429,7 +429,7 @@ class TestComputeRelativeValues(TestCase):
             [1] * 50,
         ):
             with self.subTest(weights=weights):
-                values = compute_relative_values(weights)
+                values = normalize_weights(weights)
 
                 self.assertEqual(len(values), len(weights))
                 self.assertEqual(sum(values), Decimal(1))
@@ -438,27 +438,27 @@ class TestComputeRelativeValues(TestCase):
                     self.assertLessEqual(value, Decimal(1))
 
     def test_zero_weights(self):
-        self.assertEqual(compute_relative_values([0, 0, 0]), [Decimal(0)] * 3)
+        self.assertEqual(normalize_weights([0, 0, 0]), [Decimal(0)] * 3)
 
     def test_empty(self):
-        self.assertEqual(compute_relative_values([]), [])
+        self.assertEqual(normalize_weights([]), [])
 
     def test_proportional(self):
         self.assertEqual(
-            compute_relative_values([1, 3]),
+            normalize_weights([1, 3]),
             [Decimal("0.25"), Decimal("0.75")],
         )
 
     def test_residual_lands_on_the_largest_weight(self):
         # 1/3 + 1/3 + 1/3 quantized leaves 1e-20 unallocated; it must not be
         # dropped, and it must go to the biggest share.
-        values = compute_relative_values([1, 1, 10])
+        values = normalize_weights([1, 1, 10])
         self.assertEqual(sum(values), Decimal(1))
         self.assertEqual(max(values), values[2])
 
     def test_fraction_weights(self):
         self.assertEqual(
-            compute_relative_values([Fraction(1, 6), Fraction(1, 2)]),
+            normalize_weights([Fraction(1, 6), Fraction(1, 2)]),
             [Decimal("0.25"), Decimal("0.75")],
         )
 
@@ -482,7 +482,7 @@ class TestComputeSiteRelativeValues(SimpleTestCase):
         # A = 1/3 + 2 * (1/3 * 1/3), B = 2 * (1/3 * 2/3)
         self.assertEqual(
             compute_site_relative_values([(1, 3, 1), (2, 3, 2)]),
-            compute_relative_values([Fraction(5, 9), Fraction(4, 9)]),
+            normalize_weights([Fraction(5, 9), Fraction(4, 9)]),
         )
 
     def test_share_without_sites(self):
