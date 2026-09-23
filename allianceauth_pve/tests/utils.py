@@ -17,7 +17,7 @@ from allianceauth_pve.models import (
     EntryLootItem,
     EntryRole,
     Rotation,
-    compute_relative_values,
+    compute_site_relative_values,
 )
 
 ACCESS = "allianceauth_pve.access_pve"
@@ -32,8 +32,8 @@ def url(name, **kwargs):
 
 def recompute_relative_values(entry: Entry) -> None:
     shares = list(entry.ratting_shares.select_related("role"))
-    values = compute_relative_values(
-        [share.site_count * share.role.value for share in shares]
+    values = compute_site_relative_values(
+        [(share.first_site, share.last_site, share.role.value) for share in shares]
     )
     for share, value in zip(shares, values, strict=True):
         share.relative_value = value

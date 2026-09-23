@@ -1,5 +1,7 @@
+from collections import defaultdict
 from collections.abc import Sequence
 from decimal import ROUND_HALF_EVEN, Decimal, localcontext
+from fractions import Fraction
 from typing import TYPE_CHECKING, ClassVar
 
 from allianceauth.eveonline.models import EveCharacter
@@ -33,20 +35,22 @@ SHARE_TOTAL_FIELD = models.DecimalField(max_digits=53, decimal_places=26)
 ZERO_SHARE_TOTAL = models.Value(Decimal(0), output_field=SHARE_TOTAL_FIELD)
 
 
-def compute_relative_values(weights: Sequence[int]) -> list[Decimal]:
-    """Split 1 across ``weights`` so the result sums to exactly ``Decimal(1)``."""
+def compute_relative_values(weights: Sequence[Fraction | int]) -> list[Decimal]:
+    """Return a normalization of ``weights`` (sums to exactly ``Decimal(1)``)."""
     total = sum(weights)
     if total == 0:
         return [Decimal(0)] * len(weights)
 
     with localcontext() as ctx:
         ctx.prec = 40
-        values = [
-            (Decimal(w) / total).quantize(
-                RELATIVE_VALUE_QUANTUM, rounding=ROUND_HALF_EVEN
+        values = []
+        for w in weights:
+            ratio = Fraction(w) / total
+            values.append(
+                (Decimal(ratio.numerator) / ratio.denominator).quantize(
+                    RELATIVE_VALUE_QUANTUM, rounding=ROUND_HALF_EVEN
+                )
             )
-            for w in weights
-        ]
 
     residual = Decimal(1) - sum(values)
     if residual:
@@ -56,6 +60,27 @@ def compute_relative_values(weights: Sequence[int]) -> list[Decimal]:
 
 def count_sites(first_site: int | None, last_site: int | None) -> int:
     return 0 if first_site is None or last_site is None else last_site - first_site + 1
+
+
+# make this more efficient
+def compute_site_relative_values(
+    shares: Sequence[tuple[int | None, int | None, int]],
+) -> list[Decimal]:
+    site_weights: defaultdict[int, int] = defaultdict(int)
+    for first_site, last_site, role_value in shares:
+        if first_site is not None and last_site is not None:
+            for site in range(first_site, last_site + 1):
+                site_weights[site] += role_value
+
+    weights = []
+    for first_site, last_site, role_value in shares:
+        weight = Fraction(0)
+        if first_site is not None and last_site is not None:
+            for site in range(first_site, last_site + 1):
+                if site_weights[site]:
+                    weight += Fraction(role_value, site_weights[site])
+        weights.append(weight)
+    return compute_relative_values(weights)
 
 
 class General(models.Model):  # noqa: DJ008

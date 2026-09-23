@@ -1,11 +1,12 @@
 import itertools
 import random
 from decimal import Decimal
+from fractions import Fraction
 
 from allianceauth.services.hooks import get_extension_logger
 from django.db import IntegrityError, transaction
 from django.db.models import Sum
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase
 from django.utils import timezone
 
 from allianceauth_pve.models import (
@@ -21,6 +22,7 @@ from allianceauth_pve.models import (
     RotationPreset,
     RotationSetupSummary,
     compute_relative_values,
+    compute_site_relative_values,
 )
 
 from .utils import PveTestBase
@@ -32,6 +34,20 @@ def site_range(count: int) -> dict[str, int | None]:
     if count == 0:
         return {"first_site": None, "last_site": None}
     return {"first_site": 1, "last_site": count}
+
+
+def expected_site_split(shares: tuple[tuple[int, int], ...]) -> list[float]:
+    """Reference per-site split for ``(site_count, role_value)`` shares starting at site 1."""
+    site_weights = [
+        sum(value for count, value in shares if count >= site)
+        for site in range(1, max(count for count, _ in shares) + 1)
+    ]
+    paid_sites = sum(1 for weight in site_weights if weight)
+    return [
+        sum(value / site_weights[site] for site in range(count) if site_weights[site])
+        / paid_sites
+        for count, value in shares
+    ]
 
 
 class TestRoleSetup(TestCase):
@@ -346,21 +362,17 @@ class TestEntry(PveTestBase):
                 share2 = EntryCharacter.objects.with_totals().get(pk=share2.pk)
                 share3 = EntryCharacter.objects.with_totals().get(pk=share3.pk)
 
-                self.assertAlmostEqual(
-                    float(share1.estimated_share_total),
-                    estimated_total * 0.9 * count1 * value1 / total_value,
-                    places=2,
+                expected = expected_site_split(
+                    ((count1, value1), (count2, value2), (count3, value3))
                 )
-                self.assertAlmostEqual(
-                    float(share2.estimated_share_total),
-                    estimated_total * 0.9 * count2 * value2 / total_value,
-                    places=2,
-                )
-                self.assertAlmostEqual(
-                    float(share3.estimated_share_total),
-                    estimated_total * 0.9 * count3 * value3 / total_value,
-                    places=2,
-                )
+                for share, fraction in zip(
+                    (share1, share2, share3), expected, strict=True
+                ):
+                    self.assertAlmostEqual(
+                        float(share.estimated_share_total),
+                        estimated_total * 0.9 * fraction,
+                        places=2,
+                    )
 
                 sum_estimated = entry.ratting_shares.with_totals().aggregate(
                     val=Sum("estimated_share_total")
@@ -443,6 +455,58 @@ class TestComputeRelativeValues(TestCase):
         values = compute_relative_values([1, 1, 10])
         self.assertEqual(sum(values), Decimal(1))
         self.assertEqual(max(values), values[2])
+
+    def test_fraction_weights(self):
+        self.assertEqual(
+            compute_relative_values([Fraction(1, 6), Fraction(1, 2)]),
+            [Decimal("0.25"), Decimal("0.75")],
+        )
+
+
+class TestComputeSiteRelativeValues(SimpleTestCase):
+    def test_disjoint_ranges(self):
+        # each ran half the sites alone: role values do not matter
+        self.assertEqual(
+            compute_site_relative_values([(1, 2, 1), (3, 4, 10)]),
+            [Decimal("0.5"), Decimal("0.5")],
+        )
+
+    def test_same_range_is_weighted_on_roles(self):
+        self.assertEqual(
+            compute_site_relative_values([(1, 3, 1), (1, 3, 3)]),
+            [Decimal("0.25"), Decimal("0.75")],
+        )
+
+    def test_site_split_only_among_its_characters(self):
+        # site 1: A alone; sites 2-3: A and B (B with double role).
+        # A = 1/3 + 2 * (1/3 * 1/3), B = 2 * (1/3 * 2/3)
+        self.assertEqual(
+            compute_site_relative_values([(1, 3, 1), (2, 3, 2)]),
+            compute_relative_values([Fraction(5, 9), Fraction(4, 9)]),
+        )
+
+    def test_share_without_sites(self):
+        self.assertEqual(
+            compute_site_relative_values([(1, 2, 1), (None, None, 5)]),
+            [Decimal(1), Decimal(0)],
+        )
+
+    def test_zero_roles(self):
+        self.assertEqual(
+            compute_site_relative_values([(1, 2, 0), (1, 2, 0)]),
+            [Decimal(0)] * 2,
+        )
+
+    def test_sums_to_exactly_one(self):
+        rng = random.Random(418)
+        for _ in range(50):
+            last = rng.randint(1, 30)
+            shares = [(1, last, rng.randint(1, 10))]
+            for _ in range(rng.randint(0, 15)):
+                first = rng.randint(1, last)
+                shares.append((first, rng.randint(first, last), rng.randint(1, 10)))
+            with self.subTest(shares=shares):
+                self.assertEqual(sum(compute_site_relative_values(shares)), Decimal(1))
 
 
 class TestShareTotalsAreExact(PveTestBase):

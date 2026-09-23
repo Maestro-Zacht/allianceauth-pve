@@ -25,7 +25,7 @@ from allianceauth_pve.models import (
     PveButton,
     RoleSetup,
     Rotation,
-    compute_relative_values,
+    compute_site_relative_values,
     count_sites,
 )
 
@@ -646,8 +646,11 @@ class EntryFormSchema(Schema):
                 )
             )
 
-        relative_values = compute_relative_values(
-            [share.site_count * share.role.value for share in shares_to_add]
+        relative_values = compute_site_relative_values(
+            [
+                (share.first_site, share.last_site, share.role.value)
+                for share in shares_to_add
+            ]
         )
         for share, relative_value in zip(shares_to_add, relative_values, strict=True):
             share.relative_value = relative_value
