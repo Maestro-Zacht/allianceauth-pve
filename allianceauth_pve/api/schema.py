@@ -37,6 +37,7 @@ class PermissionsSchema(Schema):
     manage_rotations: bool
     manage_funding_projects: bool
     is_superuser: bool
+    pve_only_mains: bool
 
 
 class ActivitySchema(Schema):

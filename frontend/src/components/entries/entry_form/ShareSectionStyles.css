@@ -6,6 +6,11 @@
     align-items: center;
 }
 
+#users.only-mains {
+    grid-template-columns: auto 1fr auto auto auto auto auto;
+    column-gap: 3ch;
+}
+
 .selected-user {
     color: #259c21;
     transform: scale(1.5, 1.5);

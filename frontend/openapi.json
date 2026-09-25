@@ -2803,6 +2803,10 @@
                     "is_superuser": {
                         "title": "Is Superuser",
                         "type": "boolean"
+                    },
+                    "pve_only_mains": {
+                        "title": "Pve Only Mains",
+                        "type": "boolean"
                     }
                 },
                 "required": [
@@ -2811,7 +2815,8 @@
                     "manage_entries",
                     "manage_rotations",
                     "manage_funding_projects",
-                    "is_superuser"
+                    "is_superuser",
+                    "pve_only_mains"
                 ],
                 "title": "PermissionsSchema",
                 "type": "object"

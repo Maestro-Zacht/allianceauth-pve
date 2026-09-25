@@ -5,6 +5,7 @@ import "./ShareSectionStyles.css";
 import { useEntryProcessor } from "../../../providers/EntryFormProvider";
 import CharacterWithPortrait from "../../utils/CharacterWithPortrait";
 import { Alert, Button, Form } from "react-bootstrap";
+import { usePermissions } from "../../../providers/PermissionsProvider";
 
 const siteFields = ["first_site", "last_site"] as const;
 
@@ -18,14 +19,16 @@ interface SharesSectionProps {
 export default function SharesSection({ shares, roles, errors_root, errors }: SharesSectionProps) {
     const { t } = useTranslation();
     const { updateEntryData } = useEntryProcessor();
+    const permissions = usePermissions();
+    const showMain = !permissions?.pve_only_mains;
 
     return <>
-        <div id="users">
+        <div id="users" className={showMain ? undefined : "only-mains"}>
             {shares.length === 0 ?
                 <span className="all-cols text-center">{t("no_character_yet")}</span> :
                 <>
                     <span className="text-center">{t("select")}</span>
-                    <span>{t("users_main_character")}</span>
+                    {showMain && <span>{t("users_main_character")}</span>}
                     <span>{t("character")}</span>
                     <span className="text-center">{t("role")}</span>
                     <span className="text-center">{t("setup")}</span>
@@ -46,12 +49,12 @@ export default function SharesSection({ shares, roles, errors_root, errors }: Sh
                                 <i className="fas fa-arrow-right selected-user"></i> :
                                 <i className="fas fa-running unselected-user"></i>}
                         </span>
-                        <span className="d-flex justify-content-start align-items-center">
+                        {showMain && <span className="d-flex justify-content-start align-items-center">
                             <CharacterWithPortrait
                                 character_name={share.main_character_name}
                                 portrait_url={share.main_character_portrait_url}
                             />
-                        </span>
+                        </span>}
                         <span className="d-flex justify-content-start align-items-center">
                             <CharacterWithPortrait
                                 character_name={share.character_name}

@@ -941,6 +941,8 @@ export interface components {
             manage_funding_projects: boolean;
             /** Is Superuser */
             is_superuser: boolean;
+            /** Pve Only Mains */
+            pve_only_mains: boolean;
         };
         /** RatterSchema */
         RatterSchema: {
