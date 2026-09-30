@@ -2,7 +2,7 @@ exclude: ^(LICENSE|frontend/(openapi\.json|pnpm-lock\.yaml|src/api/Schema\.d\.ts
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # frozen: v6.0.0
     hooks:
       - id: check-ast
         name: check-ast (Python)
@@ -72,14 +72,14 @@ repos:
         description: Ensure that files end with a newline.
 
   - repo: https://github.com/tox-dev/tox-ini-fmt
-    rev: 241ced4140307006cfd8b2b9ccfd43b1139cfe4a  # frozen: 1.9.0
+    rev: 241ced4140307006cfd8b2b9ccfd43b1139cfe4a # frozen: 1.9.0
     hooks:
       - id: tox-ini-fmt
         name: tox.ini formatter
         description: Format the tox.ini file.
 
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: 59e7b26529dc6f15c43063064b8b06ded60d0910  # frozen: v2.29.4
+    rev: 59e7b26529dc6f15c43063064b8b06ded60d0910 # frozen: v2.29.4
     hooks:
       - id: pyproject-fmt
         name: pyproject.toml formatter
@@ -90,14 +90,14 @@ repos:
           - tox==4.61.4 # https://github.com/tox-dev/tox/releases/latest
 
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: 17e12779811926f000bdfa1795f9e3735dd71ac3  # frozen: 0.26
+    rev: 17e12779811926f000bdfa1795f9e3735dd71ac3 # frozen: 0.26
     hooks:
       - id: validate-pyproject
         name: Validate pyproject.toml
         description: Validate the pyproject.toml file.
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 12e63946db2c5cfcc9030fac21c3883ba88c6ed8  # frozen: 0.38.0
+    rev: 12e63946db2c5cfcc9030fac21c3883ba88c6ed8 # frozen: 0.38.0
     hooks:
       - id: check-github-actions
         name: Check GitHub Actions
@@ -124,7 +124,25 @@ repos:
           - --verbose
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 321478e58f4938179c6b86e4ddfa923d1547a49b  # frozen: v0.16.6
+    rev: 321478e58f4938179c6b86e4ddfa923d1547a49b # frozen: v0.16.6
     hooks:
       - id: ruff-check
       - id: ruff-format
+
+  - repo: https://github.com/adamchainz/django-upgrade
+    rev: e668ea858b908d23a9702b24214f4fc5d07ed50f # frozen: 1.32.0
+    hooks:
+      - id: django-upgrade
+        name: Django upgrade
+        description: Upgrade Django code to a target version.
+        args:
+          - --target-version=5.2 # Minimum supported Django version for AA. Update as needed.
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: 75992aaa40730136014f34227e0135f63fc951b4 # frozen: v3.21.2
+    hooks:
+      - id: pyupgrade
+        name: PyUpgrade
+        description: Upgrade syntax to newer versions of Python.
+        args:
+          - --py310-plus # Minimum required Python version for AA. Update as needed.
