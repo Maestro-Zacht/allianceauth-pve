@@ -1,4 +1,4 @@
-import { Button, Card, Col } from "react-bootstrap";
+import { Button, Card, Col, Row } from "react-bootstrap";
 import SharesSection from "./SharesSection";
 import RolesSection from "./RolesSection";
 import { useEntryFormData, useEntryProcessor } from "../../../providers/EntryFormProvider";
@@ -7,6 +7,7 @@ import IncrementTotalSection from "./IncrementTotalSection";
 import TotalSection from "./TotalSection";
 import AddCharactersSection from "./AddCharactersSection";
 import FundingProjectSection from "./FundingProjectSection";
+import SiteScalingSection from "./SiteScalingSection";
 import "./EntryFormStyles.css"
 import Loading from "../../utils/Loading";
 import type { EntryFormErrors } from "../EntryTypes";
@@ -26,7 +27,22 @@ export default function EntryForm({ rotationId, isLoading, errors }: EntryFormPr
         <Col xs={12} sm={8}>
             <Card>
                 <Card.Body>
-                    <RolesSection rotationId={rotationId} roles={entryData.roles} errors_root={errors?.roles_root} errors={errors?.roles} />
+                    <Row>
+                        <Col lg>
+                            <RolesSection rotationId={rotationId} roles={entryData.roles} errors_root={errors?.roles_root} errors={errors?.roles} />
+                        </Col>
+                        <Col lg="auto" className="d-none d-lg-flex">
+                            <div className="vr" />
+                        </Col>
+                        <Col lg={4}>
+                            <hr className="d-lg-none" />
+                            <SiteScalingSection
+                                siteScaling={entryData.site_scaling}
+                                siteScalingCoefficient={entryData.site_scaling_coefficient ?? null}
+                                errorsSiteScalingCoefficient={errors?.site_scaling_coefficient}
+                            />
+                        </Col>
+                    </Row>
                     <hr />
                     <IncrementTotalSection rotationId={rotationId} />
                     <hr />

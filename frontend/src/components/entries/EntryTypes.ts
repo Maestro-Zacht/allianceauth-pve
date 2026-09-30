@@ -14,4 +14,6 @@ export type ExtendedEntryFormSchema = Omit<EntryFormSchema, 'shares' | 'items'> 
     items: ExtendedEntryItem[];
 };
 
+export type SiteScaling = components["schemas"]["SiteScaling"];
+
 export type EntryFormErrors = components["schemas"]["EntryFormErrorsSchema"];

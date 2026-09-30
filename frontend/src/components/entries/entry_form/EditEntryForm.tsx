@@ -77,6 +77,8 @@ export default function EditEntryForm() {
             estimated_total: entryFormData.estimated_total,
             funding_percentage: entryFormData.funding_percentage,
             funding_project_id: entryFormData.funding_project_id,
+            site_scaling: entryFormData.site_scaling,
+            site_scaling_coefficient: entryFormData.site_scaling_coefficient,
             shares: entryFormData.shares.map(share => ({
                 character_id: share.character_id,
                 helped_setup: share.helped_setup,

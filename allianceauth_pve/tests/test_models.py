@@ -508,6 +508,57 @@ class TestComputeSiteRelativeValues(SimpleTestCase):
             with self.subTest(shares=shares):
                 self.assertEqual(sum(compute_site_relative_values(shares)), Decimal(1))
 
+    def test_flat_is_default(self):
+        shares = [(1, 3, 1), (2, 3, 2)]
+        self.assertEqual(
+            compute_site_relative_values(shares, Entry.SiteScaling.FLAT),
+            compute_site_relative_values(shares),
+        )
+
+    def test_fabricator_consecutive_waves(self):
+        for coefficient, expected in (
+            (2, [Fraction(1, 4), Fraction(3, 4)]),
+            (100, [Fraction(1, 102), Fraction(101, 102)]),
+        ):
+            with self.subTest(coefficient=coefficient):
+                self.assertEqual(
+                    compute_site_relative_values(
+                        [(1, 1, 1), (2, 2, 1)],
+                        Entry.SiteScaling.FABRICATOR,
+                        coefficient,
+                    ),
+                    normalize_weights(expected),
+                )
+
+    def test_fabricator_overlapping_shares(self):
+        # site values 1, 3, 5; site 1: A alone; sites 2-3: A and B (B with double role).
+        # A = 1 + 3 * 1/3 + 5 * 1/3, B = 3 * 2/3 + 5 * 2/3
+        self.assertEqual(
+            compute_site_relative_values(
+                [(1, 3, 1), (2, 3, 2)], Entry.SiteScaling.FABRICATOR, 2
+            ),
+            normalize_weights([Fraction(11, 3), Fraction(16, 3)]),
+        )
+
+    def test_fabricator_sums_to_exactly_one(self):
+        rng = random.Random(418)
+        for _ in range(50):
+            last = rng.randint(1, 30)
+            shares = [(1, last, rng.randint(1, 10))]
+            for _ in range(rng.randint(0, 15)):
+                first = rng.randint(1, last)
+                shares.append((first, rng.randint(first, last), rng.randint(1, 10)))
+            coefficient = rng.randint(1, 1000)
+            with self.subTest(shares=shares, coefficient=coefficient):
+                self.assertEqual(
+                    sum(
+                        compute_site_relative_values(
+                            shares, Entry.SiteScaling.FABRICATOR, coefficient
+                        )
+                    ),
+                    Decimal(1),
+                )
+
 
 class TestShareTotalsAreExact(PveTestBase):
     """The stored fractions sum to 1, so every derived total sums to its entry."""

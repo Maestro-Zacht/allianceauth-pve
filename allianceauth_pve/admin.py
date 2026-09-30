@@ -74,6 +74,8 @@ class EntryAdmin(admin.ModelAdmin):
     readonly_fields = (
         "rotation",
         "estimated_total",
+        "site_scaling",
+        "site_scaling_coefficient",
         "created_by",
         "created_at",
         "updated_at",

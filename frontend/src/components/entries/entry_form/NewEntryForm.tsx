@@ -51,6 +51,8 @@ export default function NewEntryForm() {
             estimated_total: entryFormData.estimated_total,
             funding_percentage: entryFormData.funding_percentage,
             funding_project_id: entryFormData.funding_project_id,
+            site_scaling: entryFormData.site_scaling,
+            site_scaling_coefficient: entryFormData.site_scaling_coefficient,
             shares: entryFormData.shares.map(share => ({
                 character_id: share.character_id,
                 helped_setup: share.helped_setup,
@@ -76,6 +78,8 @@ export default function NewEntryForm() {
         estimated_total: 0,
         funding_percentage: null,
         funding_project_id: null,
+        site_scaling: 'flat',
+        site_scaling_coefficient: null,
         shares: [],
         roles: [{ name: 'Krab', value: 1 }],
         items: [],

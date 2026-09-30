@@ -161,6 +161,8 @@ class EntryCharacterSchema(Schema):
 class EntryDetailsSchema(EntrySchema):
     funding_project: FundingProjectBasicSchema | None
     funding_percentage: int | None
+    site_scaling: Entry.SiteScaling
+    site_scaling_coefficient: int | None
 
     rotation_is_closed: bool
 
@@ -489,6 +491,7 @@ class EntryFormErrorsSchema(Schema):
     estimated_total: list[str] = []  # noqa: RUF012
     funding_project_id: list[str] = []  # noqa: RUF012
     funding_percentage: list[str] = []  # noqa: RUF012
+    site_scaling_coefficient: list[str] = []  # noqa: RUF012
     roles_root: list[str] = []  # noqa: RUF012
     roles: dict[int, RoleFormErrorsSchema] = {}  # noqa: RUF012
     shares_root: list[str] = []  # noqa: RUF012
@@ -500,12 +503,14 @@ class EntryFormSchema(Schema):
     estimated_total: int
     funding_project_id: int | None
     funding_percentage: int | None
+    site_scaling: Entry.SiteScaling = Entry.SiteScaling.FLAT
+    site_scaling_coefficient: int | None = None
 
     roles: list[RoleFormSchema]
     shares: list[ShareFormSchema]
     items: list[EntryItemSchema]
 
-    def validate(self) -> EntryFormErrorsSchema | None:  # noqa: PLR0912
+    def validate(self) -> EntryFormErrorsSchema | None:  # noqa: PLR0912, PLR0915
         errors = defaultdict(list)
         roles = {}
 
@@ -592,6 +597,20 @@ class EntryFormSchema(Schema):
                 _("Funding percentage must be between 1 and 100.")
             )
 
+        if self.site_scaling == Entry.SiteScaling.FABRICATOR:
+            if self.site_scaling_coefficient is None:
+                errors["site_scaling_coefficient"].append(
+                    _("Coefficient is required for fabricator site scaling.")
+                )
+            elif self.site_scaling_coefficient < 1:
+                errors["site_scaling_coefficient"].append(
+                    _("Coefficient must be at least 1.")
+                )
+        elif self.site_scaling_coefficient is not None:
+            errors["site_scaling_coefficient"].append(
+                _("Coefficient is only allowed for fabricator site scaling.")
+            )
+
         if errors:
             return EntryFormErrorsSchema(**dict(errors))
         return None
@@ -606,6 +625,8 @@ class EntryFormSchema(Schema):
                 estimated_total=self.estimated_total,
                 funding_project_id=self.funding_project_id,
                 funding_percentage=self.funding_percentage,
+                site_scaling=self.site_scaling,
+                site_scaling_coefficient=self.site_scaling_coefficient,
             )
         else:
             entry.loot_items.all().delete()
@@ -614,6 +635,8 @@ class EntryFormSchema(Schema):
             entry.estimated_total = self.estimated_total
             entry.funding_project_id = self.funding_project_id
             entry.funding_percentage = self.funding_percentage
+            entry.site_scaling = self.site_scaling
+            entry.site_scaling_coefficient = self.site_scaling_coefficient
             entry.save()
 
         roles_to_add = [
@@ -651,7 +674,9 @@ class EntryFormSchema(Schema):
             [
                 (share.first_site, share.last_site, share.role.value)
                 for share in shares_to_add
-            ]
+            ],
+            self.site_scaling,
+            self.site_scaling_coefficient,
         )
         for share, relative_value in zip(shares_to_add, relative_values, strict=True):
             share.relative_value = relative_value

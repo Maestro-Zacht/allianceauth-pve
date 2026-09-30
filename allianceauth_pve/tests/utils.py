@@ -33,7 +33,9 @@ def url(name, **kwargs):
 def recompute_relative_values(entry: Entry) -> None:
     shares = list(entry.ratting_shares.select_related("role"))
     values = compute_site_relative_values(
-        [(share.first_site, share.last_site, share.role.value) for share in shares]
+        [(share.first_site, share.last_site, share.role.value) for share in shares],
+        entry.site_scaling,
+        entry.site_scaling_coefficient,
     )
     for share, value in zip(shares, values, strict=True):
         share.relative_value = value
@@ -119,6 +121,8 @@ class PveTestBase(TestCase):
         estimated_total=1_000_000_000,
         funding_project=None,
         funding_percentage=None,
+        site_scaling=Entry.SiteScaling.FLAT,
+        site_scaling_coefficient=None,
     ):
         entry = Entry.objects.create(
             rotation=rotation,
@@ -126,6 +130,8 @@ class PveTestBase(TestCase):
             estimated_total=estimated_total,
             funding_project=funding_project,
             funding_percentage=funding_percentage,
+            site_scaling=site_scaling,
+            site_scaling_coefficient=site_scaling_coefficient,
         )
         role = EntryRole.objects.create(entry=entry, name=role_name, value=role_value)
         share = cls.make_share(

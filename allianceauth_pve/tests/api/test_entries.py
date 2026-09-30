@@ -1,3 +1,5 @@
+from decimal import Decimal
+from fractions import Fraction
 from unittest.mock import patch
 
 from allianceauth.eveonline.models import EveCharacter
@@ -14,6 +16,7 @@ from allianceauth_pve.app_settings import (
 from allianceauth_pve.models import (
     Entry,
     FundingProject,
+    normalize_weights,
 )
 from allianceauth_pve.tests.utils import (
     ACCESS,
@@ -597,6 +600,82 @@ class TestEntriesApi(PveApiTestBase):
         self.assertEqual(resp.status_code, 400)
         self.assertTrue(resp.json()["funding_percentage"])
 
+    def two_waves_payload(self, **overrides):
+        return self.other_char, self.valid_entry_payload(
+            self.owner_char.character_id,
+            shares=[
+                {
+                    "character_id": char_id,
+                    "helped_setup": False,
+                    "first_site": site,
+                    "last_site": site,
+                    "role_name": "dps",
+                }
+                for char_id, site in (
+                    (self.owner_char.character_id, 1),
+                    (self.other_char.character_id, 2),
+                )
+            ],
+            **overrides,
+        )
+
+    def test_new_entry_site_scaling_defaults_to_flat(self):
+        self.client.force_login(self.owner)
+        alt, payload = self.two_waves_payload()
+        resp = self.api_request(
+            "POST", "new_entry", payload, rotation_id=self.rotation.pk
+        )
+        self.assertEqual(resp.status_code, 200, resp.content)
+
+        new = Entry.objects.exclude(pk=self.entry.pk).get(rotation=self.rotation)
+        self.assertEqual(new.site_scaling, Entry.SiteScaling.FLAT)
+        self.assertIsNone(new.site_scaling_coefficient)
+        self.assertEqual(
+            new.ratting_shares.get(user_character=alt).relative_value,
+            Decimal("0.5"),
+        )
+
+    def test_new_entry_site_scaling_fabricator(self):
+        self.client.force_login(self.owner)
+        alt, payload = self.two_waves_payload(
+            site_scaling=Entry.SiteScaling.FABRICATOR, site_scaling_coefficient=2
+        )
+        resp = self.api_request(
+            "POST", "new_entry", payload, rotation_id=self.rotation.pk
+        )
+        self.assertEqual(resp.status_code, 200, resp.content)
+
+        new = Entry.objects.exclude(pk=self.entry.pk).get(rotation=self.rotation)
+        self.assertEqual(new.site_scaling, Entry.SiteScaling.FABRICATOR)
+        self.assertEqual(new.site_scaling_coefficient, 2)
+        self.assertEqual(
+            new.ratting_shares.get(user_character=self.owner_char).relative_value,
+            Decimal("0.25"),
+        )
+        self.assertEqual(
+            new.ratting_shares.get(user_character=alt).relative_value,
+            Decimal("0.75"),
+        )
+
+    def test_new_entry_site_scaling_coefficient_errors(self):
+        self.client.force_login(self.owner)
+        for site_scaling, coefficient in (
+            (Entry.SiteScaling.FABRICATOR, None),
+            (Entry.SiteScaling.FABRICATOR, 0),
+            (Entry.SiteScaling.FLAT, 2),
+        ):
+            with self.subTest(site_scaling=site_scaling, coefficient=coefficient):
+                payload = self.valid_entry_payload(
+                    self.owner_char.character_id,
+                    site_scaling=site_scaling,
+                    site_scaling_coefficient=coefficient,
+                )
+                resp = self.api_request(
+                    "POST", "new_entry", payload, rotation_id=self.rotation.pk
+                )
+                self.assertEqual(resp.status_code, 400)
+                self.assertTrue(resp.json()["site_scaling_coefficient"])
+
     def test_new_entry_with_funding_project_invalidates_caches(self):
         project = FundingProject.objects.create(name="newfund", goal=1)
         proj_summary_key = ROTATION_PROJECT_SUMMARY_CACHE_KEY.format(
@@ -821,6 +900,36 @@ class TestEntriesApi(PveApiTestBase):
         )
         self.assertEqual(resp.status_code, 400)
         self.assertTrue(resp.json()["roles_root"])
+
+    def test_edit_entry_site_scaling_fabricator(self):
+        rotation = self.make_rotation(name="editscaling")
+        entry, _, _ = self.make_entry(rotation, self.owner, self.owner_char)
+        self.client.force_login(self.owner)
+        alt, payload = self.two_waves_payload(
+            site_scaling=Entry.SiteScaling.FABRICATOR, site_scaling_coefficient=100
+        )
+        resp = self.api_request(
+            "POST", "edit_entry", payload, rotation_id=rotation.pk, entry_id=entry.pk
+        )
+        self.assertEqual(resp.status_code, 200, resp.content)
+
+        entry.refresh_from_db()
+        self.assertEqual(entry.site_scaling, Entry.SiteScaling.FABRICATOR)
+        self.assertEqual(entry.site_scaling_coefficient, 100)
+        self.assertEqual(
+            [
+                entry.ratting_shares.get(user_character=char).relative_value
+                for char in (self.owner_char, alt)
+            ],
+            normalize_weights([Fraction(1, 102), Fraction(101, 102)]),
+        )
+
+        resp = self.client.get(
+            url("get_entry_for_edit", rotation_id=rotation.pk, entry_id=entry.pk)
+        )
+        data = resp.json()
+        self.assertEqual(data["site_scaling"], Entry.SiteScaling.FABRICATOR)
+        self.assertEqual(data["site_scaling_coefficient"], 100)
 
     def test_edit_entry_changing_funding_project_invalidates_both_caches(self):
         old_project = FundingProject.objects.create(name="editfundold", goal=1)

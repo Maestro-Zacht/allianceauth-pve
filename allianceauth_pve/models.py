@@ -2,7 +2,7 @@ from collections import defaultdict
 from collections.abc import Sequence
 from decimal import ROUND_HALF_EVEN, Decimal, localcontext
 from fractions import Fraction
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, assert_never
 
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.services.hooks import get_extension_logger
@@ -60,27 +60,6 @@ def normalize_weights(weights: Sequence[Fraction | int]) -> list[Decimal]:
 
 def count_sites(first_site: int | None, last_site: int | None) -> int:
     return 0 if first_site is None or last_site is None else last_site - first_site + 1
-
-
-# make this more efficient
-def compute_site_relative_values(
-    shares: Sequence[tuple[int | None, int | None, int]],
-) -> list[Decimal]:
-    site_weights: defaultdict[int, int] = defaultdict(int)
-    for first_site, last_site, role_value in shares:
-        if first_site is not None and last_site is not None:
-            for site in range(first_site, last_site + 1):
-                site_weights[site] += role_value
-
-    weights = []
-    for first_site, last_site, role_value in shares:
-        weight = Fraction(0)
-        if first_site is not None and last_site is not None:
-            for site in range(first_site, last_site + 1):
-                if site_weights[site]:
-                    weight += Fraction(role_value, site_weights[site])
-        weights.append(weight)
-    return normalize_weights(weights)
 
 
 class General(models.Model):  # noqa: DJ008
@@ -620,6 +599,10 @@ class EntryCharacter(models.Model):
 
 
 class Entry(models.Model):
+    class SiteScaling(models.TextChoices):
+        FLAT = "flat", _("Flat")
+        FABRICATOR = "fabricator", _("Fabricator")
+
     rotation = models.ForeignKey(
         Rotation, on_delete=models.CASCADE, related_name="entries"
     )
@@ -633,6 +616,11 @@ class Entry(models.Model):
         blank=True,
     )
     funding_percentage = models.PositiveSmallIntegerField(null=True, blank=True)
+
+    site_scaling = models.CharField(
+        max_length=16, choices=SiteScaling, default=SiteScaling.FLAT
+    )
+    site_scaling_coefficient = models.PositiveIntegerField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
@@ -687,6 +675,44 @@ class Entry(models.Model):
                 tot=models.Sum("estimated_funding_amount")
             )["tot"]
         )
+
+
+def site_value(
+    site: int, site_scaling: Entry.SiteScaling, coefficient: int | None
+) -> int:
+    match site_scaling:
+        case Entry.SiteScaling.FLAT:
+            return 1
+        case Entry.SiteScaling.FABRICATOR:
+            return 1 + coefficient * (site - 1)
+        case _:
+            assert_never(site_scaling)
+
+
+# make this more efficient
+def compute_site_relative_values(
+    shares: Sequence[tuple[int | None, int | None, int]],
+    site_scaling: Entry.SiteScaling = Entry.SiteScaling.FLAT,
+    coefficient: int | None = None,
+) -> list[Decimal]:
+    site_weights: defaultdict[int, int] = defaultdict(int)
+    for first_site, last_site, role_value in shares:
+        if first_site is not None and last_site is not None:
+            for site in range(first_site, last_site + 1):
+                site_weights[site] += role_value
+
+    weights = []
+    for first_site, last_site, role_value in shares:
+        weight = Fraction(0)
+        if first_site is not None and last_site is not None:
+            for site in range(first_site, last_site + 1):
+                if site_weights[site]:
+                    weight += Fraction(
+                        role_value * site_value(site, site_scaling, coefficient),
+                        site_weights[site],
+                    )
+        weights.append(weight)
+    return normalize_weights(weights)
 
 
 class EntryLootItem(models.Model):
