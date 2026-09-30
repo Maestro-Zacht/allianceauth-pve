@@ -27,7 +27,7 @@ export default function RolesSection({ rotationId, roles, errors_root, errors }:
             <span>{t("delete")}</span>
 
             {roles.map((role, index) => <Fragment key={`role-${index}`}>
-                <span>{role.name}</span>
+                <span className="text-truncate" title={role.name}>{role.name}</span>
                 <Form.Control
                     value={role.value}
                     type="number"

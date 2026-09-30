@@ -1,4 +1,5 @@
 from collections import defaultdict
+from collections.abc import Iterable
 from datetime import datetime
 
 from allianceauth.authentication.models import CharacterOwnership
@@ -24,7 +25,8 @@ from allianceauth_pve.models import (
     PveButton,
     RoleSetup,
     Rotation,
-    compute_relative_values,
+    compute_site_relative_values,
+    count_sites,
 )
 
 
@@ -35,6 +37,7 @@ class PermissionsSchema(Schema):
     manage_rotations: bool
     manage_funding_projects: bool
     is_superuser: bool
+    pve_only_mains: bool
 
 
 class ActivitySchema(Schema):
@@ -136,7 +139,8 @@ class EntryCharacterSchema(Schema):
     user_main_character: EveCharacterSchema | None
     user_character: EveCharacterSchema
     role_name: str
-    site_count: int
+    first_site: int | None
+    last_site: int | None
     helped_setup: bool
     estimated_share_total: float
     estimated_funding_amount: float
@@ -157,6 +161,8 @@ class EntryCharacterSchema(Schema):
 class EntryDetailsSchema(EntrySchema):
     funding_project: FundingProjectBasicSchema | None
     funding_percentage: int | None
+    site_scaling: Entry.SiteScaling
+    site_scaling_coefficient: int | None
 
     rotation_is_closed: bool
 
@@ -354,17 +360,36 @@ class RoleFormSchema(BaseRoleSchema):
         return None
 
 
+def find_site_gaps(ranges: Iterable[tuple[int, int]]) -> list[tuple[int, int]]:
+    """Inclusive intervals between site 1 and the last covered site that no range covers."""
+    gaps = []
+    covered_until = 0
+    for first, last in sorted(ranges):
+        if first > covered_until + 1:
+            gaps.append((covered_until + 1, first - 1))
+        covered_until = max(covered_until, last)
+    return gaps
+
+
+def format_site_gaps(gaps: Iterable[tuple[int, int]]) -> str:
+    return ", ".join(
+        str(first) if first == last else f"{first}-{last}" for first, last in gaps
+    )
+
+
 class ShareFormErrorsSchema(Schema):
     character_id: list[str] = []  # noqa: RUF012
     helped_setup: list[str] = []  # noqa: RUF012
-    site_count: list[str] = []  # noqa: RUF012
+    first_site: list[str] = []  # noqa: RUF012
+    last_site: list[str] = []  # noqa: RUF012
     role_name: list[str] = []  # noqa: RUF012
 
 
 class ShareFormSchema(Schema):
     character_id: int
     helped_setup: bool
-    site_count: int
+    first_site: int | None
+    last_site: int | None
     role_name: str
 
     @staticmethod
@@ -379,13 +404,25 @@ class ShareFormSchema(Schema):
             return obj.user_character.character_id
         return obj["character_id"]
 
+    def _validate_site_range(self, errors: defaultdict[str, list[str]]) -> None:
+        if (self.first_site is None) != (self.last_site is None):
+            errors["first_site"].append(
+                _("First and last site must both be set or both be empty.")
+            )
+        elif self.first_site is not None:
+            if self.first_site < 1:
+                errors["first_site"].append(_("First site must be at least 1."))
+            if self.last_site < self.first_site:
+                errors["last_site"].append(
+                    _("Last site must not be before the first site.")
+                )
+
     def validate(
         self, character_ids: set[int], roles: dict[str, int], users: set[int]
     ) -> ShareFormErrorsSchema | None:
         errors = defaultdict(list)
 
-        if self.site_count < 0:
-            errors["site_count"].append(_("Site count must be non-negative."))
+        self._validate_site_range(errors)
 
         if not EveCharacter.objects.filter(character_id=self.character_id).exists():
             errors["character_id"].append(_("Character does not exist."))
@@ -454,6 +491,7 @@ class EntryFormErrorsSchema(Schema):
     estimated_total: list[str] = []  # noqa: RUF012
     funding_project_id: list[str] = []  # noqa: RUF012
     funding_percentage: list[str] = []  # noqa: RUF012
+    site_scaling_coefficient: list[str] = []  # noqa: RUF012
     roles_root: list[str] = []  # noqa: RUF012
     roles: dict[int, RoleFormErrorsSchema] = {}  # noqa: RUF012
     shares_root: list[str] = []  # noqa: RUF012
@@ -465,12 +503,14 @@ class EntryFormSchema(Schema):
     estimated_total: int
     funding_project_id: int | None
     funding_percentage: int | None
+    site_scaling: Entry.SiteScaling = Entry.SiteScaling.FLAT
+    site_scaling_coefficient: int | None = None
 
     roles: list[RoleFormSchema]
     shares: list[ShareFormSchema]
     items: list[EntryItemSchema]
 
-    def validate(self) -> EntryFormErrorsSchema | None:  # noqa: PLR0912
+    def validate(self) -> EntryFormErrorsSchema | None:  # noqa: PLR0912, PLR0915
         errors = defaultdict(list)
         roles = {}
 
@@ -497,14 +537,28 @@ class EntryFormSchema(Schema):
                 share_errors = share.validate(character_ids, roles, users)
                 if share_errors is not None:
                     shares_errors[i] = share_errors
-                total_value += share.site_count * roles.get(share.role_name, 0)
+                total_value += count_sites(
+                    share.first_site, share.last_site
+                ) * roles.get(share.role_name, 0)
 
             if shares_errors:
                 errors["shares"] = shares_errors
-            elif total_value == 0:
-                errors["shares_root"].append(
-                    _("Form not valid, you need at least 1 person to receive loot")
+            else:
+                if total_value == 0:
+                    errors["shares_root"].append(
+                        _("Form not valid, you need at least 1 person to receive loot")
+                    )
+
+                gaps = find_site_gaps(
+                    (share.first_site, share.last_site)
+                    for share in self.shares
+                    if share.first_site is not None and share.last_site is not None
                 )
+                if gaps:
+                    errors["shares_root"].append(
+                        _("No share covers site(s) %(sites)s.")
+                        % {"sites": format_site_gaps(gaps)}
+                    )
 
         items_errors = {}
         for i, item in enumerate(self.items):
@@ -543,6 +597,20 @@ class EntryFormSchema(Schema):
                 _("Funding percentage must be between 1 and 100.")
             )
 
+        if self.site_scaling == Entry.SiteScaling.FABRICATOR:
+            if self.site_scaling_coefficient is None:
+                errors["site_scaling_coefficient"].append(
+                    _("Coefficient is required for fabricator site scaling.")
+                )
+            elif self.site_scaling_coefficient < 1:
+                errors["site_scaling_coefficient"].append(
+                    _("Coefficient must be at least 1.")
+                )
+        elif self.site_scaling_coefficient is not None:
+            errors["site_scaling_coefficient"].append(
+                _("Coefficient is only allowed for fabricator site scaling.")
+            )
+
         if errors:
             return EntryFormErrorsSchema(**dict(errors))
         return None
@@ -557,6 +625,8 @@ class EntryFormSchema(Schema):
                 estimated_total=self.estimated_total,
                 funding_project_id=self.funding_project_id,
                 funding_percentage=self.funding_percentage,
+                site_scaling=self.site_scaling,
+                site_scaling_coefficient=self.site_scaling_coefficient,
             )
         else:
             entry.loot_items.all().delete()
@@ -565,6 +635,8 @@ class EntryFormSchema(Schema):
             entry.estimated_total = self.estimated_total
             entry.funding_project_id = self.funding_project_id
             entry.funding_percentage = self.funding_percentage
+            entry.site_scaling = self.site_scaling
+            entry.site_scaling_coefficient = self.site_scaling_coefficient
             entry.save()
 
         roles_to_add = [
@@ -592,13 +664,19 @@ class EntryFormSchema(Schema):
                     role=role,
                     user_character_id=ownership.character_id,
                     user_id=ownership.user_id,
-                    site_count=share.site_count,
+                    first_site=share.first_site,
+                    last_site=share.last_site,
                     helped_setup=setup,
                 )
             )
 
-        relative_values = compute_relative_values(
-            [share.site_count * share.role.value for share in shares_to_add]
+        relative_values = compute_site_relative_values(
+            [
+                (share.first_site, share.last_site, share.role.value)
+                for share in shares_to_add
+            ],
+            self.site_scaling,
+            self.site_scaling_coefficient,
         )
         for share, relative_value in zip(shares_to_add, relative_values, strict=True):
             share.relative_value = relative_value

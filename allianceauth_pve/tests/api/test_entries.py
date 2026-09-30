@@ -1,9 +1,13 @@
+from decimal import Decimal
+from fractions import Fraction
 from unittest.mock import patch
 
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.tests.auth_utils import AuthUtils
 from django.core.cache import cache
+from django.test import SimpleTestCase
 
+from allianceauth_pve.api.schema import find_site_gaps, format_site_gaps
 from allianceauth_pve.app_settings import (
     FUNDING_PROJECT_SUMMARY_CACHE_KEY,
     ROTATION_PROJECT_SUMMARY_CACHE_KEY,
@@ -12,6 +16,7 @@ from allianceauth_pve.app_settings import (
 from allianceauth_pve.models import (
     Entry,
     FundingProject,
+    normalize_weights,
 )
 from allianceauth_pve.tests.utils import (
     ACCESS,
@@ -19,6 +24,25 @@ from allianceauth_pve.tests.utils import (
     PveApiTestBase,
     url,
 )
+
+
+class TestFindSiteGaps(SimpleTestCase):
+    def test_gaps(self):
+        cases = (
+            ((), []),
+            (((1, 1),), []),
+            (((1, 2), (3, 4)), []),
+            (((1, 3), (2, 5)), []),
+            (((2, 4),), [(1, 1)]),
+            (((1, 2), (5, 6)), [(3, 4)]),
+            (((3, 3), (7, 8)), [(1, 2), (4, 6)]),
+        )
+        for ranges, expected in cases:
+            with self.subTest(ranges=ranges):
+                self.assertEqual(find_site_gaps(ranges), expected)
+
+    def test_format_site_gaps(self):
+        self.assertEqual(format_site_gaps([(1, 1), (4, 6)]), "1, 4-6")
 
 
 class TestEntriesApi(PveApiTestBase):
@@ -170,7 +194,8 @@ class TestEntriesApi(PveApiTestBase):
                 {
                     "character_id": self.owner_char.character_id,
                     "helped_setup": True,
-                    "site_count": 2,
+                    "first_site": 1,
+                    "last_site": 2,
                     "role_name": "dps",
                 }
             ],
@@ -187,7 +212,7 @@ class TestEntriesApi(PveApiTestBase):
         self.assertEqual(new.loot_items.count(), 1)
         share = new.ratting_shares.get()
         self.assertTrue(share.helped_setup)
-        self.assertEqual(share.site_count, 2)
+        self.assertEqual((share.first_site, share.last_site), (1, 2))
 
     def test_new_entry_closed_rotation(self):
         rotation = self.make_rotation(name="closednew", is_closed=True)
@@ -240,7 +265,8 @@ class TestEntriesApi(PveApiTestBase):
                 {
                     "character_id": self.owner_char.character_id,
                     "helped_setup": False,
-                    "site_count": 1,
+                    "first_site": 1,
+                    "last_site": 1,
                     "role_name": "x" * 65,
                 }
             ],
@@ -279,7 +305,8 @@ class TestEntriesApi(PveApiTestBase):
                 {
                     "character_id": 88888888,
                     "helped_setup": False,
-                    "site_count": 1,
+                    "first_site": 1,
+                    "last_site": 1,
                     "role_name": "dps",
                 }
             ],
@@ -301,7 +328,8 @@ class TestEntriesApi(PveApiTestBase):
                 {
                     "character_id": unowned.character_id,
                     "helped_setup": False,
-                    "site_count": 1,
+                    "first_site": 1,
+                    "last_site": 1,
                     "role_name": "dps",
                 }
             ],
@@ -317,7 +345,8 @@ class TestEntriesApi(PveApiTestBase):
         share = {
             "character_id": self.owner_char.character_id,
             "helped_setup": False,
-            "site_count": 1,
+            "first_site": 1,
+            "last_site": 1,
             "role_name": "dps",
         }
         payload = self.valid_entry_payload(
@@ -337,7 +366,8 @@ class TestEntriesApi(PveApiTestBase):
                 {
                     "character_id": self.owner_char.character_id,
                     "helped_setup": False,
-                    "site_count": 1,
+                    "first_site": 1,
+                    "last_site": 1,
                     "role_name": "nope",
                 }
             ],
@@ -348,7 +378,7 @@ class TestEntriesApi(PveApiTestBase):
         self.assertEqual(resp.status_code, 400)
         self.assertIn("role_name", resp.json()["shares"]["0"])
 
-    def test_new_entry_negative_site_count(self):
+    def post_share_sites(self, first_site, last_site):
         self.client.force_login(self.owner)
         payload = self.valid_entry_payload(
             self.owner_char.character_id,
@@ -356,16 +386,106 @@ class TestEntriesApi(PveApiTestBase):
                 {
                     "character_id": self.owner_char.character_id,
                     "helped_setup": False,
-                    "site_count": -1,
+                    "first_site": first_site,
+                    "last_site": last_site,
                     "role_name": "dps",
                 }
+            ],
+        )
+        return self.api_request(
+            "POST", "new_entry", payload, rotation_id=self.rotation.pk
+        )
+
+    def test_new_entry_first_site_below_one(self):
+        resp = self.post_share_sites(0, 2)
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("first_site", resp.json()["shares"]["0"])
+
+    def test_new_entry_last_site_before_first(self):
+        resp = self.post_share_sites(3, 2)
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("last_site", resp.json()["shares"]["0"])
+
+    def test_new_entry_half_null_site_range(self):
+        for first_site, last_site in ((1, None), (None, 1)):
+            with self.subTest(first_site=first_site, last_site=last_site):
+                resp = self.post_share_sites(first_site, last_site)
+                self.assertEqual(resp.status_code, 400)
+                self.assertIn("first_site", resp.json()["shares"]["0"])
+
+    def test_new_entry_null_site_range(self):
+        alt = self.add_alt(self.owner, 90500052, "OwnerAlt3")
+        self.client.force_login(self.owner)
+        payload = self.valid_entry_payload(
+            self.owner_char.character_id,
+            shares=[
+                {
+                    "character_id": self.owner_char.character_id,
+                    "helped_setup": False,
+                    "first_site": 1,
+                    "last_site": 1,
+                    "role_name": "dps",
+                },
+                {
+                    "character_id": alt.character_id,
+                    "helped_setup": True,
+                    "first_site": None,
+                    "last_site": None,
+                    "role_name": "dps",
+                },
             ],
         )
         resp = self.api_request(
             "POST", "new_entry", payload, rotation_id=self.rotation.pk
         )
+        self.assertEqual(resp.status_code, 200, resp.content)
+
+        new = Entry.objects.exclude(pk=self.entry.pk).get(rotation=self.rotation)
+        share = new.ratting_shares.get(user_character=alt)
+        self.assertIsNone(share.first_site)
+        self.assertIsNone(share.last_site)
+        self.assertEqual(share.relative_value, 0)
+
+    def post_two_share_sites(self, sites, other_sites):
+        alt = self.add_alt(self.owner, 90500053, "OwnerAlt4")
+        self.client.force_login(self.owner)
+        payload = self.valid_entry_payload(
+            self.owner_char.character_id,
+            shares=[
+                {
+                    "character_id": char_id,
+                    "helped_setup": False,
+                    "first_site": first_site,
+                    "last_site": last_site,
+                    "role_name": "dps",
+                }
+                for char_id, (first_site, last_site) in (
+                    (self.owner_char.character_id, sites),
+                    (alt.character_id, other_sites),
+                )
+            ],
+        )
+        return self.api_request(
+            "POST", "new_entry", payload, rotation_id=self.rotation.pk
+        )
+
+    def test_new_entry_sites_do_not_start_at_one(self):
+        resp = self.post_share_sites(2, 4)
         self.assertEqual(resp.status_code, 400)
-        self.assertIn("site_count", resp.json()["shares"]["0"])
+        self.assertTrue(resp.json()["shares_root"])
+
+    def test_new_entry_site_gap(self):
+        resp = self.post_two_share_sites((1, 2), (5, 6))
+        self.assertEqual(resp.status_code, 400)
+        self.assertTrue(resp.json()["shares_root"])
+
+    def test_new_entry_overlapping_sites(self):
+        resp = self.post_two_share_sites((1, 3), (2, 5))
+        self.assertEqual(resp.status_code, 200, resp.content)
+
+    def test_new_entry_contiguous_sites(self):
+        resp = self.post_two_share_sites((1, 2), (3, 4))
+        self.assertEqual(resp.status_code, 200, resp.content)
 
     def test_new_entry_zero_total_share_value(self):
         self.client.force_login(self.owner)
@@ -480,6 +600,82 @@ class TestEntriesApi(PveApiTestBase):
         self.assertEqual(resp.status_code, 400)
         self.assertTrue(resp.json()["funding_percentage"])
 
+    def two_waves_payload(self, **overrides):
+        return self.other_char, self.valid_entry_payload(
+            self.owner_char.character_id,
+            shares=[
+                {
+                    "character_id": char_id,
+                    "helped_setup": False,
+                    "first_site": site,
+                    "last_site": site,
+                    "role_name": "dps",
+                }
+                for char_id, site in (
+                    (self.owner_char.character_id, 1),
+                    (self.other_char.character_id, 2),
+                )
+            ],
+            **overrides,
+        )
+
+    def test_new_entry_site_scaling_defaults_to_flat(self):
+        self.client.force_login(self.owner)
+        alt, payload = self.two_waves_payload()
+        resp = self.api_request(
+            "POST", "new_entry", payload, rotation_id=self.rotation.pk
+        )
+        self.assertEqual(resp.status_code, 200, resp.content)
+
+        new = Entry.objects.exclude(pk=self.entry.pk).get(rotation=self.rotation)
+        self.assertEqual(new.site_scaling, Entry.SiteScaling.FLAT)
+        self.assertIsNone(new.site_scaling_coefficient)
+        self.assertEqual(
+            new.ratting_shares.get(user_character=alt).relative_value,
+            Decimal("0.5"),
+        )
+
+    def test_new_entry_site_scaling_fabricator(self):
+        self.client.force_login(self.owner)
+        alt, payload = self.two_waves_payload(
+            site_scaling=Entry.SiteScaling.FABRICATOR, site_scaling_coefficient=2
+        )
+        resp = self.api_request(
+            "POST", "new_entry", payload, rotation_id=self.rotation.pk
+        )
+        self.assertEqual(resp.status_code, 200, resp.content)
+
+        new = Entry.objects.exclude(pk=self.entry.pk).get(rotation=self.rotation)
+        self.assertEqual(new.site_scaling, Entry.SiteScaling.FABRICATOR)
+        self.assertEqual(new.site_scaling_coefficient, 2)
+        self.assertEqual(
+            new.ratting_shares.get(user_character=self.owner_char).relative_value,
+            Decimal("0.25"),
+        )
+        self.assertEqual(
+            new.ratting_shares.get(user_character=alt).relative_value,
+            Decimal("0.75"),
+        )
+
+    def test_new_entry_site_scaling_coefficient_errors(self):
+        self.client.force_login(self.owner)
+        for site_scaling, coefficient in (
+            (Entry.SiteScaling.FABRICATOR, None),
+            (Entry.SiteScaling.FABRICATOR, 0),
+            (Entry.SiteScaling.FLAT, 2),
+        ):
+            with self.subTest(site_scaling=site_scaling, coefficient=coefficient):
+                payload = self.valid_entry_payload(
+                    self.owner_char.character_id,
+                    site_scaling=site_scaling,
+                    site_scaling_coefficient=coefficient,
+                )
+                resp = self.api_request(
+                    "POST", "new_entry", payload, rotation_id=self.rotation.pk
+                )
+                self.assertEqual(resp.status_code, 400)
+                self.assertTrue(resp.json()["site_scaling_coefficient"])
+
     def test_new_entry_with_funding_project_invalidates_caches(self):
         project = FundingProject.objects.create(name="newfund", goal=1)
         proj_summary_key = ROTATION_PROJECT_SUMMARY_CACHE_KEY.format(
@@ -516,13 +712,15 @@ class TestEntriesApi(PveApiTestBase):
                 {
                     "character_id": self.owner_char.character_id,
                     "helped_setup": False,
-                    "site_count": 1,
+                    "first_site": 1,
+                    "last_site": 1,
                     "role_name": "dps",
                 },
                 {
                     "character_id": alt.character_id,
                     "helped_setup": False,
-                    "site_count": 1,
+                    "first_site": 1,
+                    "last_site": 1,
                     "role_name": "dps",
                 },
             ],
@@ -542,13 +740,15 @@ class TestEntriesApi(PveApiTestBase):
                 {
                     "character_id": self.owner_char.character_id,
                     "helped_setup": False,
-                    "site_count": 1,
+                    "first_site": 1,
+                    "last_site": 1,
                     "role_name": "dps",
                 },
                 {
                     "character_id": alt.character_id,
                     "helped_setup": False,
-                    "site_count": 1,
+                    "first_site": 1,
+                    "last_site": 1,
                     "role_name": "dps",
                 },
             ],
@@ -577,6 +777,8 @@ class TestEntriesApi(PveApiTestBase):
         data = resp.json()
         self.assertEqual(len(data["roles"]), 1)
         self.assertEqual(len(data["shares"]), 1)
+        self.assertEqual(data["shares"][0]["first_site"], 1)
+        self.assertEqual(data["shares"][0]["last_site"], 1)
 
     def test_get_entry_for_edit_not_owner(self):
         self.client.force_login(self.other)
@@ -635,7 +837,8 @@ class TestEntriesApi(PveApiTestBase):
                 {
                     "character_id": self.owner_char.character_id,
                     "helped_setup": False,
-                    "site_count": 3,
+                    "first_site": 1,
+                    "last_site": 3,
                     "role_name": "newrole",
                 }
             ],
@@ -646,7 +849,9 @@ class TestEntriesApi(PveApiTestBase):
         self.assertEqual(resp.status_code, 200, resp.content)
         entry.refresh_from_db()
         self.assertEqual(entry.roles.get().name, "newrole")
-        self.assertEqual(entry.ratting_shares.get().site_count, 3)
+        share = entry.ratting_shares.get()
+        self.assertEqual((share.first_site, share.last_site), (1, 3))
+        self.assertEqual(share.site_count, 3)
 
     def test_edit_entry_not_owner(self):
         self.client.force_login(self.other)
@@ -695,6 +900,36 @@ class TestEntriesApi(PveApiTestBase):
         )
         self.assertEqual(resp.status_code, 400)
         self.assertTrue(resp.json()["roles_root"])
+
+    def test_edit_entry_site_scaling_fabricator(self):
+        rotation = self.make_rotation(name="editscaling")
+        entry, _, _ = self.make_entry(rotation, self.owner, self.owner_char)
+        self.client.force_login(self.owner)
+        alt, payload = self.two_waves_payload(
+            site_scaling=Entry.SiteScaling.FABRICATOR, site_scaling_coefficient=100
+        )
+        resp = self.api_request(
+            "POST", "edit_entry", payload, rotation_id=rotation.pk, entry_id=entry.pk
+        )
+        self.assertEqual(resp.status_code, 200, resp.content)
+
+        entry.refresh_from_db()
+        self.assertEqual(entry.site_scaling, Entry.SiteScaling.FABRICATOR)
+        self.assertEqual(entry.site_scaling_coefficient, 100)
+        self.assertEqual(
+            [
+                entry.ratting_shares.get(user_character=char).relative_value
+                for char in (self.owner_char, alt)
+            ],
+            normalize_weights([Fraction(1, 102), Fraction(101, 102)]),
+        )
+
+        resp = self.client.get(
+            url("get_entry_for_edit", rotation_id=rotation.pk, entry_id=entry.pk)
+        )
+        data = resp.json()
+        self.assertEqual(data["site_scaling"], Entry.SiteScaling.FABRICATOR)
+        self.assertEqual(data["site_scaling_coefficient"], 100)
 
     def test_edit_entry_changing_funding_project_invalidates_both_caches(self):
         old_project = FundingProject.objects.create(name="editfundold", goal=1)

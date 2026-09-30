@@ -52,7 +52,8 @@ class EntryCharacterInline(admin.TabularInline):
         "role",
         "user",
         "user_character",
-        "site_count",
+        "first_site",
+        "last_site",
         "helped_setup",
         "estimated_share_total",
         "actual_share_total",
@@ -73,6 +74,8 @@ class EntryAdmin(admin.ModelAdmin):
     readonly_fields = (
         "rotation",
         "estimated_total",
+        "site_scaling",
+        "site_scaling_coefficient",
         "created_by",
         "created_at",
         "updated_at",

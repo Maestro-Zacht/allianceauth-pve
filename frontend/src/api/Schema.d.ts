@@ -645,6 +645,11 @@ export interface components {
              */
             funding_percentage: string[];
             /**
+             * Site Scaling Coefficient
+             * @default []
+             */
+            site_scaling_coefficient: string[];
+            /**
              * Roles Root
              * @default []
              */
@@ -715,10 +720,15 @@ export interface components {
              */
             helped_setup: string[];
             /**
-             * Site Count
+             * First Site
              * @default []
              */
-            site_count: string[];
+            first_site: string[];
+            /**
+             * Last Site
+             * @default []
+             */
+            last_site: string[];
             /**
              * Role Name
              * @default []
@@ -733,6 +743,10 @@ export interface components {
             funding_project_id: number | null;
             /** Funding Percentage */
             funding_percentage: number | null;
+            /** @default flat */
+            site_scaling: components["schemas"]["SiteScaling"];
+            /** Site Scaling Coefficient */
+            site_scaling_coefficient?: number | null;
             /** Roles */
             roles: components["schemas"]["RoleFormSchema"][];
             /** Shares */
@@ -760,11 +774,18 @@ export interface components {
             character_id: number;
             /** Helped Setup */
             helped_setup: boolean;
-            /** Site Count */
-            site_count: number;
+            /** First Site */
+            first_site: number | null;
+            /** Last Site */
+            last_site: number | null;
             /** Role Name */
             role_name: string;
         };
+        /**
+         * SiteScaling
+         * @enum {string}
+         */
+        SiteScaling: "flat" | "fabricator";
         /** EntryDetailsSchema */
         EntryDetailsSchema: {
             /** Id */
@@ -788,6 +809,9 @@ export interface components {
             funding_project: components["schemas"]["FundingProjectBasicSchema"] | null;
             /** Funding Percentage */
             funding_percentage: number | null;
+            site_scaling: components["schemas"]["SiteScaling"];
+            /** Site Scaling Coefficient */
+            site_scaling_coefficient: number | null;
             /** Rotation Is Closed */
             rotation_is_closed: boolean;
             /** User Can Edit */
@@ -808,8 +832,10 @@ export interface components {
             user_character: components["schemas"]["EveCharacterSchema"];
             /** Role Name */
             role_name: string;
-            /** Site Count */
-            site_count: number;
+            /** First Site */
+            first_site: number | null;
+            /** Last Site */
+            last_site: number | null;
             /** Helped Setup */
             helped_setup: boolean;
             /** Estimated Share Total */
@@ -833,6 +859,10 @@ export interface components {
             funding_project_id: number | null;
             /** Funding Percentage */
             funding_percentage: number | null;
+            /** @default flat */
+            site_scaling: components["schemas"]["SiteScaling"];
+            /** Site Scaling Coefficient */
+            site_scaling_coefficient?: number | null;
             /** Roles */
             roles: components["schemas"]["RoleFormSchema"][];
             /** Shares */
@@ -846,8 +876,10 @@ export interface components {
             character_id: number;
             /** Helped Setup */
             helped_setup: boolean;
-            /** Site Count */
-            site_count: number;
+            /** First Site */
+            first_site: number | null;
+            /** Last Site */
+            last_site: number | null;
             /** Role Name */
             role_name: string;
             /** Portrait Url */
@@ -930,6 +962,8 @@ export interface components {
             manage_funding_projects: boolean;
             /** Is Superuser */
             is_superuser: boolean;
+            /** Pve Only Mains */
+            pve_only_mains: boolean;
         };
         /** RatterSchema */
         RatterSchema: {

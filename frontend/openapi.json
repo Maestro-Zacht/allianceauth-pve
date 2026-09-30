@@ -2028,6 +2028,14 @@
                         "title": "Funding Percentage",
                         "type": "array"
                     },
+                    "site_scaling_coefficient": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Site Scaling Coefficient",
+                        "type": "array"
+                    },
                     "roles_root": {
                         "default": [],
                         "items": {
@@ -2134,12 +2142,20 @@
                         "title": "Helped Setup",
                         "type": "array"
                     },
-                    "site_count": {
+                    "first_site": {
                         "default": [],
                         "items": {
                             "type": "string"
                         },
-                        "title": "Site Count",
+                        "title": "First Site",
+                        "type": "array"
+                    },
+                    "last_site": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Last Site",
                         "type": "array"
                     },
                     "role_name": {
@@ -2181,6 +2197,25 @@
                             }
                         ],
                         "title": "Funding Percentage"
+                    },
+                    "site_scaling": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/SiteScaling"
+                            }
+                        ],
+                        "default": "flat"
+                    },
+                    "site_scaling_coefficient": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Site Scaling Coefficient"
                     },
                     "roles": {
                         "items": {
@@ -2261,9 +2296,27 @@
                         "title": "Helped Setup",
                         "type": "boolean"
                     },
-                    "site_count": {
-                        "title": "Site Count",
-                        "type": "integer"
+                    "first_site": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "First Site"
+                    },
+                    "last_site": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Last Site"
                     },
                     "role_name": {
                         "title": "Role Name",
@@ -2273,11 +2326,20 @@
                 "required": [
                     "character_id",
                     "helped_setup",
-                    "site_count",
+                    "first_site",
+                    "last_site",
                     "role_name"
                 ],
                 "title": "ShareFormSchema",
                 "type": "object"
+            },
+            "SiteScaling": {
+                "enum": [
+                    "flat",
+                    "fabricator"
+                ],
+                "title": "SiteScaling",
+                "type": "string"
             },
             "EntryDetailsSchema": {
                 "properties": {
@@ -2341,6 +2403,20 @@
                         ],
                         "title": "Funding Percentage"
                     },
+                    "site_scaling": {
+                        "$ref": "#/components/schemas/SiteScaling"
+                    },
+                    "site_scaling_coefficient": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Site Scaling Coefficient"
+                    },
                     "rotation_is_closed": {
                         "title": "Rotation Is Closed",
                         "type": "boolean"
@@ -2361,6 +2437,8 @@
                     "actual_total_from_items",
                     "funding_project",
                     "funding_percentage",
+                    "site_scaling",
+                    "site_scaling_coefficient",
                     "rotation_is_closed",
                     "user_can_edit"
                 ],
@@ -2409,9 +2487,27 @@
                         "title": "Role Name",
                         "type": "string"
                     },
-                    "site_count": {
-                        "title": "Site Count",
-                        "type": "integer"
+                    "first_site": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "First Site"
+                    },
+                    "last_site": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Last Site"
                     },
                     "helped_setup": {
                         "title": "Helped Setup",
@@ -2446,7 +2542,8 @@
                     "user_main_character",
                     "user_character",
                     "role_name",
-                    "site_count",
+                    "first_site",
+                    "last_site",
                     "helped_setup",
                     "estimated_share_total",
                     "estimated_funding_amount",
@@ -2485,6 +2582,25 @@
                             }
                         ],
                         "title": "Funding Percentage"
+                    },
+                    "site_scaling": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/SiteScaling"
+                            }
+                        ],
+                        "default": "flat"
+                    },
+                    "site_scaling_coefficient": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Site Scaling Coefficient"
                     },
                     "roles": {
                         "items": {
@@ -2529,9 +2645,27 @@
                         "title": "Helped Setup",
                         "type": "boolean"
                     },
-                    "site_count": {
-                        "title": "Site Count",
-                        "type": "integer"
+                    "first_site": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "First Site"
+                    },
+                    "last_site": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Last Site"
                     },
                     "role_name": {
                         "title": "Role Name",
@@ -2557,7 +2691,8 @@
                 "required": [
                     "character_id",
                     "helped_setup",
-                    "site_count",
+                    "first_site",
+                    "last_site",
                     "role_name",
                     "portrait_url",
                     "character_name",
@@ -2738,6 +2873,10 @@
                     "is_superuser": {
                         "title": "Is Superuser",
                         "type": "boolean"
+                    },
+                    "pve_only_mains": {
+                        "title": "Pve Only Mains",
+                        "type": "boolean"
                     }
                 },
                 "required": [
@@ -2746,7 +2885,8 @@
                     "manage_entries",
                     "manage_rotations",
                     "manage_funding_projects",
-                    "is_superuser"
+                    "is_superuser",
+                    "pve_only_mains"
                 ],
                 "title": "PermissionsSchema",
                 "type": "object"

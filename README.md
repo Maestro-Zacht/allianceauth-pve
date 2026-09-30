@@ -31,14 +31,19 @@ They can be created by the people with the right permission (see [below](#permis
 ### Add Entries
 
 Entries are the corrisponding of an actual PvE fleet. They consist in an estimated total loot value and a set of shares.
-When an Entry is submitted to a rotation, all the rules of tax rate and setups are applied and the loot value is split between the participants according to their share weight.
+When an Entry is submitted to a rotation, all the rules of tax rate and setups are applied and the loot value is split between the participants according to which sites they ran and the site value.
 To add an entry to a rotation, click on the plus button on the bottom left of the screen.
 
 ![Entry Form](https://raw.githubusercontent.com/Maestro-Zacht/allianceauth-pve/main/images/entry_form.png)
 
 Every entry has a list of shares. To add a share, search for the character you want to add in the panel on the right and click the add button.
 
-A share will be added with the first role in the list, 1 site count and no setup. Setups are helpful in wormholes when you want to track who helped setting up a system before ratting. Roles defines how loot will be split between the shares: for example, if someone has 1 site count and a role with a value of 1 and someone else has 1 site count and a role with a value of 2, this last person will receive double the amount of money of the first one.
+A share will be added with the first role in the list, no setup, and first/last site both set to the site the fleet is currently running. The first/last site is the inclusive range of sites the character took part in (leave both empty for a share that ran no sites). Setups are helpful in wormholes when you want to track who helped setting up a system before ratting. Roles and sites define how loot will be split between the shares: every site (from 1 to the highest last site) is worth the same fraction of the entry, and each site's value is split only among the characters that ran it, weighted on their roles. For example, if someone ran sites x to y with a role with a value of 1 and someone else ran the same sites with a role with a value of 2, this last person will receive double the amount of money of the first one; a character running a site alone gets that site's whole value.
+
+Since version v3.0.0, each site can have a different weight when splitting the loot:
+
+- **Site scaling=Flat** means all sites have equal weight and the loot is split equally.
+- **Site scaling=Fabricator** models the scaling in *Rampant Drone Fabricator* combat sites. This is a simple linear scaling, and you can customize the coefficient (e.g. coeff=1 => wave weights 1,2,3,4; coeff=2 => wave weights 1,3,5,7 etc.)
 
 In order to add a role, you can click on the `New Role` button and create one from scratch or load a roles setup, if you chose at least one in the rotation form, by clicking on the `Load Roles Setup` button.
 
@@ -46,7 +51,7 @@ When you have a role loaded, you can choose it from the dropdown select on the s
 
 On the center of the right panel there is the Estimated total section. There is a numeric field and a list of buttons if you selected at least one in the rotation form. you can either input the estimated total by hand or click on the buttons while you are running the sites.
 
-On the right of the Estimated total field there are 4 buttons for incrementing the site count of the shares. If you hover each of them there'll be a tooltip telling what each button does.
+On the right of the Estimated total field there are 4 buttons for moving the last site of the shares forward or back by one. If you hover each of them there'll be a tooltip telling what each button does.
 The ones that change selected chars only edit the shares with the green arrow. This is helpful if you are doing the form while you are running the sites: if a person leaves, you can click on the arrow and it'll be unselected.
 
 ![Selected Shares](https://raw.githubusercontent.com/Maestro-Zacht/allianceauth-pve/main/images/select_button.png)

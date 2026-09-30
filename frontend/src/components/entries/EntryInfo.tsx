@@ -66,6 +66,13 @@ export default function EntryInfo({ entry, rotationId }: EntryInfoProps) {
                         value={`${entry.funding_project.name} (${entry.funding_percentage}%)`}
                     />
                 )}
+                <GroupCard
+                    title={t('site_scaling')}
+                    value={entry.site_scaling === 'fabricator' ?
+                        `${t('site_scaling_fabricator')} (${t('site_scaling_coefficient')}: ${entry.site_scaling_coefficient})` :
+                        t('site_scaling_flat')
+                    }
+                />
                 {!entry.rotation_is_closed && <GroupCard
                     title={t('total_after_tax')}
                     value={localizeNumber(entry.estimated_total_after_tax)}

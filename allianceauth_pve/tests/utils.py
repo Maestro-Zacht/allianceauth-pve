@@ -17,7 +17,7 @@ from allianceauth_pve.models import (
     EntryLootItem,
     EntryRole,
     Rotation,
-    compute_relative_values,
+    compute_site_relative_values,
 )
 
 ACCESS = "allianceauth_pve.access_pve"
@@ -32,8 +32,10 @@ def url(name, **kwargs):
 
 def recompute_relative_values(entry: Entry) -> None:
     shares = list(entry.ratting_shares.select_related("role"))
-    values = compute_relative_values(
-        [share.site_count * share.role.value for share in shares]
+    values = compute_site_relative_values(
+        [(share.first_site, share.last_site, share.role.value) for share in shares],
+        entry.site_scaling,
+        entry.site_scaling_coefficient,
     )
     for share, value in zip(shares, values, strict=True):
         share.relative_value = value
@@ -88,14 +90,15 @@ class PveTestBase(TestCase):
 
     @staticmethod
     def make_share(  # noqa: PLR0913
-        entry, user, char, role, *, site_count=1, helped_setup=False
+        entry, user, char, role, *, first_site=1, last_site=1, helped_setup=False
     ):
         share = EntryCharacter.objects.create(
             entry=entry,
             user=user,
             user_character=char,
             role=role,
-            site_count=site_count,
+            first_site=first_site,
+            last_site=last_site,
             helped_setup=helped_setup,
             relative_value=Decimal(0),
         )
@@ -112,11 +115,14 @@ class PveTestBase(TestCase):
         *,
         role_name="dps",
         role_value=10,
-        site_count=1,
+        first_site=1,
+        last_site=1,
         helped_setup=False,
         estimated_total=1_000_000_000,
         funding_project=None,
         funding_percentage=None,
+        site_scaling=Entry.SiteScaling.FLAT,
+        site_scaling_coefficient=None,
     ):
         entry = Entry.objects.create(
             rotation=rotation,
@@ -124,6 +130,8 @@ class PveTestBase(TestCase):
             estimated_total=estimated_total,
             funding_project=funding_project,
             funding_percentage=funding_percentage,
+            site_scaling=site_scaling,
+            site_scaling_coefficient=site_scaling_coefficient,
         )
         role = EntryRole.objects.create(entry=entry, name=role_name, value=role_value)
         share = cls.make_share(
@@ -131,7 +139,8 @@ class PveTestBase(TestCase):
             user,
             char,
             role,
-            site_count=site_count,
+            first_site=first_site,
+            last_site=last_site,
             helped_setup=helped_setup,
         )
         return entry, role, share
@@ -165,7 +174,8 @@ class PveApiTestBase(PveTestBase):
                 {
                     "character_id": char_id,
                     "helped_setup": False,
-                    "site_count": 1,
+                    "first_site": 1,
+                    "last_site": 1,
                     "role_name": role_name,
                 }
             ],
