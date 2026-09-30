@@ -23,6 +23,7 @@ from allianceauth_pve.models import (
     RotationSetupSummary,
     compute_site_relative_values,
     normalize_weights,
+    site_value,
 )
 
 from .utils import PveTestBase
@@ -461,6 +462,24 @@ class TestComputeRelativeValues(TestCase):
             normalize_weights([Fraction(1, 6), Fraction(1, 2)]),
             [Decimal("0.25"), Decimal("0.75")],
         )
+
+
+class TestSiteValue(SimpleTestCase):
+    def test_flat(self):
+        for site in (1, 2, 10):
+            with self.subTest(site=site):
+                self.assertEqual(site_value(site, Entry.SiteScaling.FLAT, None), 1)
+
+    def test_fabricator(self):
+        for site, expected in ((1, 1), (2, 3), (3, 5), (10, 19)):
+            with self.subTest(site=site):
+                self.assertEqual(
+                    site_value(site, Entry.SiteScaling.FABRICATOR, 2), expected
+                )
+
+    def test_unknown_scaling(self):
+        with self.assertRaisesMessage(ValueError, "Unknown site scaling: unknown"):
+            site_value(1, "unknown", 2)
 
 
 class TestComputeSiteRelativeValues(SimpleTestCase):
