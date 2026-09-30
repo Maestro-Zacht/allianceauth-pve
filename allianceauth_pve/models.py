@@ -2,7 +2,7 @@ from collections import defaultdict
 from collections.abc import Sequence
 from decimal import ROUND_HALF_EVEN, Decimal, localcontext
 from fractions import Fraction
-from typing import TYPE_CHECKING, ClassVar, assert_never
+from typing import TYPE_CHECKING, ClassVar
 
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.services.hooks import get_extension_logger
@@ -686,7 +686,8 @@ def site_value(
         case Entry.SiteScaling.FABRICATOR:
             return 1 + coefficient * (site - 1)
         case _:
-            assert_never(site_scaling)
+            msg = f"Unknown site scaling: {site_scaling}"
+            raise ValueError(msg)
 
 
 # make this more efficient
