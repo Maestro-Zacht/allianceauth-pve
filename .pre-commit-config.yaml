@@ -87,7 +87,7 @@ repos:
         args:
           - --indent=4
         additional_dependencies:
-          - tox==4.61.4 # https://github.com/tox-dev/tox/releases/latest
+          - tox==4.64.1 # https://github.com/tox-dev/tox/releases/latest
 
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: 17e12779811926f000bdfa1795f9e3735dd71ac3 # frozen: 0.26
@@ -97,7 +97,7 @@ repos:
         description: Validate the pyproject.toml file.
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 12e63946db2c5cfcc9030fac21c3883ba88c6ed8 # frozen: 0.38.0
+    rev: 0494aa7fa1314e98913a41227d8f0a515b2c1049 # frozen: 0.38.2
     hooks:
       - id: check-github-actions
         name: Check GitHub Actions
@@ -124,7 +124,7 @@ repos:
           - --verbose
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 321478e58f4938179c6b86e4ddfa923d1547a49b # frozen: v0.16.6
+    rev: 2eeb5678de71a00c0902cbda7105d328432f72cb # frozen: v0.16.8
     hooks:
       - id: ruff-check
       - id: ruff-format
