@@ -68,15 +68,20 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                 return state;
             }
             return { ...state, roles: [...state.roles, action.role] };
-        case 'load_role_setup':
+        case 'load_role_setup': {
             if (action.roles.length === 0) {
                 return state;
             }
+            const roleNames = new Set(action.roles.map(role => role.name));
             return {
                 ...state,
                 roles: action.roles,
-                shares: state.shares.map(share => ({ ...share, role_name: action.roles[0].name }))
+                shares: state.shares.map(share => roleNames.has(share.role_name) ?
+                    share :
+                    { ...share, role_name: action.roles[0].name }
+                )
             };
+        }
         case 'update_role_value':
             return {
                 ...state,
