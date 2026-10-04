@@ -195,6 +195,7 @@ class PveApiTestBase(PveTestBase):
             "min_people_share_setup": 3,
             "entry_buttons": [],
             "roles_setups": [],
+            "lock_roles_setup": False,
         }
         payload.update(overrides)
         return payload

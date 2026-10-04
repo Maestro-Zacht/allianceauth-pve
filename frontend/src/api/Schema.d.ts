@@ -469,6 +469,8 @@ export interface components {
             entry_buttons: number[];
             /** Roles Setups */
             roles_setups: number[];
+            /** Lock Roles Setup */
+            lock_roles_setup: boolean;
         };
         /** CloseRotationErrorsSchema */
         CloseRotationErrorsSchema: {
@@ -581,6 +583,13 @@ export interface components {
             name: string;
             /** Roles */
             roles: components["schemas"]["BaseRoleSchema"][];
+        };
+        /** RotationRoleSetupsSchema */
+        RotationRoleSetupsSchema: {
+            /** Lock Roles Setup */
+            lock_roles_setup: boolean;
+            /** Roles Setups */
+            roles_setups: components["schemas"]["RoleSetupSchema"][];
         };
         /** ExtendedEntryItemSchema */
         ExtendedEntryItemSchema: {
@@ -1229,7 +1238,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["RoleSetupSchema"][];
+                    "application/json": components["schemas"]["RotationRoleSetupsSchema"];
                 };
             };
             /** @description Not Found */

@@ -16,6 +16,8 @@ from allianceauth_pve.app_settings import (
 from allianceauth_pve.models import (
     Entry,
     FundingProject,
+    GeneralRole,
+    RoleSetup,
     normalize_weights,
 )
 from allianceauth_pve.tests.utils import (
@@ -700,6 +702,75 @@ class TestEntriesApi(PveApiTestBase):
         self.assertEqual(new.funding_percentage, 50)
         self.assertFalse(cache.has_key(proj_summary_key))
         self.assertFalse(cache.has_key(fund_key))
+
+    # ---- locked roles setup ----
+
+    def make_setup_rotation(self, *, lock_roles_setup=True):
+        setup = RoleSetup.objects.create(name="locked setup")
+        GeneralRole.objects.create(setup=setup, name="dps", value=10)
+        GeneralRole.objects.create(setup=setup, name="logi", value=5)
+        rotation = self.make_rotation(
+            name="lockedrot", lock_roles_setup=lock_roles_setup
+        )
+        rotation.roles_setups.add(setup)
+        return rotation
+
+    def test_new_entry_locked_roles_match_in_any_order(self):
+        rotation = self.make_setup_rotation()
+        self.client.force_login(self.owner)
+        payload = self.valid_entry_payload(
+            self.owner_char.character_id,
+            roles=[{"name": "logi", "value": 5}, {"name": "dps", "value": 10}],
+        )
+        resp = self.api_request("POST", "new_entry", payload, rotation_id=rotation.pk)
+        self.assertEqual(resp.status_code, 200, resp.content)
+
+    def test_new_entry_locked_roles_mismatch(self):
+        rotation = self.make_setup_rotation()
+        self.client.force_login(self.owner)
+        mismatches = (
+            [{"name": "dps", "value": 10}],
+            [{"name": "dps", "value": 10}, {"name": "logi", "value": 6}],
+            [
+                {"name": "dps", "value": 10},
+                {"name": "logi", "value": 5},
+                {"name": "extra", "value": 1},
+            ],
+        )
+        for roles in mismatches:
+            with self.subTest(roles=roles):
+                payload = self.valid_entry_payload(
+                    self.owner_char.character_id, roles=roles
+                )
+                resp = self.api_request(
+                    "POST", "new_entry", payload, rotation_id=rotation.pk
+                )
+                self.assertEqual(resp.status_code, 400)
+                self.assertTrue(resp.json()["roles_root"])
+        self.assertFalse(rotation.entries.exists())
+
+    def test_new_entry_unlocked_roles_setup_not_enforced(self):
+        rotation = self.make_setup_rotation(lock_roles_setup=False)
+        self.client.force_login(self.owner)
+        payload = self.valid_entry_payload(
+            self.owner_char.character_id, roles=[{"name": "dps", "value": 3}]
+        )
+        resp = self.api_request("POST", "new_entry", payload, rotation_id=rotation.pk)
+        self.assertEqual(resp.status_code, 200, resp.content)
+
+    def test_edit_entry_locked_roles_mismatch(self):
+        rotation = self.make_setup_rotation()
+        entry, _, _ = self.make_entry(rotation, self.owner, self.owner_char)
+        self.client.force_login(self.owner)
+        resp = self.api_request(
+            "POST",
+            "edit_entry",
+            self.valid_entry_payload(self.owner_char.character_id),
+            rotation_id=rotation.pk,
+            entry_id=entry.pk,
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertTrue(resp.json()["roles_root"])
 
     # ---- PVE_ONLY_MAINS rule ----
 

@@ -179,7 +179,7 @@ def new_entry(request, data: EntryFormSchema, rotation_id: int = Path(...)):
         if rotation.is_closed:
             return 403, _("The rotation is closed")
 
-        errors = data.validate()
+        errors = data.validate(rotation)
         if errors is not None:
             return 400, errors
 
@@ -263,7 +263,7 @@ def edit_entry(
         if entry.rotation.is_closed:
             return 403, _("The rotation is closed")
 
-        errors = data.validate()
+        errors = data.validate(entry.rotation)
         if errors is not None:
             return 400, errors
 

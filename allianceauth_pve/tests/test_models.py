@@ -224,6 +224,22 @@ class TestRotation(PveTestBase):
             f"Setup summary for {self.testuser} in {self.rotation}",
         )
 
+    def test_locked_roles_setup(self):
+        setup = RoleSetup.objects.create(name="setup1")
+        other_setup = RoleSetup.objects.create(name="setup2")
+
+        cases = (
+            (True, [setup], setup),
+            (False, [setup], None),
+            (True, [], None),
+            (True, [setup, other_setup], None),
+        )
+        for lock_roles_setup, setups, expected in cases:
+            with self.subTest(lock_roles_setup=lock_roles_setup, setups=setups):
+                rotation = self.make_rotation(lock_roles_setup=lock_roles_setup)
+                rotation.roles_setups.set(setups)
+                self.assertEqual(rotation.locked_roles_setup, expected)
+
 
 class TestEntry(PveTestBase):
     @classmethod

@@ -6,3 +6,7 @@
     align-items: center;
     margin-bottom: 15px;
 }
+
+#roles-div.locked {
+    grid-template-columns: minmax(0, 1fr) 7rem;
+}

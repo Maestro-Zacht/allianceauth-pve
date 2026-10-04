@@ -392,6 +392,12 @@ class RotationPreset(models.Model):
         help_text=_("Setup avaiable for loading in the Entry form."),
         blank=True,
     )
+    lock_roles_setup = models.BooleanField(
+        default=False,
+        help_text=_(
+            "Load the only roles setup automatically in every entry and prevent editing roles. Requires exactly 1 roles setup."
+        ),
+    )
 
     class Meta:
         default_permissions = ()
@@ -444,6 +450,12 @@ class Rotation(models.Model):
         help_text=_("Setup avaiable for loading in the Entry form."),
         blank=True,
     )
+    lock_roles_setup = models.BooleanField(
+        default=False,
+        help_text=_(
+            "Load the only roles setup automatically in every entry and prevent editing roles. Requires exactly 1 roles setup."
+        ),
+    )
 
     objects: ClassVar[RotationManager] = RotationManager()
 
@@ -455,6 +467,13 @@ class Rotation(models.Model):
 
     def __str__(self):
         return f"{self.pk} {self.name}"
+
+    @cached_property
+    def locked_roles_setup(self) -> RoleSetup | None:
+        if not self.lock_roles_setup:
+            return None
+        setups = list(self.roles_setups.prefetch_related("roles")[:2])
+        return setups[0] if len(setups) == 1 else None
 
     @cached_property
     def funding_projects_summary(self):

@@ -366,11 +366,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "items": {
-                                        "$ref": "#/components/schemas/RoleSetupSchema"
-                                    },
-                                    "title": "Response",
-                                    "type": "array"
+                                    "$ref": "#/components/schemas/RotationRoleSetupsSchema"
                                 }
                             }
                         }
@@ -1577,6 +1573,10 @@
                         },
                         "title": "Roles Setups",
                         "type": "array"
+                    },
+                    "lock_roles_setup": {
+                        "title": "Lock Roles Setup",
+                        "type": "boolean"
                     }
                 },
                 "required": [
@@ -1587,7 +1587,8 @@
                     "max_daily_setups",
                     "min_people_share_setup",
                     "entry_buttons",
-                    "roles_setups"
+                    "roles_setups",
+                    "lock_roles_setup"
                 ],
                 "title": "NewRotationSchema",
                 "type": "object"
@@ -1869,6 +1870,27 @@
                     "roles"
                 ],
                 "title": "RoleSetupSchema",
+                "type": "object"
+            },
+            "RotationRoleSetupsSchema": {
+                "properties": {
+                    "lock_roles_setup": {
+                        "title": "Lock Roles Setup",
+                        "type": "boolean"
+                    },
+                    "roles_setups": {
+                        "items": {
+                            "$ref": "#/components/schemas/RoleSetupSchema"
+                        },
+                        "title": "Roles Setups",
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "lock_roles_setup",
+                    "roles_setups"
+                ],
+                "title": "RotationRoleSetupsSchema",
                 "type": "object"
             },
             "ExtendedEntryItemSchema": {

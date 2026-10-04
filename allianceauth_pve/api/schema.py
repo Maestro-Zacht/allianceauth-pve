@@ -189,6 +189,7 @@ class NewRotationSchema(Schema):
     min_people_share_setup: int
     entry_buttons: list[int]
     roles_setups: list[int]
+    lock_roles_setup: bool
 
     def validate(self) -> dict[str, list[str]]:
         errors = defaultdict(list)
@@ -224,6 +225,11 @@ class NewRotationSchema(Schema):
         if any(role_id not in setups for role_id in self.roles_setups):
             errors["roles_setups"].append(_("One or more roles setups are invalid."))
 
+        if self.lock_roles_setup and len(set(self.roles_setups)) != 1:
+            errors["lock_roles_setup"].append(
+                _("Locking the roles setup requires exactly 1 roles setup.")
+            )
+
         return dict(errors)
 
 
@@ -245,6 +251,11 @@ class BaseRoleSetupSchema(ModelSchema):
 
 class RoleSetupSchema(BaseRoleSetupSchema):
     roles: list[BaseRoleSchema]
+
+
+class RotationRoleSetupsSchema(Schema):
+    lock_roles_setup: bool
+    roles_setups: list[RoleSetupSchema]
 
 
 class NewProjectSchema(Schema):
@@ -510,7 +521,7 @@ class EntryFormSchema(Schema):
     shares: list[ShareFormSchema]
     items: list[EntryItemSchema]
 
-    def validate(self) -> EntryFormErrorsSchema | None:  # noqa: PLR0912, PLR0915
+    def validate(self, rotation: Rotation) -> EntryFormErrorsSchema | None:  # noqa: PLR0912, PLR0915
         errors = defaultdict(list)
         roles = {}
 
@@ -525,6 +536,15 @@ class EntryFormSchema(Schema):
                     roles_errors[i] = role_errors
             if roles_errors:
                 errors["roles"] = roles_errors
+
+        locked_setup = rotation.locked_roles_setup
+        if locked_setup is not None and {
+            role.name: role.value for role in self.roles
+        } != {role.name: role.value for role in locked_setup.roles.all()}:
+            errors["roles_root"].append(
+                _("Roles must match the %(setup)s roles setup of this rotation.")
+                % {"setup": locked_setup.name}
+            )
 
         if not self.shares:
             errors["shares_root"].append(_("At least one share is required."))

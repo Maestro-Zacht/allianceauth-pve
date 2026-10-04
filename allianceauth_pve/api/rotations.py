@@ -30,8 +30,8 @@ from .schema import (
     ExtendedEntryItemSchema,
     NewRotationSchema,
     PveButtonSchema,
-    RoleSetupSchema,
     RotationProjectSummarySchema,
+    RotationRoleSetupsSchema,
     RotationSchema,
     RotationSummarySchema,
 )
@@ -74,6 +74,7 @@ def create_rotation(request, data: NewRotationSchema):  # noqa: ARG001
         tax_rate_loot_items=data.tax_rate_loot_items,
         max_daily_setups=data.max_daily_setups,
         min_people_share_setup=data.min_people_share_setup,
+        lock_roles_setup=data.lock_roles_setup,
     )
     rotation.entry_buttons.set(data.entry_buttons)
     rotation.roles_setups.set(data.roles_setups)
@@ -211,7 +212,8 @@ def get_rotation_project_summaries(request, rotation_id: int):  # noqa: ARG001
 
 
 @router.get(
-    "/{int:rotation_id}/role_setups/", response={200: list[RoleSetupSchema], 404: None}
+    "/{int:rotation_id}/role_setups/",
+    response={200: RotationRoleSetupsSchema, 404: None},
 )
 def get_rotation_role_setups(request, rotation_id: int):  # noqa: ARG001
     try:
@@ -219,7 +221,10 @@ def get_rotation_role_setups(request, rotation_id: int):  # noqa: ARG001
     except Rotation.DoesNotExist:
         return 404, None
 
-    return 200, rotation.roles_setups.prefetch_related("roles")
+    return 200, {
+        "lock_roles_setup": rotation.locked_roles_setup is not None,
+        "roles_setups": rotation.roles_setups.prefetch_related("roles"),
+    }
 
 
 @router.get(
