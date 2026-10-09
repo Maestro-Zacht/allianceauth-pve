@@ -2050,14 +2050,6 @@
                         "title": "Funding Percentage",
                         "type": "array"
                     },
-                    "site_scaling_coefficient": {
-                        "default": [],
-                        "items": {
-                            "type": "string"
-                        },
-                        "title": "Site Scaling Coefficient",
-                        "type": "array"
-                    },
                     "roles_root": {
                         "default": [],
                         "items": {
@@ -2227,17 +2219,6 @@
                             }
                         ],
                         "default": "flat"
-                    },
-                    "site_scaling_coefficient": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Site Scaling Coefficient"
                     },
                     "roles": {
                         "items": {
@@ -2428,17 +2409,6 @@
                     "site_scaling": {
                         "$ref": "#/components/schemas/SiteScaling"
                     },
-                    "site_scaling_coefficient": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Site Scaling Coefficient"
-                    },
                     "rotation_is_closed": {
                         "title": "Rotation Is Closed",
                         "type": "boolean"
@@ -2460,7 +2430,6 @@
                     "funding_project",
                     "funding_percentage",
                     "site_scaling",
-                    "site_scaling_coefficient",
                     "rotation_is_closed",
                     "user_can_edit"
                 ],
@@ -2612,17 +2581,6 @@
                             }
                         ],
                         "default": "flat"
-                    },
-                    "site_scaling_coefficient": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Site Scaling Coefficient"
                     },
                     "roles": {
                         "items": {

@@ -43,7 +43,7 @@ A share will be added with the first role in the list, no setup, and first/last 
 Since version v3.0.0, each site can have a different weight when splitting the loot:
 
 - **Site scaling=Flat** means all sites have equal weight and the loot is split equally.
-- **Site scaling=Fabricator** models the scaling in *Rampant Drone Fabricator* combat sites. This is a simple linear scaling, and you can customize the coefficient (e.g. coeff=1 => wave weights 1,2,3,4; coeff=2 => wave weights 1,3,5,7 etc.)
+- **Site scaling=Fabricator** models the scaling in *Rampant Drone Fabricator* combat sites. Wave N is weighted N² + N as found from running the sites.
 
 In order to add a role, you can click on the `New Role` button and create one from scratch or load a roles setup, if you chose at least one in the rotation form, by clicking on the `Load Roles Setup` button.
 

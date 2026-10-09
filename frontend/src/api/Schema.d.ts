@@ -654,11 +654,6 @@ export interface components {
              */
             funding_percentage: string[];
             /**
-             * Site Scaling Coefficient
-             * @default []
-             */
-            site_scaling_coefficient: string[];
-            /**
              * Roles Root
              * @default []
              */
@@ -754,8 +749,6 @@ export interface components {
             funding_percentage: number | null;
             /** @default flat */
             site_scaling: components["schemas"]["SiteScaling"];
-            /** Site Scaling Coefficient */
-            site_scaling_coefficient?: number | null;
             /** Roles */
             roles: components["schemas"]["RoleFormSchema"][];
             /** Shares */
@@ -819,8 +812,6 @@ export interface components {
             /** Funding Percentage */
             funding_percentage: number | null;
             site_scaling: components["schemas"]["SiteScaling"];
-            /** Site Scaling Coefficient */
-            site_scaling_coefficient: number | null;
             /** Rotation Is Closed */
             rotation_is_closed: boolean;
             /** User Can Edit */
@@ -870,8 +861,6 @@ export interface components {
             funding_percentage: number | null;
             /** @default flat */
             site_scaling: components["schemas"]["SiteScaling"];
-            /** Site Scaling Coefficient */
-            site_scaling_coefficient?: number | null;
             /** Roles */
             roles: components["schemas"]["RoleFormSchema"][];
             /** Shares */

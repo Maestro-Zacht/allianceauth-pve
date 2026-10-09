@@ -631,7 +631,6 @@ class TestEntriesApi(PveApiTestBase):
 
         new = Entry.objects.exclude(pk=self.entry.pk).get(rotation=self.rotation)
         self.assertEqual(new.site_scaling, Entry.SiteScaling.FLAT)
-        self.assertIsNone(new.site_scaling_coefficient)
         self.assertEqual(
             new.ratting_shares.get(user_character=alt).relative_value,
             Decimal("0.5"),
@@ -639,9 +638,7 @@ class TestEntriesApi(PveApiTestBase):
 
     def test_new_entry_site_scaling_fabricator(self):
         self.client.force_login(self.owner)
-        alt, payload = self.two_waves_payload(
-            site_scaling=Entry.SiteScaling.FABRICATOR, site_scaling_coefficient=2
-        )
+        alt, payload = self.two_waves_payload(site_scaling=Entry.SiteScaling.FABRICATOR)
         resp = self.api_request(
             "POST", "new_entry", payload, rotation_id=self.rotation.pk
         )
@@ -649,7 +646,6 @@ class TestEntriesApi(PveApiTestBase):
 
         new = Entry.objects.exclude(pk=self.entry.pk).get(rotation=self.rotation)
         self.assertEqual(new.site_scaling, Entry.SiteScaling.FABRICATOR)
-        self.assertEqual(new.site_scaling_coefficient, 2)
         self.assertEqual(
             new.ratting_shares.get(user_character=self.owner_char).relative_value,
             Decimal("0.25"),
@@ -658,25 +654,6 @@ class TestEntriesApi(PveApiTestBase):
             new.ratting_shares.get(user_character=alt).relative_value,
             Decimal("0.75"),
         )
-
-    def test_new_entry_site_scaling_coefficient_errors(self):
-        self.client.force_login(self.owner)
-        for site_scaling, coefficient in (
-            (Entry.SiteScaling.FABRICATOR, None),
-            (Entry.SiteScaling.FABRICATOR, 0),
-            (Entry.SiteScaling.FLAT, 2),
-        ):
-            with self.subTest(site_scaling=site_scaling, coefficient=coefficient):
-                payload = self.valid_entry_payload(
-                    self.owner_char.character_id,
-                    site_scaling=site_scaling,
-                    site_scaling_coefficient=coefficient,
-                )
-                resp = self.api_request(
-                    "POST", "new_entry", payload, rotation_id=self.rotation.pk
-                )
-                self.assertEqual(resp.status_code, 400)
-                self.assertTrue(resp.json()["site_scaling_coefficient"])
 
     def test_new_entry_with_funding_project_invalidates_caches(self):
         project = FundingProject.objects.create(name="newfund", goal=1)
@@ -976,9 +953,7 @@ class TestEntriesApi(PveApiTestBase):
         rotation = self.make_rotation(name="editscaling")
         entry, _, _ = self.make_entry(rotation, self.owner, self.owner_char)
         self.client.force_login(self.owner)
-        alt, payload = self.two_waves_payload(
-            site_scaling=Entry.SiteScaling.FABRICATOR, site_scaling_coefficient=100
-        )
+        alt, payload = self.two_waves_payload(site_scaling=Entry.SiteScaling.FABRICATOR)
         resp = self.api_request(
             "POST", "edit_entry", payload, rotation_id=rotation.pk, entry_id=entry.pk
         )
@@ -986,13 +961,12 @@ class TestEntriesApi(PveApiTestBase):
 
         entry.refresh_from_db()
         self.assertEqual(entry.site_scaling, Entry.SiteScaling.FABRICATOR)
-        self.assertEqual(entry.site_scaling_coefficient, 100)
         self.assertEqual(
             [
                 entry.ratting_shares.get(user_character=char).relative_value
                 for char in (self.owner_char, alt)
             ],
-            normalize_weights([Fraction(1, 102), Fraction(101, 102)]),
+            normalize_weights([Fraction(1, 4), Fraction(3, 4)]),
         )
 
         resp = self.client.get(
@@ -1000,7 +974,6 @@ class TestEntriesApi(PveApiTestBase):
         )
         data = resp.json()
         self.assertEqual(data["site_scaling"], Entry.SiteScaling.FABRICATOR)
-        self.assertEqual(data["site_scaling_coefficient"], 100)
 
     def test_edit_entry_changing_funding_project_invalidates_both_caches(self):
         old_project = FundingProject.objects.create(name="editfundold", goal=1)

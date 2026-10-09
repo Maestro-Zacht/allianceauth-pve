@@ -639,7 +639,6 @@ class Entry(models.Model):
     site_scaling = models.CharField(
         max_length=16, choices=SiteScaling, default=SiteScaling.FLAT
     )
-    site_scaling_coefficient = models.PositiveIntegerField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
@@ -696,14 +695,12 @@ class Entry(models.Model):
         )
 
 
-def site_value(
-    site: int, site_scaling: Entry.SiteScaling, coefficient: int | None
-) -> int:
+def site_value(site: int, site_scaling: Entry.SiteScaling) -> int:
     match site_scaling:
         case Entry.SiteScaling.FLAT:
             return 1
         case Entry.SiteScaling.FABRICATOR:
-            return 1 + coefficient * (site - 1)
+            return site**2 + site
         case _:
             msg = f"Unknown site scaling: {site_scaling}"
             raise ValueError(msg)
@@ -713,7 +710,6 @@ def site_value(
 def compute_site_relative_values(
     shares: Sequence[tuple[int | None, int | None, int]],
     site_scaling: Entry.SiteScaling = Entry.SiteScaling.FLAT,
-    coefficient: int | None = None,
 ) -> list[Decimal]:
     site_weights: defaultdict[int, int] = defaultdict(int)
     for first_site, last_site, role_value in shares:
@@ -728,7 +724,7 @@ def compute_site_relative_values(
             for site in range(first_site, last_site + 1):
                 if site_weights[site]:
                     weight += Fraction(
-                        role_value * site_value(site, site_scaling, coefficient),
+                        role_value * site_value(site, site_scaling),
                         site_weights[site],
                     )
         weights.append(weight)

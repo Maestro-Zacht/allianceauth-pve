@@ -27,7 +27,6 @@ type EntryReducerAction =
     | { type: 'select_funding_project'; projectId: number | null }
     | { type: 'update_funding_percentage'; percentage: number }
     | { type: 'select_site_scaling'; siteScaling: SiteScaling }
-    | { type: 'update_site_scaling_coefficient'; coefficient: number }
     | { type: 'add_character'; characterId: number, characterName: string, portraitUrl: string, mainCharacterName: string, mainCharacterPortraitUrl: string }
     | { type: 'toggle_share_value'; characterId: number, field: 'helped_setup' | 'is_present' }
     | { type: 'change_share_role'; characterId: number; newRoleName: string }
@@ -162,17 +161,6 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
             return {
                 ...state,
                 site_scaling: action.siteScaling,
-                site_scaling_coefficient: action.siteScaling === 'fabricator' ?
-                    state.site_scaling_coefficient ?? 1 :
-                    null
-            };
-        case "update_site_scaling_coefficient":
-            if (state.site_scaling !== 'fabricator' || isNaN(action.coefficient)) {
-                return state;
-            }
-            return {
-                ...state,
-                site_scaling_coefficient: Math.max(action.coefficient, 1)
             };
         case "add_character": {
             if (state.shares.some(share => share.character_id === action.characterId)) {
