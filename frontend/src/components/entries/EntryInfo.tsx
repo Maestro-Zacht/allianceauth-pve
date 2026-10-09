@@ -68,10 +68,7 @@ export default function EntryInfo({ entry, rotationId }: EntryInfoProps) {
                 )}
                 <GroupCard
                     title={t('site_scaling')}
-                    value={entry.site_scaling === 'fabricator' ?
-                        `${t('site_scaling_fabricator')} (${t('site_scaling_coefficient')}: ${entry.site_scaling_coefficient})` :
-                        t('site_scaling_flat')
-                    }
+                    value={entry.site_scaling === 'fabricator' ? t('site_scaling_fabricator') : t('site_scaling_flat')}
                 />
                 {!entry.rotation_is_closed && <GroupCard
                     title={t('total_after_tax')}

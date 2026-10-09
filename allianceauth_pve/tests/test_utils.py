@@ -2,7 +2,7 @@ import datetime
 
 from django.utils import timezone
 
-from allianceauth_pve.models import Rotation, RotationPreset
+from allianceauth_pve.models import RoleSetup, Rotation, RotationPreset
 from allianceauth_pve.utils import ensure_rotation_presets_applied, running_averages
 
 from .utils import PveTestBase
@@ -98,3 +98,16 @@ class TestEnsureRotationPresetsApplied(PveTestBase):
             Rotation.objects.filter(is_closed=False).values_list("name", flat=True),
             [self.preset.name, new_preset.name],
         )
+
+    def test_copies_lock_roles_setup(self):
+        setup = RoleSetup.objects.create(name="setup1")
+        self.preset.lock_roles_setup = True
+        self.preset.save()
+        self.preset.roles_setups.add(setup)
+        self.rotation.delete()
+
+        ensure_rotation_presets_applied()
+
+        rotation = Rotation.objects.get(name="test1rot")
+        self.assertTrue(rotation.lock_roles_setup)
+        self.assertEqual(rotation.locked_roles_setup, setup)

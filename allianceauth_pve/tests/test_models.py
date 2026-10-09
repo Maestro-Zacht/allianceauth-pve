@@ -224,6 +224,22 @@ class TestRotation(PveTestBase):
             f"Setup summary for {self.testuser} in {self.rotation}",
         )
 
+    def test_locked_roles_setup(self):
+        setup = RoleSetup.objects.create(name="setup1")
+        other_setup = RoleSetup.objects.create(name="setup2")
+
+        cases = (
+            (True, [setup], setup),
+            (False, [setup], None),
+            (True, [], None),
+            (True, [setup, other_setup], None),
+        )
+        for lock_roles_setup, setups, expected in cases:
+            with self.subTest(lock_roles_setup=lock_roles_setup, setups=setups):
+                rotation = self.make_rotation(lock_roles_setup=lock_roles_setup)
+                rotation.roles_setups.set(setups)
+                self.assertEqual(rotation.locked_roles_setup, expected)
+
 
 class TestEntry(PveTestBase):
     @classmethod
@@ -468,18 +484,18 @@ class TestSiteValue(SimpleTestCase):
     def test_flat(self):
         for site in (1, 2, 10):
             with self.subTest(site=site):
-                self.assertEqual(site_value(site, Entry.SiteScaling.FLAT, None), 1)
+                self.assertEqual(site_value(site, Entry.SiteScaling.FLAT), 1)
 
     def test_fabricator(self):
-        for site, expected in ((1, 1), (2, 3), (3, 5), (10, 19)):
+        for site, expected in ((1, 2), (2, 6), (3, 12), (10, 110)):
             with self.subTest(site=site):
                 self.assertEqual(
-                    site_value(site, Entry.SiteScaling.FABRICATOR, 2), expected
+                    site_value(site, Entry.SiteScaling.FABRICATOR), expected
                 )
 
     def test_unknown_scaling(self):
         with self.assertRaisesMessage(ValueError, "Unknown site scaling: unknown"):
-            site_value(1, "unknown", 2)
+            site_value(1, "unknown")
 
 
 class TestComputeSiteRelativeValues(SimpleTestCase):
@@ -535,28 +551,21 @@ class TestComputeSiteRelativeValues(SimpleTestCase):
         )
 
     def test_fabricator_consecutive_waves(self):
-        for coefficient, expected in (
-            (2, [Fraction(1, 4), Fraction(3, 4)]),
-            (100, [Fraction(1, 102), Fraction(101, 102)]),
-        ):
-            with self.subTest(coefficient=coefficient):
-                self.assertEqual(
-                    compute_site_relative_values(
-                        [(1, 1, 1), (2, 2, 1)],
-                        Entry.SiteScaling.FABRICATOR,
-                        coefficient,
-                    ),
-                    normalize_weights(expected),
-                )
-
-    def test_fabricator_overlapping_shares(self):
-        # site values 1, 3, 5; site 1: A alone; sites 2-3: A and B (B with double role).
-        # A = 1 + 3 * 1/3 + 5 * 1/3, B = 3 * 2/3 + 5 * 2/3
         self.assertEqual(
             compute_site_relative_values(
-                [(1, 3, 1), (2, 3, 2)], Entry.SiteScaling.FABRICATOR, 2
+                [(1, 1, 1), (2, 2, 1)], Entry.SiteScaling.FABRICATOR
             ),
-            normalize_weights([Fraction(11, 3), Fraction(16, 3)]),
+            normalize_weights([Fraction(1, 4), Fraction(3, 4)]),
+        )
+
+    def test_fabricator_overlapping_shares(self):
+        # site values 2, 6, 12; site 1: A alone; sites 2-3: A and B (B with double role).
+        # A = 2 + 6 * 1/3 + 12 * 1/3, B = 6 * 2/3 + 12 * 2/3
+        self.assertEqual(
+            compute_site_relative_values(
+                [(1, 3, 1), (2, 3, 2)], Entry.SiteScaling.FABRICATOR
+            ),
+            normalize_weights([Fraction(8), Fraction(12)]),
         )
 
     def test_fabricator_sums_to_exactly_one(self):
@@ -567,12 +576,11 @@ class TestComputeSiteRelativeValues(SimpleTestCase):
             for _ in range(rng.randint(0, 15)):
                 first = rng.randint(1, last)
                 shares.append((first, rng.randint(first, last), rng.randint(1, 10)))
-            coefficient = rng.randint(1, 1000)
-            with self.subTest(shares=shares, coefficient=coefficient):
+            with self.subTest(shares=shares):
                 self.assertEqual(
                     sum(
                         compute_site_relative_values(
-                            shares, Entry.SiteScaling.FABRICATOR, coefficient
+                            shares, Entry.SiteScaling.FABRICATOR
                         )
                     ),
                     Decimal(1),

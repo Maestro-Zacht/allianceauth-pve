@@ -392,6 +392,12 @@ class RotationPreset(models.Model):
         help_text=_("Setup avaiable for loading in the Entry form."),
         blank=True,
     )
+    lock_roles_setup = models.BooleanField(
+        default=False,
+        help_text=_(
+            "Load the only roles setup automatically in every entry and prevent editing roles. Requires exactly 1 roles setup."
+        ),
+    )
 
     class Meta:
         default_permissions = ()
@@ -444,6 +450,12 @@ class Rotation(models.Model):
         help_text=_("Setup avaiable for loading in the Entry form."),
         blank=True,
     )
+    lock_roles_setup = models.BooleanField(
+        default=False,
+        help_text=_(
+            "Load the only roles setup automatically in every entry and prevent editing roles. Requires exactly 1 roles setup."
+        ),
+    )
 
     objects: ClassVar[RotationManager] = RotationManager()
 
@@ -455,6 +467,13 @@ class Rotation(models.Model):
 
     def __str__(self):
         return f"{self.pk} {self.name}"
+
+    @cached_property
+    def locked_roles_setup(self) -> RoleSetup | None:
+        if not self.lock_roles_setup:
+            return None
+        setups = list(self.roles_setups.prefetch_related("roles")[:2])
+        return setups[0] if len(setups) == 1 else None
 
     @cached_property
     def funding_projects_summary(self):
@@ -620,7 +639,6 @@ class Entry(models.Model):
     site_scaling = models.CharField(
         max_length=16, choices=SiteScaling, default=SiteScaling.FLAT
     )
-    site_scaling_coefficient = models.PositiveIntegerField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
@@ -677,14 +695,12 @@ class Entry(models.Model):
         )
 
 
-def site_value(
-    site: int, site_scaling: Entry.SiteScaling, coefficient: int | None
-) -> int:
+def site_value(site: int, site_scaling: Entry.SiteScaling) -> int:
     match site_scaling:
         case Entry.SiteScaling.FLAT:
             return 1
         case Entry.SiteScaling.FABRICATOR:
-            return 1 + coefficient * (site - 1)
+            return site**2 + site
         case _:
             msg = f"Unknown site scaling: {site_scaling}"
             raise ValueError(msg)
@@ -694,7 +710,6 @@ def site_value(
 def compute_site_relative_values(
     shares: Sequence[tuple[int | None, int | None, int]],
     site_scaling: Entry.SiteScaling = Entry.SiteScaling.FLAT,
-    coefficient: int | None = None,
 ) -> list[Decimal]:
     site_weights: defaultdict[int, int] = defaultdict(int)
     for first_site, last_site, role_value in shares:
@@ -709,7 +724,7 @@ def compute_site_relative_values(
             for site in range(first_site, last_site + 1):
                 if site_weights[site]:
                     weight += Fraction(
-                        role_value * site_value(site, site_scaling, coefficient),
+                        role_value * site_value(site, site_scaling),
                         site_weights[site],
                     )
         weights.append(weight)

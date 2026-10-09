@@ -9,7 +9,12 @@ from allianceauth_pve.admin import (
     RotationAdmin,
     RotationPresetAdmin,
 )
-from allianceauth_pve.models import EntryCharacter, Rotation
+from allianceauth_pve.models import (
+    EntryCharacter,
+    RoleSetup,
+    Rotation,
+    RotationPreset,
+)
 
 from .utils import PveTestBase
 
@@ -142,3 +147,127 @@ class TestRotationPresetAdmin(TestCase):
 
         mock_ensure_rotation_presets_applied.assert_called_once()
         mock_save_model.assert_called_once()
+
+
+class TestLockRolesSetupAdmin(PveTestBase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.superuser, _ = cls.make_superuser("admin_super", 90600001, "AdminSuper")
+        cls.setup = RoleSetup.objects.create(name="setup1")
+        cls.other_setup = RoleSetup.objects.create(name="setup2")
+        cls.rotation = cls.make_rotation(name="adminrot")
+        cls.preset = RotationPreset.objects.create(name="adminpreset")
+
+    def setUp(self):
+        self.request = RequestFactory().get("/fake")
+        self.request.user = self.superuser
+        self.admins = (
+            (RotationAdmin(Rotation, AdminSite()), self.rotation),
+            (RotationPresetAdmin(RotationPreset, AdminSite()), self.preset),
+        )
+
+    def form_data(self, modeladmin, obj, **overrides):
+        form = modeladmin.get_form(self.request, obj)(instance=obj)
+        data = {
+            name: form[name].value() for name in form.fields if name != "roles_setups"
+        }
+        data = {key: value for key, value in data.items() if value is not None}
+        data.update(overrides)
+        return data
+
+    def test_roles_setups_readonly_when_locked(self):
+        for modeladmin, obj in self.admins:
+            with self.subTest(admin=type(modeladmin).__name__):
+                self.assertNotIn(
+                    "roles_setups", modeladmin.get_readonly_fields(self.request, obj)
+                )
+                self.assertNotIn(
+                    "roles_setups", modeladmin.get_readonly_fields(self.request)
+                )
+
+                obj.lock_roles_setup = True
+                self.assertIn(
+                    "roles_setups", modeladmin.get_readonly_fields(self.request, obj)
+                )
+
+        self.assertIn(
+            "closed_at",
+            self.admins[0][0].get_readonly_fields(self.request, self.rotation),
+        )
+
+    def test_form_requires_exactly_one_setup(self):
+        cases = (
+            ([], False),
+            ([self.setup.pk], True),
+            ([self.setup.pk, self.other_setup.pk], False),
+        )
+        for modeladmin, obj in self.admins:
+            form_class = modeladmin.get_form(self.request, obj)
+            for setups, valid in cases:
+                with self.subTest(admin=type(modeladmin).__name__, setups=setups):
+                    form = form_class(
+                        data=self.form_data(
+                            modeladmin,
+                            obj,
+                            lock_roles_setup=True,
+                            roles_setups=setups,
+                        ),
+                        instance=obj,
+                    )
+                    self.assertEqual(form.is_valid(), valid, form.errors)
+                    if not valid:
+                        self.assertIn("lock_roles_setup", form.errors)
+
+    def test_form_skips_lock_check_when_setups_invalid(self):
+        invalid_pk = RoleSetup.objects.order_by("-pk").first().pk + 1
+        for modeladmin, obj in self.admins:
+            form_class = modeladmin.get_form(self.request, obj)
+            with self.subTest(admin=type(modeladmin).__name__):
+                form = form_class(
+                    data=self.form_data(
+                        modeladmin,
+                        obj,
+                        lock_roles_setup=True,
+                        roles_setups=[invalid_pk],
+                    ),
+                    instance=obj,
+                )
+                self.assertFalse(form.is_valid())
+                self.assertIn("roles_setups", form.errors)
+                self.assertNotIn("lock_roles_setup", form.errors)
+
+    def test_form_allows_any_setups_when_unlocked(self):
+        cases = (
+            [],
+            [self.setup.pk],
+            [self.setup.pk, self.other_setup.pk],
+        )
+        for modeladmin, obj in self.admins:
+            form_class = modeladmin.get_form(self.request, obj)
+            for setups in cases:
+                with self.subTest(admin=type(modeladmin).__name__, setups=setups):
+                    form = form_class(
+                        data=self.form_data(
+                            modeladmin,
+                            obj,
+                            lock_roles_setup=False,
+                            roles_setups=setups,
+                        ),
+                        instance=obj,
+                    )
+                    self.assertTrue(form.is_valid(), form.errors)
+
+    def test_form_uses_saved_setups_when_readonly(self):
+        for modeladmin, obj in self.admins:
+            obj.lock_roles_setup = True
+            obj.save()
+            form_class = modeladmin.get_form(self.request, obj)
+            self.assertNotIn("roles_setups", form_class.base_fields)
+            for setups, valid in (([], False), ([self.setup], True)):
+                obj.roles_setups.set(setups)
+                with self.subTest(admin=type(modeladmin).__name__, setups=setups):
+                    form = form_class(
+                        data=self.form_data(modeladmin, obj, lock_roles_setup=True),
+                        instance=obj,
+                    )
+                    self.assertEqual(form.is_valid(), valid, form.errors)

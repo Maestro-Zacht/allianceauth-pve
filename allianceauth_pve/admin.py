@@ -1,4 +1,6 @@
+from django import forms
 from django.contrib import admin
+from django.utils.translation import gettext as _
 
 from .models import (
     Entry,
@@ -13,8 +15,38 @@ from .models import (
 from .utils import ensure_rotation_presets_applied
 
 
+class LockRolesSetupForm(forms.ModelForm):
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if cleaned_data.get("lock_roles_setup"):
+            # roles_setups is not a form field when it is readonly
+            roles_setups = (
+                cleaned_data.get("roles_setups")
+                if "roles_setups" in self.fields
+                else self.instance.roles_setups.all()
+            )
+            if roles_setups is not None and roles_setups.count() != 1:
+                self.add_error(
+                    "lock_roles_setup",
+                    _("Locking the roles setup requires exactly 1 roles setup."),
+                )
+
+        return cleaned_data
+
+
+class LockRolesSetupAdminMixin:
+    form = LockRolesSetupForm
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = super().get_readonly_fields(request, obj)
+        if obj is not None and obj.lock_roles_setup:
+            return (*readonly_fields, "roles_setups")
+        return readonly_fields
+
+
 @admin.register(Rotation)
-class RotationAdmin(admin.ModelAdmin):
+class RotationAdmin(LockRolesSetupAdminMixin, admin.ModelAdmin):
     list_display = (
         "pk",
         "name",
@@ -75,7 +107,6 @@ class EntryAdmin(admin.ModelAdmin):
         "rotation",
         "estimated_total",
         "site_scaling",
-        "site_scaling_coefficient",
         "created_by",
         "created_at",
         "updated_at",
@@ -128,7 +159,7 @@ class FundingProjectAdmin(admin.ModelAdmin):
 
 
 @admin.register(RotationPreset)
-class RotationPresetAdmin(admin.ModelAdmin):
+class RotationPresetAdmin(LockRolesSetupAdminMixin, admin.ModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
 

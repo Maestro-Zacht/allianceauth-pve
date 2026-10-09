@@ -469,6 +469,8 @@ export interface components {
             entry_buttons: number[];
             /** Roles Setups */
             roles_setups: number[];
+            /** Lock Roles Setup */
+            lock_roles_setup: boolean;
         };
         /** CloseRotationErrorsSchema */
         CloseRotationErrorsSchema: {
@@ -582,6 +584,13 @@ export interface components {
             /** Roles */
             roles: components["schemas"]["BaseRoleSchema"][];
         };
+        /** RotationRoleSetupsSchema */
+        RotationRoleSetupsSchema: {
+            /** Lock Roles Setup */
+            lock_roles_setup: boolean;
+            /** Roles Setups */
+            roles_setups: components["schemas"]["RoleSetupSchema"][];
+        };
         /** ExtendedEntryItemSchema */
         ExtendedEntryItemSchema: {
             /** Id */
@@ -644,11 +653,6 @@ export interface components {
              * @default []
              */
             funding_percentage: string[];
-            /**
-             * Site Scaling Coefficient
-             * @default []
-             */
-            site_scaling_coefficient: string[];
             /**
              * Roles Root
              * @default []
@@ -745,8 +749,6 @@ export interface components {
             funding_percentage: number | null;
             /** @default flat */
             site_scaling: components["schemas"]["SiteScaling"];
-            /** Site Scaling Coefficient */
-            site_scaling_coefficient?: number | null;
             /** Roles */
             roles: components["schemas"]["RoleFormSchema"][];
             /** Shares */
@@ -810,8 +812,6 @@ export interface components {
             /** Funding Percentage */
             funding_percentage: number | null;
             site_scaling: components["schemas"]["SiteScaling"];
-            /** Site Scaling Coefficient */
-            site_scaling_coefficient: number | null;
             /** Rotation Is Closed */
             rotation_is_closed: boolean;
             /** User Can Edit */
@@ -861,8 +861,6 @@ export interface components {
             funding_percentage: number | null;
             /** @default flat */
             site_scaling: components["schemas"]["SiteScaling"];
-            /** Site Scaling Coefficient */
-            site_scaling_coefficient?: number | null;
             /** Roles */
             roles: components["schemas"]["RoleFormSchema"][];
             /** Shares */
@@ -1229,7 +1227,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["RoleSetupSchema"][];
+                    "application/json": components["schemas"]["RotationRoleSetupsSchema"];
                 };
             };
             /** @description Not Found */

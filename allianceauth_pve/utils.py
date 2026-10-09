@@ -52,6 +52,7 @@ def ensure_rotation_presets_applied():
             tax_rate=setup.tax_rate,
             tax_rate_loot_items=setup.tax_rate_loot_items,
             priority=setup.priority,
+            lock_roles_setup=setup.lock_roles_setup,
         )
 
         r.entry_buttons.set(setup.entry_buttons.all())

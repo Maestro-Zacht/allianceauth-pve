@@ -119,6 +119,38 @@ class TestRotationsApi(PveApiTestBase):
         self.assertQuerySetEqual(rotation.entry_buttons.all(), [self.button])
         self.assertQuerySetEqual(rotation.roles_setups.all(), [self.setup])
 
+    def test_create_rotation_lock_roles_setup(self):
+        self.client.force_login(self.user)
+        payload = self.rotation_payload(
+            roles_setups=[self.setup.pk], lock_roles_setup=True
+        )
+        resp = self.api_request("POST", "create_rotation", payload)
+        self.assertEqual(resp.status_code, 200, resp.content)
+        rotation = Rotation.objects.get(pk=resp.json())
+        self.assertTrue(rotation.lock_roles_setup)
+        self.assertEqual(rotation.locked_roles_setup, self.setup)
+
+    def test_create_rotation_lock_roles_setup_without_setups(self):
+        self.client.force_login(self.user)
+        resp = self.api_request(
+            "POST", "create_rotation", self.rotation_payload(lock_roles_setup=True)
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("lock_roles_setup", resp.json())
+
+    def test_create_rotation_lock_roles_setup_with_two_setups(self):
+        other_setup = RoleSetup.objects.create(name="other")
+        self.client.force_login(self.user)
+        resp = self.api_request(
+            "POST",
+            "create_rotation",
+            self.rotation_payload(
+                roles_setups=[self.setup.pk, other_setup.pk], lock_roles_setup=True
+            ),
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("lock_roles_setup", resp.json())
+
     def test_create_rotation_empty_name(self):
         self.client.force_login(self.user)
         resp = self.api_request(
@@ -395,9 +427,21 @@ class TestRotationsApi(PveApiTestBase):
         )
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
-        self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["name"], "rsetup")
-        self.assertEqual(data[0]["roles"][0]["name"], "dps")
+        self.assertFalse(data["lock_roles_setup"])
+        self.assertEqual(len(data["roles_setups"]), 1)
+        self.assertEqual(data["roles_setups"][0]["name"], "rsetup")
+        self.assertEqual(data["roles_setups"][0]["roles"][0]["name"], "dps")
+
+    def test_get_rotation_role_setups_locked(self):
+        rotation = self.make_rotation(name="locked", lock_roles_setup=True)
+        rotation.roles_setups.add(self.setup)
+        self.client.force_login(self.user)
+        resp = self.client.get(url("get_rotation_role_setups", rotation_id=rotation.pk))
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertTrue(data["lock_roles_setup"])
+        self.assertEqual(len(data["roles_setups"]), 1)
+        self.assertEqual(data["roles_setups"][0]["id"], self.setup.pk)
 
     def test_get_rotation_role_setups_404(self):
         self.client.force_login(self.user)

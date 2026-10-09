@@ -37,7 +37,11 @@ const getNewRotationSchema = (t: TFunction<"translation", undefined>, entryIds: 
             z.coerce.number({ message: t("forms.number") }).int({ message: t("forms.integer") })
                 .refine(id => roleSetupIdsSet.has(id), { message: t("forms.invalid_choice") })
         ),
-    }) satisfies z.ZodType<NewRotationType>;
+        lock_roles_setup: z.boolean(),
+    }).refine(
+        data => !data.lock_roles_setup || new Set(data.roles_setups).size === 1,
+        { message: t("forms.lock_roles_setup_requires_one"), path: ["lock_roles_setup"] }
+    ) satisfies z.ZodType<NewRotationType>;
 }
 
 interface RotationFormProps {
@@ -60,6 +64,7 @@ function RotationForm({ pveButtons, roleSetups }: RotationFormProps) {
             tax_rate_loot_items: 0,
             max_daily_setups: 1,
             min_people_share_setup: 3,
+            lock_roles_setup: false,
         },
         resolver: zodResolver(newRotationSchema),
     });
@@ -182,6 +187,17 @@ function RotationForm({ pveButtons, roleSetups }: RotationFormProps) {
                 </Form.Control.Feedback>
             </Form.Group>
 
+            <Form.Group className="mb-3" controlId="rotationLockRolesSetup">
+                <Form.Check
+                    type="switch"
+                    label={t("lock_roles_setup")}
+                    {...register("lock_roles_setup")}
+                    isInvalid={!!errors.lock_roles_setup}
+                    feedback={errors.lock_roles_setup?.message}
+                    feedbackType="invalid"
+                />
+                <Form.Text muted>{t("forms.lock_roles_setup_help")}</Form.Text>
+            </Form.Group>
 
 
             <div className="d-flex flex-row-reverse">

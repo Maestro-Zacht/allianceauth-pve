@@ -27,7 +27,6 @@ type EntryReducerAction =
     | { type: 'select_funding_project'; projectId: number | null }
     | { type: 'update_funding_percentage'; percentage: number }
     | { type: 'select_site_scaling'; siteScaling: SiteScaling }
-    | { type: 'update_site_scaling_coefficient'; coefficient: number }
     | { type: 'add_character'; characterId: number, characterName: string, portraitUrl: string, mainCharacterName: string, mainCharacterPortraitUrl: string }
     | { type: 'toggle_share_value'; characterId: number, field: 'helped_setup' | 'is_present' }
     | { type: 'change_share_role'; characterId: number; newRoleName: string }
@@ -68,15 +67,20 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                 return state;
             }
             return { ...state, roles: [...state.roles, action.role] };
-        case 'load_role_setup':
+        case 'load_role_setup': {
             if (action.roles.length === 0) {
                 return state;
             }
+            const roleNames = new Set(action.roles.map(role => role.name));
             return {
                 ...state,
                 roles: action.roles,
-                shares: state.shares.map(share => ({ ...share, role_name: action.roles[0].name }))
+                shares: state.shares.map(share => roleNames.has(share.role_name) ?
+                    share :
+                    { ...share, role_name: action.roles[0].name }
+                )
             };
+        }
         case 'update_role_value':
             return {
                 ...state,
@@ -157,17 +161,6 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
             return {
                 ...state,
                 site_scaling: action.siteScaling,
-                site_scaling_coefficient: action.siteScaling === 'fabricator' ?
-                    state.site_scaling_coefficient ?? 1 :
-                    null
-            };
-        case "update_site_scaling_coefficient":
-            if (state.site_scaling !== 'fabricator' || isNaN(action.coefficient)) {
-                return state;
-            }
-            return {
-                ...state,
-                site_scaling_coefficient: Math.max(action.coefficient, 1)
             };
         case "add_character": {
             if (state.shares.some(share => share.character_id === action.characterId)) {

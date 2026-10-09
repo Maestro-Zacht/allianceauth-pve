@@ -37,7 +37,6 @@ export function validateShareSites(
         estimated_total: [],
         funding_project_id: [],
         funding_percentage: [],
-        site_scaling_coefficient: [],
         roles_root: [],
         roles: {},
         shares_root: [],

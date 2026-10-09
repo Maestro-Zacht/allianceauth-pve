@@ -16,6 +16,8 @@ from allianceauth_pve.app_settings import (
 from allianceauth_pve.models import (
     Entry,
     FundingProject,
+    GeneralRole,
+    RoleSetup,
     normalize_weights,
 )
 from allianceauth_pve.tests.utils import (
@@ -629,7 +631,6 @@ class TestEntriesApi(PveApiTestBase):
 
         new = Entry.objects.exclude(pk=self.entry.pk).get(rotation=self.rotation)
         self.assertEqual(new.site_scaling, Entry.SiteScaling.FLAT)
-        self.assertIsNone(new.site_scaling_coefficient)
         self.assertEqual(
             new.ratting_shares.get(user_character=alt).relative_value,
             Decimal("0.5"),
@@ -637,9 +638,7 @@ class TestEntriesApi(PveApiTestBase):
 
     def test_new_entry_site_scaling_fabricator(self):
         self.client.force_login(self.owner)
-        alt, payload = self.two_waves_payload(
-            site_scaling=Entry.SiteScaling.FABRICATOR, site_scaling_coefficient=2
-        )
+        alt, payload = self.two_waves_payload(site_scaling=Entry.SiteScaling.FABRICATOR)
         resp = self.api_request(
             "POST", "new_entry", payload, rotation_id=self.rotation.pk
         )
@@ -647,7 +646,6 @@ class TestEntriesApi(PveApiTestBase):
 
         new = Entry.objects.exclude(pk=self.entry.pk).get(rotation=self.rotation)
         self.assertEqual(new.site_scaling, Entry.SiteScaling.FABRICATOR)
-        self.assertEqual(new.site_scaling_coefficient, 2)
         self.assertEqual(
             new.ratting_shares.get(user_character=self.owner_char).relative_value,
             Decimal("0.25"),
@@ -656,25 +654,6 @@ class TestEntriesApi(PveApiTestBase):
             new.ratting_shares.get(user_character=alt).relative_value,
             Decimal("0.75"),
         )
-
-    def test_new_entry_site_scaling_coefficient_errors(self):
-        self.client.force_login(self.owner)
-        for site_scaling, coefficient in (
-            (Entry.SiteScaling.FABRICATOR, None),
-            (Entry.SiteScaling.FABRICATOR, 0),
-            (Entry.SiteScaling.FLAT, 2),
-        ):
-            with self.subTest(site_scaling=site_scaling, coefficient=coefficient):
-                payload = self.valid_entry_payload(
-                    self.owner_char.character_id,
-                    site_scaling=site_scaling,
-                    site_scaling_coefficient=coefficient,
-                )
-                resp = self.api_request(
-                    "POST", "new_entry", payload, rotation_id=self.rotation.pk
-                )
-                self.assertEqual(resp.status_code, 400)
-                self.assertTrue(resp.json()["site_scaling_coefficient"])
 
     def test_new_entry_with_funding_project_invalidates_caches(self):
         project = FundingProject.objects.create(name="newfund", goal=1)
@@ -700,6 +679,75 @@ class TestEntriesApi(PveApiTestBase):
         self.assertEqual(new.funding_percentage, 50)
         self.assertFalse(cache.has_key(proj_summary_key))
         self.assertFalse(cache.has_key(fund_key))
+
+    # ---- locked roles setup ----
+
+    def make_setup_rotation(self, *, lock_roles_setup=True):
+        setup = RoleSetup.objects.create(name="locked setup")
+        GeneralRole.objects.create(setup=setup, name="dps", value=10)
+        GeneralRole.objects.create(setup=setup, name="logi", value=5)
+        rotation = self.make_rotation(
+            name="lockedrot", lock_roles_setup=lock_roles_setup
+        )
+        rotation.roles_setups.add(setup)
+        return rotation
+
+    def test_new_entry_locked_roles_match_in_any_order(self):
+        rotation = self.make_setup_rotation()
+        self.client.force_login(self.owner)
+        payload = self.valid_entry_payload(
+            self.owner_char.character_id,
+            roles=[{"name": "logi", "value": 5}, {"name": "dps", "value": 10}],
+        )
+        resp = self.api_request("POST", "new_entry", payload, rotation_id=rotation.pk)
+        self.assertEqual(resp.status_code, 200, resp.content)
+
+    def test_new_entry_locked_roles_mismatch(self):
+        rotation = self.make_setup_rotation()
+        self.client.force_login(self.owner)
+        mismatches = (
+            [{"name": "dps", "value": 10}],
+            [{"name": "dps", "value": 10}, {"name": "logi", "value": 6}],
+            [
+                {"name": "dps", "value": 10},
+                {"name": "logi", "value": 5},
+                {"name": "extra", "value": 1},
+            ],
+        )
+        for roles in mismatches:
+            with self.subTest(roles=roles):
+                payload = self.valid_entry_payload(
+                    self.owner_char.character_id, roles=roles
+                )
+                resp = self.api_request(
+                    "POST", "new_entry", payload, rotation_id=rotation.pk
+                )
+                self.assertEqual(resp.status_code, 400)
+                self.assertTrue(resp.json()["roles_root"])
+        self.assertFalse(rotation.entries.exists())
+
+    def test_new_entry_unlocked_roles_setup_not_enforced(self):
+        rotation = self.make_setup_rotation(lock_roles_setup=False)
+        self.client.force_login(self.owner)
+        payload = self.valid_entry_payload(
+            self.owner_char.character_id, roles=[{"name": "dps", "value": 3}]
+        )
+        resp = self.api_request("POST", "new_entry", payload, rotation_id=rotation.pk)
+        self.assertEqual(resp.status_code, 200, resp.content)
+
+    def test_edit_entry_locked_roles_mismatch(self):
+        rotation = self.make_setup_rotation()
+        entry, _, _ = self.make_entry(rotation, self.owner, self.owner_char)
+        self.client.force_login(self.owner)
+        resp = self.api_request(
+            "POST",
+            "edit_entry",
+            self.valid_entry_payload(self.owner_char.character_id),
+            rotation_id=rotation.pk,
+            entry_id=entry.pk,
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertTrue(resp.json()["roles_root"])
 
     # ---- PVE_ONLY_MAINS rule ----
 
@@ -905,9 +953,7 @@ class TestEntriesApi(PveApiTestBase):
         rotation = self.make_rotation(name="editscaling")
         entry, _, _ = self.make_entry(rotation, self.owner, self.owner_char)
         self.client.force_login(self.owner)
-        alt, payload = self.two_waves_payload(
-            site_scaling=Entry.SiteScaling.FABRICATOR, site_scaling_coefficient=100
-        )
+        alt, payload = self.two_waves_payload(site_scaling=Entry.SiteScaling.FABRICATOR)
         resp = self.api_request(
             "POST", "edit_entry", payload, rotation_id=rotation.pk, entry_id=entry.pk
         )
@@ -915,13 +961,12 @@ class TestEntriesApi(PveApiTestBase):
 
         entry.refresh_from_db()
         self.assertEqual(entry.site_scaling, Entry.SiteScaling.FABRICATOR)
-        self.assertEqual(entry.site_scaling_coefficient, 100)
         self.assertEqual(
             [
                 entry.ratting_shares.get(user_character=char).relative_value
                 for char in (self.owner_char, alt)
             ],
-            normalize_weights([Fraction(1, 102), Fraction(101, 102)]),
+            normalize_weights([Fraction(1, 4), Fraction(3, 4)]),
         )
 
         resp = self.client.get(
@@ -929,7 +974,6 @@ class TestEntriesApi(PveApiTestBase):
         )
         data = resp.json()
         self.assertEqual(data["site_scaling"], Entry.SiteScaling.FABRICATOR)
-        self.assertEqual(data["site_scaling_coefficient"], 100)
 
     def test_edit_entry_changing_funding_project_invalidates_both_caches(self):
         old_project = FundingProject.objects.create(name="editfundold", goal=1)

@@ -366,11 +366,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "items": {
-                                        "$ref": "#/components/schemas/RoleSetupSchema"
-                                    },
-                                    "title": "Response",
-                                    "type": "array"
+                                    "$ref": "#/components/schemas/RotationRoleSetupsSchema"
                                 }
                             }
                         }
@@ -1577,6 +1573,10 @@
                         },
                         "title": "Roles Setups",
                         "type": "array"
+                    },
+                    "lock_roles_setup": {
+                        "title": "Lock Roles Setup",
+                        "type": "boolean"
                     }
                 },
                 "required": [
@@ -1587,7 +1587,8 @@
                     "max_daily_setups",
                     "min_people_share_setup",
                     "entry_buttons",
-                    "roles_setups"
+                    "roles_setups",
+                    "lock_roles_setup"
                 ],
                 "title": "NewRotationSchema",
                 "type": "object"
@@ -1871,6 +1872,27 @@
                 "title": "RoleSetupSchema",
                 "type": "object"
             },
+            "RotationRoleSetupsSchema": {
+                "properties": {
+                    "lock_roles_setup": {
+                        "title": "Lock Roles Setup",
+                        "type": "boolean"
+                    },
+                    "roles_setups": {
+                        "items": {
+                            "$ref": "#/components/schemas/RoleSetupSchema"
+                        },
+                        "title": "Roles Setups",
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "lock_roles_setup",
+                    "roles_setups"
+                ],
+                "title": "RotationRoleSetupsSchema",
+                "type": "object"
+            },
             "ExtendedEntryItemSchema": {
                 "properties": {
                     "id": {
@@ -2026,14 +2048,6 @@
                             "type": "string"
                         },
                         "title": "Funding Percentage",
-                        "type": "array"
-                    },
-                    "site_scaling_coefficient": {
-                        "default": [],
-                        "items": {
-                            "type": "string"
-                        },
-                        "title": "Site Scaling Coefficient",
                         "type": "array"
                     },
                     "roles_root": {
@@ -2205,17 +2219,6 @@
                             }
                         ],
                         "default": "flat"
-                    },
-                    "site_scaling_coefficient": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Site Scaling Coefficient"
                     },
                     "roles": {
                         "items": {
@@ -2406,17 +2409,6 @@
                     "site_scaling": {
                         "$ref": "#/components/schemas/SiteScaling"
                     },
-                    "site_scaling_coefficient": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Site Scaling Coefficient"
-                    },
                     "rotation_is_closed": {
                         "title": "Rotation Is Closed",
                         "type": "boolean"
@@ -2438,7 +2430,6 @@
                     "funding_project",
                     "funding_percentage",
                     "site_scaling",
-                    "site_scaling_coefficient",
                     "rotation_is_closed",
                     "user_can_edit"
                 ],
@@ -2590,17 +2581,6 @@
                             }
                         ],
                         "default": "flat"
-                    },
-                    "site_scaling_coefficient": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Site Scaling Coefficient"
                     },
                     "roles": {
                         "items": {

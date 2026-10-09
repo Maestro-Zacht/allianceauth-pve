@@ -36,11 +36,7 @@ export default function EntryForm({ rotationId, isLoading, errors }: EntryFormPr
                         </Col>
                         <Col lg={4}>
                             <hr className="d-lg-none" />
-                            <SiteScalingSection
-                                siteScaling={entryData.site_scaling}
-                                siteScalingCoefficient={entryData.site_scaling_coefficient ?? null}
-                                errorsSiteScalingCoefficient={errors?.site_scaling_coefficient}
-                            />
+                            <SiteScalingSection siteScaling={entryData.site_scaling} />
                         </Col>
                     </Row>
                     <hr />
