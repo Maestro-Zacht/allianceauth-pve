@@ -18,6 +18,7 @@ from allianceauth_pve.models import (
     FundingProject,
     GeneralRole,
     RoleSetup,
+    count_sites,
     normalize_weights,
 )
 from allianceauth_pve.tests.utils import (
@@ -899,7 +900,7 @@ class TestEntriesApi(PveApiTestBase):
         self.assertEqual(entry.roles.get().name, "newrole")
         share = entry.ratting_shares.get()
         self.assertEqual((share.first_site, share.last_site), (1, 3))
-        self.assertEqual(share.site_count, 3)
+        self.assertEqual(count_sites(share.first_site, share.last_site), 3)
 
     def test_edit_entry_not_owner(self):
         self.client.force_login(self.other)

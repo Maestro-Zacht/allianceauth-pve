@@ -612,10 +612,6 @@ class EntryCharacter(models.Model):
     def __str__(self) -> str:
         return f"{self.user_character} in {self.entry}"
 
-    @property
-    def site_count(self) -> int:
-        return count_sites(self.first_site, self.last_site)
-
 
 class Entry(models.Model):
     class SiteScaling(models.TextChoices):
@@ -665,14 +661,6 @@ class Entry(models.Model):
     def total_user_count(self):
         return self.ratting_shares.aggregate(
             val=models.Count("user_id", distinct=True)
-        )["val"]
-
-    @cached_property
-    def total_site_count(self) -> int:
-        return self.ratting_shares.aggregate(
-            val=Coalesce(
-                models.Sum(models.F("last_site") - models.F("first_site") + 1), 0
-            )
         )["val"]
 
     @cached_property

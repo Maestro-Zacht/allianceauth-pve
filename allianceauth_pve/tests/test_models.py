@@ -5,7 +5,8 @@ from fractions import Fraction
 
 from allianceauth.services.hooks import get_extension_logger
 from django.db import IntegrityError, transaction
-from django.db.models import Sum
+from django.db.models import F, Sum
+from django.db.models.functions import Coalesce
 from django.test import SimpleTestCase, TestCase
 from django.utils import timezone
 
@@ -35,6 +36,12 @@ def site_range(count: int) -> dict[str, int | None]:
     if count == 0:
         return {"first_site": None, "last_site": None}
     return {"first_site": 1, "last_site": count}
+
+
+def total_site_count(entry: Entry) -> int:
+    return entry.ratting_shares.aggregate(
+        val=Coalesce(Sum(F("last_site") - F("first_site") + 1), 0)
+    )["val"]
 
 
 def expected_site_split(shares: tuple[tuple[int, int], ...]) -> list[float]:
@@ -276,7 +283,7 @@ class TestEntry(PveTestBase):
         self.assertEqual(self.entry.total_user_count, 1)
 
     def test_total_site_count(self):
-        self.assertEqual(self.entry.total_site_count, 2)
+        self.assertEqual(total_site_count(self.entry), 2)
 
     def test_total_site_count_zero_site_shares(self):
         self.make_share(
@@ -287,7 +294,7 @@ class TestEntry(PveTestBase):
             first_site=None,
             last_site=None,
         )
-        self.assertEqual(self.entry.total_site_count, 2)
+        self.assertEqual(total_site_count(self.entry), 2)
 
         entry, _, _ = self.make_entry(
             self.rotation,
@@ -296,7 +303,7 @@ class TestEntry(PveTestBase):
             first_site=None,
             last_site=None,
         )
-        self.assertEqual(entry.total_site_count, 0)
+        self.assertEqual(total_site_count(entry), 0)
 
     def test_site_range_constraint(self):
         for first_site, last_site in ((1, None), (None, 1), (3, 2), (0, 0)):
