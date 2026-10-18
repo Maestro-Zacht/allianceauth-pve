@@ -2156,21 +2156,21 @@
                         "title": "Helped Setup",
                         "type": "array"
                     },
-                    "first_site": {
+                    "sites_root": {
                         "default": [],
                         "items": {
                             "type": "string"
                         },
-                        "title": "First Site",
+                        "title": "Sites Root",
                         "type": "array"
                     },
-                    "last_site": {
-                        "default": [],
-                        "items": {
-                            "type": "string"
+                    "sites": {
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/SiteRangeErrorsSchema"
                         },
-                        "title": "Last Site",
-                        "type": "array"
+                        "default": {},
+                        "title": "Sites",
+                        "type": "object"
                     },
                     "role_name": {
                         "default": [],
@@ -2182,6 +2182,28 @@
                     }
                 },
                 "title": "ShareFormErrorsSchema",
+                "type": "object"
+            },
+            "SiteRangeErrorsSchema": {
+                "properties": {
+                    "first": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "First",
+                        "type": "array"
+                    },
+                    "last": {
+                        "default": [],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Last",
+                        "type": "array"
+                    }
+                },
+                "title": "SiteRangeErrorsSchema",
                 "type": "object"
             },
             "EntryFormSchema": {
@@ -2299,27 +2321,12 @@
                         "title": "Helped Setup",
                         "type": "boolean"
                     },
-                    "first_site": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "First Site"
-                    },
-                    "last_site": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Last Site"
+                    "sites": {
+                        "items": {
+                            "$ref": "#/components/schemas/SiteRangeSchema"
+                        },
+                        "title": "Sites",
+                        "type": "array"
                     },
                     "role_name": {
                         "title": "Role Name",
@@ -2329,11 +2336,28 @@
                 "required": [
                     "character_id",
                     "helped_setup",
-                    "first_site",
-                    "last_site",
+                    "sites",
                     "role_name"
                 ],
                 "title": "ShareFormSchema",
+                "type": "object"
+            },
+            "SiteRangeSchema": {
+                "properties": {
+                    "first": {
+                        "title": "First",
+                        "type": "integer"
+                    },
+                    "last": {
+                        "title": "Last",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "first",
+                    "last"
+                ],
+                "title": "SiteRangeSchema",
                 "type": "object"
             },
             "SiteScaling": {
@@ -2478,27 +2502,12 @@
                         "title": "Role Name",
                         "type": "string"
                     },
-                    "first_site": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "First Site"
-                    },
-                    "last_site": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Last Site"
+                    "sites": {
+                        "items": {
+                            "$ref": "#/components/schemas/SiteRangeSchema"
+                        },
+                        "title": "Sites",
+                        "type": "array"
                     },
                     "helped_setup": {
                         "title": "Helped Setup",
@@ -2533,8 +2542,7 @@
                     "user_main_character",
                     "user_character",
                     "role_name",
-                    "first_site",
-                    "last_site",
+                    "sites",
                     "helped_setup",
                     "estimated_share_total",
                     "estimated_funding_amount",
@@ -2625,27 +2633,12 @@
                         "title": "Helped Setup",
                         "type": "boolean"
                     },
-                    "first_site": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "First Site"
-                    },
-                    "last_site": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Last Site"
+                    "sites": {
+                        "items": {
+                            "$ref": "#/components/schemas/SiteRangeSchema"
+                        },
+                        "title": "Sites",
+                        "type": "array"
                     },
                     "role_name": {
                         "title": "Role Name",
@@ -2671,8 +2664,7 @@
                 "required": [
                     "character_id",
                     "helped_setup",
-                    "first_site",
-                    "last_site",
+                    "sites",
                     "role_name",
                     "portrait_url",
                     "character_name",

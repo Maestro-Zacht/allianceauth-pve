@@ -1,7 +1,7 @@
 import type { TFunction } from "i18next";
 import type { EntryFormErrors, ExtendedEntryFormSchema } from "../EntryTypes";
 
-type ShareErrors = EntryFormErrors["shares"][string];
+type SiteRangeErrors = EntryFormErrors["shares"][string]["sites"][string];
 
 export function validateShareSites(
     shares: ExtendedEntryFormSchema["shares"],
@@ -10,23 +10,28 @@ export function validateShareSites(
     const sharesErrors: EntryFormErrors["shares"] = {};
 
     shares.forEach((share, index) => {
-        const errors: ShareErrors = {
-            character_id: [],
-            helped_setup: [],
-            first_site: [],
-            last_site: [],
-            role_name: [],
-        };
+        const active = share.active_sites;
+        if (active === null) {
+            return;
+        }
 
-        if ((share.first_site === null) !== (share.last_site === null)) {
-            errors.first_site.push(t("site_range_incomplete"));
-        } else if (share.first_site !== null && share.last_site !== null && share.last_site < share.first_site) {
-            errors.last_site.push(t("site_range_inverted"));
+        const rangeErrors: SiteRangeErrors = { first: [], last: [] };
+
+        if ((active.first === null) !== (active.last === null)) {
+            rangeErrors.first.push(t("site_range_incomplete"));
+        } else if (active.first !== null && active.last !== null && active.last < active.first) {
+            rangeErrors.last.push(t("site_range_inverted"));
         } else {
             return;
         }
 
-        sharesErrors[index] = errors;
+        sharesErrors[index] = {
+            character_id: [],
+            helped_setup: [],
+            role_name: [],
+            sites_root: [],
+            sites: { [share.sites.length]: rangeErrors },
+        };
     });
 
     if (Object.keys(sharesErrors).length === 0) {

@@ -12,6 +12,7 @@ import { EntryFormProvider } from "../../../providers/EntryFormProvider";
 import EntryForm from "./EntryForm";
 import NavBackButton from "../../utils/NavBackButton";
 import { validateShareSites } from "./validateShareSites";
+import { lastPastSite, shareSitesPayload } from "../siteRanges";
 
 export default function EditEntryForm() {
     const [formErrors, setFormErrors] = useState<EntryFormErrors | null>(null);
@@ -58,12 +59,16 @@ export default function EditEntryForm() {
         return <div className="text-center"><Loading /></div>;
     }
 
+    // Shares whose final range reaches the fleet's last site are still active.
+    const maxLast = Math.max(0, ...data!.shares.map(lastPastSite));
     const entryInitialData: ExtendedEntryFormSchema = {
         ...data!,
-        shares: data!.shares.map(share => ({
-            ...share,
-            is_present: true,
-        }))
+        shares: data!.shares.map(share => {
+            const finalRange = share.sites.at(-1);
+            return finalRange !== undefined && finalRange.last === maxLast ?
+                { ...share, sites: share.sites.slice(0, -1), active_sites: { ...finalRange } } :
+                { ...share, active_sites: null };
+        })
     };
 
     const submitEntry = (entryFormData: ExtendedEntryFormSchema) => {
@@ -82,8 +87,7 @@ export default function EditEntryForm() {
                 character_id: share.character_id,
                 helped_setup: share.helped_setup,
                 role_name: share.role_name,
-                first_site: share.first_site,
-                last_site: share.last_site,
+                sites: shareSitesPayload(share),
             })),
             roles: entryFormData.roles,
             items: entryFormData.items.map(item => ({

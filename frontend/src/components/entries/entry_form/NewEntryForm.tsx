@@ -10,6 +10,7 @@ import EntryForm from "./EntryForm";
 import { useState } from "react";
 import NavBackButton from "../../utils/NavBackButton";
 import { validateShareSites } from "./validateShareSites";
+import { shareSitesPayload } from "../siteRanges";
 
 
 
@@ -56,8 +57,7 @@ export default function NewEntryForm() {
                 character_id: share.character_id,
                 helped_setup: share.helped_setup,
                 role_name: share.role_name,
-                first_site: share.first_site,
-                last_site: share.last_site,
+                sites: shareSitesPayload(share),
             })),
             roles: entryFormData.roles,
             items: entryFormData.items.map(item => ({

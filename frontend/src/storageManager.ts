@@ -1,4 +1,4 @@
-const STORAGE_VERSION = "2";
+const STORAGE_VERSION = "3";
 const VERSION_KEY = 'allianceauth_pve_version';
 
 function clearOldStorage() {

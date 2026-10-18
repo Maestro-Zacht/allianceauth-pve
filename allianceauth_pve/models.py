@@ -1,5 +1,5 @@
 from collections import defaultdict
-from collections.abc import Sequence
+from collections.abc import Iterable, Iterator, Sequence
 from decimal import ROUND_HALF_EVEN, Decimal, localcontext
 from fractions import Fraction
 from typing import TYPE_CHECKING, ClassVar
@@ -58,8 +58,13 @@ def normalize_weights(weights: Sequence[Fraction | int]) -> list[Decimal]:
     return values
 
 
-def count_sites(first_site: int | None, last_site: int | None) -> int:
-    return 0 if first_site is None or last_site is None else last_site - first_site + 1
+def count_sites(ranges: Iterable[tuple[int, int]]) -> int:
+    return sum(last - first + 1 for first, last in ranges)
+
+
+def iter_sites(ranges: Iterable[tuple[int, int]]) -> Iterator[int]:
+    for first, last in ranges:
+        yield from range(first, last + 1)
 
 
 class General(models.Model):  # noqa: DJ008
@@ -579,8 +584,7 @@ class EntryCharacter(models.Model):
         "EntryRole", on_delete=models.RESTRICT, related_name="shares"
     )
 
-    first_site = models.PositiveIntegerField(null=True, blank=True)
-    last_site = models.PositiveIntegerField(null=True, blank=True)
+    sites = models.JSONField(default=list, blank=True)
     helped_setup = models.BooleanField(default=False)
     relative_value = models.DecimalField(
         _("relative value"),
@@ -597,20 +601,14 @@ class EntryCharacter(models.Model):
                 condition=models.Q(relative_value__gte=0, relative_value__lte=1),
                 name="relative_value_is_a_fraction",
             ),
-            models.CheckConstraint(
-                condition=models.Q(first_site__isnull=True, last_site__isnull=True)
-                | models.Q(
-                    first_site__isnull=False,
-                    last_site__isnull=False,
-                    first_site__gte=1,
-                    last_site__gte=models.F("first_site"),
-                ),
-                name="sites_are_a_valid_range",
-            ),
         )
 
     def __str__(self) -> str:
         return f"{self.user_character} in {self.entry}"
+
+    @property
+    def site_ranges(self) -> list[tuple[int, int]]:
+        return [(site["first"], site["last"]) for site in self.sites]
 
 
 class Entry(models.Model):
@@ -696,25 +694,23 @@ def site_value(site: int, site_scaling: Entry.SiteScaling) -> int:
 
 # make this more efficient
 def compute_site_relative_values(
-    shares: Sequence[tuple[int | None, int | None, int]],
+    shares: Sequence[tuple[Sequence[tuple[int, int]], int]],
     site_scaling: Entry.SiteScaling = Entry.SiteScaling.FLAT,
 ) -> list[Decimal]:
     site_weights: defaultdict[int, int] = defaultdict(int)
-    for first_site, last_site, role_value in shares:
-        if first_site is not None and last_site is not None:
-            for site in range(first_site, last_site + 1):
-                site_weights[site] += role_value
+    for ranges, role_value in shares:
+        for site in iter_sites(ranges):
+            site_weights[site] += role_value
 
     weights = []
-    for first_site, last_site, role_value in shares:
+    for ranges, role_value in shares:
         weight = Fraction(0)
-        if first_site is not None and last_site is not None:
-            for site in range(first_site, last_site + 1):
-                if site_weights[site]:
-                    weight += Fraction(
-                        role_value * site_value(site, site_scaling),
-                        site_weights[site],
-                    )
+        for site in iter_sites(ranges):
+            if site_weights[site]:
+                weight += Fraction(
+                    role_value * site_value(site, site_scaling),
+                    site_weights[site],
+                )
         weights.append(weight)
     return normalize_weights(weights)
 

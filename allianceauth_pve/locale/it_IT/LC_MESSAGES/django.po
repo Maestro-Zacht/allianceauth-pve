@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-06 12:56+0200\n"
+"POT-Creation-Date: 2026-10-11 13:56+0200\n"
 "PO-Revision-Date: 2024-09-26 14:27+0000\n"
 "Last-Translator: Matteo Ghia, 2024\n"
 "Language-Team: Italian (Italy) (https://app.transifex.com/alliance-auth/"
@@ -23,7 +23,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
 "1 : 2;\n"
 
-#: allianceauth_pve/admin.py:32 allianceauth_pve/api/schema.py:229
+#: allianceauth_pve/admin.py:32 allianceauth_pve/api/schema.py:252
 msgid "Locking the roles setup requires exactly 1 roles setup."
 msgstr ""
 
@@ -53,19 +53,27 @@ msgstr ""
 "Non puoi riaprire questo progetto, ce n'è già un altro aperto con lo stesso "
 "nome"
 
-#: allianceauth_pve/api/schema.py:197 allianceauth_pve/api/schema.py:268
+#: allianceauth_pve/api/schema.py:152
+msgid "First site must be at least 1."
+msgstr ""
+
+#: allianceauth_pve/api/schema.py:155
+msgid "Last site must not be before the first site."
+msgstr ""
+
+#: allianceauth_pve/api/schema.py:220 allianceauth_pve/api/schema.py:291
 msgid "Name must be between 1 and 128 characters long."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:200 allianceauth_pve/api/schema.py:204
+#: allianceauth_pve/api/schema.py:223 allianceauth_pve/api/schema.py:227
 msgid "Tax rate must be between 0 and 100."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:209
+#: allianceauth_pve/api/schema.py:232
 msgid "The number of maximum daily setups must be non-negative."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:215
+#: allianceauth_pve/api/schema.py:238
 #, fuzzy
 #| msgid ""
 #| "The minimum number of users in an entry to consider the helped setup "
@@ -77,136 +85,128 @@ msgstr ""
 "Il minimo numero di utenti in un'entrata per considerare gli aiuti a "
 "sistemare validi."
 
-#: allianceauth_pve/api/schema.py:221
+#: allianceauth_pve/api/schema.py:244
 msgid "One or more entry buttons are invalid."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:225
+#: allianceauth_pve/api/schema.py:248
 msgid "One or more roles setups are invalid."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:271
+#: allianceauth_pve/api/schema.py:294
 #, fuzzy
 #| msgid "Project name already exists!"
 msgid "An active project with this name already exists."
 msgstr "Un progetto con lo stesso nome esiste già!"
 
-#: allianceauth_pve/api/schema.py:274
+#: allianceauth_pve/api/schema.py:297
 msgid "Goal must be at least 1 ISK."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:292
+#: allianceauth_pve/api/schema.py:315
 msgid "Sale value must be a non-negative integer."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:295
+#: allianceauth_pve/api/schema.py:318
 msgid "Item has not been added in this rotation."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:317
+#: allianceauth_pve/api/schema.py:340
 msgid "Sales value must be a non-negative integer."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:359
+#: allianceauth_pve/api/schema.py:382
 msgid "Name must be between 1 and 64 characters long."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:361
+#: allianceauth_pve/api/schema.py:384
 msgid "Role names must be unique within the entry."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:366
+#: allianceauth_pve/api/schema.py:389
 msgid "Value must be non-negative."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:420
-msgid "First and last site must both be set or both be empty."
+#: allianceauth_pve/api/schema.py:469
+msgid "Site ranges of a share must not overlap."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:424
-msgid "First site must be at least 1."
-msgstr ""
-
-#: allianceauth_pve/api/schema.py:427
-msgid "Last site must not be before the first site."
-msgstr ""
-
-#: allianceauth_pve/api/schema.py:438
+#: allianceauth_pve/api/schema.py:479
 #, fuzzy
 #| msgid "Character not found"
 msgid "Character does not exist."
 msgstr "Personaggio non trovato"
 
-#: allianceauth_pve/api/schema.py:441
+#: allianceauth_pve/api/schema.py:482
 msgid "Character can only have one share in the entry."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:449
+#: allianceauth_pve/api/schema.py:490
 #, fuzzy
 #| msgid "Character not found"
 msgid "Character is not owned by any user."
 msgstr "Personaggio non trovato"
 
-#: allianceauth_pve/api/schema.py:454
+#: allianceauth_pve/api/schema.py:495
 msgid "A user can only have one share in the entry."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:461
+#: allianceauth_pve/api/schema.py:502
 msgid "Role name must match one of the roles defined in the entry."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:484
+#: allianceauth_pve/api/schema.py:525
 msgid "Item does not exist or is not published."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:490
+#: allianceauth_pve/api/schema.py:531
 msgid "Item is ignored and cannot be added."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:493
+#: allianceauth_pve/api/schema.py:534
 msgid "Quantity must be at least 1."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:526
+#: allianceauth_pve/api/schema.py:567
 msgid "At least one role is required."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:542
+#: allianceauth_pve/api/schema.py:583
 #, python-format
 msgid "Roles must match the %(setup)s roles setup of this rotation."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:547
+#: allianceauth_pve/api/schema.py:588
 msgid "At least one share is required."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:566
+#: allianceauth_pve/api/schema.py:607
 msgid "Form not valid, you need at least 1 person to receive loot"
 msgstr "Form non valido, deve esserci almeno 1 persona a ricevere il loot"
 
-#: allianceauth_pve/api/schema.py:576
+#: allianceauth_pve/api/schema.py:617
 #, python-format
 msgid "No share covers site(s) %(sites)s."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:589
+#: allianceauth_pve/api/schema.py:630
 msgid "Estimated total must be non-negative."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:593
+#: allianceauth_pve/api/schema.py:634
 msgid ""
 "Estimated total must be at least 1 ISK or you must add at least one item."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:604
+#: allianceauth_pve/api/schema.py:645
 msgid "Funding project does not exist or is not active."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:608
+#: allianceauth_pve/api/schema.py:649
 msgid "Funding percentage is required when a funding project is specified."
 msgstr ""
 
-#: allianceauth_pve/api/schema.py:614
+#: allianceauth_pve/api/schema.py:655
 msgid "Funding percentage must be between 1 and 100."
 msgstr ""
 
@@ -216,11 +216,11 @@ msgstr ""
 msgid "PvE Tool"
 msgstr "Strumenti PvE"
 
-#: allianceauth_pve/models.py:338 allianceauth_pve/models.py:763
+#: allianceauth_pve/models.py:343 allianceauth_pve/models.py:747
 msgid "relative role value"
 msgstr "valore relativo del ruolo"
 
-#: allianceauth_pve/models.py:340 allianceauth_pve/models.py:765
+#: allianceauth_pve/models.py:345 allianceauth_pve/models.py:749
 msgid ""
 "Relative role value. Share values are computed using this field. If there "
 "are 2 roles with 10 and 15, they'll receive 10/25 and 15/25 of the share "
@@ -230,7 +230,7 @@ msgstr ""
 "campo. Se ci sono due ruoli con 10 e 15, riceveranno 10/25 e 15/25 "
 "rispettivamente del valore della quota."
 
-#: allianceauth_pve/models.py:362 allianceauth_pve/models.py:417
+#: allianceauth_pve/models.py:367 allianceauth_pve/models.py:422
 msgid ""
 "The maximum number of helped setup per day. If more are submitted, only this "
 "number is counted. 0 for deactivating helped setups."
@@ -239,58 +239,58 @@ msgstr ""
 "di più, solo fino a questo numero è contato. Inserisci 0 per disattivare gli "
 "aiuti a sistemare."
 
-#: allianceauth_pve/models.py:368 allianceauth_pve/models.py:423
+#: allianceauth_pve/models.py:373 allianceauth_pve/models.py:428
 msgid ""
 "The minimum number of users in an entry to consider the helped setup valid."
 msgstr ""
 "Il minimo numero di utenti in un'entrata per considerare gli aiuti a "
 "sistemare validi."
 
-#: allianceauth_pve/models.py:372 allianceauth_pve/models.py:427
+#: allianceauth_pve/models.py:377 allianceauth_pve/models.py:432
 msgid "Tax rate in percentage"
 msgstr "Percentuale di tasse"
 
-#: allianceauth_pve/models.py:374
+#: allianceauth_pve/models.py:379
 #, fuzzy
 #| msgid "Tax rate in percentage"
 msgid "Tax rate for loot items in percentage"
 msgstr "Percentuale di tasse"
 
-#: allianceauth_pve/models.py:379 allianceauth_pve/models.py:437
+#: allianceauth_pve/models.py:384 allianceauth_pve/models.py:442
 msgid "Ordering priority. The higher priorities are in the first positions."
 msgstr ""
 "Priorità di ordinamento. I valori più grandi saranno nelle prime posizioni."
 
-#: allianceauth_pve/models.py:386 allianceauth_pve/models.py:444
+#: allianceauth_pve/models.py:391 allianceauth_pve/models.py:449
 msgid "Button to be shown in the Entry form."
 msgstr "Pulsante da mostrare nel form dell'Entrata."
 
-#: allianceauth_pve/models.py:392 allianceauth_pve/models.py:450
+#: allianceauth_pve/models.py:397 allianceauth_pve/models.py:455
 msgid "Setup avaiable for loading in the Entry form."
 msgstr "Gli elenchi predefiniti da caricare nel form dell'Entrata."
 
-#: allianceauth_pve/models.py:398 allianceauth_pve/models.py:456
+#: allianceauth_pve/models.py:403 allianceauth_pve/models.py:461
 msgid ""
 "Load the only roles setup automatically in every entry and prevent editing "
 "roles. Requires exactly 1 roles setup."
 msgstr ""
 
-#: allianceauth_pve/models.py:406
+#: allianceauth_pve/models.py:411
 #, python-format
 msgid "%(name)s rotation preset"
 msgstr "Preset della rotazione %(name)s"
 
-#: allianceauth_pve/models.py:586
+#: allianceauth_pve/models.py:590
 #, fuzzy
 #| msgid "relative role value"
 msgid "relative value"
 msgstr "valore relativo del ruolo"
 
-#: allianceauth_pve/models.py:622
+#: allianceauth_pve/models.py:616
 msgid "Flat"
 msgstr ""
 
-#: allianceauth_pve/models.py:623
+#: allianceauth_pve/models.py:617
 msgid "Fabricator"
 msgstr ""
 

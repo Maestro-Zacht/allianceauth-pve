@@ -33,7 +33,7 @@ def url(name, **kwargs):
 def recompute_relative_values(entry: Entry) -> None:
     shares = list(entry.ratting_shares.select_related("role"))
     values = compute_site_relative_values(
-        [(share.first_site, share.last_site, share.role.value) for share in shares],
+        [(share.site_ranges, share.role.value) for share in shares],
         entry.site_scaling,
     )
     for share, value in zip(shares, values, strict=True):
@@ -89,15 +89,14 @@ class PveTestBase(TestCase):
 
     @staticmethod
     def make_share(  # noqa: PLR0913
-        entry, user, char, role, *, first_site=1, last_site=1, helped_setup=False
+        entry, user, char, role, *, sites=((1, 1),), helped_setup=False
     ):
         share = EntryCharacter.objects.create(
             entry=entry,
             user=user,
             user_character=char,
             role=role,
-            first_site=first_site,
-            last_site=last_site,
+            sites=[{"first": first, "last": last} for first, last in sites],
             helped_setup=helped_setup,
             relative_value=Decimal(0),
         )
@@ -114,8 +113,7 @@ class PveTestBase(TestCase):
         *,
         role_name="dps",
         role_value=10,
-        first_site=1,
-        last_site=1,
+        sites=((1, 1),),
         helped_setup=False,
         estimated_total=1_000_000_000,
         funding_project=None,
@@ -136,8 +134,7 @@ class PveTestBase(TestCase):
             user,
             char,
             role,
-            first_site=first_site,
-            last_site=last_site,
+            sites=sites,
             helped_setup=helped_setup,
         )
         return entry, role, share
@@ -171,8 +168,7 @@ class PveApiTestBase(PveTestBase):
                 {
                     "character_id": char_id,
                     "helped_setup": False,
-                    "first_site": 1,
-                    "last_site": 1,
+                    "sites": [{"first": 1, "last": 1}],
                     "role_name": role_name,
                 }
             ],
