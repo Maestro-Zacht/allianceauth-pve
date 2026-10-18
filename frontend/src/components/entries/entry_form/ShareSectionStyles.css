@@ -11,6 +11,15 @@
     column-gap: 3ch;
 }
 
+#users.no-setup {
+    grid-template-columns: 1fr 1fr auto auto auto auto;
+}
+
+#users.only-mains.no-setup {
+    grid-template-columns: 1fr auto auto auto auto;
+    column-gap: 3ch;
+}
+
 .share-row {
     grid-column: 1/-1;
     display: grid;

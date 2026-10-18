@@ -44,7 +44,7 @@ export default function EntryForm({ rotationId, isLoading, errors }: EntryFormPr
                     <hr />
                     <TotalSection estimatedTotal={entryData.estimated_total} errors={errors?.estimated_total} items={entryData.items} />
                     <hr />
-                    <SharesSection shares={entryData.shares} roles={entryData.roles} errors_root={errors?.shares_root} errors={errors?.shares} />
+                    <SharesSection rotationId={rotationId} shares={entryData.shares} roles={entryData.roles} errors_root={errors?.shares_root} errors={errors?.shares} />
                     <FundingProjectSection
                         fundingProjectId={entryData.funding_project_id}
                         fundingPercentage={entryData.funding_percentage}

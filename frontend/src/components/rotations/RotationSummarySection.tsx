@@ -9,11 +9,12 @@ import ItemSummary from "../summary/ItemSummary";
 interface RotationSummarySectionProps {
     rotationId: number;
     isClosed: boolean;
+    helpedSetupsEnabled: boolean;
 }
 
 // TODO: better summary
 
-export default function RotationSummarySection({ rotationId, isClosed }: RotationSummarySectionProps) {
+export default function RotationSummarySection({ rotationId, isClosed, helpedSetupsEnabled }: RotationSummarySectionProps) {
     const { t } = useTranslation();
     const {
         data: summaryData,
@@ -98,7 +99,7 @@ export default function RotationSummarySection({ rotationId, isClosed }: Rotatio
                     <Card.Body>
                         <Tab.Content>
                             <Tab.Pane eventKey="summary">
-                                <SummaryTable summary={rotationSummary} isClosed={isClosed} isProjectSummary={false} />
+                                <SummaryTable summary={rotationSummary} isClosed={isClosed} isProjectSummary={false} showSetups={helpedSetupsEnabled} />
                             </Tab.Pane>
                             {items.length > 0 && (
                                 <Tab.Pane eventKey="items">
@@ -113,7 +114,7 @@ export default function RotationSummarySection({ rotationId, isClosed }: Rotatio
                                                 {t("project_summary_for", { projectName: projectData.project.name })}
                                             </h4>
                                         </div>
-                                        <SummaryTable summary={projectData.summary} isClosed={isClosed} isProjectSummary={true} />
+                                        <SummaryTable summary={projectData.summary} isClosed={isClosed} isProjectSummary={true} showSetups={false} />
                                     </Tab.Pane>
                                 );
                             })}

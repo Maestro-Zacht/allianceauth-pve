@@ -87,6 +87,7 @@ class TestRotationsApi(PveApiTestBase):
         self.assertEqual(data["number_of_members"], 1)
         self.assertEqual(data["estimated_total"], 1_000_000_000)
         self.assertEqual(data["actual_total_from_items"], 0.0)
+        self.assertEqual(data["max_daily_setups"], self.rotation.max_daily_setups)
 
     def test_get_rotation_404(self):
         self.client.force_login(self.user)

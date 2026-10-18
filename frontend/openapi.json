@@ -1516,6 +1516,10 @@
                     "actual_total_from_items": {
                         "title": "Actual Total From Items",
                         "type": "number"
+                    },
+                    "max_daily_setups": {
+                        "title": "Max Daily Setups",
+                        "type": "integer"
                     }
                 },
                 "required": [
@@ -1529,7 +1533,8 @@
                     "priority",
                     "tax_rate",
                     "tax_rate_loot_items",
-                    "actual_total_from_items"
+                    "actual_total_from_items",
+                    "max_daily_setups"
                 ],
                 "title": "RotationSchema",
                 "type": "object"
