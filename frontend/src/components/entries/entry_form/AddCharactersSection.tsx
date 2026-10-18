@@ -11,7 +11,7 @@ import useDebounce from "../../../hooks/debounceHook";
 import Loading from "../../utils/Loading";
 
 type RatterType = Omit<ExtendedShareItem,
-    'helped_setup' | 'first_site' | 'last_site' | 'role_name' | 'is_present'
+    'helped_setup' | 'sites' | 'active_sites' | 'role_name'
 > & {
     tooltip: string;
     isMain: boolean;

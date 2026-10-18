@@ -45,35 +45,19 @@ export default function TotalSection({ estimatedTotal, errors, items }: TotalSec
                     {errors.map((error, index) => <div key={`error-${index}`}>{error}</div>)}
                 </Form.Control.Feedback>}
             </Col>
-            <Col sm={4} className="d-flex justify-content-between align-items-center">
-                <TooltipComponent id="increment-all-tooltip" text={t("increment_all_shares")}>
+            <Col sm={4} className="d-flex justify-content-evenly align-items-center">
+                <TooltipComponent id="increment-active-tooltip" text={t("increment_active_ranges")}>
                     <Button
                         size="sm" variant="success"
-                        onClick={() => updateEntryData({ type: 'update_shares', onlyPresent: false, increment: 1 })}
+                        onClick={() => updateEntryData({ type: 'update_shares', increment: 1 })}
                     >
                         <i className="fas fa-user-plus"></i>
                     </Button>
                 </TooltipComponent>
-                <TooltipComponent id="increment-selected-tooltip" text={t("increment_selected_shares")}>
-                    <Button
-                        size="sm" variant="info"
-                        onClick={() => updateEntryData({ type: 'update_shares', onlyPresent: true, increment: 1 })}
-                    >
-                        <i className="fas fa-user-cog"></i>
-                    </Button>
-                </TooltipComponent>
-                <TooltipComponent id="decrement-selected-tooltip" text={t("decrement_selected_shares")}>
-                    <Button
-                        size="sm" variant="warning"
-                        onClick={() => updateEntryData({ type: 'update_shares', onlyPresent: true, increment: -1 })}
-                    >
-                        <i className="fas fa-user-cog"></i>
-                    </Button>
-                </TooltipComponent>
-                <TooltipComponent id="decrement-all-tooltip" text={t("decrement_all_shares")}>
+                <TooltipComponent id="decrement-active-tooltip" text={t("decrement_active_ranges")}>
                     <Button
                         size="sm" variant="danger"
-                        onClick={() => updateEntryData({ type: 'update_shares', onlyPresent: false, increment: -1 })}
+                        onClick={() => updateEntryData({ type: 'update_shares', increment: -1 })}
                     >
                         <i className="fas fa-user-minus"></i>
                     </Button>

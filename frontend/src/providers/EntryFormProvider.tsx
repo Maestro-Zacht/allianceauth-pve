@@ -1,12 +1,30 @@
 import { createContext, useContext, useEffect, type Dispatch, type PropsWithChildren } from "react";
-import type { ExtendedEntryFormSchema, ExtendedEntryItem, SiteScaling } from "../components/entries/EntryTypes";
+import type { ExtendedEntryFormSchema, ExtendedEntryItem, SiteRange, SiteScaling } from "../components/entries/EntryTypes";
+import { isCompleteRange, mergeSiteRanges, shareLastSite } from "../components/entries/siteRanges";
 import { useLocalStorageReducer } from "../hooks/useLocalStorageReducer";
 
 type RoleType = ExtendedEntryFormSchema["roles"][number];
 type ShareType = ExtendedEntryFormSchema["shares"][number];
 
 function currentFleetSite(shares: ShareType[]): number {
-    return Math.max(0, ...shares.map(share => share.last_site ?? 0));
+    return Math.max(0, ...shares.map(shareLastSite));
+}
+
+/** Start an active range at `start`, reopening the last past range when the new one would overlap or touch it. */
+function openActiveRange(share: ShareType, start: number): ShareType {
+    const lastPast = share.sites.at(-1);
+    if (lastPast && start <= lastPast.last + 1) {
+        return {
+            ...share,
+            sites: share.sites.slice(0, -1),
+            active_sites: { first: lastPast.first, last: Math.max(lastPast.last, start) },
+        };
+    }
+    return { ...share, active_sites: { first: start, last: start } };
+}
+
+function updateShare(shares: ShareType[], characterId: number, update: (share: ShareType) => ShareType): ShareType[] {
+    return shares.map(share => share.character_id === characterId ? update(share) : share);
 }
 
 const EntryFormUpdateContext = createContext<EntryProcessorType | undefined>(undefined);
@@ -23,14 +41,17 @@ type EntryReducerAction =
     | { type: 'load_role_setup'; roles: RoleType[] }
     | { type: 'update_role_value'; roleName: string; value: number }
     | { type: 'delete_role'; roleName: string }
-    | { type: 'update_shares'; onlyPresent: boolean; increment: number }
+    | { type: 'update_shares'; increment: number }
     | { type: 'select_funding_project'; projectId: number | null }
     | { type: 'update_funding_percentage'; percentage: number }
     | { type: 'select_site_scaling'; siteScaling: SiteScaling }
     | { type: 'add_character'; characterId: number, characterName: string, portraitUrl: string, mainCharacterName: string, mainCharacterPortraitUrl: string }
-    | { type: 'toggle_share_value'; characterId: number, field: 'helped_setup' | 'is_present' }
+    | { type: 'toggle_share_value'; characterId: number, field: 'helped_setup' }
     | { type: 'change_share_role'; characterId: number; newRoleName: string }
-    | { type: 'update_share_site'; characterId: number; field: 'first_site' | 'last_site'; value: number }
+    | { type: 'update_active_site'; characterId: number; field: 'first' | 'last'; value: number }
+    | { type: 'open_active_range'; characterId: number }
+    | { type: 'close_active_range'; characterId: number }
+    | { type: 'update_past_ranges'; characterId: number; ranges: SiteRange[]; reopenLast: boolean }
     | { type: 'delete_share'; characterId: number };
 
 function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReducerAction): ExtendedEntryFormSchema {
@@ -110,23 +131,25 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
             return {
                 ...state,
                 shares: state.shares.map(share => {
-                    if (!share.is_present && action.onlyPresent) {
+                    const active = share.active_sites;
+                    if (active === null) {
                         return share;
                     }
-                    if (share.first_site === null && share.last_site === null) {
+                    if (active.first === null && active.last === null) {
                         return action.increment > 0 ?
-                            { ...share, first_site: fleetSite + 1, last_site: fleetSite + 1 } :
+                            openActiveRange(share, fleetSite + 1) :
                             share;
                     }
-                    if (share.last_site === null) {
+                    if (active.last === null) {
                         return action.increment > 0 ?
-                            { ...share, last_site: share.first_site } :
+                            { ...share, active_sites: { ...active, last: active.first } } :
                             share;
                     }
-                    const newLastSite = share.last_site + action.increment;
-                    return newLastSite < (share.first_site ?? 1) ?
-                        { ...share, last_site: null } :
-                        { ...share, last_site: newLastSite };
+                    const newLastSite = active.last + action.increment;
+                    return {
+                        ...share,
+                        active_sites: { ...active, last: newLastSite < (active.first ?? 1) ? null : newLastSite },
+                    };
                 })
             };
         }
@@ -178,10 +201,9 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                         main_character_name: action.mainCharacterName,
                         main_character_portrait_url: action.mainCharacterPortraitUrl,
                         role_name: state.roles[0].name,
-                        first_site: startSite,
-                        last_site: startSite,
+                        sites: [],
+                        active_sites: { first: startSite, last: startSite },
                         helped_setup: false,
-                        is_present: true,
                     }
                 ]
             };
@@ -211,16 +233,57 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                     }
                 })
             };
-        case "update_share_site":
+        case "update_active_site":
             return {
                 ...state,
-                shares: state.shares.map(share => {
-                    if (share.character_id === action.characterId) {
-                        const newSite = isNaN(action.value) ? null : Math.max(action.value, 1);
-                        return { ...share, [action.field]: newSite };
-                    } else {
+                shares: updateShare(state.shares, action.characterId, share => {
+                    if (share.active_sites === null) {
                         return share;
                     }
+                    const newSite = isNaN(action.value) ? null : Math.max(action.value, 1);
+                    return { ...share, active_sites: { ...share.active_sites, [action.field]: newSite } };
+                })
+            };
+        case "open_active_range": {
+            const startSite = Math.max(currentFleetSite(state.shares), 1);
+            return {
+                ...state,
+                shares: updateShare(state.shares, action.characterId, share =>
+                    share.active_sites === null ? openActiveRange(share, startSite) : share
+                )
+            };
+        }
+        case "close_active_range":
+            return {
+                ...state,
+                shares: updateShare(state.shares, action.characterId, share => {
+                    const active = share.active_sites;
+                    if (isCompleteRange(active)) {
+                        if (active.last < active.first) {
+                            return share;
+                        }
+                        return { ...share, sites: mergeSiteRanges([...share.sites, active]), active_sites: null };
+                    }
+                    return { ...share, active_sites: null };
+                })
+            };
+        case "update_past_ranges":
+            return {
+                ...state,
+                shares: updateShare(state.shares, action.characterId, share => {
+                    const sites = mergeSiteRanges(action.ranges);
+                    const lastPast = sites.at(-1);
+                    const active = share.active_sites;
+                    if (lastPast === undefined) {
+                        return { ...share, sites };
+                    }
+                    if (active !== null && active.first !== null && lastPast.last + 1 >= active.first) {
+                        return { ...share, sites: sites.slice(0, -1), active_sites: { ...active, first: lastPast.first } };
+                    }
+                    if (action.reopenLast && active === null) {
+                        return { ...share, sites: sites.slice(0, -1), active_sites: { ...lastPast } };
+                    }
+                    return { ...share, sites };
                 })
             };
         case "delete_share":

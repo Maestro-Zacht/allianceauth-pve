@@ -1,3 +1,4 @@
+import itertools
 from collections import defaultdict
 from collections.abc import Iterable
 from datetime import datetime
@@ -135,12 +136,34 @@ class EntryRoleSchema(BaseRoleSchema):
     role_approximate_percentage: float
 
 
+class SiteRangeErrorsSchema(Schema):
+    first: list[str] = []  # noqa: RUF012
+    last: list[str] = []  # noqa: RUF012
+
+
+class SiteRangeSchema(Schema):
+    first: int
+    last: int
+
+    def validate(self) -> SiteRangeErrorsSchema | None:
+        errors = defaultdict(list)
+
+        if self.first < 1:
+            errors["first"].append(_("First site must be at least 1."))
+
+        if self.last < self.first:
+            errors["last"].append(_("Last site must not be before the first site."))
+
+        if errors:
+            return SiteRangeErrorsSchema(**dict(errors))
+        return None
+
+
 class EntryCharacterSchema(Schema):
     user_main_character: EveCharacterSchema | None
     user_character: EveCharacterSchema
     role_name: str
-    first_site: int | None
-    last_site: int | None
+    sites: list[SiteRangeSchema]
     helped_setup: bool
     estimated_share_total: float
     estimated_funding_amount: float
@@ -381,6 +404,17 @@ def find_site_gaps(ranges: Iterable[tuple[int, int]]) -> list[tuple[int, int]]:
     return gaps
 
 
+def merge_site_ranges(ranges: Iterable[tuple[int, int]]) -> list[tuple[int, int]]:
+    """Sort ``ranges`` and merge the overlapping or adjacent ones."""
+    merged: list[tuple[int, int]] = []
+    for first, last in sorted(ranges):
+        if merged and first <= merged[-1][1] + 1:
+            merged[-1] = (merged[-1][0], max(merged[-1][1], last))
+        else:
+            merged.append((first, last))
+    return merged
+
+
 def format_site_gaps(gaps: Iterable[tuple[int, int]]) -> str:
     return ", ".join(
         str(first) if first == last else f"{first}-{last}" for first, last in gaps
@@ -390,17 +424,20 @@ def format_site_gaps(gaps: Iterable[tuple[int, int]]) -> str:
 class ShareFormErrorsSchema(Schema):
     character_id: list[str] = []  # noqa: RUF012
     helped_setup: list[str] = []  # noqa: RUF012
-    first_site: list[str] = []  # noqa: RUF012
-    last_site: list[str] = []  # noqa: RUF012
+    sites_root: list[str] = []  # noqa: RUF012
+    sites: dict[int, SiteRangeErrorsSchema] = {}  # noqa: RUF012
     role_name: list[str] = []  # noqa: RUF012
 
 
 class ShareFormSchema(Schema):
     character_id: int
     helped_setup: bool
-    first_site: int | None
-    last_site: int | None
+    sites: list[SiteRangeSchema]
     role_name: str
+
+    @property
+    def site_ranges(self) -> list[tuple[int, int]]:
+        return [(site.first, site.last) for site in self.sites]
 
     @staticmethod
     def resolve_role_name(obj: EntryCharacter) -> str:
@@ -414,25 +451,28 @@ class ShareFormSchema(Schema):
             return obj.user_character.character_id
         return obj["character_id"]
 
-    def _validate_site_range(self, errors: defaultdict[str, list[str]]) -> None:
-        if (self.first_site is None) != (self.last_site is None):
-            errors["first_site"].append(
-                _("First and last site must both be set or both be empty.")
-            )
-        elif self.first_site is not None:
-            if self.first_site < 1:
-                errors["first_site"].append(_("First site must be at least 1."))
-            if self.last_site < self.first_site:
-                errors["last_site"].append(
-                    _("Last site must not be before the first site.")
-                )
+    def _validate_sites(self, errors: defaultdict[str, list[str]]) -> None:
+        sites_errors = {}
+        for i, site_range in enumerate(self.sites):
+            site_range_errors = site_range.validate()
+            if site_range_errors is not None:
+                sites_errors[i] = site_range_errors
+        if sites_errors:
+            errors["sites"] = sites_errors
+            return
+
+        if any(
+            current[0] <= previous[1]
+            for previous, current in itertools.pairwise(sorted(self.site_ranges))
+        ):
+            errors["sites_root"].append(_("Site ranges of a share must not overlap."))
 
     def validate(
         self, character_ids: set[int], roles: dict[str, int], users: set[int]
     ) -> ShareFormErrorsSchema | None:
         errors = defaultdict(list)
 
-        self._validate_site_range(errors)
+        self._validate_sites(errors)
 
         if not EveCharacter.objects.filter(character_id=self.character_id).exists():
             errors["character_id"].append(_("Character does not exist."))
@@ -554,9 +594,9 @@ class EntryFormSchema(Schema):
                 share_errors = share.validate(character_ids, roles, users)
                 if share_errors is not None:
                     shares_errors[i] = share_errors
-                total_value += count_sites(
-                    share.first_site, share.last_site
-                ) * roles.get(share.role_name, 0)
+                total_value += count_sites(share.site_ranges) * roles.get(
+                    share.role_name, 0
+                )
 
             if shares_errors:
                 errors["shares"] = shares_errors
@@ -567,9 +607,9 @@ class EntryFormSchema(Schema):
                     )
 
                 gaps = find_site_gaps(
-                    (share.first_site, share.last_site)
+                    site_range
                     for share in self.shares
-                    if share.first_site is not None and share.last_site is not None
+                    for site_range in share.site_ranges
                 )
                 if gaps:
                     errors["shares_root"].append(
@@ -665,17 +705,16 @@ class EntryFormSchema(Schema):
                     role=role,
                     user_character_id=ownership.character_id,
                     user_id=ownership.user_id,
-                    first_site=share.first_site,
-                    last_site=share.last_site,
+                    sites=[
+                        {"first": first, "last": last}
+                        for first, last in merge_site_ranges(share.site_ranges)
+                    ],
                     helped_setup=setup,
                 )
             )
 
         relative_values = compute_site_relative_values(
-            [
-                (share.first_site, share.last_site, share.role.value)
-                for share in shares_to_add
-            ],
+            [(share.site_ranges, share.role.value) for share in shares_to_add],
             self.site_scaling,
         )
         for share, relative_value in zip(shares_to_add, relative_values, strict=True):

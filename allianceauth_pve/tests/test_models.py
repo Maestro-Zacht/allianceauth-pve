@@ -4,7 +4,6 @@ from decimal import Decimal
 from fractions import Fraction
 
 from allianceauth.services.hooks import get_extension_logger
-from django.db import IntegrityError, transaction
 from django.db.models import Sum
 from django.test import SimpleTestCase, TestCase
 from django.utils import timezone
@@ -31,10 +30,8 @@ from .utils import PveTestBase
 logger = get_extension_logger(__name__)
 
 
-def site_range(count: int) -> dict[str, int | None]:
-    if count == 0:
-        return {"first_site": None, "last_site": None}
-    return {"first_site": 1, "last_site": count}
+def site_range(count: int) -> tuple[tuple[int, int], ...]:
+    return ((1, count),) if count else ()
 
 
 def expected_site_split(shares: tuple[tuple[int, int], ...]) -> list[float]:
@@ -259,7 +256,7 @@ class TestEntry(PveTestBase):
         cls.rotation = cls.make_rotation(name="test1rot", tax_rate=10.0)
 
         cls.entry, cls.role, cls.share = cls.make_entry(
-            cls.rotation, cls.testuser, cls.testcharacter, last_site=2
+            cls.rotation, cls.testuser, cls.testcharacter, sites=((1, 2),)
         )
 
         cls.funding_project = FundingProject.objects.create(
@@ -274,23 +271,6 @@ class TestEntry(PveTestBase):
 
     def test_total_user_count(self):
         self.assertEqual(self.entry.total_user_count, 1)
-
-    def test_site_range_constraint(self):
-        for first_site, last_site in ((1, None), (None, 1), (3, 2), (0, 0)):
-            with (
-                self.subTest(first_site=first_site, last_site=last_site),
-                self.assertRaises(IntegrityError),
-                transaction.atomic(),
-            ):
-                EntryCharacter.objects.create(
-                    entry=self.entry,
-                    user=self.testuser2,
-                    user_character=self.testcharacter2,
-                    role=self.role,
-                    first_site=first_site,
-                    last_site=last_site,
-                    relative_value=Decimal(0),
-                )
 
     def test_estimated_total_after_tax(self):
         self.assertAlmostEqual(self.entry.estimated_total_after_tax, 900_000_000.0)
@@ -324,7 +304,7 @@ class TestEntry(PveTestBase):
                     self.testcharacter,
                     role_name="role1",
                     role_value=value1,
-                    **site_range(count1),
+                    sites=site_range(count1),
                     estimated_total=estimated_total,
                 )
 
@@ -340,14 +320,14 @@ class TestEntry(PveTestBase):
                     self.testuser2,
                     self.testcharacter2,
                     role2,
-                    **site_range(count2),
+                    sites=site_range(count2),
                 )
                 share3 = self.make_share(
                     entry,
                     self.testuser3,
                     self.testcharacter3,
                     role3,
-                    **site_range(count3),
+                    sites=site_range(count3),
                 )
 
                 self.assertTrue(Entry.objects.filter(pk=entry.pk).exists())
@@ -479,13 +459,13 @@ class TestComputeSiteRelativeValues(SimpleTestCase):
     def test_disjoint_ranges(self):
         # each ran half the sites alone: role values do not matter
         self.assertEqual(
-            compute_site_relative_values([(1, 2, 1), (3, 4, 10)]),
+            compute_site_relative_values([([(1, 2)], 1), ([(3, 4)], 10)]),
             [Decimal("0.5"), Decimal("0.5")],
         )
 
     def test_same_range_is_weighted_on_roles(self):
         self.assertEqual(
-            compute_site_relative_values([(1, 3, 1), (1, 3, 3)]),
+            compute_site_relative_values([([(1, 3)], 1), ([(1, 3)], 3)]),
             [Decimal("0.25"), Decimal("0.75")],
         )
 
@@ -493,19 +473,43 @@ class TestComputeSiteRelativeValues(SimpleTestCase):
         # site 1: A alone; sites 2-3: A and B (B with double role).
         # A = 1/3 + 2 * (1/3 * 1/3), B = 2 * (1/3 * 2/3)
         self.assertEqual(
-            compute_site_relative_values([(1, 3, 1), (2, 3, 2)]),
+            compute_site_relative_values([([(1, 3)], 1), ([(2, 3)], 2)]),
             normalize_weights([Fraction(5, 9), Fraction(4, 9)]),
         )
 
     def test_share_without_sites(self):
         self.assertEqual(
-            compute_site_relative_values([(1, 2, 1), (None, None, 5)]),
+            compute_site_relative_values([([(1, 2)], 1), ([], 5)]),
             [Decimal(1), Decimal(0)],
+        )
+
+    def test_multiple_ranges(self):
+        # A ran sites 1 and 3, B ran site 2, each alone.
+        self.assertEqual(
+            compute_site_relative_values([([(1, 1), (3, 3)], 1), ([(2, 2)], 10)]),
+            normalize_weights([2, 1]),
+        )
+
+    def test_multiple_ranges_split_with_other_shares(self):
+        # A left after site 2 and rejoined for 4-5; B ran 1-5 with the same role.
+        # A = 4 * 1/2, B = 4 * 1/2 + 1
+        self.assertEqual(
+            compute_site_relative_values([([(1, 2), (4, 5)], 1), ([(1, 5)], 1)]),
+            [Decimal("0.4"), Decimal("0.6")],
+        )
+
+    def test_fabricator_multiple_ranges(self):
+        # site values 2, 6, 12; A = 2 + 12, B = 6
+        self.assertEqual(
+            compute_site_relative_values(
+                [([(1, 1), (3, 3)], 1), ([(2, 2)], 1)], Entry.SiteScaling.FABRICATOR
+            ),
+            [Decimal("0.7"), Decimal("0.3")],
         )
 
     def test_zero_roles(self):
         self.assertEqual(
-            compute_site_relative_values([(1, 2, 0), (1, 2, 0)]),
+            compute_site_relative_values([([(1, 2)], 0), ([(1, 2)], 0)]),
             [Decimal(0)] * 2,
         )
 
@@ -513,15 +517,15 @@ class TestComputeSiteRelativeValues(SimpleTestCase):
         rng = random.Random(418)
         for _ in range(50):
             last = rng.randint(1, 30)
-            shares = [(1, last, rng.randint(1, 10))]
+            shares = [([(1, last)], rng.randint(1, 10))]
             for _ in range(rng.randint(0, 15)):
                 first = rng.randint(1, last)
-                shares.append((first, rng.randint(first, last), rng.randint(1, 10)))
+                shares.append(([(first, rng.randint(first, last))], rng.randint(1, 10)))
             with self.subTest(shares=shares):
                 self.assertEqual(sum(compute_site_relative_values(shares)), Decimal(1))
 
     def test_flat_is_default(self):
-        shares = [(1, 3, 1), (2, 3, 2)]
+        shares = [([(1, 3)], 1), ([(2, 3)], 2)]
         self.assertEqual(
             compute_site_relative_values(shares, Entry.SiteScaling.FLAT),
             compute_site_relative_values(shares),
@@ -530,7 +534,7 @@ class TestComputeSiteRelativeValues(SimpleTestCase):
     def test_fabricator_consecutive_waves(self):
         self.assertEqual(
             compute_site_relative_values(
-                [(1, 1, 1), (2, 2, 1)], Entry.SiteScaling.FABRICATOR
+                [([(1, 1)], 1), ([(2, 2)], 1)], Entry.SiteScaling.FABRICATOR
             ),
             normalize_weights([Fraction(1, 4), Fraction(3, 4)]),
         )
@@ -540,7 +544,7 @@ class TestComputeSiteRelativeValues(SimpleTestCase):
         # A = 2 + 6 * 1/3 + 12 * 1/3, B = 6 * 2/3 + 12 * 2/3
         self.assertEqual(
             compute_site_relative_values(
-                [(1, 3, 1), (2, 3, 2)], Entry.SiteScaling.FABRICATOR
+                [([(1, 3)], 1), ([(2, 3)], 2)], Entry.SiteScaling.FABRICATOR
             ),
             normalize_weights([Fraction(8), Fraction(12)]),
         )
@@ -549,10 +553,10 @@ class TestComputeSiteRelativeValues(SimpleTestCase):
         rng = random.Random(418)
         for _ in range(50):
             last = rng.randint(1, 30)
-            shares = [(1, last, rng.randint(1, 10))]
+            shares = [([(1, last)], rng.randint(1, 10))]
             for _ in range(rng.randint(0, 15)):
                 first = rng.randint(1, last)
-                shares.append((first, rng.randint(first, last), rng.randint(1, 10)))
+                shares.append(([(first, rng.randint(first, last))], rng.randint(1, 10)))
             with self.subTest(shares=shares):
                 self.assertEqual(
                     sum(
@@ -721,7 +725,7 @@ class TestFundingProject(PveTestBase):
             cls.testcharacter,
             funding_project=cls.funding_project,
             funding_percentage=50,
-            last_site=2,
+            sites=((1, 2),),
         )
 
         cls.rotation.is_closed = True
@@ -733,7 +737,9 @@ class TestFundingProject(PveTestBase):
         self.assertEqual(str(self.funding_project), self.funding_project.name)
 
     def test_with_contributions_to(self):
-        self.make_entry(self.rotation, self.testuser, self.testcharacter, last_site=2)
+        self.make_entry(
+            self.rotation, self.testuser, self.testcharacter, sites=((1, 2),)
+        )
 
         self.make_entry(
             self.rotation,
@@ -741,7 +747,7 @@ class TestFundingProject(PveTestBase):
             self.testcharacter,
             funding_project=self.funding_project,
             funding_percentage=0,
-            last_site=2,
+            sites=((1, 2),),
         )
 
         self.assertQuerySetEqual(
@@ -760,7 +766,7 @@ class TestFundingProject(PveTestBase):
             self.testcharacter,
             funding_project=self.funding_project,
             funding_percentage=10,
-            last_site=2,
+            sites=((1, 2),),
         )
 
         self.assertQuerySetEqual(
@@ -855,7 +861,7 @@ class TestFundingProject(PveTestBase):
             self.testcharacter,
             funding_project=project2,
             funding_percentage=50,
-            last_site=2,
+            sites=((1, 2),),
         )
 
         self.assertQuerySetEqual(

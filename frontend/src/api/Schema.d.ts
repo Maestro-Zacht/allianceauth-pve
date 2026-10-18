@@ -724,20 +724,35 @@ export interface components {
              */
             helped_setup: string[];
             /**
-             * First Site
+             * Sites Root
              * @default []
              */
-            first_site: string[];
+            sites_root: string[];
             /**
-             * Last Site
-             * @default []
+             * Sites
+             * @default {}
              */
-            last_site: string[];
+            sites: {
+                [key: string]: components["schemas"]["SiteRangeErrorsSchema"];
+            };
             /**
              * Role Name
              * @default []
              */
             role_name: string[];
+        };
+        /** SiteRangeErrorsSchema */
+        SiteRangeErrorsSchema: {
+            /**
+             * First
+             * @default []
+             */
+            first: string[];
+            /**
+             * Last
+             * @default []
+             */
+            last: string[];
         };
         /** EntryFormSchema */
         EntryFormSchema: {
@@ -776,12 +791,17 @@ export interface components {
             character_id: number;
             /** Helped Setup */
             helped_setup: boolean;
-            /** First Site */
-            first_site: number | null;
-            /** Last Site */
-            last_site: number | null;
+            /** Sites */
+            sites: components["schemas"]["SiteRangeSchema"][];
             /** Role Name */
             role_name: string;
+        };
+        /** SiteRangeSchema */
+        SiteRangeSchema: {
+            /** First */
+            first: number;
+            /** Last */
+            last: number;
         };
         /**
          * SiteScaling
@@ -832,10 +852,8 @@ export interface components {
             user_character: components["schemas"]["EveCharacterSchema"];
             /** Role Name */
             role_name: string;
-            /** First Site */
-            first_site: number | null;
-            /** Last Site */
-            last_site: number | null;
+            /** Sites */
+            sites: components["schemas"]["SiteRangeSchema"][];
             /** Helped Setup */
             helped_setup: boolean;
             /** Estimated Share Total */
@@ -874,10 +892,8 @@ export interface components {
             character_id: number;
             /** Helped Setup */
             helped_setup: boolean;
-            /** First Site */
-            first_site: number | null;
-            /** Last Site */
-            last_site: number | null;
+            /** Sites */
+            sites: components["schemas"]["SiteRangeSchema"][];
             /** Role Name */
             role_name: string;
             /** Portrait Url */
