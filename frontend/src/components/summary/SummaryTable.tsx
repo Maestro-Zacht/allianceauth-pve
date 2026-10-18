@@ -16,9 +16,10 @@ interface SummaryRowProps {
     row: summaryRowType;
     isClosed: boolean;
     isProjectSummary: boolean;
+    showSetups: boolean;
 }
 
-function SummaryRow({ row, isClosed, isProjectSummary }: SummaryRowProps) {
+function SummaryRow({ row, isClosed, isProjectSummary, showSetups }: SummaryRowProps) {
     const { i18n, t } = useTranslation();
     const [copied, setCopied] = useState(false);
     const addToast = useToast();
@@ -56,7 +57,7 @@ function SummaryRow({ row, isClosed, isProjectSummary }: SummaryRowProps) {
                     {row.character_name}
                 </span>
             </td>
-            {!isProjectSummary && <td>{row.helped_setups}</td>}
+            {showSetups && <td>{row.helped_setups}</td>}
             {
                 isClosed ?
                     <>
@@ -84,9 +85,10 @@ interface SummaryTableProps {
     summary: summaryRowType[];
     isClosed: boolean;
     isProjectSummary: boolean;
+    showSetups: boolean;
 }
 
-function HalfSummaryTable({ summary, isClosed, isProjectSummary }: SummaryTableProps) {
+function HalfSummaryTable({ summary, isClosed, isProjectSummary, showSetups }: SummaryTableProps) {
     const { t } = useTranslation();
 
     return <>
@@ -95,7 +97,7 @@ function HalfSummaryTable({ summary, isClosed, isProjectSummary }: SummaryTableP
                 <thead>
                     <tr>
                         <th>{t('character')}</th>
-                        {!isProjectSummary && <th>{t('setups')}</th>}
+                        {showSetups && <th>{t('setups')}</th>}
                         {
                             isClosed ?
                                 <>
@@ -109,7 +111,7 @@ function HalfSummaryTable({ summary, isClosed, isProjectSummary }: SummaryTableP
                 </thead>
                 <tbody>
                     {summary.map((row, index) => (
-                        <SummaryRow key={index} row={row} isClosed={isClosed} isProjectSummary={isProjectSummary} />
+                        <SummaryRow key={index} row={row} isClosed={isClosed} isProjectSummary={isProjectSummary} showSetups={showSetups} />
                     ))}
                 </tbody>
             </Table>
@@ -117,14 +119,14 @@ function HalfSummaryTable({ summary, isClosed, isProjectSummary }: SummaryTableP
     </>
 }
 
-export default function SummaryTable({ summary, isClosed, isProjectSummary }: SummaryTableProps) {
+export default function SummaryTable({ summary, isClosed, isProjectSummary, showSetups }: SummaryTableProps) {
     const splitIndex = Math.ceil(summary.length / 2);
     const firstHalf = summary.slice(0, splitIndex);
     const secondHalf = summary.slice(splitIndex);
     return <>
         <Row>
-            <HalfSummaryTable summary={firstHalf} isClosed={isClosed} isProjectSummary={isProjectSummary} />
-            <HalfSummaryTable summary={secondHalf} isClosed={isClosed} isProjectSummary={isProjectSummary} />
+            <HalfSummaryTable summary={firstHalf} isClosed={isClosed} isProjectSummary={isProjectSummary} showSetups={showSetups} />
+            <HalfSummaryTable summary={secondHalf} isClosed={isClosed} isProjectSummary={isProjectSummary} showSetups={showSetups} />
         </Row>
     </>
 }

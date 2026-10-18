@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, Col, Table } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
-import { getEntryShares } from "../../api/api";
+import { getEntryShares, getRotation } from "../../api/api";
 import Loading from "../utils/Loading";
 import type { components } from "../../api/Schema";
 import CharacterWithPortrait from "../utils/CharacterWithPortrait";
@@ -20,15 +20,17 @@ interface EntrySharesProps {
 interface ShareTableProps {
     shares: EntryShareType[];
     isRotationClosed: boolean;
+    showSetup: boolean;
 }
 
 interface ShareRowProps {
     share: EntryShareType;
     hasProjectContribution: boolean;
     isRotationClosed: boolean;
+    showSetup: boolean;
 }
 
-function ShareRow({ share, hasProjectContribution, isRotationClosed }: ShareRowProps) {
+function ShareRow({ share, hasProjectContribution, isRotationClosed, showSetup }: ShareRowProps) {
     const { i18n, t } = useTranslation();
 
     const localizeNumber = (num: number) => {
@@ -62,12 +64,12 @@ function ShareRow({ share, hasProjectContribution, isRotationClosed }: ShareRowP
             />
         </td>
         <td>{share.role_name}</td>
-        <td>
+        {showSetup && <td>
             {share.helped_setup ?
                 <i className="fas fa-heart fa-heart-red"></i> :
                 <i className="far fa-heart fa-heart-red"></i>
             }
-        </td>
+        </td>}
         <td><SiteRangeBadges ranges={share.sites} /></td>
         {isRotationClosed ?
             <TooltipComponent id={`share-total-tooltip-${share.user_character.character_id}`} text={t("total_from_items_tooltip", { total: share.actual_share_total, items: share.actual_share_total_for_items })}>
@@ -84,7 +86,7 @@ function ShareRow({ share, hasProjectContribution, isRotationClosed }: ShareRowP
     </tr>
 }
 
-function ShareTable({ shares, isRotationClosed }: ShareTableProps) {
+function ShareTable({ shares, isRotationClosed, showSetup }: ShareTableProps) {
     const { t } = useTranslation();
 
     const hasProjectContribution = shares.some(share => share.estimated_funding_amount > 0);
@@ -96,7 +98,7 @@ function ShareTable({ shares, isRotationClosed }: ShareTableProps) {
                     <th scope="col" style={{ textAlign: "left" }}>{t("users_main_character")}</th>
                     <th scope="col" style={{ textAlign: "left" }}>{t("character")}</th>
                     <th scope="col">{t("fleet_role", { count: 1 })}</th>
-                    <th scope="col">{t("helped_setup")}</th>
+                    {showSetup && <th scope="col">{t("helped_setup")}</th>}
                     <th scope="col">{t("sites")}</th>
                     <th scope="col">{t("share_total")}</th>
                     {hasProjectContribution &&
@@ -106,7 +108,7 @@ function ShareTable({ shares, isRotationClosed }: ShareTableProps) {
             </thead>
             <tbody>
                 {shares.map((share, index) => (
-                    <ShareRow key={index} share={share} hasProjectContribution={hasProjectContribution} isRotationClosed={isRotationClosed} />
+                    <ShareRow key={index} share={share} hasProjectContribution={hasProjectContribution} isRotationClosed={isRotationClosed} showSetup={showSetup} />
                 ))}
             </tbody>
         </Table>
@@ -115,16 +117,22 @@ function ShareTable({ shares, isRotationClosed }: ShareTableProps) {
 
 export default function EntryShares({ rotationId, entryId, isRotationClosed }: EntrySharesProps) {
     const { t } = useTranslation();
-    const { data, error, isLoading } = useQuery({
+    const { data, error: sharesError, isLoading: sharesLoading } = useQuery({
         queryKey: ["rotations", rotationId, "entries", entryId, "shares"],
         queryFn: () => getEntryShares(rotationId, entryId),
     });
+    const { data: rotation, error: rotationError, isLoading: rotationLoading } = useQuery({
+        queryKey: ["rotations", rotationId],
+        queryFn: () => getRotation(rotationId),
+    });
 
+    const error = sharesError || rotationError;
     if (error) {
         console.error("Error loading entry shares:", error);
         return <div>Error loading entry shares.</div>;
     }
 
+    const isLoading = sharesLoading || rotationLoading;
     const shares = data || [];
 
     return <>
@@ -132,7 +140,7 @@ export default function EntryShares({ rotationId, entryId, isRotationClosed }: E
             <Card className="text-center">
                 <Card.Header>{t('shares')}</Card.Header>
                 <Card.Body>
-                    {isLoading ? <Loading /> : <ShareTable shares={shares} isRotationClosed={isRotationClosed} />}
+                    {isLoading ? <Loading /> : <ShareTable shares={shares} isRotationClosed={isRotationClosed} showSetup={rotation!.max_daily_setups > 0} />}
                 </Card.Body>
             </Card>
         </Col>

@@ -450,6 +450,8 @@ export interface components {
             tax_rate_loot_items: number;
             /** Actual Total From Items */
             actual_total_from_items: number;
+            /** Max Daily Setups */
+            max_daily_setups: number;
         };
         /** NewRotationSchema */
         NewRotationSchema: {

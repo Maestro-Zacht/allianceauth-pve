@@ -1,5 +1,7 @@
 import { Fragment, useId } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { getRotation } from "../../../api/api";
 import type { EntryFormErrors, ExtendedEntryFormSchema, ExtendedShareItem } from "../EntryTypes";
 import "./ShareSectionStyles.css";
 import { useEntryProcessor } from "../../../providers/EntryFormProvider";
@@ -94,20 +96,27 @@ function ActiveRangeCell({ share, errors }: ActiveRangeCellProps) {
 }
 
 interface SharesSectionProps {
+    rotationId: number;
     shares: ExtendedEntryFormSchema['shares'];
     roles: ExtendedEntryFormSchema['roles'];
     errors_root: EntryFormErrors['shares_root'] | undefined | null;
     errors: EntryFormErrors['shares'] | undefined | null;
 }
 
-export default function SharesSection({ shares, roles, errors_root, errors }: SharesSectionProps) {
+export default function SharesSection({ rotationId, shares, roles, errors_root, errors }: SharesSectionProps) {
     const { t } = useTranslation();
     const { updateEntryData } = useEntryProcessor();
     const permissions = usePermissions();
+    const { data: rotation } = useQuery({
+        queryKey: ['rotations', rotationId],
+        queryFn: () => getRotation(rotationId),
+    });
     const showMain = !permissions?.pve_only_mains;
+    const showSetup = (rotation?.max_daily_setups ?? 0) > 0;
+    const usersClassName = [!showMain && "only-mains", !showSetup && "no-setup"].filter(Boolean).join(" ") || undefined;
 
     return <>
-        <div id="users" className={showMain ? undefined : "only-mains"}>
+        <div id="users" className={usersClassName}>
             {shares.length === 0 ?
                 <span className="all-cols text-center">{t("no_character_yet")}</span> :
                 <>
@@ -115,7 +124,7 @@ export default function SharesSection({ shares, roles, errors_root, errors }: Sh
                         {showMain && <span>{t("users_main_character")}</span>}
                         <span>{t("character")}</span>
                         <span className="text-center">{t("role")}</span>
-                        <span className="text-center">{t("setup")}</span>
+                        {showSetup && <span className="text-center">{t("setup")}</span>}
                         <span className="text-center">{t("past_ranges")}</span>
                         <span className="text-center">{t("active_range")}</span>
                         <span className="text-center">{t("delete")}</span>
@@ -149,7 +158,7 @@ export default function SharesSection({ shares, roles, errors_root, errors }: Sh
                                 >
                                     {roles.map((role) => <option key={role.name} value={role.name}>{role.name}</option>)}
                                 </Form.Select>
-                                <span
+                                {showSetup && <span
                                     className="text-center align-self-center"
                                     onClick={() => updateEntryData({
                                         type: "toggle_share_value",
@@ -161,7 +170,7 @@ export default function SharesSection({ shares, roles, errors_root, errors }: Sh
                                         <i className="fas fa-heart fa-heart-red"></i> :
                                         <i className="far fa-heart fa-heart-red"></i>
                                     }
-                                </span>
+                                </span>}
                                 <div className="d-flex justify-content-center">
                                     <SiteRangesModal share={share} />
                                 </div>

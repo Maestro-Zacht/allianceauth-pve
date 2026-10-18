@@ -30,7 +30,7 @@ export default function ProjectContributions({ projectId }: ProjectContributions
                 <Card.Body>
                     {isLoading ?
                         <div className="text-center"><Loading /></div> :
-                        <SummaryTable summary={contributions} isClosed={true} isProjectSummary={true} />}
+                        <SummaryTable summary={contributions} isClosed={true} isProjectSummary={true} showSetups={false} />}
                 </Card.Body>
             </Card>
         </Col>

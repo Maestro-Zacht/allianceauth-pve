@@ -60,6 +60,7 @@ class RotationSchema(Schema):
     tax_rate: float
     tax_rate_loot_items: float
     actual_total_from_items: float
+    max_daily_setups: int
 
 
 class FundingProjectBasicSchema(Schema):
