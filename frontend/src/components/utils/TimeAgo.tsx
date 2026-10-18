@@ -1,11 +1,11 @@
-import BaseTimeAgo, { type Props } from "react-timeago";
+import BaseTimeAgo, { type Formatter, type Props } from "react-timeago";
 
 interface TimeAgoProps {
     date: Props["date"];
 }
 
 export default function TimeAgo({ date }: TimeAgoProps) {
-    const customFormatter = (_: number, unit: string, suffix: string, epochMilliseconds: number, nextFormatter: () => string) => {
+    const customFormatter: Formatter = (value, unit, suffix, epochMilliseconds, nextFormatter, now) => {
         if (unit === 'week' || unit === 'month' || unit === 'year') {
             const millisecondsInADay = 1000 * 60 * 60 * 24;
             const differenceInDays = Math.round(
@@ -13,7 +13,7 @@ export default function TimeAgo({ date }: TimeAgoProps) {
             );
             return `${differenceInDays} days ${suffix}`;
         }
-        return nextFormatter();
+        return nextFormatter(value, unit, suffix, epochMilliseconds, nextFormatter, now);
     };
     return <BaseTimeAgo date={date} formatter={customFormatter} />
 }
