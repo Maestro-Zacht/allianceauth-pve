@@ -13,7 +13,7 @@ importers:
     dependencies:
       '@hookform/resolvers':
         specifier: ^5.9.1
-        version: 5.9.1(react-hook-form@7.87.0(react@19.3.0))(zod@4.6.0)
+        version: 5.9.1(react-hook-form@7.87.0(react@19.3.0))(zod@4.6.6)
       '@tanstack/react-query':
         specifier: ^5.102.8
         version: 5.102.8(react@19.3.0)
@@ -69,8 +69,8 @@ importers:
         specifier: ^8.3.0
         version: 8.3.0(react@19.3.0)
       zod:
-        specifier: ^4.6.0
-        version: 4.6.0
+        specifier: ^4.6.6
+        version: 4.6.6
     devDependencies:
       '@eslint/js':
         specifier: ^10.0.1
@@ -1991,8 +1991,8 @@ packages:
     peerDependencies:
       zod: ^3.25.0 || ^4.0.0
 
-  zod@4.6.0:
-    resolution: {integrity: sha512-iIvwyDnebKYpww2ta0DjaNOL8RnVLmPMhgWyOzlW9y0EIIxv5gl+H6Y0ONpt83HqjGqkk78uWp6xWtpxzZdPbw==}
+  zod@4.6.6:
+    resolution: {integrity: sha512-4UmzQUF5fxvfcYHlbjBmejU+w+hbDnWFx4aS8kBx7nPBHcO2SqPbpAG8snbdg+Xse4pRefR98hgjFgIMCI/UhA==}
 
 snapshots:
 
@@ -2150,12 +2150,12 @@ snapshots:
       '@eslint/core': 1.2.1
       levn: 0.4.1
 
-  '@hookform/resolvers@5.9.1(react-hook-form@7.87.0(react@19.3.0))(zod@4.6.0)':
+  '@hookform/resolvers@5.9.1(react-hook-form@7.87.0(react@19.3.0))(zod@4.6.6)':
     dependencies:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.87.0(react@19.3.0)
     optionalDependencies:
-      zod: 4.6.0
+      zod: 4.6.6
 
   '@humanfs/core@0.19.2':
     dependencies:
@@ -2821,8 +2821,8 @@ snapshots:
       '@babel/parser': 7.29.7
       eslint: 10.10.0(jiti@2.7.0)(supports-color@10.2.2)
       hermes-parser: 0.25.1
-      zod: 4.6.0
-      zod-validation-error: 4.0.2(zod@4.6.0)
+      zod: 4.6.6
+      zod-validation-error: 4.0.2(zod@4.6.6)
     transitivePeerDependencies:
       - supports-color
 
@@ -3650,8 +3650,8 @@ snapshots:
 
   yoctocolors@2.2.0: {}
 
-  zod-validation-error@4.0.2(zod@4.6.0):
+  zod-validation-error@4.0.2(zod@4.6.6):
     dependencies:
-      zod: 4.6.0
+      zod: 4.6.6
 
-  zod@4.6.0: {}
+  zod@4.6.6: {}
