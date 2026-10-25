@@ -1,19 +1,15 @@
 import { createContext, useContext, useEffect, type Dispatch, type PropsWithChildren } from "react";
 import type { ExtendedEntryFormSchema, ExtendedEntryItem, SiteRange, SiteScaling } from "../components/entries/EntryTypes";
-import { isCompleteRange, mergeSiteRanges, shareLastSite } from "../components/entries/siteRanges";
+import { currentFleetSite, isCompleteRange, mergeSiteRanges, openRangeStart, reopensLastRange } from "../components/entries/siteRanges";
 import { useLocalStorageReducer } from "../hooks/useLocalStorageReducer";
 
 type RoleType = ExtendedEntryFormSchema["roles"][number];
 type ShareType = ExtendedEntryFormSchema["shares"][number];
 
-function currentFleetSite(shares: ShareType[]): number {
-    return Math.max(0, ...shares.map(shareLastSite));
-}
-
 /** Start an active range at `start`, reopening the last past range when the new one would overlap or touch it. */
 function openActiveRange(share: ShareType, start: number): ShareType {
     const lastPast = share.sites.at(-1);
-    if (lastPast && start <= lastPast.last + 1) {
+    if (lastPast && reopensLastRange(share, start)) {
         return {
             ...share,
             sites: share.sites.slice(0, -1),
@@ -42,6 +38,7 @@ type EntryReducerAction =
     | { type: 'update_role_value'; roleName: string; value: number }
     | { type: 'delete_role'; roleName: string }
     | { type: 'update_shares'; increment: number }
+    | { type: 'set_active_ranges_last'; last: number }
     | { type: 'select_funding_project'; projectId: number | null }
     | { type: 'update_funding_percentage'; percentage: number }
     | { type: 'select_site_scaling'; siteScaling: SiteScaling }
@@ -153,6 +150,17 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                 })
             };
         }
+        case 'set_active_ranges_last':
+            if (isNaN(action.last) || action.last < 1) {
+                return state;
+            }
+            return {
+                ...state,
+                shares: state.shares.map(share => share.active_sites === null ?
+                    share :
+                    { ...share, active_sites: { ...share.active_sites, last: action.last } }
+                )
+            };
         case "select_funding_project":
             return {
                 ...state,
@@ -189,7 +197,7 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
             if (state.shares.some(share => share.character_id === action.characterId)) {
                 return state;
             }
-            const startSite = Math.max(currentFleetSite(state.shares), 1);
+            const startSite = openRangeStart(state.shares);
             return {
                 ...state,
                 shares: [
@@ -245,7 +253,7 @@ function entryFormDataReducer(state: ExtendedEntryFormSchema, action: EntryReduc
                 })
             };
         case "open_active_range": {
-            const startSite = Math.max(currentFleetSite(state.shares), 1);
+            const startSite = openRangeStart(state.shares);
             return {
                 ...state,
                 shares: updateShare(state.shares, action.characterId, share =>

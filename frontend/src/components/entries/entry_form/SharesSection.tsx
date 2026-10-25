@@ -10,7 +10,8 @@ import { Alert, Button, Form } from "react-bootstrap";
 import { usePermissions } from "../../../providers/PermissionsProvider";
 import TooltipComponent from "../../utils/TooltipComponent";
 import SiteRangesModal from "./SiteRangesModal";
-import { lastPastSite } from "../siteRanges";
+import { lastPastSite, openRangeStart, reopensLastRange } from "../siteRanges";
+import { useToast } from "../../../providers/ToastProvider";
 
 type ShareErrors = EntryFormErrors["shares"][string];
 
@@ -26,12 +27,14 @@ function shareErrorMessages(errors: ShareErrors): string[] {
 interface ActiveRangeCellProps {
     share: ExtendedShareItem;
     errors: ShareErrors | undefined;
+    rangeStart: number;
 }
 
-function ActiveRangeCell({ share, errors }: ActiveRangeCellProps) {
+function ActiveRangeCell({ share, errors, rangeStart }: ActiveRangeCellProps) {
     const { t } = useTranslation();
     const tooltipId = useId();
     const { updateEntryData } = useEntryProcessor();
+    const addToast = useToast();
     const active = share.active_sites;
 
     if (active === null) {
@@ -40,7 +43,12 @@ function ActiveRangeCell({ share, errors }: ActiveRangeCellProps) {
                 <Button
                     variant="success"
                     size="sm"
-                    onClick={() => updateEntryData({ type: "open_active_range", characterId: share.character_id })}
+                    onClick={() => {
+                        if (reopensLastRange(share, rangeStart)) {
+                            addToast(t("range_reopened_hint"));
+                        }
+                        updateEntryData({ type: "open_active_range", characterId: share.character_id });
+                    }}
                 >
                     <i className="fa-solid fa-plus"></i>
                 </Button>
@@ -114,6 +122,7 @@ export default function SharesSection({ rotationId, shares, roles, errors_root, 
     const showMain = !permissions?.pve_only_mains;
     const showSetup = (rotation?.max_daily_setups ?? 0) > 0;
     const usersClassName = [!showMain && "only-mains", !showSetup && "no-setup"].filter(Boolean).join(" ") || undefined;
+    const rangeStart = openRangeStart(shares);
 
     return <>
         <div id="users" className={usersClassName}>
@@ -174,7 +183,7 @@ export default function SharesSection({ rotationId, shares, roles, errors_root, 
                                 <div className="d-flex justify-content-center">
                                     <SiteRangesModal share={share} />
                                 </div>
-                                <ActiveRangeCell share={share} errors={shareErrors} />
+                                <ActiveRangeCell share={share} errors={shareErrors} rangeStart={rangeStart} />
                                 <Button
                                     variant="danger"
                                     style={{ transform: 'scale(0.8)' }}
