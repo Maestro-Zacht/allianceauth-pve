@@ -1,20 +1,25 @@
-import { Button, Col, Form, Row } from "react-bootstrap";
+import { useState } from "react";
+import { Button, Col, Form, InputGroup, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import { parseLocalizedNumber } from "../../../utils";
 import { useEntryProcessor } from "../../../providers/EntryFormProvider";
 import TooltipComponent from "../../utils/TooltipComponent";
-import type { EntryFormErrors, ExtendedEntryItem } from "../EntryTypes";
+import type { EntryFormErrors, ExtendedEntryFormSchema, ExtendedEntryItem } from "../EntryTypes";
 import ItemSection from "./ItemSection";
 
 interface TotalSectionProps {
     estimatedTotal: number;
     errors: EntryFormErrors["estimated_total"] | null | undefined;
     items: ExtendedEntryItem[];
+    shares: ExtendedEntryFormSchema['shares'];
 }
 
-export default function TotalSection({ estimatedTotal, errors, items }: TotalSectionProps) {
+export default function TotalSection({ estimatedTotal, errors, items, shares }: TotalSectionProps) {
     const { t, i18n } = useTranslation();
     const { updateEntryData } = useEntryProcessor();
+    const [activeRangesLast, setActiveRangesLast] = useState<number | null>(null);
+    const minActiveRangesLast = Math.max(1, ...shares.flatMap(share => share.active_sites?.first ?? []));
+    const canSetActiveRangesLast = activeRangesLast !== null && activeRangesLast >= minActiveRangesLast;
 
     const localizeNumber = (num: number) => {
         return num.toLocaleString(i18n.language, { maximumFractionDigits: 0 });
@@ -45,7 +50,7 @@ export default function TotalSection({ estimatedTotal, errors, items }: TotalSec
                     {errors.map((error, index) => <div key={`error-${index}`}>{error}</div>)}
                 </Form.Control.Feedback>}
             </Col>
-            <Col sm={4} className="d-flex justify-content-evenly align-items-center">
+            <Col sm={4} className="d-flex flex-wrap justify-content-evenly align-items-center gap-3">
                 <TooltipComponent id="increment-active-tooltip" text={t("increment_active_ranges")}>
                     <Button
                         size="sm" variant="success"
@@ -61,6 +66,31 @@ export default function TotalSection({ estimatedTotal, errors, items }: TotalSec
                     >
                         <i className="fas fa-user-minus"></i>
                     </Button>
+                </TooltipComponent>
+                <TooltipComponent id="set-active-ranges-end-tooltip" text={t("set_active_ranges_end")}>
+                    <InputGroup size="sm" className="w-auto">
+                        <Form.Control
+                            type="number"
+                            min={minActiveRangesLast}
+                            value={activeRangesLast ?? ""}
+                            onChange={(e) => {
+                                const value = parseInt(e.target.value);
+                                setActiveRangesLast(isNaN(value) ? null : value);
+                            }}
+                            style={{ width: "8ch" }}
+                        />
+                        <Button
+                            variant="primary"
+                            disabled={!canSetActiveRangesLast}
+                            onClick={() => {
+                                if (canSetActiveRangesLast) {
+                                    updateEntryData({ type: 'set_active_ranges_last', last: activeRangesLast });
+                                }
+                            }}
+                        >
+                            {t("set")}
+                        </Button>
+                    </InputGroup>
                 </TooltipComponent>
             </Col>
         </Form.Group>

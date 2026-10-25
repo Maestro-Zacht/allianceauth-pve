@@ -31,6 +31,21 @@ export function shareLastSite(share: Pick<ExtendedShareItem, 'sites' | 'active_s
     return Math.max(lastPastSite(share), share.active_sites?.last ?? 0);
 }
 
+export function currentFleetSite(shares: Pick<ExtendedShareItem, 'sites' | 'active_sites'>[]): number {
+    return Math.max(0, ...shares.map(shareLastSite));
+}
+
+/** Site where a newly opened active range starts. */
+export function openRangeStart(shares: Pick<ExtendedShareItem, 'sites' | 'active_sites'>[]): number {
+    return Math.max(currentFleetSite(shares), 1);
+}
+
+/** Whether opening an active range at `start` reopens the share's last past range instead of starting a new one. */
+export function reopensLastRange(share: Pick<ExtendedShareItem, 'sites'>, start: number): boolean {
+    const lastPast = share.sites.at(-1);
+    return lastPast !== undefined && start <= lastPast.last + 1;
+}
+
 export function shareSitesPayload(share: Pick<ExtendedShareItem, 'sites' | 'active_sites'>): SiteRange[] {
     const active = share.active_sites;
     return isCompleteRange(active) ?
