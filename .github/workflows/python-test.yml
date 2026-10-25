@@ -89,15 +89,14 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.10"
-          - "3.11"
           - "3.12"
           - "3.13"
           - "3.14"
         database:
           # https://endoflife.date/mysql
           - mysql:8.4 # [LTS] Maintained until: 30 Apr 2029
-          - mysql:9.7 # [LTS] Maintained until: 21 Apr 2034 and Latest official release
+          - mysql:9.7 # [LTS] Maintained until: 21 Apr 2034
+          - mysql:26.10 # Latest official release
           # https://endoflife.date/mariadb and https://mariadb.com/kb/en/mariadb-server-release-dates/
           - mariadb:10.11 # [LTS] Maintained until: February 2028
           - mariadb:11.4 # [LTS] Maintained until: May 2029
