@@ -2,10 +2,11 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 # Translators:
 # Matteo Ghia, 2024
-#
+# mrCabez, 2026
+# 
 #, fuzzy
 msgid ""
 msgstr ""
@@ -13,26 +14,22 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-11 13:56+0200\n"
 "PO-Revision-Date: 2024-09-26 14:27+0000\n"
-"Last-Translator: Matteo Ghia, 2024\n"
-"Language-Team: Italian (Italy) (https://app.transifex.com/alliance-auth/"
-"teams/107430/it_IT/)\n"
-"Language: it_IT\n"
+"Last-Translator: mrCabez, 2026\n"
+"Language-Team: Italian (Italy) (https://app.transifex.com/alliance-auth/teams/107430/it_IT/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
-"1 : 2;\n"
+"Language: it_IT\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
 
 #: allianceauth_pve/admin.py:32 allianceauth_pve/api/schema.py:252
 msgid "Locking the roles setup requires exactly 1 roles setup."
-msgstr ""
+msgstr "Il blocco del setup dei ruoli richiede esattamente 1 setup dei ruoli."
 
 #: allianceauth_pve/api/entries.py:180 allianceauth_pve/api/entries.py:232
 #: allianceauth_pve/api/entries.py:264
-#, fuzzy
-#| msgid "The rotation is closed, you cannot add an entry"
 msgid "The rotation is closed"
-msgstr "La rotazione è chiusa, non puoi aggiungere un'entrata"
+msgstr "La rotazione è chiusa"
 
 #: allianceauth_pve/api/entries.py:229 allianceauth_pve/api/entries.py:261
 msgid "You cannot edit this entry"
@@ -41,6 +38,8 @@ msgstr "Non puoi modificare quest'entrata"
 #: allianceauth_pve/api/entries.py:238
 msgid "One or more characters in this entry do not have a main character set"
 msgstr ""
+"Uno o più personaggi in questa entrata non hanno un personaggio principale "
+"impostato"
 
 #: allianceauth_pve/api/projects.py:120
 msgid "You cannot complete a project with open contributions"
@@ -55,130 +54,123 @@ msgstr ""
 
 #: allianceauth_pve/api/schema.py:152
 msgid "First site must be at least 1."
-msgstr ""
+msgstr "Il primo sito deve essere almeno 1."
 
 #: allianceauth_pve/api/schema.py:155
 msgid "Last site must not be before the first site."
-msgstr ""
+msgstr "L'ultimo sito non può precedere il primo."
 
 #: allianceauth_pve/api/schema.py:220 allianceauth_pve/api/schema.py:291
 msgid "Name must be between 1 and 128 characters long."
-msgstr ""
+msgstr "Il nome deve contenere da 1 a 128 caratteri."
 
 #: allianceauth_pve/api/schema.py:223 allianceauth_pve/api/schema.py:227
 msgid "Tax rate must be between 0 and 100."
-msgstr ""
+msgstr "La percentuale di tasse deve essere compresa tra 0 e 100."
 
 #: allianceauth_pve/api/schema.py:232
 msgid "The number of maximum daily setups must be non-negative."
-msgstr ""
+msgstr "Il numero massimo di setup giornalieri non può essere negativo."
 
 #: allianceauth_pve/api/schema.py:238
-#, fuzzy
-#| msgid ""
-#| "The minimum number of users in an entry to consider the helped setup "
-#| "valid."
 msgid ""
 "The minimum number of people required to count a setup valid must be non-"
 "negative."
 msgstr ""
-"Il minimo numero di utenti in un'entrata per considerare gli aiuti a "
-"sistemare validi."
+"Il numero minimo di persone necessario per considerare valido un setup non "
+"può essere negativo."
 
 #: allianceauth_pve/api/schema.py:244
 msgid "One or more entry buttons are invalid."
-msgstr ""
+msgstr "Uno o più pulsanti delle entrate non sono validi."
 
 #: allianceauth_pve/api/schema.py:248
 msgid "One or more roles setups are invalid."
-msgstr ""
+msgstr "Uno o più setup dei ruoli non sono validi."
 
 #: allianceauth_pve/api/schema.py:294
-#, fuzzy
-#| msgid "Project name already exists!"
 msgid "An active project with this name already exists."
-msgstr "Un progetto con lo stesso nome esiste già!"
+msgstr "Esiste già un progetto attivo con questo nome."
 
 #: allianceauth_pve/api/schema.py:297
 msgid "Goal must be at least 1 ISK."
-msgstr ""
+msgstr "L'obiettivo deve essere di almeno 1 ISK."
 
 #: allianceauth_pve/api/schema.py:315
 msgid "Sale value must be a non-negative integer."
-msgstr ""
+msgstr "Il valore di vendita deve essere un numero intero non negativo."
 
 #: allianceauth_pve/api/schema.py:318
 msgid "Item has not been added in this rotation."
-msgstr ""
+msgstr "L'oggetto non è stato aggiunto in questa rotazione."
 
 #: allianceauth_pve/api/schema.py:340
 msgid "Sales value must be a non-negative integer."
-msgstr ""
+msgstr "Il valore delle vendite deve essere un numero intero non negativo."
 
 #: allianceauth_pve/api/schema.py:382
 msgid "Name must be between 1 and 64 characters long."
-msgstr ""
+msgstr "Il nome deve contenere da 1 a 64 caratteri."
 
 #: allianceauth_pve/api/schema.py:384
 msgid "Role names must be unique within the entry."
-msgstr ""
+msgstr "I nomi dei ruoli devono essere univoci all'interno dell'entrata."
 
 #: allianceauth_pve/api/schema.py:389
 msgid "Value must be non-negative."
-msgstr ""
+msgstr "Il valore non può essere negativo."
 
 #: allianceauth_pve/api/schema.py:469
 msgid "Site ranges of a share must not overlap."
-msgstr ""
+msgstr "Gli intervalli di siti di una quota non possono sovrapporsi."
 
 #: allianceauth_pve/api/schema.py:479
-#, fuzzy
-#| msgid "Character not found"
 msgid "Character does not exist."
-msgstr "Personaggio non trovato"
+msgstr "Il personaggio non esiste."
 
 #: allianceauth_pve/api/schema.py:482
 msgid "Character can only have one share in the entry."
-msgstr ""
+msgstr "Un personaggio può avere una sola quota nell'entrata."
 
 #: allianceauth_pve/api/schema.py:490
-#, fuzzy
-#| msgid "Character not found"
 msgid "Character is not owned by any user."
-msgstr "Personaggio non trovato"
+msgstr "Il personaggio non appartiene a nessun utente."
 
 #: allianceauth_pve/api/schema.py:495
 msgid "A user can only have one share in the entry."
-msgstr ""
+msgstr "Un utente può avere una sola quota nell'entrata."
 
 #: allianceauth_pve/api/schema.py:502
 msgid "Role name must match one of the roles defined in the entry."
 msgstr ""
+"Il nome del ruolo deve corrispondere a uno dei ruoli definiti nell'entrata."
 
 #: allianceauth_pve/api/schema.py:525
 msgid "Item does not exist or is not published."
-msgstr ""
+msgstr "L'oggetto non esiste o non è pubblicato."
 
 #: allianceauth_pve/api/schema.py:531
 msgid "Item is ignored and cannot be added."
-msgstr ""
+msgstr "L'oggetto è ignorato e non può essere aggiunto."
 
 #: allianceauth_pve/api/schema.py:534
 msgid "Quantity must be at least 1."
-msgstr ""
+msgstr "La quantità deve essere almeno 1."
 
 #: allianceauth_pve/api/schema.py:567
 msgid "At least one role is required."
-msgstr ""
+msgstr "È richiesto almeno un ruolo."
 
 #: allianceauth_pve/api/schema.py:583
 #, python-format
 msgid "Roles must match the %(setup)s roles setup of this rotation."
 msgstr ""
+"I ruoli devono corrispondere al setup dei ruoli %(setup)s di questa "
+"rotazione."
 
 #: allianceauth_pve/api/schema.py:588
 msgid "At least one share is required."
-msgstr ""
+msgstr "È richiesta almeno una quota."
 
 #: allianceauth_pve/api/schema.py:607
 msgid "Form not valid, you need at least 1 person to receive loot"
@@ -187,28 +179,32 @@ msgstr "Form non valido, deve esserci almeno 1 persona a ricevere il loot"
 #: allianceauth_pve/api/schema.py:617
 #, python-format
 msgid "No share covers site(s) %(sites)s."
-msgstr ""
+msgstr "Nessuna quota copre i siti %(sites)s."
 
 #: allianceauth_pve/api/schema.py:630
 msgid "Estimated total must be non-negative."
-msgstr ""
+msgstr "Il totale stimato non può essere negativo."
 
 #: allianceauth_pve/api/schema.py:634
 msgid ""
 "Estimated total must be at least 1 ISK or you must add at least one item."
 msgstr ""
+"Il totale stimato deve essere di almeno 1 ISK, altrimenti devi aggiungere "
+"almeno un oggetto."
 
 #: allianceauth_pve/api/schema.py:645
 msgid "Funding project does not exist or is not active."
-msgstr ""
+msgstr "Il progetto di finanziamento non esiste o non è attivo."
 
 #: allianceauth_pve/api/schema.py:649
 msgid "Funding percentage is required when a funding project is specified."
 msgstr ""
+"La percentuale di finanziamento è obbligatoria quando è indicato un progetto"
+" di finanziamento."
 
 #: allianceauth_pve/api/schema.py:655
 msgid "Funding percentage must be between 1 and 100."
-msgstr ""
+msgstr "La percentuale di finanziamento deve essere compresa tra 1 e 100."
 
 #: allianceauth_pve/auth_hooks.py:13
 #: allianceauth_pve/templates/allianceauth_pve/base.html:5
@@ -226,54 +222,53 @@ msgid ""
 "are 2 roles with 10 and 15, they'll receive 10/25 and 15/25 of the share "
 "value."
 msgstr ""
-"Valore relativo del ruolo. I valori delle quote sono calcolati usando questo "
-"campo. Se ci sono due ruoli con 10 e 15, riceveranno 10/25 e 15/25 "
+"Valore relativo del ruolo. I valori delle quote sono calcolati usando questo"
+" campo. Se ci sono due ruoli con 10 e 15, riceveranno 10/25 e 15/25 "
 "rispettivamente del valore della quota."
 
 #: allianceauth_pve/models.py:367 allianceauth_pve/models.py:422
 msgid ""
-"The maximum number of helped setup per day. If more are submitted, only this "
-"number is counted. 0 for deactivating helped setups."
+"The maximum number of helped setup per day. If more are submitted, only this"
+" number is counted. 0 for deactivating helped setups."
 msgstr ""
-"Il massimo numero giornaliero di aiuti a sistemare. Se ne vengono aggiunti "
-"di più, solo fino a questo numero è contato. Inserisci 0 per disattivare gli "
-"aiuti a sistemare."
+"Numero massimo di setup assistiti al giorno. Se ne vengono inviati di più, "
+"viene conteggiato solo questo numero. 0 per disattivare i setup assistiti."
 
 #: allianceauth_pve/models.py:373 allianceauth_pve/models.py:428
 msgid ""
 "The minimum number of users in an entry to consider the helped setup valid."
 msgstr ""
-"Il minimo numero di utenti in un'entrata per considerare gli aiuti a "
-"sistemare validi."
+"Numero minimo di utenti in un'entrata per considerare valido il setup "
+"assistito."
 
 #: allianceauth_pve/models.py:377 allianceauth_pve/models.py:432
 msgid "Tax rate in percentage"
 msgstr "Percentuale di tasse"
 
 #: allianceauth_pve/models.py:379
-#, fuzzy
-#| msgid "Tax rate in percentage"
 msgid "Tax rate for loot items in percentage"
-msgstr "Percentuale di tasse"
+msgstr "Percentuale di tasse per gli oggetti del loot"
 
 #: allianceauth_pve/models.py:384 allianceauth_pve/models.py:442
 msgid "Ordering priority. The higher priorities are in the first positions."
 msgstr ""
-"Priorità di ordinamento. I valori più grandi saranno nelle prime posizioni."
+"Priorità di ordinamento. Le priorità più alte sono nelle prime posizioni."
 
 #: allianceauth_pve/models.py:391 allianceauth_pve/models.py:449
 msgid "Button to be shown in the Entry form."
-msgstr "Pulsante da mostrare nel form dell'Entrata."
+msgstr "Pulsante da mostrare nel form dell'entrata."
 
 #: allianceauth_pve/models.py:397 allianceauth_pve/models.py:455
 msgid "Setup avaiable for loading in the Entry form."
-msgstr "Gli elenchi predefiniti da caricare nel form dell'Entrata."
+msgstr "Setup disponibili da caricare nel form dell'entrata."
 
 #: allianceauth_pve/models.py:403 allianceauth_pve/models.py:461
 msgid ""
 "Load the only roles setup automatically in every entry and prevent editing "
 "roles. Requires exactly 1 roles setup."
 msgstr ""
+"Carica automaticamente l'unico setup dei ruoli in ogni entrata e impedisce "
+"la modifica dei ruoli. Richiede esattamente 1 setup dei ruoli."
 
 #: allianceauth_pve/models.py:411
 #, python-format
@@ -281,393 +276,13 @@ msgid "%(name)s rotation preset"
 msgstr "Preset della rotazione %(name)s"
 
 #: allianceauth_pve/models.py:590
-#, fuzzy
-#| msgid "relative role value"
 msgid "relative value"
-msgstr "valore relativo del ruolo"
+msgstr "valore relativo"
 
 #: allianceauth_pve/models.py:616
 msgid "Flat"
-msgstr ""
+msgstr "Fisso"
 
 #: allianceauth_pve/models.py:617
 msgid "Fabricator"
-msgstr ""
-
-#~ msgid "Not enough shares or roles"
-#~ msgstr "Non ci sono abbastanza quote o ruoli"
-
-#~ msgid "Entry form or shares are not correct"
-#~ msgstr "Il form dell'entrata o le quote non sono corretti"
-
-#~ msgid "Error in roles"
-#~ msgstr "Errore nei ruoli"
-
-#~ msgid "Percentage"
-#~ msgstr "Percentuale"
-
-#~ msgid "Roles must have different names!"
-#~ msgstr "I ruoli devo avere nomi diversi!"
-
-#~ msgid "User not found"
-#~ msgstr "Utente non trovato"
-
-#~ msgid "Only 1 share per character!"
-#~ msgstr "Solo 1 quota per personaggio!"
-
-#~ msgid "Character ownership wrong!"
-#~ msgstr "Possesso del personaggio sbagliato!"
-
-#~ msgid "Entry Details"
-#~ msgstr "Dettagli dell'Entrata"
-
-#~ msgid "Created At"
-#~ msgstr "Creata il"
-
-#~ msgid "Number of Users"
-#~ msgstr "Numero di Utenti"
-
-#~ msgid "Funding Project"
-#~ msgstr "Progetto di Finanziamento"
-
-#~ msgid "Total After Tax"
-#~ msgstr "Totale dopo le Tasse"
-
-#~ msgid "Total"
-#~ msgstr "Totale"
-
-#~ msgid "Created By"
-#~ msgstr "Creata da"
-
-#~ msgid "Fleet Roles"
-#~ msgstr "Ruoli nella Flotta"
-
-#~ msgid "Role"
-#~ msgstr "Ruolo"
-
-#~ msgid "Value"
-#~ msgstr "Valore"
-
-#~ msgid "Approximate Percentage"
-#~ msgstr "Percentuale approssimata"
-
-#~ msgid "Shares"
-#~ msgstr "Quote"
-
-#~ msgid "User's Main Character"
-#~ msgstr "Personaggio Principale dell'Utente"
-
-#~ msgid "Character"
-#~ msgstr "Personaggio"
-
-#~ msgid "Fleet Role"
-#~ msgstr "Ruolo nella Flotta"
-
-#~ msgid "Helped Setups"
-#~ msgstr "Aiuti a Sistemare"
-
-#~ msgid "Count"
-#~ msgstr "Quantità"
-
-#~ msgid "Share Total"
-#~ msgstr "Totale della Quota"
-
-#~ msgid "Estimated Project Contribution"
-#~ msgstr "Stima della Contribuzione al Progetto"
-
-#~ msgid "Delete"
-#~ msgstr "Elimina"
-
-#~ msgid "Edit"
-#~ msgstr "Modifica"
-
-#~ msgid "Back"
-#~ msgstr "Indietro"
-
-#~ msgid "Delete Entry"
-#~ msgstr "Elimina Entrata"
-
-#~ msgid "Close"
-#~ msgstr "Chiudi"
-
-#~ msgid "Are you sure you want to delete this entry?"
-#~ msgstr "Sei sicuro di voler eliminare questa entrata?"
-
-#~ msgid "Cancel"
-#~ msgstr "Annulla"
-
-#~ msgid "Confirm"
-#~ msgstr "Conferma"
-
-#~ msgid "New Entry"
-#~ msgstr "Nuova Entrata"
-
-#~ msgid "New Role"
-#~ msgstr "Nuovo Ruolo"
-
-#~ msgid "Load Roles Setup"
-#~ msgstr "Carica Preset Ruoli"
-
-#~ msgid "Custom Increment:"
-#~ msgstr "Incremento Personalizzato:"
-
-#~ msgid "Use this field to add a custom value to the total."
-#~ msgstr "Usa questo campo per aggiungere un valore personalizzato al totale."
-
-#~ msgid "Increment All Shares"
-#~ msgstr "Incrementa tutte le quote"
-
-#~ msgid "Increment Selected Shares"
-#~ msgstr "Incrementa le quote selezionate"
-
-#~ msgid "Decrement Selected Shares"
-#~ msgstr "Decrementa le quote selezionate"
-
-#~ msgid "Decrement All Shares"
-#~ msgstr "Decrementa tutte le quote"
-
-#~ msgid "Select"
-#~ msgstr "Seleziona"
-
-#~ msgid "User's Main Char"
-#~ msgstr "Personaggio Principale dell'Utente"
-
-#~ msgid "Setup"
-#~ msgstr "Sistemato"
-
-#~ msgid "No character yet"
-#~ msgstr "Ancora nessun personaggio"
-
-#, python-format
-#~ msgid "Percentage in 2 digits ( xx%% )"
-#~ msgstr "Percentuale in 2 cifre (xx%%)"
-
-#~ msgid "Search"
-#~ msgstr "Cerca"
-
-#~ msgid "No results"
-#~ msgstr "Nessun risultato"
-
-#~ msgid "Role Name:"
-#~ msgstr "Nome del Ruolo:"
-
-#~ msgid "Value:"
-#~ msgstr "Valore:"
-
-#~ msgid "Dismiss"
-#~ msgstr "Chiudi"
-
-#~ msgid "Choose Setup"
-#~ msgstr "Seleziona Preset"
-
-#~ msgid "Load"
-#~ msgstr "Carica"
-
-#~ msgid "New Funding Project"
-#~ msgstr "Nuovo Progetto di Finanziamento"
-
-#~ msgid "Submit"
-#~ msgstr "Invia"
-
-#~ msgid "Funding Project Details"
-#~ msgstr "Dettagli del Progetto di Finanziamento"
-
-#~ msgid "Started"
-#~ msgstr "Data d'inizio"
-
-#~ msgid "Completed"
-#~ msgstr "Completato"
-
-#, python-format
-#~ msgid "After %(days)s day"
-#~ msgid_plural "After %(days)s days"
-#~ msgstr[0] "Dopo %(days)s giorno"
-#~ msgstr[1] "Dopo %(days)s giorni"
-#~ msgstr[2] "Dopo %(days)s giorni"
-
-#~ msgid "Users"
-#~ msgstr "Utenti"
-
-#~ msgid "Estimated Total"
-#~ msgstr "Totale Stimato"
-
-#~ msgid "Current Total"
-#~ msgstr "Totale Corrente"
-
-#~ msgid "Goal"
-#~ msgstr "Obiettivo"
-
-#~ msgid "Actual progress"
-#~ msgstr "Progresso corrente"
-
-#~ msgid "Estimated progress"
-#~ msgstr "Progresso stimato"
-
-#~ msgid "Contributors"
-#~ msgstr "Contributori"
-
-#~ msgid "Actual Total"
-#~ msgstr "Totale Attuale"
-
-#~ msgid "Mark As Completed"
-#~ msgstr "Segna Completato"
-
-#~ msgid "Reopen"
-#~ msgstr "Riapri"
-
-#~ msgid "PvE Dashboard"
-#~ msgstr "PvE Dashboard"
-
-#~ msgid "1 month"
-#~ msgstr "1 mese"
-
-#, python-format
-#~ msgid "%(setup)s setup"
-#~ msgid_plural "%(setup)s setups"
-#~ msgstr[0] "%(setup)s sistemazioni"
-#~ msgstr[1] "%(setup)s sistemazioni"
-#~ msgstr[2] "%(setup)s sistemazioni"
-
-#~ msgid "No activity in the last month"
-#~ msgstr "Nessuna attività nell'ultimo mese"
-
-#~ msgid "3 months"
-#~ msgstr "3 mesi"
-
-#~ msgid "No activity in the last 3 months"
-#~ msgstr "Nessuna attività negli ultimi 3 mesi"
-
-#~ msgid "6 months"
-#~ msgstr "6 mesi"
-
-#~ msgid "No activity in the last 6 months"
-#~ msgstr "Nessuna attività negli ultimi 6 mesi"
-
-#~ msgid "12 months"
-#~ msgstr "12 mesi"
-
-#~ msgid "No activity in the last year"
-#~ msgstr "Nessuna attività nell'ultimo anno"
-
-#~ msgid "Open Rotations"
-#~ msgstr "Rotazioni Aperte"
-
-#~ msgid "Closed Rotations"
-#~ msgstr "Rotazioni Chiuse"
-
-#~ msgid "Name"
-#~ msgstr "Nome"
-
-#~ msgid "Age (days)"
-#~ msgstr "Età (giorni)"
-
-#~ msgid "Participants"
-#~ msgstr "Partecipanti"
-
-#~ msgid "No open rotations"
-#~ msgstr "Nessuna rotazione aperta"
-
-#~ msgid "New Rotation"
-#~ msgstr "Nuova Rotazione"
-
-#~ msgid "Closed On"
-#~ msgstr "Chiusa il"
-
-#~ msgid "No closed rotations"
-#~ msgstr "Nessuna rotazione chiusa"
-
-#~ msgid "Active Projects"
-#~ msgstr "Progetti Attivi"
-
-#~ msgid "Finished Projects"
-#~ msgstr "Progetti Finiti"
-
-#~ msgid "Estimated Total (Actual)"
-#~ msgstr "Totale Stimato (Corrente)"
-
-#~ msgid "Completed (Actual)"
-#~ msgstr "Completato (Attuale)"
-
-#~ msgid "No active projects"
-#~ msgstr "Nessun progetto attivo"
-
-#~ msgid "Completed in (days)"
-#~ msgstr "Completato in (giorni)"
-
-#~ msgid "Actual total"
-#~ msgstr "Totale corrente"
-
-#~ msgid "No closed projects"
-#~ msgstr "Nessun progetto chiuso"
-
-#~ msgid "Rotation"
-#~ msgstr "Rotazione"
-
-#~ msgid "Status"
-#~ msgstr "Stato"
-
-#~ msgid "Age"
-#~ msgstr "Età"
-
-#~ msgid "Closed"
-#~ msgstr "Chiusa"
-
-#~ msgid "days"
-#~ msgstr "giorni"
-
-#~ msgid "Tax Rate"
-#~ msgstr "Frazione di Tasse"
-
-#~ msgid "Summary"
-#~ msgstr "Riepilogo"
-
-#~ msgid "Setups"
-#~ msgstr "Sistemazioni"
-
-#~ msgid "Remove Copy Color"
-#~ msgstr "Rimuovi il colore di copia"
-
-#, python-format
-#~ msgid ""
-#~ "\n"
-#~ "                                        Contributions to %(name)s\n"
-#~ "                                    "
-#~ msgstr ""
-#~ "\n"
-#~ "Contributi a %(name)s"
-
-#~ msgid "Entries"
-#~ msgstr "Entrate"
-
-#~ msgid "Date"
-#~ msgstr "Data"
-
-#~ msgid "User Count"
-#~ msgstr "Numero di Utenti"
-
-#~ msgid "Share Count"
-#~ msgstr "Numero di Quote"
-
-#~ msgid "Show Details"
-#~ msgstr "Mostra Dettagli"
-
-#~ msgid "Close Rotation"
-#~ msgstr "Chiudi la Rotazione"
-
-#~ msgid "The selected entry doesn't belong to the selected rotation"
-#~ msgstr "L'entrata selezionata non appartiene alla rotazione selezionata"
-
-#~ msgid "Entry added successfully"
-#~ msgstr "Entrata aggiunta con successo"
-
-#~ msgid "You cannot delete this entry"
-#~ msgstr "Non puoi eliminare quest'entrata"
-
-#~ msgid "Entry deleted successfully"
-#~ msgstr "Entrata eliminata con successo"
-
-#~ msgid "Rotation created successfully"
-#~ msgstr "Rotazione creata con successo"
-
-#~ msgid "Project created successfully"
-#~ msgstr "Progetto creato con successo"
+msgstr "Fabricator"
