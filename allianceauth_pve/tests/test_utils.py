@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 
 from django.utils import timezone
 
@@ -27,8 +27,8 @@ class TestRunningAverages(PveTestBase):
     def test_valid_interval(self):
         res = running_averages(
             self.testuser,
-            timezone.now() - datetime.timedelta(days=1),
-            timezone.now() + datetime.timedelta(days=1),
+            timezone.now() - dt.timedelta(days=1),
+            timezone.now() + dt.timedelta(days=1),
         )
 
         self.assertEqual(res["estimated_total"], 1_000_000_000)
@@ -38,8 +38,8 @@ class TestRunningAverages(PveTestBase):
     def test_empty_interval(self):
         res = running_averages(
             self.testuser,
-            timezone.now() - datetime.timedelta(days=2),
-            timezone.now() - datetime.timedelta(days=1),
+            timezone.now() - dt.timedelta(days=2),
+            timezone.now() - dt.timedelta(days=1),
         )
 
         self.assertDictEqual(
