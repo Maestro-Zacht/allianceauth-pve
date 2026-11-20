@@ -36,7 +36,7 @@ classifiers = [
 dynamic = [ "version" ]
 dependencies = [
     "allianceauth>=5,<6",
-    "django-eveonline-sde>=0.0.1b9,<1",
+    "django-eveonline-sde>=0.0.1,<2",
     "django-ninja~=1.4",
 ]
 urls.Changelog = "https://github.com/Maestro-Zacht/allianceauth-pve/releases"
